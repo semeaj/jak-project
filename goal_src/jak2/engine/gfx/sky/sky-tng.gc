@@ -149,8 +149,19 @@ vf31: cam 0 (premultiplied by hmge)
   (sky-make-sun-data this 0 arg0)
   (sky-make-sun-data this 1 arg0)
   (sky-make-moon-data this arg0)
-  (+! (-> this off-s) (the int (* -8.0 arg1)))
-  (+! (-> this off-t) (the int (* 2.0 arg1)))
+  ;; og:preserve-this high-fps cloud scroll fix. The original code truncated the scaled
+  ;; per-frame step ((the int (* 2.0 arg1))) which becomes 0 above 120fps, freezing the
+  ;; cloud T scroll. Accumulate fractionally and only apply the whole part.
+  (+! (-> this off-s-frac) (* -8.0 arg1))
+  (+! (-> this off-t-frac) (* 2.0 arg1))
+  (let ((si (the int (-> this off-s-frac)))
+        (ti (the int (-> this off-t-frac)))
+        )
+    (+! (-> this off-s) si)
+    (+! (-> this off-t) ti)
+    (-! (-> this off-s-frac) (the float si))
+    (-! (-> this off-t-frac) (the float ti))
+    )
   (set! (-> this time) arg0)
   0
   (none)
