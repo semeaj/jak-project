@@ -146,6 +146,7 @@ void load_and_link_dgo_from_c(const char* name,
                               bool jump_from_c_to_goal) {
   Timer timer;
   lg::debug("[Load and Link DGO From C] {}", name);
+  u32 oldShowStall = sShowStallMsg;
 
   // remember where the heap top point is so we can clear temporary allocations
   auto oldHeapTop = heap->top;
@@ -158,78 +159,58 @@ void load_and_link_dgo_from_c(const char* name,
 
   // build filename.  If no extension is given, default to CGO.
   char fileName[16];
-  kstrcpyup(fileName, name);  // FIXME: Similar decompilation to Jak 3, yet I don't understand how
-                              // it's functionally the same
+  kstrcpyup(fileName, name);
   if (fileName[strlen(fileName) - 4] != '.') {
     strcat(fileName, ".CGO");
   }
 
   // no stall messages, as this is a blocking load and when spending 100% CPU time on linking,
   // the linker can beat the DVD drive.
-  //
-  // TODO - jakx
-  // bool oldShowStall = setStallMsg_GW(false);
+  // note: the real Jak X does this via setStallMsg_GW and also checks POWERING_OFF_W to abort
+  // loads during poweroff; neither is ported yet, so this mirrors the jak3 version instead.
+  sShowStallMsg = 0;
 
-  // if (!POWERING_OFF_W) {
-  //   // start load on IOP.
-  //   BeginLoadingDGO(
-  //       fileName, buffer1, buffer2,
-  //       Ptr<u8>((heap->current + 0x3f).offset & 0xffffffc0));  // 64-byte aligned for IOP DMA
+  // start load on IOP.
+  BeginLoadingDGO(
+      fileName, buffer1, buffer2,
+      Ptr<u8>((heap->current + 0x3f).offset & 0xffffffc0));  // 64-byte aligned for IOP DMA
 
-  //  u32 lastObjectLoaded = 0;
-  //  while (!lastObjectLoaded && !POWERING_OFF_W) {
-  //    // check to see if next object is loaded (I believe it always is?)
-  //    auto dgoObj = GetNextDGO(&lastObjectLoaded);
-  //    if (!dgoObj.offset) {
-  //      continue;
-  //    }
+  u32 lastObjectLoaded = 0;
+  while (!lastObjectLoaded) {
+    // check to see if next object is loaded (I believe it always is?)
+    auto dgoObj = GetNextDGO(&lastObjectLoaded);
+    if (!dgoObj.offset) {
+      continue;
+    }
 
-  //    // if we're on the last object, it is loaded at cheap->current.  So we can safely reset the
-  //    // two dgo-buffer allocations. We do this _before_ we link! This way, the last file loaded
-  //    has
-  //    // more heap available, which is important when we need to use the entire memory.
-  //    if (lastObjectLoaded) {
-  //      heap->top = oldHeapTop;
-  //    }
+    // if we're on the last object, it is loaded at cheap->current.  So we can safely reset the two
+    // dgo-buffer allocations. We do this _before_ we link! This way, the last file loaded has more
+    // heap available, which is important when we need to use the entire memory.
+    if (lastObjectLoaded) {
+      heap->top = oldHeapTop;
+    }
 
-  //    // FIXME: possibly enable this function call
-  //    // FUN_0027cc90_patch(dgoObj, bufferSize);
+    // determine the size and name of the object we got
+    auto obj = dgoObj + 0x40;             // seek past dgo object header
+    u32 objSize = *(dgoObj.cast<u32>());  // size from object's link block
 
-  //    // determine the size and name of the object we got
-  //    auto obj = dgoObj + 0x40;             // seek past dgo object header
-  //    u32 objSize = *(dgoObj.cast<u32>());  // size from object's link block
+    char objName[64];
+    strcpy(objName, (dgoObj + 4).cast<char>().c());  // name from dgo object header
+    lg::debug("[link and exec] {:18s} {} {:6d} heap-use {:8d} {:8d}: 0x{:x}", objName,
+              lastObjectLoaded, objSize, kheapused(kglobalheap),
+              kdebugheap.offset ? kheapused(kdebugheap) : 0, kglobalheap->current.offset);
+    {
+      auto p = scoped_prof(fmt::format("link-{}", objName).c_str());
+      link_and_exec(obj, objName, objSize, heap, linkFlag, jump_from_c_to_goal);  // link now!
+    }
 
-  //    char objName[64];
-  //    strcpy(objName, (dgoObj + 4).cast<char>().c());  // name from dgo object header
-  //    lg::debug("[link and exec] {:18s} {} {:6d} heap-use {:8d} {:8d}: 0x{:x}", objName,
-  //              lastObjectLoaded, objSize, kheapused(kglobalheap),
-  //              kdebugheap.offset ? kheapused(kdebugheap) : 0, kglobalheap->current.offset);
-  //    {
-  //      auto p = scoped_prof(fmt::format("link-{}", objName).c_str());
-  //      link_and_exec(obj, objName, objSize, heap, linkFlag, jump_from_c_to_goal);  // link now!
-  //    }
-
-  //    // inform IOP we are done
-  //    if (lastObjectLoaded) {
-  //      break;
-  //    }
-  //    if (POWERING_OFF_W == false) {
-  //      ContinueLoadingDGO(buffer1, buffer2, Ptr<u8>((heap->current + 0x3f).offset & 0xffffffc0));
-  //    }
-  //  }
-  //}
-
-  // lg::info("load_and_link_dgo_from_c took {:.3f} s\n", timer.getSeconds());
-  // if (!POWERING_OFF_W) {
-  //   setStallMsg_GW(oldShowStall);
-  // } else {
-  //   KernelShutdown(3);
-  //   ShutdownMachine(3);
-  //   Msg(6, "load_and_link_dgo_from_c: cannot continue; load aborted\n");
-  //   while (true) {
-  //     ; /* WARNING: Do nothing block with infinite loop */
-  //   }
-  // }
+    // inform IOP we are done
+    if (!lastObjectLoaded) {
+      ContinueLoadingDGO(buffer1, buffer2, Ptr<u8>((heap->current + 0x3f).offset & 0xffffffc0));
+    }
+  }
+  lg::info("load_and_link_dgo_from_c took {:.3f} s\n", timer.getSeconds());
+  sShowStallMsg = oldShowStall;
 }
 
 }  // namespace jakx
