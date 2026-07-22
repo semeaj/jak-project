@@ -365,7 +365,7 @@
    (alive-list          dead-pool-heap-rec  :inline)
    (last                dead-pool-heap-rec  :overlay-at (-> alive-list prev))
    (dead-list           dead-pool-heap-rec  :inline)
-   (process-list        dead-pool-heap-rec  :dynamic)
+   (process-list        dead-pool-heap-rec  :inline :dynamic)
    )
   (:methods
     (new "Allocate and initialize a dead-pool-heap." (symbol type string int int) _type_) ;; 0

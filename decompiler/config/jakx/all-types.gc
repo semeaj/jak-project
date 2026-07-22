@@ -744,7 +744,7 @@
    (alive-list         dead-pool-heap-rec :inline  :offset-assert 96)
    (last               dead-pool-heap-rec          :offset-assert 100 :overlay-at (-> alive-list prev))
    (dead-list          dead-pool-heap-rec :inline  :offset-assert 108)
-   (process-list       dead-pool-heap-rec :dynamic :offset-assert 120) ;; guessed by decompiler
+   (process-list       dead-pool-heap-rec :inline :dynamic :offset-assert 120)
    )
   :method-count-assert 29
   :size-assert         #x78
