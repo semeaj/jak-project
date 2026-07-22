@@ -114,9 +114,13 @@ which counts CPU clock cycles directly."
   0
   )
 
-(timer-init
-  (the-as timer-bank #x10000800)
-  (new 'static 'timer-mode :clks (timer-clock-selection busclk/256) :cue #x1)
+;; og:preserve-this
+;; needs PS2 TIMER porting
+(#unless PC_PORT
+  (timer-init
+    (the-as timer-bank #x10000800)
+    (new 'static 'timer-mode :clks (timer-clock-selection busclk/256) :cue #x1)
+    )
   )
 
 (deftype sce-cd-clock (structure)
