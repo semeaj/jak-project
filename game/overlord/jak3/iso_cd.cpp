@@ -10,6 +10,7 @@
 #include "game/overlord/jak3/isocommon.h"
 #include "game/overlord/jak3/overlord.h"
 #include "game/overlord/jak3/spustreams.h"
+#include "game/runtime.h"
 #include "game/sce/iop.h"
 
 using namespace iop;
@@ -488,15 +489,17 @@ void CISOCDFileSystem::DvdDriverCallback(int) {
  * just search for files in the appropriate out folder.
  */
 void CISOCDFileSystem::ReadDirectory() {
+  // this overlord is used by both jak3 and jakx, so pick the iso folder by the running game
+  const char* game_name = game_version_names[g_game_version];
   for (const auto& f :
-       fs::directory_iterator(file_util::get_jak_project_dir() / "out" / "jak3" / "iso")) {
+       fs::directory_iterator(file_util::get_jak_project_dir() / "out" / game_name / "iso")) {
     if (f.is_regular_file()) {
       auto& e = g_FileDefs.emplace_back();
       std::string file_name = f.path().filename().string();
       ASSERT(file_name.length() < 16);  // should be 8.3.
       MakeISOName(&e.name, file_name.c_str());
-      e.full_path =
-          fmt::format("{}/out/jak3/iso/{}", file_util::get_jak_project_dir().string(), file_name);
+      e.full_path = fmt::format("{}/out/{}/iso/{}", file_util::get_jak_project_dir().string(),
+                                game_name, file_name);
     }
   }
 }
