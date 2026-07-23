@@ -691,6 +691,39 @@
 ;; WARN: Return type mismatch int vs none.
 ;; ERROR: Failed store: (s.q! a1-3 a0-4) at op 14
 ;; NOTE: decomp failed on this function (raw-op output); commented out until re-decompiled
+;; og:preserve-this hand-ported from jak3 (bodies are instruction-identical): the raw
+;; s.q! stores to #x70000000 degrade the decomp; on PC the scratchpad lives at
+;; (scratchpad-start), matching jak3's port.
+(defun sp-process-particle-system ((arg0 sparticle-system) (arg1 int) (arg2 sprite-array-2d))
+  (countdown (v1-0 22)
+    (let ((a0-4 (-> *display* clock v1-0 sparticle-data quad)))
+      (set! (-> (the-as vector (+ (the int (scratchpad-start)) (* v1-0 16))) quad) a0-4)
+      )
+    )
+  (let* ((v1-3 352)
+         (s1-0 (/ (- #x4000 v1-3) 272))
+         (s2-0 0)
+         (s3-0 (sp-get-approx-alloc-size arg0 arg1))
+         )
+    (if (= arg1 1)
+        (set! s2-0 (* (-> arg0 blocks 0) 64))
+        )
+    (set! (-> arg2 num-valid arg1) s3-0)
+    (flush-cache 0)
+    (while (>= s3-0 s1-0)
+      (sp-process-block arg0 s2-0 arg2 s1-0)
+      (set! s3-0 (- s3-0 s1-0))
+      (+! s2-0 s1-0)
+      )
+    (if (> s3-0 0)
+        (sp-process-block arg0 s2-0 arg2 s3-0)
+        )
+    )
+  0
+  (none)
+  )
+
+;; original degraded decomp:
 ;; (defun sp-process-particle-system ((arg0 sparticle-system) (arg1 int) (arg2 sprite-array-2d))
 ;;   (countdown (v1-0 22)
 ;;     (let ((a0-4 (-> *display* clock v1-0 sparticle-data quad))
@@ -1187,14 +1220,9 @@
           )
         )
       (clear-sprite-aux-list)
-      ;; og:preserve-this runtime-link guards: sp-process-particle-system's decomp failed
-      ;; (raw scratchpad stores) and stays commented above until it gets the jak3-style
-      ;; PC port; skipping it just leaves particles unprocessed
-      (when (nonzero? sp-process-particle-system)
-        (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
-        (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
-        (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
-        )
+      (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
+      (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
+      (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
       (when *debug-segment*
         (let ((s5-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
           (when (and *dproc* *debug-segment*)
