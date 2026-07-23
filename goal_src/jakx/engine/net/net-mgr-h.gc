@@ -7,3 +7,6 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up: pause-callback anon functions in main.o read *net-mgr*
+;; repeatedly; an undefined symbol reads 0 = truthy = deref crash. #f until net-mgr lands.
+(define *net-mgr* #f)

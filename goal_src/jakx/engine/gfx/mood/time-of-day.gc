@@ -7,3 +7,8 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: called once at display-loop init; real port available
+;; in time-of-day_disasm.gc when moods land.
+(defun init-time-of-day-context ((arg0 time-of-day-context))
+  #f
+  )

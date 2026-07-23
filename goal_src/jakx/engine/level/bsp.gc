@@ -157,3 +157,10 @@
   (none)
   )
 
+;; og:preserve-this bring-up no-op: the real bsp-header birth (entity.o home, jak3
+;; entity.gc equivalent) births the level's actors; entity/actor systems are phase-2
+;; and an FMV level has none to birth.
+(defmethod birth ((this bsp-header))
+  0
+  (none)
+  )

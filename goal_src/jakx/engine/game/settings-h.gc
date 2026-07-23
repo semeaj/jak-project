@@ -495,7 +495,7 @@
     (setting-control-method-21 () none) ;; 21
     (setting-control-method-22 () none) ;; 22
     (setting-control-method-23 () none) ;; 23
-    (setting-control-method-24 () none) ;; 24
+    (setting-control-method-24 (_type_) none) ;; 24 ;; called by display-loop init
     )
   )
 

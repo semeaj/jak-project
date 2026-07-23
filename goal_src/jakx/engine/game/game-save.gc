@@ -7,3 +7,7 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: last call of every display-loop-main frame.
+(defun auto-save-check ()
+  0
+  )

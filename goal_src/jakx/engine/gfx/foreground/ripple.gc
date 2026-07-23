@@ -7,3 +7,7 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: called unconditionally per frame by display-loop-main.
+(defun ripple-execute ()
+  0
+  )

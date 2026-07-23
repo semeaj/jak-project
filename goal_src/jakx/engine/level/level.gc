@@ -2049,7 +2049,14 @@
            (set! (-> this status) 'alive)
            (do-nothing *level*)
            (set! (-> this render?) #t)
-           ((method-of-object *game-info* game-info-method-15))
+           ;; og:preserve-this guarded dynamic call: game-info methods are not landed
+           ;; (empty slot would jump to 0); the original also passes *game-info* (the
+           ;; decomp dropped the arg).
+           (let ((m15 (method-of-object *game-info* game-info-method-15)))
+             (if (nonzero? (the-as int m15))
+                 ((the-as (function game-info none) m15) *game-info*)
+                 )
+             )
            (dotimes (s0-0 2)
              (let ((sv-112 (new 'stack-no-clear 'event-message-block)))
                (set! (-> sv-112 from) (process->ppointer pp))
@@ -5771,6 +5778,11 @@
   (kmemclose)
   )
 
-
-
-
+;; og:preserve-this bring-up no-op: level-update (method 19) drives level transitions
+;; per frame; the jakx body fails expression conversion. The boot level is already
+;; 'loaded when the loop starts, so a no-op holds until the real port (hand-port from
+;; jak3 level-update planned).
+(defmethod level-update ((this level-group))
+  0
+  (none)
+  )

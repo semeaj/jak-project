@@ -11,3 +11,11 @@
 ;; *setting-control* with a custom new; a zeroed default-new instance is enough for the
 ;; bring-up (play only writes user-default fields).
 (define-perm *setting-control* setting-control (new 'global 'setting-control 0))
+
+;; og:preserve-this bring-up stub: display-loop init calls method 24 (the per-frame
+;; settings maintenance entry in jakx); no-op until the real settings.o methods land
+;; (the whole object decompiles as one degraded top-level).
+(defmethod setting-control-method-24 ((this setting-control))
+  0
+  (none)
+  )

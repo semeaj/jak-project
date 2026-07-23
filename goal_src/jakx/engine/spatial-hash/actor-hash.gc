@@ -7,3 +7,7 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: called once at display-loop init.
+(defun update-actor-hash ()
+  0
+  )

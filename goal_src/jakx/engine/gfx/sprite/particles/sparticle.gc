@@ -1187,9 +1187,14 @@
           )
         )
       (clear-sprite-aux-list)
-      (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
-      (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
-      (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
+      ;; og:preserve-this runtime-link guards: sp-process-particle-system's decomp failed
+      ;; (raw scratchpad stores) and stays commented above until it gets the jak3-style
+      ;; PC port; skipping it just leaves particles unprocessed
+      (when (nonzero? sp-process-particle-system)
+        (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
+        (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
+        (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
+        )
       (when *debug-segment*
         (let ((s5-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
           (when (and *dproc* *debug-segment*)
