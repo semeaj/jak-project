@@ -8329,7 +8329,7 @@
     (level-method-23 () none) ;; 23 ;; (lookup-text (_type_ text-id symbol) string)
     (level-method-24 () none) ;; 24 ;; (level-method-24 () none)
     (level-method-25 () none) ;; 25 ;; (birth (_type_) _type_)
-    (level-method-26 () none) ;; 26 ;; (level-status-update! (_type_ symbol) _type_)
+    (level-status-update! (_type_ symbol) _type_) ;; 26
     (level-method-27 () none) ;; 27 ;; (load-common-package (_type_) none)
     (level-method-28 () none) ;; 28 ;; (init-vis-from-bsp (_type_) none)
     (level-method-29 () none) ;; 29 ;; (vis-clear (_type_) none)
@@ -8400,10 +8400,10 @@
   :size-assert         #x6d04
   :flag-assert         #x2200006d04
   (:methods
-    (level-group-method-9 () none) ;; 9 ;; (level-get (_type_ symbol) level)
+    (level-get (_type_ symbol) level) ;; 9
     (level-group-method-10 () none) ;; 10 ;; (level-get-with-status (_type_ symbol) level)
     (level-group-method-11 () none) ;; 11 ;; (get-level-by-heap-ptr-and-status (_type_ pointer symbol) level)
-    (level-group-method-12 () none) ;; 12 ;; (level-get-for-use (_type_ symbol symbol) level)
+    (level-get-for-use (_type_ symbol symbol int) level) ;; 12 ;; jakx adds an int arg vs jak3
     (level-group-method-13 () none) ;; 13 ;; (activate-levels! (_type_) int)
     (level-group-method-14 () none) ;; 14 ;; (debug-print-entities (_type_ symbol type string) none)
     (level-group-method-15 () none) ;; 15 ;; (debug-draw-actors (_type_ symbol) none)
@@ -40833,7 +40833,7 @@
 ;; (define-extern target-init function) ;; (function continue-point none :behavior target)
 ;; (define-extern start-2 function)
 ;; (define-extern start-1 function)
-;; (define-extern stop function) ;; (function symbol int)
+(define-extern stop (function symbol int))
 ;; (define-extern start function) ;; (function symbol continue-point target)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -41540,7 +41540,7 @@
 
 ;; (define-extern set-letterbox-frames function) ;; (function time-frame none)
 ;; (define-extern letterbox function) ;; (function bucket-id float none)
-;; (define-extern set-blackout-frames function) ;; (function time-frame none)
+(define-extern set-blackout-frames (function time-frame none))
 ;; (define-extern blackout function) ;; (function bucket-id none)
 ;; (define-extern add-blackout function) ;; (function time-frame int int int int int)
 (define-extern paused? (function symbol)) ;; 
@@ -41565,7 +41565,7 @@
 ;; (define-extern disc-error-proc-init-by-other function)
 ;; (define-extern display-loop-main function) ;; (function display none)
 ;; (define-extern display-loop function) ;; (function int :behavior process)
-;; (define-extern on function) ;; (function symbol process)
+(define-extern on (function symbol process))
 ;; (define-extern off function) ;; (function none)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

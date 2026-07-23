@@ -1,4 +1,8 @@
 {
+  "play": [
+    [16, "event-message-block"],
+    [96, ["array", "symbol", 10]]
+  ],
   "quaternion-smooth-seek!": [[16, ["inline-array", "quaternion", 2]]],
   "rotate-vector-to-vector": [[16, "quaternion"]],
   "nearest-dist2-between-moving-points": [[16, ["inline-array", "vector", 2]]],
