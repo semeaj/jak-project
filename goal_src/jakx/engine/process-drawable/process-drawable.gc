@@ -41,3 +41,45 @@
 
 ;; DECOMP BEGINS
 
+
+;; DECOMP BEGINS
+
+;; og:preserve-this partial landing: the two engine walkers run every frame from
+;; display-loop-main. Hand-written from process-drawable_ir2.asm (the handle-deref
+;; pattern degrades their decomp to raw ops); the shape matches jak3 exactly, with
+;; jakx reading node-list/draw/skel at 192/196/200. The rest of process-drawable.o
+;; stays pending.
+
+(defun execute-math-engine ()
+  ;; og:preserve-this the do-joint-math body (joint.o home) is not landed yet, so the
+  ;; draw-control method slot links as 0. *matrix-engine* stays empty until
+  ;; process-drawables register, which cannot happen before joint.o lands, so the
+  ;; dispatch is unreachable until then.
+  (let ((gp-0 *matrix-engine*))
+    (let ((s5-0 (-> gp-0 length)))
+      (dotimes (s4-0 s5-0)
+        (let ((v1-3 (handle->process (-> gp-0 s4-0))))
+          (if v1-3
+              (do-joint-math
+                (-> (the-as process-drawable v1-3) draw)
+                (-> (the-as process-drawable v1-3) node-list)
+                (-> (the-as process-drawable v1-3) skel)
+                )
+              )
+          )
+        )
+      )
+    (set! (-> gp-0 length) 0)
+    )
+  0
+  0
+  )
+
+;; og:preserve-this bring-up stub: the real body walks each registered process's
+;; draw cloth-instances calling update! (cloth-system method 9), but cloth-system is
+;; only declare-typed until cloth-h lands. *cloth-engine* stays empty headless.
+(defun execute-cloth-engine ()
+  (set! (-> *cloth-engine* length) 0)
+  0
+  0
+  )
