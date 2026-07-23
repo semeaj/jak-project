@@ -661,6 +661,25 @@ Form* LoadVarOp::get_load_src(FormPool& pool, const Env& env) const {
         }
       }
 
+      if (env.version == GameVersion::JakX && m_kind == Kind::SIGNED && m_size == 4 &&
+          ro.offset == -1 &&
+          (env.dts->ts.tc(TypeSpec("symbol"), input_type.typespec()) ||
+           (env.allow_sloppy_pair_typing() && (input_type.typespec() == TypeSpec("object") ||
+                                               input_type.typespec() == TypeSpec("pair"))))) {
+        // JakX symbol references are tagged +1, so the original code reads a symbol's value
+        // with a -1 offset. Emit (-> sym value); the compiler generates the correct
+        // PC-runtime access (offset 0) from that. Objects (usually the car of a symbol list)
+        // get a cast.
+        Form* source = pool.alloc_single_element_form<SimpleExpressionElement>(
+            nullptr, SimpleAtom::make_var(ro.var).as_expr(), m_my_idx);
+        if (!env.dts->ts.tc(TypeSpec("symbol"), input_type.typespec())) {
+          source = pool.alloc_single_element_form<CastElement>(nullptr, TypeSpec("symbol"), source);
+        }
+        std::vector<DerefToken> tokens;
+        tokens.push_back(DerefToken::make_field_name("value"));
+        return pool.alloc_single_element_form<DerefElement>(nullptr, source, false, tokens);
+      }
+
       // Assume we're accessing a field of an object.
       FieldReverseLookupInput rd_in;
       DerefKind dk;
