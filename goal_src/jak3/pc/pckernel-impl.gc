@@ -151,6 +151,7 @@
 ;; duststorm fixes helper
 (deftype desert-dust-storm-helper (structure)
   ((sparticle-time    time-frame)
+   (launch-burst?     symbol)
    )
   )
 
