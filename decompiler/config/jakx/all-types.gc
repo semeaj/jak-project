@@ -33298,14 +33298,14 @@
   )
 |#
 
-(define-extern *entity-more-perm* object)
+(define-extern *entity-more-perm* object) ;; TODO verify, no live consumers yet
 (define-extern *level-type-list* type)
 (declare-type gui-control basic)
 (declare-type process-nettable process)
 (declare-type net-world process-nettable)
 (define-extern *art-control* external-art-control)
-(define-extern *cached-car-level-index* object)
-(define-extern *cached-dgo* object)
+(define-extern *cached-car-level-index* int)
+(define-extern *cached-dgo* (array dgo-header))
 (define-extern *car-level-array* car-level-array)
 (define-extern *cheat-mode* symbol)
 (define-extern *default-car-texture-anim-array* texture-anim-array)
@@ -33317,12 +33317,12 @@
 (define-extern *login-state* login-state)
 (define-extern *net-world* net-world)
 (define-extern *print-login* symbol)
-(define-extern *sound-bank-string* array)
+(define-extern *sound-bank-string* (array string))
 (define-extern *speech-control* speech-control)
 (define-extern *time-of-day* (pointer time-of-day-proc))
 (define-extern play-boot (function none))
 (define-extern play (function symbol symbol int))
-(define-extern play2 (function symbol symbol object object object none))
+(define-extern play2 (function symbol symbol int))
 (define-extern bg (function symbol none))
 (define-extern add-bsp-drawable (function bsp-header level symbol display-frame none))
 (define-extern level-find-borrow-slot (function level level-memory-mode none))
@@ -33333,7 +33333,7 @@
 (define-extern remap-level-name (function level-load-info symbol))
 (define-extern show-level (function symbol none))
 (define-extern sound-bank-name->mode (function symbol sound-bank-mode))
-(define-extern target-get-any-pos (function none))
+(define-extern target-get-any-pos (function none)) ;; TODO verify, result unused at current call sites
 (define-extern texture-page-default-allocate (function texture-pool texture-page kheap int texture-page))
 (define-extern update-sound-banks (function load-state (inline-array sound-bank-state) none))
 (define-extern view-get-active-index (function int))
@@ -38629,14 +38629,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extern *max-dma* int)
-;; (define-extern *cached-car-level-index* object)
+;; (define-extern *cached-car-level-index* int)
 ;; (define-extern level-memory-mode->string function) ;; (function level-memory-mode string)
 ;; (define-extern lookup-level-info function) ;; (function symbol level-load-info)
 ;; (define-extern remap-level-name function) ;; (function level-load-info symbol)
 ;; (define-extern add-bsp-drawable function) ;; (function bsp-header level symbol display-frame none)
 ;; (define-extern *login-state* object) ;; login-state
 ;; (define-extern *print-login* object) ;; symbol
-;; (define-extern *cached-dgo* object)
+;; (define-extern *cached-dgo* (array dgo-header))
 (define-extern *cached-dgo-count* int)
 ;; (define-extern load-buffer-resize function) ;; (function level dgo-header none)
 ;; (define-extern level-find-borrow-slot function) ;; (function level level-memory-mode none)
@@ -38646,7 +38646,7 @@
 ;; (define-extern play2 function)
 ;; (define-extern play-boot function) ;; (function none)
 ;; (define-extern sound-bank-name->mode function) ;; (function symbol sound-bank-mode)
-;; (define-extern *sound-bank-string* array)
+;; (define-extern *sound-bank-string* (array string))
 ;; (define-extern update-sound-banks function) ;; (function load-state (inline-array sound-bank-state) none)
 ;; (define-extern show-level function) ;; (function symbol none)
 ;; (define-extern *default-level* object) ;; level

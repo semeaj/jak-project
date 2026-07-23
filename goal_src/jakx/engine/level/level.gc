@@ -18,7 +18,7 @@
 ;; function externs (some functions below are commented out where decomp failed)
 (define-extern play-boot (function none))
 (define-extern play (function symbol symbol int))
-(define-extern play2 (function symbol symbol object object object none))
+(define-extern play2 (function symbol symbol int))
 (define-extern bg (function symbol none))
 (define-extern add-bsp-drawable (function bsp-header level symbol display-frame none))
 (define-extern level-find-borrow-slot (function level level-memory-mode none))
