@@ -100,7 +100,9 @@
               (the-as sprite-vec-data-2d (&+ (-> gp-0 vecdata-table) (* 48 s4-1)))
               )
         (set! (-> gp-0 cpuinfo-table s4-1 adgif) (-> gp-0 adgifdata-table s4-1))
-        (adgif-shader<-texture-simple! (-> gp-0 adgifdata-table s4-1) (the-as texture #f))
+        ;; NOTE: texture.gc is not yet decompiled, so adgif-shader<-texture-simple! does not exist;
+        ;; skip seeding the shaders until then (rendering-only concern).
+        ;; (adgif-shader<-texture-simple! (-> gp-0 adgifdata-table s4-1) (the-as texture #f))
         (set! (-> gp-0 adgifdata-table s4-1 alpha) (new 'static 'gs-miptbp :tbp1 #x48))
         )
       )
@@ -111,20 +113,15 @@
 ;; failed to figure out what this is:
 (kmemopen global "part-systems")
 
-;; NOTE: sprite.gc is not yet decompiled, so *sprite-array-2d*/*sprite-array-3d* do not exist at
-;; boot; define the systems as #f placeholders until then, original defines below.
-(define *sp-particle-system-2d* (the-as sparticle-system #f))
-(define *sp-particle-system-3d* (the-as sparticle-system #f))
-
 ;; definition for symbol *sp-particle-system-2d*, type sparticle-system
-;; (define *sp-particle-system-2d*
-;;   (new 'global 'sparticle-system 1920 128 #f (-> *sprite-array-2d* vec-data) (-> *sprite-array-2d* adgif-data))
-;;   )
+(define *sp-particle-system-2d*
+  (new 'global 'sparticle-system 1920 128 #f (-> *sprite-array-2d* vec-data) (-> *sprite-array-2d* adgif-data))
+  )
 
 ;; definition for symbol *sp-particle-system-3d*, type sparticle-system
-;; (define *sp-particle-system-3d*
-;;   (new 'global 'sparticle-system 384 0 #t (-> *sprite-array-3d* vec-data) (-> *sprite-array-3d* adgif-data))
-;;   )
+(define *sp-particle-system-3d*
+  (new 'global 'sparticle-system 384 0 #t (-> *sprite-array-3d* vec-data) (-> *sprite-array-3d* adgif-data))
+  )
 
 ;; failed to figure out what this is:
 (kmemclose)
@@ -1132,95 +1129,94 @@
 ;; WARN: Return type mismatch int vs none.
 ;; ERROR: Unsupported inline assembly instruction kind - [mfc0 gp, Count]
 ;; ERROR: Unsupported inline assembly instruction kind - [mfc0 v1, Count]
-;; NOTE: references sprite.gc globals that are not yet decompiled; commented out until sprite.gc is done
-;; (defun process-particles ()
-;;   (local-vars (v1-54 int) (gp-0 int))
-;;   (with-pp
-;;     (when *particles-flag*
-;;       0
-;;       0
-;;       (.mfc0 gp-0 Count)
-;;       (set! *sp-launcher-lock* #t)
-;;       (when *debug-segment*
-;;         'particle
-;;         (let ((s5-0 (-> *display* frames (-> *display* on-screen) profile-array data 0))
-;;               (v1-13 'particle)
-;;               (s4-0 *profile-particle-color*)
-;;               )
-;;           (when (and *dproc* *debug-segment*)
-;;             (let ((s3-0 (-> s5-0 data (-> s5-0 count))))
-;;               (let ((s2-0 (-> s5-0 base-time)))
-;;                 (set! (-> s3-0 name) v1-13)
-;;                 (set! (-> s3-0 start-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s2-0))))
-;;                 )
-;;               (set! (-> s3-0 depth) (the-as uint (-> s5-0 depth)))
-;;               (set! (-> s3-0 color) s4-0)
-;;               (set! (-> s5-0 segment (-> s5-0 depth)) s3-0)
-;;               )
-;;             (set! (-> s5-0 count) (min 2099 (+ (-> s5-0 count) 1)))
-;;             (+! (-> s5-0 depth) 1)
-;;             (set! (-> s5-0 max-depth) (max (-> s5-0 max-depth) (-> s5-0 depth)))
-;;             )
-;;           )
-;;         0
-;;         )
-;;       (logand (the-as int (-> pp clock sparticle-data x)) 255)
-;;       (cond
-;;         (*sp-60-hz*
-;;           (when (= (-> *setting-control* user-current video-mode) 'pal)
-;;             (set! *sp-60-hz* #f)
-;;             (all-particles-60-to-50)
-;;             )
-;;           )
-;;         (else
-;;           (when (= (-> *setting-control* user-current video-mode) 'ntsc)
-;;             (set! *sp-60-hz* #t)
-;;             (all-particles-50-to-60)
-;;             )
-;;           )
-;;         )
-;;       (clear-sprite-aux-list)
-;;       (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
-;;       (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
-;;       (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
-;;       (when *debug-segment*
-;;         (let ((s5-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
-;;           (when (and *dproc* *debug-segment*)
-;;             (let* ((v1-48 (+ (-> s5-1 depth) -1))
-;;                    (s4-1 (-> s5-1 segment v1-48))
-;;                    (s3-1 (-> s5-1 base-time))
-;;                    )
-;;               (when (>= v1-48 0)
-;;                 (set! (-> s4-1 end-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s3-1))))
-;;                 (+! (-> s5-1 depth) -1)
-;;                 )
-;;               )
-;;             )
-;;           )
-;;         0
-;;         )
-;;       (set! *sp-launcher-lock* #f)
-;;       (sp-clear-queue)
-;;       (.mfc0 v1-54 Count)
-;;       (- v1-54 gp-0)
-;;       (when *display-sprite-info*
-;;         (if (movie?)
-;;             (format *stdcon* "~%~%~%")
-;;             )
-;;         (format
-;;           *stdcon*
-;;           "2d: ~4d~100h3d: ~4d~200hwarp/glow: ~3D~350hhud:~3D~%"
-;;           (-> *sp-particle-system-2d* num-alloc 0)
-;;           (-> *sp-particle-system-3d* num-alloc 0)
-;;           (-> *sprite-aux-list* entry)
-;;           (-> *sp-particle-system-2d* num-alloc 1)
-;;           )
-;;         )
-;;       )
-;;     0
-;;     (none)
-;;     )
-;;   )
+(defun process-particles ()
+  (local-vars (v1-54 int) (gp-0 int))
+  (with-pp
+    (when *particles-flag*
+      0
+      0
+      (.mfc0 gp-0 Count)
+      (set! *sp-launcher-lock* #t)
+      (when *debug-segment*
+        'particle
+        (let ((s5-0 (-> *display* frames (-> *display* on-screen) profile-array data 0))
+              (v1-13 'particle)
+              (s4-0 *profile-particle-color*)
+              )
+          (when (and *dproc* *debug-segment*)
+            (let ((s3-0 (-> s5-0 data (-> s5-0 count))))
+              (let ((s2-0 (-> s5-0 base-time)))
+                (set! (-> s3-0 name) v1-13)
+                (set! (-> s3-0 start-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s2-0))))
+                )
+              (set! (-> s3-0 depth) (the-as uint (-> s5-0 depth)))
+              (set! (-> s3-0 color) s4-0)
+              (set! (-> s5-0 segment (-> s5-0 depth)) s3-0)
+              )
+            (set! (-> s5-0 count) (min 2099 (+ (-> s5-0 count) 1)))
+            (+! (-> s5-0 depth) 1)
+            (set! (-> s5-0 max-depth) (max (-> s5-0 max-depth) (-> s5-0 depth)))
+            )
+          )
+        0
+        )
+      (logand (the-as int (-> pp clock sparticle-data x)) 255)
+      (cond
+        (*sp-60-hz*
+          (when (= (-> *setting-control* user-current video-mode) 'pal)
+            (set! *sp-60-hz* #f)
+            (all-particles-60-to-50)
+            )
+          )
+        (else
+          (when (= (-> *setting-control* user-current video-mode) 'ntsc)
+            (set! *sp-60-hz* #t)
+            (all-particles-50-to-60)
+            )
+          )
+        )
+      (clear-sprite-aux-list)
+      (sp-process-particle-system *sp-particle-system-2d* 0 *sprite-array-2d*)
+      (sp-process-particle-system *sp-particle-system-2d* 1 *sprite-array-2d*)
+      (sp-process-particle-system *sp-particle-system-3d* 0 (the-as sprite-array-2d *sprite-array-3d*))
+      (when *debug-segment*
+        (let ((s5-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
+          (when (and *dproc* *debug-segment*)
+            (let* ((v1-48 (+ (-> s5-1 depth) -1))
+                   (s4-1 (-> s5-1 segment v1-48))
+                   (s3-1 (-> s5-1 base-time))
+                   )
+              (when (>= v1-48 0)
+                (set! (-> s4-1 end-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s3-1))))
+                (+! (-> s5-1 depth) -1)
+                )
+              )
+            )
+          )
+        0
+        )
+      (set! *sp-launcher-lock* #f)
+      (sp-clear-queue)
+      (.mfc0 v1-54 Count)
+      (- v1-54 gp-0)
+      (when *display-sprite-info*
+        (if (movie?)
+            (format *stdcon* "~%~%~%")
+            )
+        (format
+          *stdcon*
+          "2d: ~4d~100h3d: ~4d~200hwarp/glow: ~3D~350hhud:~3D~%"
+          (-> *sp-particle-system-2d* num-alloc 0)
+          (-> *sp-particle-system-3d* num-alloc 0)
+          (-> *sprite-aux-list* entry)
+          (-> *sp-particle-system-2d* num-alloc 1)
+          )
+        )
+      )
+    0
+    (none)
+    )
+  )
 
 ;; definition for function spt-func-on-omega-height-die
 ;; WARN: Return type mismatch symbol vs none.
