@@ -9,7 +9,8 @@
 #include "common/versions/versions.h"
 
 constexpr PerGameVersion<int> DGO_RPC_ID(0xdeb4, 0xfab3, 0xfab3, 0xfab3);
-constexpr int DGO_RPC_CHANNEL = 3;
+// Jak X shifts all EE RPC ports up by one (see player_rpc_types.h).
+constexpr PerGameVersion<int> DGO_RPC_CHANNEL(3, 3, 3, 4);
 constexpr int DGO_RPC_LOAD_FNO = 0;
 constexpr int DGO_RPC_LOAD_NEXT_FNO = 1;
 constexpr int DGO_RPC_CANCEL_FNO = 2;

@@ -40,7 +40,7 @@ void BeginLoadingDGO(const char* name, Ptr<u8> buffer1, Ptr<u8> buffer2, Ptr<u8>
   u8 msgID = sMsgNum;
   RPC_Dgo_Cmd* mess = sMsg + sMsgNum;
   sMsgNum = sMsgNum ^ 1;     // toggle message buffer.
-  RpcSync(DGO_RPC_CHANNEL);  // make sure old RPC is finished
+  RpcSync(DGO_RPC_CHANNEL[GameVersion::JakX]);  // make sure old RPC is finished
 
   // put a dummy value here just to make sure the IOP overwrites it.
   sMsg[msgID].status = DGO_RPC_RESULT_INIT;  // !! this is 666
@@ -63,7 +63,7 @@ void BeginLoadingDGO(const char* name, Ptr<u8> buffer1, Ptr<u8> buffer2, Ptr<u8>
             buffer2.offset, currentHeap.offset);
   // this RPC will return once we have loaded the first object file.
   // but we call async, so we don't block here.
-  RpcCall(DGO_RPC_CHANNEL, DGO_RPC_LOAD_FNO, true, mess, sizeof(RPC_Dgo_Cmd), mess,
+  RpcCall(DGO_RPC_CHANNEL[GameVersion::JakX], DGO_RPC_LOAD_FNO, true, mess, sizeof(RPC_Dgo_Cmd), mess,
           sizeof(RPC_Dgo_Cmd));
   sLastMsg = mess;
 }
@@ -78,7 +78,7 @@ void BeginLoadingDGO(const char* name, Ptr<u8> buffer1, Ptr<u8> buffer2, Ptr<u8>
 Ptr<u8> GetNextDGO(u32* lastObjectFlag) {
   *lastObjectFlag = 1;
   // Wait for RPC function to respond. This will happen once the first object file is loaded.
-  RpcSync(DGO_RPC_CHANNEL);
+  RpcSync(DGO_RPC_CHANNEL[GameVersion::JakX]);
   Ptr<u8> buffer(0);
   if (sLastMsg) {
     // if we got a good result, get pointer to object
@@ -120,7 +120,7 @@ void ContinueLoadingDGO(Ptr<u8> b1, Ptr<u8> b2, Ptr<u8> heapPtr) {
   sMsg[msgID].buffer2 = b2.offset;
   sendBuff->buffer_heap_top = heapPtr.offset;
   // the IOP will wait for this RpcCall to continue the DGO state machine.
-  RpcCall(DGO_RPC_CHANNEL, DGO_RPC_LOAD_NEXT_FNO, true, sendBuff, sizeof(jakx::RPC_Dgo_Cmd),
+  RpcCall(DGO_RPC_CHANNEL[GameVersion::JakX], DGO_RPC_LOAD_NEXT_FNO, true, sendBuff, sizeof(jakx::RPC_Dgo_Cmd),
           sendBuff, sizeof(jakx::RPC_Dgo_Cmd));
   // this async RPC call will complete when the next object is fully loaded.
   sLastMsg = sendBuff;
