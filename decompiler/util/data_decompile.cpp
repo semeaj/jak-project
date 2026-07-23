@@ -1070,6 +1070,8 @@ const std::unordered_map<
          }},
         {GameVersion::JakX,
          {
+             {"continue-point",
+              {{"want", ArrayFieldDecompMeta(TypeSpec("level-buffer-state-small"), 8)}}},
              {"lightning-probe-vars",
               {{"probe-dirs", ArrayFieldDecompMeta(TypeSpec("vector"), 16)}}},
              {"sparticle-launcher",

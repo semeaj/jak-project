@@ -2177,6 +2177,17 @@ bool load_var_op_determine_type(types2::Type& type_out,
       }
     }
 
+    // JakX: symbol references are tagged +1, so a signed word load at -1 from a symbol is a
+    // read of the symbol's value.
+    if (env.version == GameVersion::JakX && op.kind() == LoadVarOp::Kind::SIGNED &&
+        op.size() == 4 && ro.offset == -1 &&
+        (tc(dts, TypeSpec("symbol"), input_type) ||
+         (env.allow_sloppy_pair_typing() && (input_type.typespec() == TypeSpec("object") ||
+                                             input_type.typespec() == TypeSpec("pair"))))) {
+      type_out.type = TP_Type::make_from_ts(TypeSpec("object"));
+      return true;
+    }
+
     // rd failed, try as pair.
     if (env.allow_sloppy_pair_typing()) {
       // we are strict here - only permit pair-type loads from object or pair.
