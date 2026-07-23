@@ -100,5 +100,12 @@
   ],
   "ptest": [[16, "vector"]],
   "check-drop-level-rain": [[16, "vector"]],
-  "spt-func-rocket": [[16, "vector"]]
+  "spt-func-rocket": [[16, "vector"]],
+  "string->sound-name": [[16, ["array", "sound-name", 1]]],
+  "sound-name->string": [[16, ["array", "uint8", 16]]],
+  "doppler-pitch-shift": [[16, ["inline-array", "vector", 2]]],
+  "(anon-function 5 gsound)": [
+    [16, ["array", "symbol", 4]],
+    [32, ["array", "symbol", 4]]
+  ]
 }

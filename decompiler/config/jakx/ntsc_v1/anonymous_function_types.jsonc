@@ -3,5 +3,9 @@
   "level": [
     [8, "(function none)"],
     [28, "(function level-group int symbol)"]
+  ],
+  "gsound": [
+    [3, "(function object)"],
+    [5, "(function none)"]
   ]
 }

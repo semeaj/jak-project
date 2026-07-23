@@ -1,5 +1,8 @@
 {
-  "level": [["L981", "uint64", true]],
+  "level": [
+    ["L981", "uint64", true],
+    ["L983", "uint64", true]
+  ],
   "ambient-h": [["L1", "(inline-array talker-speech-class)", 233]],
   "pat-h": [["L1", "(inline-array pat-mode-info)", 4]],
   "foreground-h": [["L4", "(pointer bucket-id-16)", 462]],
@@ -43,5 +46,9 @@
     ["L4", "(pointer uint8)", 160],
     ["L3", "(pointer int8)", 4]
   ],
-  "kras-part": [["L137", "(pointer rgba)", 8]]
+  "kras-part": [["L137", "(pointer rgba)", 8]],
+  "gsound": [
+    ["L356", "(array symbol)", true],
+    ["L383", "(array array)", true]
+  ]
 }

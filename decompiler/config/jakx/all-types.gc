@@ -3230,14 +3230,14 @@
   :flag-assert         #x1100000068
   (:methods
     (new "Set up ambient-sound. Can use an entity-actor (grabs from lump), sound-spec, or name as a string." (symbol type basic vector float) _type_) ;; 0
-    (ambient-sound-method-9 () none) ;; 9 ;; (update! (_type_) int)
-    (ambient-sound-method-10 () none) ;; 10 ;; (change-sound! (_type_ sound-name) int)
-    (ambient-sound-method-11 () none) ;; 11 ;; (update-trans! (_type_ vector) int)
-    (ambient-sound-method-12 () none) ;; 12 ;; (update-vol! (_type_ float) int)
-    (ambient-sound-method-13 () none) ;; 13 ;; (update-pitch-mod! (_type_ float) none)
-    (ambient-sound-method-14 () none) ;; 14 ;; (set-falloff-far! (_type_ float) none)
-    (ambient-sound-method-15 () none) ;; 15 ;; (set-falloff-mode! (_type_ int) none)
-    (ambient-sound-method-16 () none) ;; 16 ;; (stop! (_type_) int)
+    (update! (_type_) int) ;; 9
+    (change-sound! (_type_ sound-name) int) ;; 10
+    (update-trans! (_type_ vector) int) ;; 11
+    (update-vol! (_type_ float) int) ;; 12
+    (update-pitch-mod! (_type_ float) none) ;; 13
+    (set-falloff-far! (_type_ float) none) ;; 14
+    (set-falloff-mode! (_type_ int) none) ;; 15
+    (stop! (_type_) int) ;; 16
     )
   )
 
@@ -6661,25 +6661,25 @@
   :flag-assert         #x1c000002d0
   (:methods
     (new (symbol type) _type_) ;; 0 ;; (new (symbol type) _type_)
-    (texture-pool-method-9 () none) ;; 9 ;; (initialize! (_type_) _type_)
-    (texture-pool-method-10 () none) ;; 10 ;; (print-usage (_type_) _type_)
-    (texture-pool-method-11 () none) ;; 11 ;; (setup-font-texture (_type_) none)
-    (texture-pool-method-12 () none) ;; 12 ;; (allocate-defaults (_type_) none)
-    (texture-pool-method-13 () none) ;; 13 ;; (login-level-textures (_type_ level int (pointer texture-id)) none)
-    (texture-pool-method-14 () none) ;; 14 ;; (add-level-tpage-dma (_type_ level tpage-category bucket-id) none)
-    (texture-pool-method-15 () none) ;; 15 ;; (allocate-vram-words! (_type_ int) int)
-    (texture-pool-method-16 () none) ;; 16 ;; (allocate-segment (_type_ texture-pool-segment int) texture-pool-segment)
-    (texture-pool-method-17 () none) ;; 17 ;; (unload-page (_type_ texture-page) none)
-    (texture-pool-method-18 () none) ;; 18 ;; (get-common-page-slot-by-id (_type_ int) int)
-    (texture-pool-method-19 () none) ;; 19 ;; (update-warp-and-hud (_type_) none)
-    (texture-pool-method-20 () none) ;; 20 ;; (update-sprites (_type_) none)
-    (texture-pool-method-21 () none) ;; 21 ;; (mark-hud-warp-sprite-dirty (_type_) none)
-    (texture-pool-method-22 () none) ;; 22 ;; (lay-out-sprite-tex (_type_) none)
-    (texture-pool-method-23 () none) ;; 23 ;; (lay-out-hud-tex (_type_) none)
-    (texture-pool-method-24 () none) ;; 24 ;; (lay-out-warp-tex (_type_) none)
-    (texture-pool-method-25 () none) ;; 25 ;; (clear-ids (_type_) none)
-    (texture-pool-method-26 () none) ;; 26
-    (texture-pool-method-27 () none) ;; 27
+    (initialize! (_type_) _type_) ;; 9
+    (print-usage (_type_) _type_) ;; 10
+    (setup-font-texture (_type_) none) ;; 11
+    (allocate-defaults (_type_) none) ;; 12
+    (login-level-textures (_type_ level int (pointer texture-id)) none) ;; 13
+    (add-level-tpage-dma (_type_ level tpage-category bucket-id) none) ;; 14
+    (allocate-vram-words! (_type_ int) int) ;; 15
+    (allocate-segment (_type_ texture-pool-segment int) texture-pool-segment) ;; 16
+    (unload-page (_type_ texture-page) none) ;; 17
+    (get-common-page-slot-by-id (_type_ int) int) ;; 18
+    (update-warp-and-hud (_type_) none) ;; 19
+    (update-sprites (_type_) none) ;; 20
+    (mark-hud-warp-sprite-dirty (_type_ object) none) ;; 21 ;; jakx: reads an extra arg vs jak3
+    (lay-out-car-tex (_type_) none) ;; 22 ;; jakx-new (CAR category)
+    (lay-out-driver-tex (_type_) none) ;; 23 ;; jakx-new (DRIVER category)
+    (lay-out-sprite-tex (_type_) none) ;; 24
+    (lay-out-hud-tex (_type_) none) ;; 25
+    (lay-out-warp-tex (_type_) none) ;; 26
+    (clear-ids (_type_) none) ;; 27
     )
   )
 
@@ -6786,12 +6786,12 @@
   :size-assert         #x80
   :flag-assert         #xf00000080
   (:methods
-    (texture-page-method-9 () none) ;; 9 ;; (remove-data-from-heap (_type_ kheap) _type_)
-    (texture-page-method-10 () none) ;; 10 ;; (get-leftover-block-count (_type_ int int) int)
-    (texture-page-method-11 () none) ;; 11 ;; (relocate-dests! (_type_ int int) none)
-    (texture-page-method-12 () none) ;; 12 ;; (add-to-dma-buffer (_type_ dma-buffer tex-upload-mode) int)
-    (texture-page-method-13 () none) ;; 13 ;; (upload-now! (_type_ tex-upload-mode) none)
-    (texture-page-method-14 () none) ;; 14
+    (remove-data-from-heap (_type_ kheap) _type_) ;; 9
+    (get-leftover-block-count (_type_ int int) int) ;; 10
+    (relocate-dests! (_type_ int int) none) ;; 11
+    (add-to-dma-buffer (_type_ dma-buffer tex-upload-mode) int) ;; 12
+    (upload-now! (_type_ tex-upload-mode) none) ;; 13
+    (allocate-blocks (_type_ int) int) ;; 14 ;; jakx-new block allocator, sig derived from asm
     )
   )
 
@@ -6843,7 +6843,7 @@
   (:methods
     (relocate (_type_ kheap (pointer uint8)) none :replace) ;; 7
     (unlink-shaders-in-heap "Iterate through all adgifs, splicing out ones that are in the given heap." (_type_ kheap) int) ;; 9
-    (texture-page-dir-method-10 (_type_) none)
+    (texture-page-dir-method-10 (_type_ level uint) texture-page-dir-entry) ;; jakx-new: look up the dir entry for a page id (arg2 = (srl texture-id 20)); callers deref the result
     )
   :flag-assert #xb00000014
   )
@@ -17865,57 +17865,59 @@
 ;; texture                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern texture-bpp function) ;; (function gs-psm int)
-;; (define-extern texture-qwc function) ;; (function int int gs-psm int)
-;; (define-extern physical-address function) ;; (function pointer pointer)
-;; (define-extern dma-buffer-add-ref-texture function) ;; (function dma-buffer pointer int int gs-psm none)
-;; (define-extern gs-find-block function) ;; (function int int gs-psm int)
-;; (define-extern gs-page-width function) ;; (function gs-psm int)
-;; (define-extern gs-page-height function) ;; (function gs-psm int)
-;; (define-extern gs-block-width function) ;; (function gs-psm int)
-;; (define-extern gs-block-height function) ;; (function gs-psm int)
-;; (define-extern gs-largest-block function) ;; (function int int gs-psm int)
-;; (define-extern gs-blocks-used function) ;; (function int int gs-psm int)
-;; (define-extern texture-page-default-allocate function) ;; (function texture-pool texture-page kheap int texture-page)
-;; (define-extern texture-page-common-allocate function) ;; (function texture-pool texture-page kheap int texture-page)
-;; (define-extern texture-page-font-allocate function) ;; (function texture-pool texture-page kheap int texture-page)
-;; (define-extern locate-sub function)
-;; (define-extern warp-locate-sub function)
-;; (define-extern texture-page-common-boot-allocate function) ;; (function texture-pool texture-page kheap int texture-page)
-;; (define-extern upload-vram-data function) ;; (function dma-buffer int pointer int int none)
-;; (define-extern upload-vram-pages function) ;; (function texture-pool texture-pool-segment texture-page tex-upload-mode bucket-id int)
-;; (define-extern upload-vram-pages-car function)
-;; (define-extern update-vram-pages function) ;; (function texture-pool texture-pool-segment texture-page tex-upload-mode int)
-;; (define-extern upload-vram-pages-pris function) ;; (function texture-pool texture-pool-segment texture-page bucket-id (pointer int32) int)
-;; (define-extern texture-page-level-allocate function) ;; (function texture-pool texture-page kheap int texture-page)
-;; (define-extern texture-page-size-check function) ;; (function texture-pool level symbol int)
-;; (define-extern upload-textures function) ;; (function texture-pool none)
-;; (define-extern *txt-dma-list* object) ;; dma-buffer
-;; (define-extern texture-relocate function) ;; (function dma-buffer texture int gs-psm int dma-buffer)
+(define-extern texture-bpp (function gs-psm int))
+(define-extern texture-qwc (function int int gs-psm int))
+(define-extern physical-address (function pointer pointer))
+(define-extern dma-buffer-add-ref-texture (function dma-buffer pointer int int gs-psm none))
+(define-extern gs-find-block (function int int gs-psm int))
+(define-extern gs-page-width (function gs-psm int))
+(define-extern gs-page-height (function gs-psm int))
+(define-extern gs-block-width (function gs-psm int))
+(define-extern gs-block-height (function gs-psm int))
+(define-extern gs-largest-block (function int int gs-psm int))
+(define-extern gs-blocks-used (function int int gs-psm int))
+(define-extern texture-page-default-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern texture-page-common-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern texture-page-font-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern locate-sub (function level int int string int)) ;; jakx-new, sig derived from asm
+(define-extern warp-locate-sub (function level int int string int)) ;; jakx-new, sig derived from asm
+(define-extern texture-page-common-boot-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern upload-vram-data (function dma-buffer int pointer int int none))
+(define-extern upload-vram-pages (function texture-pool texture-pool-segment texture-page tex-upload-mode bucket-id int))
+(define-extern upload-vram-pages-car (function texture-pool texture-page bucket-id int)) ;; jakx-new, sig derived from asm
+(define-extern update-vram-pages (function texture-pool texture-pool-segment texture-page tex-upload-mode int))
+(define-extern upload-vram-pages-pris (function texture-pool texture-pool-segment texture-page bucket-id (pointer int32) int))
+(define-extern texture-page-level-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern texture-page-size-check (function texture-pool level symbol int))
+(define-extern upload-textures (function texture-pool none))
+(define-extern *txt-dma-list* dma-buffer)
+(define-extern level-remap-texture (function texture-id texture-id))
+(define-extern update-texture-anim (function bucket-id texture-anim-array none))
+(define-extern texture-relocate (function dma-buffer texture int gs-psm int dma-buffer))
 (define-extern relocate-later (function symbol))
-;; (define-extern texture-page-login function) ;; (function texture-id (function texture-pool texture-page kheap int texture-page) kheap texture-page-dir-entry)
-;; (define-extern lookup-texture-by-id function) ;; (function texture-id texture)
-;; (define-extern lookup-texture-by-id-fast function) ;; (function texture-id texture)
-;; (define-extern lookup-texture-by-name function) ;; (function string string (pointer texture-page) texture)
-(define-extern lookup-texture-id-by-name (function string string texture-id)) ;; 
-;; (define-extern lookup-level-texture-by-name function) ;; (function string level (pointer texture-page) texture)
-;; (define-extern lookup-tex-id-from-texture function) ;; (function texture texture-id)
-;; (define-extern lookup-level-texture-id-by-name function) ;; (function string level int texture-id)
-;; (define-extern *shader-list* object) ;; pair
-;; (define-extern *edit-shader* object) ;; texture-id
-;; (define-extern link-texture-by-id function) ;; (function texture-id adgif-shader texture-page-dir-entry)
+(define-extern texture-page-login (function texture-id (function texture-pool texture-page kheap int texture-page) kheap texture-page-dir-entry))
+(define-extern lookup-texture-by-id (function texture-id texture))
+(define-extern lookup-texture-by-id-fast (function texture-id texture))
+(define-extern lookup-texture-by-name (function string string (pointer texture-page) texture))
+(define-extern lookup-texture-id-by-name (function string string texture-id)) ;;
+(define-extern lookup-level-texture-by-name (function string level (pointer texture-page) texture))
+(define-extern lookup-tex-id-from-texture (function texture texture-id))
+(define-extern lookup-level-texture-id-by-name (function string level int texture-id))
+(define-extern *shader-list* pair)
+(define-extern *edit-shader* texture-id)
+(define-extern link-texture-by-id (function texture-id adgif-shader texture-page-dir-entry))
 (define-extern unlink-textures-by-level (function level int)) ;; jakx-new
-;; (define-extern adgif-shader<-texture! function) ;; (function adgif-shader texture adgif-shader)
-;; (define-extern adgif-shader-update! function) ;; (function adgif-shader texture none)
-;; (define-extern adgif-shader<-texture-with-update! function) ;; (function adgif-shader texture adgif-shader)
-;; (define-extern hack-texture function) ;; (function texture float)
-;; (define-extern adgif-shader-login function) ;; (function adgif-shader texture)
+(define-extern adgif-shader<-texture! (function adgif-shader texture adgif-shader))
+(define-extern adgif-shader-update! (function adgif-shader texture none))
+(define-extern adgif-shader<-texture-with-update! (function adgif-shader texture adgif-shader))
+(define-extern hack-texture (function texture float))
+(define-extern adgif-shader-login (function adgif-shader texture))
 (define-extern adgif-shader-login-no-remap (function adgif-shader texture))
-;; (define-extern adgif-shader-login-fast function) ;; (function adgif-shader texture)
-;; (define-extern adgif-shader-login-no-remap-fast function) ;; (function adgif-shader texture)
+(define-extern adgif-shader-login-fast (function adgif-shader texture))
+(define-extern adgif-shader-login-no-remap-fast (function adgif-shader texture))
 (define-extern adgif-shader<-texture-simple! (function adgif-shader texture adgif-shader))
-;; (define-extern set-dirty-mask! function) ;; (function level int int int none)
-;; (define-extern texture-page-dir-inspect function) ;; (function texture-page-dir symbol none)
+(define-extern set-dirty-mask! (function level int int int none))
+(define-extern texture-page-dir-inspect (function texture-page-dir symbol none))
 (define-extern *texture-pool* texture-pool)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21585,12 +21587,12 @@
   :size-assert         #x2030
   :flag-assert         #xf00002030
   (:methods
-    (prototype-node-group-method-9 () none) ;; 9
+    (prototype-node-group-method-9 (_type_) none) ;; 9 ;; free-list init
     (prototype-node-group-method-10 (_type_ prototype-bucket-tie) (pointer uint32)) ;; 10 ;; jakx: called from level-update-after-load; returns ptr to a tie node blob (refine when tie decomp lands)
     (prototype-node-group-method-11 () none) ;; 11
     (prototype-node-group-method-12 (_type_ prototype-bucket-tie) (pointer uint32)) ;; 12 ;; jakx: sibling of method 10, other branch in level-update-after-load
-    (prototype-node-group-method-13 () none) ;; 13
-    (prototype-node-group-method-14 () none) ;; 14
+    (prototype-node-group-method-13 (_type_ level) none) ;; 13 ;; unlink all nodes belonging to a level
+    (prototype-node-group-method-14 (_type_) none) ;; 14
     )
   )
 
@@ -28479,8 +28481,8 @@
     (process-nettable-method-29 () none) ;; 29
     (process-nettable-method-30 () none) ;; 30
     (process-nettable-method-31 () none) ;; 31
-    (process-nettable-method-32 () none) ;; 32
-    (process-nettable-method-33 () none) ;; 33
+    (process-nettable-method-32 (_type_ entity-actor) none) ;; 32 ;; class-method style: entity-more-perm m13 dispatches it with #f as this
+    (process-nettable-method-33 (_type_ entity-actor) none) ;; 33 ;; class-method style: entity-more-perm m14 dispatches it with #f as this
     (process-nettable-method-34 (_type_ int rgba) none) ;; TODO - guess on the rgba
     (process-nettable-method-35 (_type_ int) none) ;; TODO - guess on the int, find a caller to net-enemy-init-remote
     (process-nettable-method-36 (_type_) none) ;; 36
@@ -33208,15 +33210,17 @@
 (declare-type nav-poly structure)
 (deftype entity-actor (entity)
   "Child class of [[entity]] used to spawn [[process-drawable]] actors."
-  ((etype type :offset 56)
-   (task  game-task :offset-assert 60)
-   (kill-mask task-mask :offset 52)
-   (vis-id int16 :offset-assert 62)
-   (quat quaternion :inline :offset-assert 64)
+  ;; jakx offsets carry the +4 basic-tag skip (raw asm: kill-mask 52, etype 56, task 60,
+  ;; vis-id 62, quat 76); the raw-56 etype load in entity-more-perm methods 13/14 pins these
+  ((kill-mask task-mask :offset 56)
+   (etype type :offset 60)
+   (task  game-task :offset 64)
+   (vis-id int16 :offset 66)
+   (quat quaternion :inline :offset 80)
    )
   :method-count-assert 33
-  :size-assert         #x50
-  :flag-assert         #x2100000050
+  :size-assert         #x60
+  :flag-assert         #x2100000060
   ;; Failed to read fields.
   (:methods
     (next-actor (_type_) entity-actor) ;; 27
@@ -33309,7 +33313,7 @@
     (entity-more-perm-hash-method-11 () none) ;; 11
     (entity-more-perm-hash-method-12 () none) ;; 12
     (entity-more-perm-hash-method-13 (_type_ level) none) ;; 13 ;; called method-of-type style from (method 25 level)
-    (entity-more-perm-hash-method-14 () none) ;; 14
+    (entity-more-perm-hash-method-14 (_type_ level) none) ;; 14 ;; structural twin of 13 (dispatches the adjacent process-type method slot)
     )
   )
 
@@ -33348,8 +33352,7 @@
 (define-extern remap-level-name (function level-load-info symbol))
 (define-extern show-level (function symbol none))
 (define-extern sound-bank-name->mode (function symbol sound-bank-mode))
-(define-extern target-get-any-pos (function none)) ;; TODO verify, result unused at current call sites
-(define-extern texture-page-default-allocate (function texture-pool texture-page kheap int texture-page))
+(define-extern target-get-any-pos (function vector)) ;; result feeds vector-vector-distance in level-get-target-inside
 (define-extern update-sound-banks (function load-state (inline-array sound-bank-state) none))
 (define-extern view-get-active-index (function int))
 (define-extern default-level level-load-info)
@@ -35686,94 +35689,92 @@
 ;; gsound                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype engine-sound-pers (engine-pers)
   ()
   :method-count-assert 15
   :size-assert         #x20
   :flag-assert         #xf00000020
   )
-|#
 
-;; (define-extern sound-mp-fix-trans function)
-;; (define-extern *sound-loop-engine* object) ;; engine-sound-pers
-;; (define-extern *sound-player-rpc* object) ;; rpc-buffer-pair
-;; (define-extern *sound-loader-rpc* object) ;; rpc-buffer-pair
-;; (define-extern sound-name= function) ;; (function sound-name sound-name symbol)
-;; (define-extern str-is-playing? function) ;; (function symbol)
-;; (define-extern str-id-is-playing? function) ;; (function sound-id symbol)
-;; (define-extern current-str-pos function) ;; (function sound-id int)
-;; (define-extern current-str-status function) ;; (function sound-id stream-status)
-;; (define-extern *dnas-is-running* object)
-;; (define-extern is-cd-in? function) ;; (function symbol)
-(define-extern new-sound-id (function sound-id)) ;; 
-;; (define-extern check-irx-version function) ;; (function int)
-;; (define-extern sound-bank-load function) ;; (function sound-name int int sound-id)
+(define-extern sound-mp-fix-trans function) ;; jakx-new, sig unknown until typed re-run
+(define-extern *sound-loop-engine* engine-sound-pers)
+(define-extern *sound-player-rpc* rpc-buffer-pair)
+(define-extern *sound-loader-rpc* rpc-buffer-pair)
+(define-extern sound-name= (function sound-name sound-name symbol))
+(define-extern str-is-playing? (function symbol))
+(define-extern str-id-is-playing? (function sound-id symbol))
+(define-extern current-str-pos (function sound-id int))
+(define-extern current-str-status (function sound-id stream-status))
+(define-extern *dnas-is-running* symbol)
+(define-extern is-cd-in? (function symbol))
+(define-extern new-sound-id (function sound-id)) ;;
+(define-extern check-irx-version (function int))
+(define-extern sound-bank-load (function sound-name int int sound-id))
 (define-extern sound-bank-unload (function sound-name int))
-;; (define-extern sound-music-load function) ;; (function sound-name int)
-;; (define-extern sound-music-unload function) ;; (function int)
-;; (define-extern set-language function) ;; (function language-enum int)
-;; (define-extern sound-set-stereo-mode function) ;; (function int none)
-;; (define-extern list-sounds function) ;; (function none)
-;; (define-extern sound-command->string function) ;; (function sound-command string)
-;; (define-extern sound-buffer-dump function) ;; (function int)
-;; (define-extern *debug-sound-info-item* object)
-;; (define-extern sound-instance-play function)
-;; (define-extern sound-instance-update function)
+(define-extern sound-music-load (function sound-name int))
+(define-extern sound-music-unload (function int))
+(define-extern set-language (function language-enum int))
+(define-extern sound-set-stereo-mode (function int none))
+(define-extern list-sounds (function none))
+(define-extern sound-command->string (function uint string)) ;; arg is sound-command, enum not yet ported to jakx
+(define-extern sound-buffer-dump (function int))
+(define-extern *debug-sound-info-item* basic)
+(define-extern sound-instance-play function) ;; jakx-new instance ring, refine after unlock
+(define-extern sound-instance-update function) ;; jakx-new instance ring, refine after unlock
 (define-extern sound-info-by-name (function string sound-info))
-;; (define-extern *sound-handles* array)
-;; (define-extern find-sound-handle function)
-;; (define-extern release-sound-handle function)
-;; (define-extern get-sound-handle function)
-;; (define-extern *sound-instances* object)
-;; (define-extern find-sound-instance function)
-;; (define-extern remove-sound-instance-by-index function)
-;; (define-extern remove-sound-instance-by-sound-id function)
+(define-extern *sound-handles* (array array))
+(define-extern find-sound-handle function) ;; jakx-new instance ring, refine after unlock
+(define-extern release-sound-handle function) ;; jakx-new instance ring, refine after unlock
+(define-extern get-sound-handle function) ;; jakx-new instance ring, refine after unlock
+(define-extern *sound-instances* (array sound-instance))
+(define-extern find-sound-instance function) ;; jakx-new instance ring, refine after unlock
+(define-extern remove-sound-instance-by-index function) ;; jakx-new instance ring, refine after unlock
+(define-extern remove-sound-instance-by-sound-id function) ;; jakx-new instance ring, refine after unlock
 (define-extern make-sound-instance (function object int symbol sound-instance))
-;; (define-extern update-pitch-with-doppler function)
-;; (define-extern update-tracking-position function)
-;; (define-extern calculate-pan-angle function)
-;; (define-extern update-pan-angle function)
-;; (define-extern calculate-falloff-volume function)
-;; (define-extern update-volume-with-falloff function)
-;; (define-extern *sound-priority-level* object)
-;; (define-extern *sound-duck-amount* object)
-;; (define-extern *sound-priority-duck* object)
-;; (define-extern *music-ducked-last-frame?* object)
-;; (define-extern *slow-mo-last-frame?* object)
-;; (define-extern set-sound-priority-duck-amount function)
-;; (define-extern unset-sound-priority-duck-amount function)
-;; (define-extern build-sound-list function)
-;; (define-extern *sound-player-enable* object) ;; symbol
-;; (define-extern swap-sound-buffers function) ;; (function vector vector vector vector vector float int)
+(define-extern update-pitch-with-doppler function) ;; jakx-new instance ring, refine after unlock
+(define-extern update-tracking-position function) ;; jakx-new instance ring, refine after unlock
+(define-extern calculate-pan-angle function) ;; jakx-new instance ring, refine after unlock
+(define-extern update-pan-angle function) ;; jakx-new instance ring, refine after unlock
+(define-extern calculate-falloff-volume function) ;; jakx-new instance ring, refine after unlock
+(define-extern update-volume-with-falloff function) ;; jakx-new instance ring, refine after unlock
+(define-extern *sound-priority-level* int)
+(define-extern *sound-duck-amount* float)
+(define-extern *sound-priority-duck* float)
+(define-extern *music-ducked-last-frame?* symbol)
+(define-extern *slow-mo-last-frame?* symbol)
+(define-extern set-sound-priority-duck-amount function) ;; jakx-new instance ring, refine after unlock
+(define-extern unset-sound-priority-duck-amount function) ;; jakx-new instance ring, refine after unlock
+(define-extern build-sound-list function) ;; jakx-new instance ring, refine after unlock
+(define-extern *sound-player-enable* symbol)
+(define-extern swap-sound-buffers (function int)) ;; jakx: arg-less, do NOT copy jak3's vector-arg sig
 (define-extern get-sound-buffer-entry (function pointer))
-;; (define-extern free-last-sound-buffer-entry function) ;; (function none)
-;; (define-extern sound-basic-cb function) ;; (function int (pointer int32) none)
-;; (define-extern sound-trans-copy function)
-(define-extern string->sound-name (function string sound-name)) ;; 
-;; (define-extern sound-name->string function) ;; (function sound-name string)
-;; (define-extern sound-set-volume function) ;; (function sound-group float int)
-;; (define-extern sound-set-reverb function) ;; (function int float float uint int)
-;; (define-extern sound-set-globals function)
-;; (define-extern sound-pause function) ;; (function sound-id int)
-;; (define-extern sound-stop function) ;; (function sound-id int)
-;; (define-extern sound-continue function) ;; (function sound-id int)
-;; (define-extern sound-group-pause function) ;; (function sound-group int)
-;; (define-extern sound-group-stop function) ;; (function sound-group int)
-;; (define-extern sound-group-continue function) ;; (function sound-group int)
-;; (define-extern sound-set-fps function) ;; (function int int)
-;; (define-extern sound-volume-off function) ;; (function int)
-;; (define-extern show-iop-info function) ;; (function dma-buffer int)
-;; (define-extern show-iop-memory function) ;; (function dma-buffer int)
-;; (define-extern ear-trans function) ;; (function int vector)
-;; (define-extern make-sqrt-table function) ;; (function none)
-;; (define-extern doppler-pitch-shift function) ;; (function vector vector float)
-;; (define-extern sound-bank-reload function) ;; (function none)
-;; (define-extern sound-bank-reload-common function)
-;; (define-extern *jukebox-onoff* object)
-;; (define-extern *last-music-position* object)
-;; (define-extern jukebox-onoff function)
-;; (define-extern update-jukebox-music function)
+(define-extern free-last-sound-buffer-entry (function none))
+(define-extern sound-basic-cb (function int (pointer int32) none))
+(define-extern sound-trans-copy function) ;; jakx-new, arg order unverified
+(define-extern string->sound-name (function string sound-name)) ;;
+(define-extern sound-name->string (function sound-name string))
+(define-extern sound-set-volume (function uint float int)) ;; arg is sound-group, enum not yet ported to jakx
+(define-extern sound-set-reverb (function int float float uint int))
+(define-extern sound-set-globals (function int)) ;; jakx: arg-less replacement for jak3 sound-set-ear-trans
+(define-extern sound-pause (function sound-id int))
+(define-extern sound-stop (function sound-id int))
+(define-extern sound-continue (function sound-id int))
+(define-extern sound-group-pause (function uint int)) ;; arg is sound-group, enum not yet ported
+(define-extern sound-group-stop (function uint int)) ;; arg is sound-group, enum not yet ported
+(define-extern sound-group-continue (function uint int)) ;; arg is sound-group, enum not yet ported
+(define-extern sound-set-fps (function int int))
+(define-extern sound-volume-off (function int))
+(define-extern show-iop-info (function dma-buffer int))
+(define-extern show-iop-memory (function dma-buffer int))
+(define-extern ear-trans (function int vector))
+(define-extern make-sqrt-table (function none))
+(define-extern doppler-pitch-shift (function vector vector float))
+(define-extern sound-bank-reload (function none))
+(define-extern sound-bank-reload-common (function none)) ;; jakx-new twin of sound-bank-reload
+(define-extern *jukebox-onoff* symbol)
+(define-extern *last-music-position* uint)
+(define-extern jukebox-onoff (function symbol symbol)) ;; jakx-new
+(define-extern update-jukebox-music (function none)) ;; jakx-new
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transformq                     ;;
@@ -38189,7 +38190,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extern level-base-level-name (function symbol object))
-(define-extern add-want-level (function (inline-array level-buffer-state) (pointer int64) symbol symbol symbol symbol object))
+(define-extern add-want-level (function (inline-array level-buffer-state) (pointer int64) symbol symbol symbol symbol int object)) ;; 7th arg = slot (was dropped; reads t2)
 (define-extern *display-load-commands* symbol)
 (define-extern *backup-load-state* load-state)
 ;; (define-extern *load-state* object) ;; load-state
