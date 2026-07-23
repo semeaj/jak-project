@@ -142,8 +142,7 @@
 
 (defmethod draw-bg-box-alpha-1 ((this progress) (arg0 progress-box) (arg1 float))
   (with-dma-buffer-add-bucket ((s4-0 (-> *display* frames (-> *display* on-screen) global-buf))
-                               ;; og:preserve-this changed from bucket6
-                               (bucket-id bucket7))
+                               (bucket-id bucket6))
     (let* ((box (case (get-aspect-ratio)
                   (('aspect4x3) (-> arg0 aspect4x3))
                   (('aspect16x9) (-> arg0 aspect16x9))))
