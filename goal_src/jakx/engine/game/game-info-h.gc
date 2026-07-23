@@ -208,7 +208,7 @@
    (display-text-handle                  uint64                                 :offset-assert 1312) ;; handle
    (death-movie-tick                     int32                                  :offset-assert 1320)
    (want-auto-save                       symbol                                 :offset-assert 1324) ;; guessed by decompiler
-   (auto-save-proc                       uint64                                 :offset-assert 1328) ;; handle
+   (auto-save-proc                       handle                                 :offset-assert 1328)
    (auto-save-status                     mc-status-code                         :offset-assert 1336) ;; guessed by decompiler
    (auto-save-card                       int32                                  :offset-assert 1340)
    (auto-save-which                      int32                                  :offset-assert 1344)
@@ -226,7 +226,7 @@
    (miss                                 float                                  :offset-assert 1432)
    (miss-max                             float                                  :offset-assert 1436)
    (health-bar-vehicle                   float                                  :offset-assert 1440)
-   (pause-menu                           uint64                                 :offset-assert 1448)
+   (pause-menu                           handle                                 :offset-assert 1448)
    (current-vehicle                      uint8                                  :offset-assert 1456) ;; vehicle-type-u8
    (collision-damage-multiplier          float                                  :offset-assert 1460)
    (traction-multiplier                  float                                  :offset-assert 1464)

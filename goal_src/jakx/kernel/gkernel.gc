@@ -2389,6 +2389,11 @@
 
 (change-parent (define *mid-pool* (new 'global 'process-tree "mid-pool")) *active-pool*)
 
+;; og:preserve-this jakx-new pool (between mid and pusher, per gkernel_disasm); set-display
+;; wires its clock, so it must exist before display.o links.
+(change-parent (define *locker-pool* (new 'global 'process-tree "locker-pool")) *active-pool*)
+(set! (-> *locker-pool* mask) (process-mask freeze pause menu progress process-tree entity))
+
 (change-parent (define *pusher-pool* (new 'global 'process-tree "pusher-pool")) *active-pool*)
 (set! (-> *pusher-pool* mask) (process-mask freeze pause menu progress process-tree entity))
 
