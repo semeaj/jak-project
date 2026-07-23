@@ -1,3 +1,7 @@
 {
-  "profile": [[3, "(function profile-segment-array profile-collapse none)"]]
+  "profile": [[3, "(function profile-segment-array profile-collapse none)"]],
+  "level": [
+    [8, "(function none)"],
+    [28, "(function level-group int symbol)"]
+  ]
 }
