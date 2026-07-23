@@ -3031,8 +3031,8 @@
   (texscroll-execute)
   (ripple-execute)
   (region-execute)
-  (if (nonzero? execute-math-engine) (execute-math-engine)) ;; og:preserve-this runtime-link guard: math-engine not landed
-  (if (nonzero? execute-cloth-engine) (execute-cloth-engine)) ;; og:preserve-this runtime-link guard: cloth not landed
+  (execute-math-engine)
+  (execute-cloth-engine)
   ;; walk *debug-hook* then run cheats (original order)
   (let ((s5-0 *debug-hook*))
     (while (not (null? s5-0))
@@ -4607,7 +4607,7 @@
             )
           0
           )
-        (if (nonzero? execute-math-engine) (execute-math-engine)) ;; og:preserve-this runtime-link guard: math-engine not landed
+        (execute-math-engine)
         (when *debug-segment*
           (let ((gp-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
             (when (and *dproc* *debug-segment*)
