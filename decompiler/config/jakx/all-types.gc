@@ -17908,7 +17908,7 @@
 ;; (define-extern adgif-shader-login-no-remap function) ;; (function adgif-shader texture)
 ;; (define-extern adgif-shader-login-fast function) ;; (function adgif-shader texture)
 ;; (define-extern adgif-shader-login-no-remap-fast function) ;; (function adgif-shader texture)
-;; (define-extern adgif-shader<-texture-simple! function) ;; (function adgif-shader texture adgif-shader)
+(define-extern adgif-shader<-texture-simple! (function adgif-shader texture adgif-shader))
 ;; (define-extern set-dirty-mask! function) ;; (function level int int int none)
 ;; (define-extern texture-page-dir-inspect function) ;; (function texture-page-dir symbol none)
 ;; (define-extern *texture-pool* object) ;; texture-pool
@@ -34049,8 +34049,8 @@
   :size-assert         #x10
   :flag-assert         #xb00000010
   (:methods
-    (sparticle-launcher-method-9 () none) ;; 9 ;; (get-field-spec-by-id (_type_ sp-field-id) sp-field-init-spec)
-    (sparticle-launcher-method-10 () none) ;; 10 ;; (setup-special-textures (_type_ string) none)
+    (get-field-spec-by-id (_type_ sp-field-id) sp-field-init-spec) ;; 9
+    (setup-special-textures (_type_ string) none) ;; 10
     )
   )
 
@@ -34139,14 +34139,14 @@
   :size-assert         #x70
   :flag-assert         #x1600000070
   (:methods
-    (sparticle-launch-control-method-14 () none) ;; 14 ;; (initialize (_type_ sparticle-launch-group process-drawable) none)
-    (sparticle-launch-control-method-15 () none) ;; 15 ;; (is-visible? (_type_ vector) symbol)
-    (sparticle-launch-control-method-16 () none) ;; 16 ;; (spawn (_type_ vector) object)
-    (sparticle-launch-control-method-17 () none) ;; 17 ;; (spawn-from-mat (_type_ matrix) none)
-    (sparticle-launch-control-method-18 () none) ;; 18 ;; (spawn-from-cspace (_type_ cspace) none)
-    (sparticle-launch-control-method-19 () none) ;; 19 ;; (kill-particles (_type_) none)
-    (sparticle-launch-control-method-20 () none) ;; 20 ;; (set-local-space-info (_type_ particle-local-space-info) none)
-    (sparticle-launch-control-method-21 () none) ;; 21
+    (initialize (_type_ sparticle-launch-group process-drawable) none) ;; 14
+    (is-visible? (_type_ vector) symbol) ;; 15
+    (spawn (_type_ vector) object) ;; 16
+    (spawn-from-mat (_type_ matrix) none) ;; 17
+    (spawn-from-cspace (_type_ cspace) none) ;; 18
+    (kill-particles (_type_) none) ;; 19
+    (set-local-space-info (_type_ particle-local-space-info) none) ;; 20
+    (sparticle-launch-control-method-21 (_type_) none) ;; 21
     )
   )
 
@@ -37477,7 +37477,6 @@
 ;; sparticle-launcher             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype sp-queued-launch-particles (structure)
   ((sp-system   sparticle-system           :offset-assert 0) ;; guessed by decompiler
    (sp-launcher sparticle-launcher         :offset-assert 4) ;; guessed by decompiler
@@ -37487,34 +37486,28 @@
   :size-assert         #x20
   :flag-assert         #x900000020
   )
-|#
 
-#|
 (deftype sp-launch-queue (basic)
-  ((in-use int32                          :offset-assert 4)
-   (queue  sp-queued-launch-particles 256 :offset-assert 16) ;; guessed by decompiler
+  ((in-use int32                                  :offset-assert 4)
+   (queue  sp-queued-launch-particles 256 :inline :offset-assert 16)
    )
   :method-count-assert 9
   :size-assert         #x2010
   :flag-assert         #x900002010
   )
-|#
 
-#|
 (deftype particle-adgif-cache (basic)
-  ((used    int32           :offset-assert 4)
-   (last    uint16          :offset-assert 8)
-   (lastgif adgif-shader    :offset-assert 12)
-   (tidhash uint16       80 :offset-assert 16) ;; guessed by decompiler
-   (spadgif adgif-shader 80 :offset-assert 176) ;; guessed by decompiler
+  ((used    int32                   :offset-assert 4)
+   (last    uint16                  :offset-assert 8)
+   (lastgif adgif-shader            :offset-assert 12)
+   (tidhash uint16       80         :offset-assert 16) ;; guessed by decompiler
+   (spadgif adgif-shader 80 :inline :offset-assert 176)
    )
   :method-count-assert 9
   :size-assert         #x19b0
   :flag-assert         #x9000019b0
   )
-|#
 
-#|
 (deftype sp-launch-stack (structure)
   ((ra         basic                       :offset-assert 0)
    (dummy0     basic                       :offset-assert 4)
@@ -37539,96 +37532,95 @@
   :flag-assert         #x900000140
   ;; field ra uses ~A with a signed load. field dummy0 uses ~A with a signed load. field dummy1 uses ~A with a signed load. field b-spfic uses ~A with a signed load. field l-spfic uses ~A with a signed load.
   )
-|#
 
 ;; sparticle-launcher is already defined!
 
 (define-extern *part-id-table* (array sparticle-launcher)) ;; 
 (define-extern *part-group-id-table* (array sparticle-launch-group)) ;; 
-;; (define-extern *launch-control-table* object)
-;; (define-extern *sp-temp* object) ;; float
-;; (define-extern count-launch-controls-in-table function)
-;; (define-extern lookup-part-group-by-name function) ;; (function string sparticle-launch-group)
-;; (define-extern lookup-part-group-pointer-by-name function) ;; (function string (pointer object))
-(define-extern part-group-pointer? (function pointer symbol)) ;; 
-;; (define-extern unlink-part-group-by-heap function) ;; (function kheap int)
-;; (define-extern sp-init-fields! function) ;; (function (pointer float) (inline-array sp-field-init-spec) sp-field-id sp-field-id symbol (inline-array sp-field-init-spec))
-;; (define-extern *sp-launcher-lock* object) ;; symbol
-;; (define-extern *sp-launch-queue* object) ;; sp-launch-queue
-;; (define-extern *sp-launcher-enable* object) ;; symbol
-;; (define-extern particle-setup-adgif function) ;; (function adgif-shader int none)
-;; (define-extern *particle-adgif-cache* object) ;; particle-adgif-cache
-;; (define-extern particle-adgif-cache-flush function) ;; (function none)
-;; (define-extern particle-adgif function) ;; (function adgif-shader texture-id none)
-;; (define-extern particle-adgif-callback function) ;; (function adgif-shader texture-id none)
-;; (define-extern sp-queue-launch function) ;; (function sparticle-system sparticle-launcher matrix int)
-;; (define-extern sp-adjust-launch function) ;; (function sparticle-launchinfo sparticle-cpuinfo (inline-array sp-field-init-spec) matrix symbol none)
-;; (define-extern sp-euler-convert function) ;; (function sparticle-launchinfo sparticle-cpuinfo none)
-;; (define-extern sp-rotate-system function) ;; (function sparticle-launchinfo sparticle-cpuinfo transformq none)
+(define-extern *launch-control-table* (array sparticle-launch-control))
+(define-extern *sp-temp* float)
+(define-extern count-launch-controls-in-table (function int))
+(define-extern lookup-part-group-by-name (function string sparticle-launch-group))
+(define-extern lookup-part-group-pointer-by-name (function string (pointer object)))
+(define-extern part-group-pointer? (function pointer symbol)) ;;
+(define-extern unlink-part-group-by-heap (function kheap int))
+(define-extern sp-init-fields! (function (pointer float) (inline-array sp-field-init-spec) sp-field-id sp-field-id symbol (inline-array sp-field-init-spec)))
+(define-extern *sp-launcher-lock* symbol)
+(define-extern *sp-launch-queue* sp-launch-queue)
+(define-extern *sp-launcher-enable* symbol)
+(define-extern particle-setup-adgif (function adgif-shader int none))
+(define-extern *particle-adgif-cache* particle-adgif-cache)
+(define-extern particle-adgif-cache-flush (function none))
+(define-extern particle-adgif (function adgif-shader texture-id none))
+(define-extern particle-adgif-callback (function adgif-shader texture-id none))
+(define-extern sp-queue-launch (function sparticle-system sparticle-launcher matrix int))
+(define-extern sp-adjust-launch (function sparticle-launchinfo sparticle-cpuinfo (inline-array sp-field-init-spec) matrix symbol none))
+(define-extern sp-euler-convert (function sparticle-launchinfo sparticle-cpuinfo none))
+(define-extern sp-rotate-system (function sparticle-launchinfo sparticle-cpuinfo transformq none))
 (define-extern sp-launch-particles-var (function sparticle-system sparticle-launcher matrix sparticle-launch-state sparticle-launch-control float none)) ;; 
-;; (define-extern *death-adgif* object) ;; adgif-shader
-;; (define-extern sp-launch-particles-death function) ;; (function sparticle-system sparticle-launcher vector none)
-;; (define-extern sp-clear-queue function) ;; (function none)
-;; (define-extern sp-relaunch-setup-fields function) ;; (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-3d none)
-;; (define-extern sp-relaunch-particle-2d function) ;; (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-2d none)
-;; (define-extern sp-relaunch-particle-3d function) ;; (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-3d none)
-;; (define-extern get-matching-control-table-index function)
-;; (define-extern kill-all-particles-with-control function)
-;; (define-extern execute-particle-local-space-engine function) ;; (function int none)
-;; (define-extern local-space-camera function) ;; (function particle-local-space-info none)
-;; (define-extern local-space-proc-joint function) ;; (function particle-local-space-info none)
-;; (define-extern local-space-proc-root function)
-;; (define-extern spawn-level-particles-for-camera function)
-;; (define-extern execute-part-engine function) ;; (function none)
-;; (define-extern check-particles function)
-;; (define-extern sparticle-track-root function) ;; (function object sparticle-cpuinfo vector none)
-;; (define-extern sparticle-track-root-prim function) ;; (function object sparticle-cpuinfo vector none)
-;; (define-extern sparticle-track-joint function) ;; (function sparticle-system sparticle-cpuinfo vector none)
-;; (define-extern sparticle-turn-to-vel function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none)
-;; (define-extern sparticle-rotate-to-vel-3d function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d vector none)
-;; (define-extern birth-func-clean function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern birth-func-process-clock function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern birth-func-copy-rot-color function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern *global-toggle* object) ;; int
-;; (define-extern birth-func-copy2-rot-color function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern birth-func-copy-omega-to-z function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern birth-func-random-next-time function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern sparticle-respawn-heights function) ;; (function sparticle-system sparticle-cpuinfo vector none)
-;; (define-extern sparticle-respawn-timer function) ;; (function sparticle-system sparticle-cpuinfo vector none)
+(define-extern *death-adgif* adgif-shader)
+(define-extern sp-launch-particles-death (function sparticle-system sparticle-launcher vector none))
+(define-extern sp-clear-queue (function none))
+(define-extern sp-relaunch-setup-fields (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-3d none))
+(define-extern sp-relaunch-particle-2d (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-2d none))
+(define-extern sp-relaunch-particle-3d (function object sparticle-launcher sparticle-cpuinfo sprite-vec-data-3d none))
+(define-extern get-matching-control-table-index (function int object int))
+(define-extern kill-all-particles-with-control (function sparticle-launch-control none))
+(define-extern execute-particle-local-space-engine (function int none))
+(define-extern local-space-camera (function particle-local-space-info none))
+(define-extern local-space-proc-joint (function particle-local-space-info none))
+(define-extern local-space-proc-root (function particle-local-space-info none))
+(define-extern spawn-level-particles-for-camera (function object object object none)) ;; args guessed from asm, refine
+(define-extern execute-part-engine (function none))
+(define-extern check-particles (function int))
+(define-extern sparticle-track-root (function object sparticle-cpuinfo vector none))
+(define-extern sparticle-track-root-prim (function object sparticle-cpuinfo vector none))
+(define-extern sparticle-track-joint (function sparticle-system sparticle-cpuinfo vector none))
+(define-extern sparticle-turn-to-vel (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none))
+(define-extern sparticle-rotate-to-vel-3d (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d vector none))
+(define-extern birth-func-clean (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-process-clock (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-copy-rot-color (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern *global-toggle* int)
+(define-extern birth-func-copy2-rot-color (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-copy-omega-to-z (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-random-next-time (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern sparticle-respawn-heights (function sparticle-system sparticle-cpuinfo vector none))
+(define-extern sparticle-respawn-timer (function sparticle-system sparticle-cpuinfo vector none))
 (define-extern sparticle-texture-animate (function sparticle-system sparticle-cpuinfo vector none)) ;; 
-;; (define-extern sparticle-texture-day-night function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-2d none)
-(define-extern sparticle-motion-blur (function sparticle-system sparticle-cpuinfo vector none)) ;; 
-;; (define-extern sparticle-motion-blur-old function) ;; (function object sparticle-cpuinfo sprite-vec-data-3d object)
-;; (define-extern sparticle-set-conerot function) ;; (function sparticle-launcher vector none)
-;; (define-extern check-ground-bounce function) ;; (function sparticle-system sparticle-cpuinfo sparticle-launchinfo float)
-(define-extern check-drop-group-center (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none)) ;; 
-;; (define-extern check-drop-group-center-with-offset function)
-;; (define-extern check-bubble-height function) ;; (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern check-raise-group-center function) ;; (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern birth-func-y->userdata function) ;; (function sparticle-system sparticle-cpuinfo matrix none)
-;; (define-extern birth-func-ocean-height function) ;; (function sparticle-system sparticle-cpuinfo matrix none)
-;; (define-extern birth-func-camera-orient function) ;; (function int sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern birth-func-set-parent-pntr function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern birth-func-get-parent-quat function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern spt-func-camera-facing-orbiter function) ;; (function sparticle-system sparticle-cpuinfo sparticle-launchinfo quaternion)
-;; (define-extern *particle-birth-work* object)
-;; (define-extern birth-func-set-quat function) ;; (function int sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern birth-func-add-vel function)
-;; (define-extern birth-func-set-vel function) ;; (function object sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern birth-func-set-vel-2d function) ;; (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern birth-func-set-vel-range function)
-(define-extern birth-func-texture-group (function int sparticle-cpuinfo sparticle-launchinfo none)) ;; 
-;; (define-extern rot-to-particle function) ;; (function degrees sprite-vec-data-2d matrix none)
-;; (define-extern rot-to-particle-no-flip function)
-;; (define-extern birth-func-flip-based-on-scale function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-;; (define-extern sparticle-2d-spline-align function) ;; (function object sparticle-cpuinfo sprite-vec-data-2d object none)
-;; (define-extern sparticle-2d-spline-align-no-flip function)
-(define-extern sparticle-2d-spline-align-instant (function object sparticle-cpuinfo sprite-vec-data-2d none)) ;; 
-;; (define-extern birth-func-inherit-size function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none)
-(define-extern birth-func-texture-group-2d (function object sparticle-cpuinfo sparticle-launchinfo object object none)) ;; 
-;; (define-extern sparticle-3d-rotate-xz-to-camera function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none)
-(define-extern spt-func-relative-pos (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none)) ;; 
-;; (define-extern spt-func-turn-to-vel-radial function) ;; (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none)
+(define-extern sparticle-texture-day-night (function sparticle-system sparticle-cpuinfo sprite-vec-data-2d none))
+(define-extern sparticle-motion-blur (function sparticle-system sparticle-cpuinfo vector none)) ;;
+(define-extern sparticle-motion-blur-old (function object sparticle-cpuinfo sprite-vec-data-3d object))
+(define-extern sparticle-set-conerot (function sparticle-launcher vector none))
+(define-extern check-ground-bounce (function sparticle-system sparticle-cpuinfo sparticle-launchinfo float))
+(define-extern check-drop-group-center (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none)) ;;
+(define-extern check-drop-group-center-with-offset (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern check-bubble-height (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern check-raise-group-center (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-y->userdata (function sparticle-system sparticle-cpuinfo matrix none))
+(define-extern birth-func-ocean-height (function sparticle-system sparticle-cpuinfo matrix none))
+(define-extern birth-func-camera-orient (function int sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-set-parent-pntr (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-get-parent-quat (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern spt-func-camera-facing-orbiter (function sparticle-system sparticle-cpuinfo sparticle-launchinfo quaternion))
+(define-extern *particle-birth-work* structure)
+(define-extern birth-func-set-quat (function int sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-add-vel (function object sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-set-vel (function object sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-set-vel-2d (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-set-vel-range (function object sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern birth-func-texture-group (function int sparticle-cpuinfo sparticle-launchinfo none)) ;;
+(define-extern rot-to-particle (function degrees sprite-vec-data-2d matrix none))
+(define-extern rot-to-particle-no-flip (function degrees sprite-vec-data-2d matrix none))
+(define-extern birth-func-flip-based-on-scale (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern sparticle-2d-spline-align (function object sparticle-cpuinfo sprite-vec-data-2d object none))
+(define-extern sparticle-2d-spline-align-no-flip (function object sparticle-cpuinfo sprite-vec-data-2d object none))
+(define-extern sparticle-2d-spline-align-instant (function object sparticle-cpuinfo sprite-vec-data-2d none)) ;;
+(define-extern birth-func-inherit-size (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d sparticle-launcher sparticle-launch-state none))
+(define-extern birth-func-texture-group-2d (function object sparticle-cpuinfo sparticle-launchinfo object object none)) ;;
+(define-extern sparticle-3d-rotate-xz-to-camera (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none))
+(define-extern spt-func-relative-pos (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none)) ;;
+(define-extern spt-func-turn-to-vel-radial (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sparticle-subsampler           ;;
@@ -37639,36 +37631,36 @@
 ;; sparticle                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern sp-particle-copy! function) ;; (function sparticle-cpuinfo sparticle-cpuinfo none)
+(define-extern sp-particle-copy! (function sparticle-cpuinfo sparticle-cpuinfo none))
 (define-extern *sp-particle-system-2d* sparticle-system)
 (define-extern *sp-particle-system-3d* sparticle-system)
-;; (define-extern sp-get-block-size function) ;; (function sparticle-system int int)
-;; (define-extern sp-get-approx-alloc-size function) ;; (function sparticle-system int int)
-;; (define-extern sp-free-particle function) ;; (function sparticle-system int sparticle-cpuinfo sprite-vec-data-2d none)
-;; (define-extern sp-get-particle function) ;; (function sparticle-system int sparticle-launch-state sparticle-cpuinfo)
-(define-extern sp-kill-particle (function sparticle-system sparticle-cpuinfo symbol)) ;; 
-;; (define-extern sp-orbiter function) ;; (function sparticle-system sparticle-cpuinfo vector none)
-;; (define-extern sp-process-block-2d function) ;; (function sparticle-system int int int int symbol none)
-;; (define-extern sp-process-block-3d function) ;; (function sparticle-system int int int int symbol none)
-;; (define-extern sp-copy-to-spr function) ;; (function int pointer int none)
-;; (define-extern sp-copy-from-spr function) ;; (function int pointer int none)
-;; (define-extern memcpy function) ;; (function pointer pointer none)
-;; (define-extern sp-process-block function) ;; (function sparticle-system int sprite-array-2d int none)
-;; (define-extern sp-process-particle-system function) ;; (function sparticle-system int sprite-array-2d none)
-;; (define-extern *particles-flag* object) ;; symbol
-;; (define-extern forall-particles-with-control-runner function)
-;; (define-extern forall-particles-with-control function)
-;; (define-extern sparticle-kill-it function) ;; (function sparticle-system sparticle-cpuinfo none)
-;; (define-extern sparticle-60-to-50 function) ;; (function sparticle-system sparticle-cpuinfo pointer none)
-;; (define-extern sparticle-50-to-60 function) ;; (function sparticle-system sparticle-cpuinfo pointer none)
-;; (define-extern forall-particles-runner function) ;; (function (function sparticle-system sparticle-cpuinfo pointer none) sparticle-system none)
-;; (define-extern forall-particles function) ;; (function function symbol symbol none)
-;; (define-extern all-particles-50-to-60 function) ;; (function none)
-;; (define-extern all-particles-60-to-50 function) ;; (function none)
-;; (define-extern remap-particle function) ;; (function sparticle-system sparticle-cpuinfo pointer none)
-;; (define-extern remap-all-particles function) ;; (function none)
-;; (define-extern process-particles function) ;; (function none)
-;; (define-extern spt-func-on-omega-height-die function)
+(define-extern sp-get-block-size (function sparticle-system int int))
+(define-extern sp-get-approx-alloc-size (function sparticle-system int int))
+(define-extern sp-free-particle (function sparticle-system int sparticle-cpuinfo sprite-vec-data-2d none))
+(define-extern sp-get-particle (function sparticle-system int sparticle-launch-state sparticle-cpuinfo))
+(define-extern sp-kill-particle (function sparticle-system sparticle-cpuinfo symbol)) ;;
+(define-extern sp-orbiter (function sparticle-system sparticle-cpuinfo vector none))
+(define-extern sp-process-block-2d (function sparticle-system int int int int symbol none))
+(define-extern sp-process-block-3d (function sparticle-system int int int int symbol none))
+(define-extern sp-copy-to-spr (function int pointer int none))
+(define-extern sp-copy-from-spr (function int pointer int none))
+(define-extern memcpy (function pointer pointer none))
+(define-extern sp-process-block (function sparticle-system int sprite-array-2d int none))
+(define-extern sp-process-particle-system (function sparticle-system int sprite-array-2d none))
+(define-extern *particles-flag* symbol)
+(define-extern forall-particles-with-control-runner (function sparticle-launch-control (function sparticle-system sparticle-cpuinfo none) sparticle-system none))
+(define-extern forall-particles-with-control (function sparticle-launch-control (function sparticle-system sparticle-cpuinfo none) symbol symbol none))
+(define-extern sparticle-kill-it (function sparticle-system sparticle-cpuinfo none))
+(define-extern sparticle-60-to-50 (function sparticle-system sparticle-cpuinfo pointer none))
+(define-extern sparticle-50-to-60 (function sparticle-system sparticle-cpuinfo pointer none))
+(define-extern forall-particles-runner (function (function sparticle-system sparticle-cpuinfo pointer none) sparticle-system none))
+(define-extern forall-particles (function function symbol symbol none))
+(define-extern all-particles-50-to-60 (function none))
+(define-extern all-particles-60-to-50 (function none))
+(define-extern remap-particle (function sparticle-system sparticle-cpuinfo pointer none))
+(define-extern remap-all-particles (function none))
+(define-extern process-particles (function none))
+(define-extern spt-func-on-omega-height-die (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; entity-table                   ;;
@@ -40405,7 +40397,8 @@
   )
 |#
 
-#|
+(declare-type light-trail-composition structure)
+
 (deftype light-trail-tracker-spawn-params (structure)
   ((appearance         light-trail-composition  :offset-assert 0)
    (max-num-crumbs     int32                    :offset-assert 4)
@@ -40416,9 +40409,7 @@
   :size-assert         #x14
   :flag-assert         #x900000014
   )
-|#
 
-#|
 (deftype weapon-trail-tracker-spawn-params (light-trail-tracker-spawn-params)
   ((joint0 int16  :offset-assert 20)
    (joint1 int16  :offset-assert 22)
@@ -40427,7 +40418,6 @@
   :size-assert         #x18
   :flag-assert         #x900000018
   )
-|#
 
 #|
 (deftype light-trail-tracker (process)

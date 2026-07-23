@@ -104,6 +104,13 @@
   "mips2c_functions_by_name": [
     "live-func-curve",
     "birth-func-curve",
+    // sparticle-launcher / sparticle
+    "sp-init-fields!",
+    "particle-adgif",
+    "sp-launch-particles-var",
+    "sparticle-motion-blur",
+    "sp-process-block-2d",
+    "sp-process-block-3d",
     // collide-cache
     "(method 9 collide-cache-prim)",
     "(method 10 collide-cache-prim)",
