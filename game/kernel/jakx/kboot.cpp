@@ -174,13 +174,11 @@ void KernelShutdown(u32 reason) {
 }
 
 int KernelCheckAndDispatch() {
-  // TODO - jak x
-  /*while (MasterExit == RuntimeExitStatus::RUNNING && !POWERING_OFF_W) {
+  // note: the real Jak X also checks POWERING_OFF_W to abort during poweroff; not ported yet,
+  // so this mirrors the jak3 loop.
+  while (MasterExit == RuntimeExitStatus::RUNNING) {
     KernelDispatch(kernel_dispatcher->value());
   }
-  if (POWERING_OFF_W) {
-    KernelShutdown(3);
-  }*/
   return (u32)MasterExit;
 }
 
