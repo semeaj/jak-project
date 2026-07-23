@@ -174,7 +174,11 @@
     (speech-control-method-12 () none)
     (speech-control-method-13 () none)
     (speech-control-method-14 () none)
-    (speech-control-method-15 () none)
+    (speech-control-method-15 (_type_ kheap) none) ;; jakx adds a kheap arg vs jak3
     (speech-control-method-16 () none)
     )
   )
+
+;; og:preserve-this: declared here until speech.gc (which creates *speech-control*) is
+;; decompiled; level.o's deactivate guards on it being set.
+(define-extern *speech-control* speech-control)

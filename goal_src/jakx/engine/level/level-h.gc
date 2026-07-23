@@ -241,6 +241,12 @@
 (define-extern *level-load-list* pair)
 (define-extern *task-level* (array symbol))
 
+;; og:preserve-this bring-up flag: gates play's initial level load until the DGO load chain
+;; (load-begin and friends) is decompiled. Must live in a compiled object (kernel-defs.gc is
+;; compiler-session only and never links, which leaves the symbol unbound = 0 = truthy).
+;; Flip to #t in the REPL to experiment with the load path.
+(define *jakx-boot-level-load* #f)
+
 ;; DECOMP BEGINS
 
 
@@ -443,11 +449,11 @@
    (callback-list      pair)
    (borrow             level-borrow-info)
    (bottom-height      meters)
-   (mood-range         mood-range)
+   (mood-range         symbol)
    )
   (:methods
-    (level-load-info-method-9 () none)
-    (level-load-info-method-10 () none)
+    (get-callback-symbol-value-by-slot! (_type_ int) object)
+    (get-callback-by-slot! (_type_ int) object)
     )
   )
 
@@ -591,12 +597,12 @@
    (loaded-texture-page-count  int32)
    (entity                     entity-links-array)
    (closest-object             meters                10)
-   (tie-min-dist               float                 :offset 376)
+   (tie-min-dist               float                    :offset 376)
    (fg-tfrag-min-dist          float)
    (fg-prim-min-dist           float)
    (fg-shrub-min-dist          float)
-   (fg-warp-min-dist           float                 :offset 396)
-   (fg-prim2-min-dist          float                 :offset 404)
+   (fg-warp-min-dist           float                    :offset 396)
+   (fg-prim2-min-dist          float                    :offset 404)
    (upload-size                int32                 19)
    (inside-boxes?              symbol)
    (display?                   symbol)
@@ -646,8 +652,8 @@
    (load-order                 uint64)
    (slot                       int32)
    (filter-num                 uint32)
-   (filter-name                string                16)
-   (filter-look                uint8                 16)
+   (filter-name                string                15)
+   (filter-look                int8                  20 :offset 1404)
    (buffer                     kheap)
    )
   (:methods
@@ -813,7 +819,7 @@
   (format #t "~1Tslot: ~D~%" (-> this slot))
   (format #t "~1Tfilter-num: ~D~%" (-> this filter-num))
   (format #t "~1Tfilter-name[16] @ #x~X~%" (-> this filter-name))
-  (format #t "~1Tfilter-look[16] @ #x~X~%" (-> this filter-look))
+  (format #t "~1Tfilter-look[16] @ #x~X~%" (&-> this filter-look 4))
   (format #t "~1Tbuffer: #<kheap @ #x~X>~%" (-> this buffer))
   (label cfg-48)
   this

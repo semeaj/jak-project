@@ -1,4 +1,50 @@
 {
+  // level / load-state / level-info family, ported from jak3 (op indices verified or adjusted per jakx asm)
+  "lookup-level-info": [
+    [11, "v1", "basic"],
+    [21, "a1", "symbol"],
+    [[22, 34], "a1", "level-load-info"]
+  ],
+  "(method 29 level-group)": [[[2, 53], "v1", "pair"]],
+  "level-find-borrow-slot": [[[204, 211], "a2", "level"]],
+  "(method 9 level-load-info)": [
+    [3, "a2", "pair"],
+    [5, "a2", "pair"],
+    [7, "t0", "symbol"],
+    [9, "t0", "symbol"],
+    [25, "v1", "pair"],
+    [24, "v1", "pair"]
+  ],
+  "(method 25 level)": [
+    [125, "s1", "(function level object)"],
+    [180, "s0", "(function level symbol object)"]
+  ],
+  "(method 9 level)": [
+    [30, "s5", "(function level object)"],
+    [[144, 167], "v1", "task-mask"]
+  ],
+  "(method 10 level)": [
+    [137, "s5", "(function level object)"]
+  ],
+  "(method 18 level)": [[[13, 690], "s5", "level-memory-mode"]],
+  "(method 19 level)": [
+    [[40, 118], "a3", "symbol"],
+    [[52, 56], "a0", "texture-anim-array"]
+  ],
+  "(method 19 level-group)": [
+    [237, "s2", "continue-point"],
+    [191, "s0", "continue-point"],
+    [196, "s2", "continue-point"],
+    [207, "s0", "continue-point"],
+    [213, "s0", "continue-point"],
+    [222, "s0", "continue-point"]
+  ],
+  "update-sound-banks": [[131, "a0", "pair"]],
+  "(method 10 load-state)": [
+    [461, "v1", "level"],
+    [468, "v1", "level"]
+  ],
+
   "entity-actor-count": [["_stack_", 16, "res-tag"]],
   "entity-actor-lookup": [["_stack_", 16, "res-tag"]],
   "build-masks": [

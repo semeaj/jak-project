@@ -51,6 +51,25 @@
   // these functions use pairs and the decompiler
   // will be less picky about types related to pairs.
   "pair_functions_by_name": [
+    // level / load-state family (ported from jak3's list; jakx load-state slots shift +1 after 13)
+    "lookup-level-info",
+    "(method 24 level-group)",
+    "(method 19 level-group)",
+    "(method 26 level-group)",
+    "(method 29 level-group)",
+    "(method 9 level-load-info)",
+    "(method 10 level-load-info)",
+    "(method 10 level)",
+    "(method 12 level)",
+    "(method 18 level)",
+    "(method 19 level)",
+    "update-sound-banks",
+    "level-base-level-name",
+    "add-want-level",
+    "level-find-borrow-slot",
+    "(method 18 load-state)",
+    "(method 20 game-info)",
+    "unload-package",
     "ref",
     "ref&",
     "(method 4 pair)",
