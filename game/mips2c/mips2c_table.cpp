@@ -400,6 +400,12 @@ namespace method_21_cloth_system { extern void link(); }
 namespace jakx {
 namespace live_func_curve { extern void link(); }
 namespace birth_func_curve { extern void link(); }
+namespace sparticle_motion_blur { extern void link(); }
+namespace sp_launch_particles_var { extern void link(); }
+namespace particle_adgif { extern void link(); }
+namespace sp_init_fields { extern void link(); }
+namespace sp_process_block_2d { extern void link(); }
+namespace sp_process_block_3d { extern void link(); }
 }
 // clang-format on
 
@@ -663,7 +669,11 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jak3::shadow_add_single_tris::link, jak3::shadow_add_double_tris::link}},
      {"cloth", {jak3::method_21_cloth_system::link}}},
     /////////// JAK X
-    {{"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}}}};
+    {{"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}},
+     {"sparticle-launcher",
+      {jakx::sparticle_motion_blur::link, jakx::sp_launch_particles_var::link,
+       jakx::particle_adgif::link, jakx::sp_init_fields::link}},
+     {"sparticle", {jakx::sp_process_block_2d::link, jakx::sp_process_block_3d::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});
