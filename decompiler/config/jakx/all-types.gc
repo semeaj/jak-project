@@ -8244,7 +8244,7 @@
    (art-group                 load-dir-art-group                             :offset-assert 116) ;; guessed by decompiler
    (info                      level-load-info                                :offset-assert 120) ;; guessed by decompiler
    (level-TODO-01 int32 :offset-assert 124)
-   (texture-page-dir          texture-page-segment                                11 :inline    :offset-assert 128) ;; TODO - a guess, seems to fit though
+   (texture-page-dir          texture-page-dir-entry                              11 :inline    :offset-assert 128) ;; jakx: dir entries inline in level (login-begin reads .length)
    (loaded-texture-page       texture-page                           16      :offset-assert 260) ;; guessed by decompiler
    (loaded-texture-page-count int32                                          :offset-assert 324)
    (entity                    entity-links-array                             :offset-assert 328) ;; guessed by decompiler
@@ -8306,8 +8306,8 @@
    (load-order                uint64                                         :offset-assert 1328)
    (slot                      int32                                          :offset-assert 1336)
    (filter-num                uint32                                         :offset-assert 1340)
-   (filter-name               string                                 15      :offset-assert 1344) ;; jakx: 15 slots, not jak3's 16 (byte array below starts at 1404)
-   (filter-look               int8                                   20      :offset 1404) ;; jakx: signed byte loads from 1404 in load-begin
+   (filter-name               string                                 16      :offset-assert 1344)
+   (filter-look               int8                                   16      :offset-assert 1408) ;; jakx: signed byte loads (jak3 copy had uint8)
    (buffer                    kheap                                          :offset-assert 1424)
    )
   :method-count-assert 30
@@ -8338,6 +8338,7 @@
     )
   )
 
+(declare-type prototype-node-group basic)
 (deftype level-group (basic)
   ((length            int32                    :offset-assert 4)
    ;; copied from jak 3
@@ -8368,7 +8369,7 @@
    (draw-level-count  int32                    :offset-assert 372)
    (draw-level        level            19      :offset-assert 376) ;; guessed by decompiler
    (draw-index-map    uint8            19      :offset-assert 452) ;; guessed by decompiler
-   (shared-ties       basic                    :offset-assert 472)
+   (shared-ties       prototype-node-group     :offset-assert 472) ;; jakx: shared TIE prototype tree (created by the *level* boot initializer)
    (status-cache-sync uint16                   :offset-assert 476)
    (load-order        uint64                   :offset-assert 480)
    (wide-level        level          2       :offset-assert 488)
@@ -21386,6 +21387,7 @@
   (visible     5) ;; set by prototypes-game-visible-set! to hide things on purpose
   (no-collide  6)
   (tpage-water 7)
+  (unk-9       9) ;; jakx: tested by level-update-after-load (0x200)
   )
 ;; ---prototype-h:prototype-flags
 
@@ -21584,9 +21586,9 @@
   :flag-assert         #xf00002030
   (:methods
     (prototype-node-group-method-9 () none) ;; 9
-    (prototype-node-group-method-10 () none) ;; 10
+    (prototype-node-group-method-10 (_type_ prototype-bucket-tie) (pointer uint32)) ;; 10 ;; jakx: called from level-update-after-load; returns ptr to a tie node blob (refine when tie decomp lands)
     (prototype-node-group-method-11 () none) ;; 11
-    (prototype-node-group-method-12 () none) ;; 12
+    (prototype-node-group-method-12 (_type_ prototype-bucket-tie) (pointer uint32)) ;; 12 ;; jakx: sibling of method 10, other branch in level-update-after-load
     (prototype-node-group-method-13 () none) ;; 13
     (prototype-node-group-method-14 () none) ;; 14
     )
@@ -31679,6 +31681,8 @@
   :type uint16
   :bitfield #t
   (alpha-enable 0)
+  (unk-1 1)
+  (unk-2 2) ;; jakx: tested by login-begin (0x4)
   )
 
 (declare-type entity-camera entity)
@@ -32685,7 +32689,7 @@
 
 (deftype drawable-tree-tfrag (drawable-tree)
   "top level tfrag tree."
-  ((time-of-day-pal time-of-day-palette :offset 12)
+  ((time-of-day-pal time-of-day-palette :offset 8)
    (arrays    drawable-inline-array :dynamic :offset 32 :score 100) ;; either drawable-inline-array-node or drawable-inline-array-tfrag
    )
   :flag-assert #x1100000020

@@ -903,3 +903,6 @@
 ;;   )
 
 (define *jukebox-time* 0)
+
+;; og:preserve-this: declared here until gsound.gc (which defines these) is decompiled.
+(define-extern new-sound-id (function sound-id))

@@ -1,4 +1,5 @@
 {
+  "level": [["L981", "uint64", true]],
   "ambient-h": [["L1", "(inline-array talker-speech-class)", 233]],
   "pat-h": [["L1", "(inline-array pat-mode-info)", 4]],
   "foreground-h": [["L4", "(pointer bucket-id-16)", 462]],

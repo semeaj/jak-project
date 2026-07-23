@@ -24,12 +24,22 @@
     [[144, 167], "v1", "task-mask"]
   ],
   "(method 10 level)": [
-    [137, "s5", "(function level object)"]
+    [[137, 151], "s5", "(function level object)"],
+    [[229, 233], "a0", "texture-anim-array"],
+    [[387, 396], "a1", "type"]
   ],
-  "(method 18 level)": [[[13, 690], "s5", "level-memory-mode"]],
+  "(method 18 level)": [[[13, 171], "s5", "level-memory-mode"]],
+
+  "level-update-after-load": [
+    [[45, 108], "s2", "drawable-tree-tfrag"],
+    [[199, 231], "s0", "drawable-tree-instance-tie"],
+    [208, "a0", "drawable-inline-array"],
+    [271, "a0", "(pointer uint16)"],
+    [[278, 380], "s0", "proxy-prototype-array-tie"]
+  ],
   "(method 19 level)": [
-    [[40, 118], "a3", "symbol"],
-    [[52, 56], "a0", "texture-anim-array"]
+    [[58, 110], "v1", "texture-page"],
+    [[187, 191], "a0", "texture-anim-array"]
   ],
   "(method 19 level-group)": [
     [237, "s2", "continue-point"],

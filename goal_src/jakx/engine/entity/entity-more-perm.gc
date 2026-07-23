@@ -7,3 +7,43 @@
 
 ;; DECOMP BEGINS
 
+(deftype entity-more-perm (structure)
+  ((aid         uint32     :offset-assert 0)
+   (ent         basic      :offset-assert 4)
+   (user-object object   2 :offset 8)
+   (user-uint64 uint64     :offset 8)
+   (user-float  float    2 :offset 8)
+   (user-int32  int32    2 :offset 8)
+   (user-uint32 uint32   2 :offset 8)
+   (user-int16  int16    4 :offset 8)
+   (user-uint16 uint16   4 :offset 8)
+   (user-int8   int8     8 :offset 8)
+   (user-uint8  uint8    8 :offset 8)
+   )
+  :method-count-assert 10
+  :size-assert         #x10
+  :flag-assert         #xa00000010
+  (:methods
+    (entity-more-perm-method-9 () none) ;; 9
+    )
+  )
+
+(deftype entity-more-perm-hash (structure)
+  ((data                entity-more-perm 512 :inline :offset-assert 0)
+   (entity-more-perm-ct int32                :offset-assert 8192)
+   (entity-indices      uint16 1024          :offset-assert 8196)
+   )
+  :method-count-assert 15
+  :size-assert         #x2804
+  :flag-assert         #xf00002804
+  (:methods
+    (entity-more-perm-hash-method-9 () none) ;; 9
+    (entity-more-perm-hash-method-10 () none) ;; 10
+    (entity-more-perm-hash-method-11 () none) ;; 11
+    (entity-more-perm-hash-method-12 () none) ;; 12
+    (entity-more-perm-hash-method-13 (_type_ level) none) ;; 13 ;; called method-of-type style from (method 25 level)
+    (entity-more-perm-hash-method-14 () none) ;; 14
+    )
+  )
+
+
