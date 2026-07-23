@@ -7,3 +7,19 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stubs: the real lobby-dma object (jakx-only car/lobby DMA
+;; block allocator) is blocked on the dma-block/dma-block-list types. Callers handle the
+;; failure paths: level.gc's 'car-load caller null-checks dma-get-named-buffer and falls
+;; back to kmalloc; dma-release's result is discarded; dma-try-alloc has no live caller.
+(defun dma-get-named-buffer ((arg0 symbol) (arg1 int) (arg2 int))
+  (the-as pointer #f)
+  )
+
+(defun dma-release ((arg0 symbol))
+  0
+  )
+
+(defun dma-try-alloc ((arg0 uint) (arg1 uint) (arg2 symbol) (arg3 int) (arg4 pointer))
+  (the-as pointer #f)
+  )
+

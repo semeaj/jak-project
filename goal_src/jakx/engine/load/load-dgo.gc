@@ -238,7 +238,7 @@
 
 (defun dgo-load-begin ((name string) (buffer1 uint128) (buffer2 pointer) (buffer-top pointer) (arg4 pointer))
   "Start a DGO load!"
-  (set! *dgo-time* (-> *display* real-clock integral-frame-counter))
+  (set! *dgo-time* (if (nonzero? *display*) (-> *display* real-clock integral-frame-counter) 0))
   (format 0 "Starting level load clock~%")
   (sync *load-dgo-rpc* #t)
   (let ((s1-0 (the-as load-dgo-msg (add-element *load-dgo-rpc*))))
@@ -271,7 +271,7 @@
               (format
                 0
                 "Elapsed time for level = ~Fs~%"
-                (* 0.016666668 (the float (- (-> *display* real-clock integral-frame-counter) *dgo-time*)))
+                (* 0.016666668 (the float (- (if (nonzero? *display*) (-> *display* real-clock integral-frame-counter) 0) *dgo-time*)))
                 )
               )
           )

@@ -246,7 +246,7 @@
 ;; (load-begin and friends) is decompiled. Must live in a compiled object (kernel-defs.gc is
 ;; compiler-session only and never links, which leaves the symbol unbound = 0 = truthy).
 ;; Flip to #t in the REPL to experiment with the load path.
-(define *jakx-boot-level-load* #f)
+(define *jakx-boot-level-load* #t)
 
 ;; DECOMP BEGINS
 

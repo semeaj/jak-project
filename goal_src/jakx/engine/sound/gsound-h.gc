@@ -66,6 +66,26 @@
    )
   )
 
+(defmacro static-sound-name (str)
+  "Convert a string constant to a static sound-name."
+  ;; all this is done at compile-time so we can come up with 2
+  ;; 64-bit constants to use
+  (when (> (string-length str) 16)
+    (error "static-sound-name got a string that is too long")
+    )
+  (let ((lo-val 0)
+        (hi-val 0)
+        )
+    (dotimes (i (string-length str))
+      (if (>= i 8)
+          (+! hi-val (ash (string-ref str i) (* 8 (- i 8))))
+          (+! lo-val (ash (string-ref str i) (* 8 i)))
+          )
+      )
+    `(new 'static 'sound-name :lo ,lo-val :hi ,hi-val)
+    )
+  )
+
 (define *music-lock* #f)
 
 (deftype sound-rpc-cmd (structure)
@@ -384,14 +404,14 @@
    )
   (:methods
     (new (symbol type basic vector float) _type_)
-    (ambient-sound-method-9 () none)
-    (ambient-sound-method-10 () none)
-    (ambient-sound-method-11 () none)
-    (ambient-sound-method-12 () none)
-    (ambient-sound-method-13 () none)
-    (ambient-sound-method-14 () none)
-    (ambient-sound-method-15 () none)
-    (ambient-sound-method-16 () none)
+    (update! (_type_) int)
+    (change-sound! (_type_ sound-name) int)
+    (update-trans! (_type_ vector) int)
+    (update-vol! (_type_ float) int)
+    (update-pitch-mod! (_type_ float) none)
+    (set-falloff-far! (_type_ float) none)
+    (set-falloff-mode! (_type_ int) none)
+    (stop! (_type_) int)
     )
   )
 

@@ -8,3 +8,24 @@
 ;; DECOMP BEGINS
 
 (define-extern view-get-active-math-camera (function math-camera))
+
+;; og:preserve-this partial landing: the two getters below decompile clean in
+;; view_ir2.asm; the rest of view.o stays pending. Note *views* keeps :length 0 until
+;; view.o's blocked top-level is ported, so callers get out-of-bounds slots in debug
+;; only; the load chain null-checks the results.
+
+(defun view-get-camera ((arg0 int))
+  (the-as process (-> *views* arg0 camera))
+  )
+
+(defun view-get-target ((arg0 int))
+  (the-as process (-> *views* arg0 target))
+  )
+
+;; og:preserve-this bring-up stub: real body (degraded decomp) returns the current
+;; process's view index if set, else the top of *view-context-stack*, else 0. Callers
+;; use it as a player-info array index, so 0 (the single-player active index) is the
+;; correct interim answer.
+(defun view-get-active-index ()
+  0
+  )

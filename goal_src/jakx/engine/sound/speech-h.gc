@@ -179,6 +179,7 @@
     )
   )
 
-;; og:preserve-this: declared here until speech.gc (which creates *speech-control*) is
-;; decompiled; level.o's deactivate guards on it being set.
-(define-extern *speech-control* speech-control)
+;; og:preserve-this bring-up: #f until speech.gc (which creates *speech-control*) is
+;; decompiled. A bare define-extern leaves the symbol value 0, which is truthy in GOAL,
+;; so level.o's deactivate would dispatch speech-control-method-15 on object 0 and crash.
+(define *speech-control* (the-as speech-control #f))

@@ -260,7 +260,7 @@
 ;; (cgo-file "icd.gd" common-dep)
 ;; (cgo-file "keicred.gd" common-dep)
 ;; (cgo-file "hvc.gd" common-dep)
-;; (cgo-file "fmvlev.gd" common-dep)
+(cgo-file "fmvlev.gd" common-dep) ;; first level DGO enabled for bring-up (entries converted to .go raw copies)
 ;; (cgo-file "hsy.gd" common-dep)
 ;; (cgo-file "peclev.gd" common-dep)
 ;; (cgo-file "foxl.gd" common-dep)

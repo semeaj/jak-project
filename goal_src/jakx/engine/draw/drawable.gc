@@ -7,3 +7,10 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this partial landing: the base login is required by the level login
+;; phase (drawable-tree-actor and friends inherit it); identical to jak3's no-op.
+(defmethod login ((this drawable))
+  "Initialize the object after it is loaded."
+  this
+  )
+

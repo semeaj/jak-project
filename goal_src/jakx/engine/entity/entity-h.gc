@@ -146,7 +146,9 @@ that gets accessed by the accompanying process."
 
 (deftype entity-actor (entity)
   "Child class of [[entity]] used to spawn [[process-drawable]] actors."
-  ((etype      type        :offset  56)
+  ;; jakx: etype sits at 60 (raw asm 56 + the basic-tag skip), one slot later than jak3;
+  ;; quat correspondingly lands at 80 via auto-layout
+  ((etype      type        :offset  60)
    (task       game-task)
    (kill-mask  task-mask   :overlay-at unknown)
    (vis-id     int16)

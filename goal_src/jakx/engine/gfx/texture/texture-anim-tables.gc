@@ -7,3 +7,12 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: real body (17 ops, decompiled clean in ir2) sets
+;; (-> *default-car-texture-anim-array* array-data 0 num-layers) to 3 when menu2 is
+;; loaded, else 2, but *default-car-texture-anim-array* is created by this object's
+;; still-blocked top-level, so a direct port would deref an unbound symbol. Callers
+;; discard the result.
+(defun update-car-texture-anim-array ()
+  0
+  )
+

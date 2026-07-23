@@ -42,8 +42,60 @@
     (entity-more-perm-hash-method-11 () none) ;; 11
     (entity-more-perm-hash-method-12 () none) ;; 12
     (entity-more-perm-hash-method-13 (_type_ level) none) ;; 13 ;; called method-of-type style from (method 25 level)
-    (entity-more-perm-hash-method-14 () none) ;; 14
+    (entity-more-perm-hash-method-14 (_type_ level) none) ;; 14 ;; called method-of-type style from (method 10 level) unload!
     )
+  )
+
+;; og:preserve-this hand-written from entity-more-perm_ir2.asm (methods 13/14 fail
+;; expression building only on the dynamic-etype method dispatch, which type casts
+;; cannot express). Both are class-method style: `this` is never read, and the
+;; original callers pass *entity-more-perm* (still undefined = 0) in that slot.
+;; Method 13 dispatches process-nettable method 32 on each nettable actor's etype;
+;; method 14 is the byte-identical walk dispatching the adjacent slot 33.
+(defmethod entity-more-perm-hash-method-13 ((this entity-more-perm-hash) (arg0 level))
+  (when (and (-> arg0 name) (nonzero? (-> arg0 entity)) (-> arg0 entity))
+    (dotimes (i (-> arg0 entity length))
+      (let ((ent (-> arg0 entity data i entity)))
+        (when (type? ent entity-actor)
+          (let ((actor (the-as entity-actor ent)))
+            (when (type-type? (-> actor etype) process-nettable)
+              ((the-as (function process-nettable entity-actor none)
+                       (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-32))
+                       )
+               (the-as process-nettable #f)
+               actor
+               )
+              )
+            )
+          )
+        )
+      )
+    )
+  0
+  (none)
+  )
+
+(defmethod entity-more-perm-hash-method-14 ((this entity-more-perm-hash) (arg0 level))
+  (when (and (-> arg0 name) (nonzero? (-> arg0 entity)) (-> arg0 entity))
+    (dotimes (i (-> arg0 entity length))
+      (let ((ent (-> arg0 entity data i entity)))
+        (when (type? ent entity-actor)
+          (let ((actor (the-as entity-actor ent)))
+            (when (type-type? (-> actor etype) process-nettable)
+              ((the-as (function process-nettable entity-actor none)
+                       (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-33))
+                       )
+               (the-as process-nettable #f)
+               actor
+               )
+              )
+            )
+          )
+        )
+      )
+    )
+  0
+  (none)
   )
 
 
