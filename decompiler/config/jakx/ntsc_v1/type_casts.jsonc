@@ -604,5 +604,79 @@
   // entity-more-perm: narrow entity -> entity-actor after the type? guard so the etype
   // load and process-type method dispatch resolve (ranges seeded, corrected against ir2)
   "(method 13 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]],
-  "(method 14 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]]
+  "(method 14 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]],
+  // drawable frame core: vif-bank hardware pokes (jak3-identical) and the
+  // setting-control nested-inline load the folder cannot resolve (user-current+748)
+  "display-frame-start": [
+    [4, "v1", "vif-bank"],
+    [9, "a0", "vif-bank"],
+    [332, "v1", "(pointer uint32)"]
+  ],
+  "display-loop-main": [
+    [2, "v1", "(pointer uint32)"],
+    [1055, "v1", "(pointer uint32)"],
+    [1120, "v1", "(pointer uint32)"],
+    [[408, 410], "a0", "(pointer display-frame)"],
+    [1138, "v1", "(pointer float)"],
+    [[574, 582], "t9", "(function none)"],
+    [[573, 582], "s5", "pair"]
+  ],
+  "pause-allowed?": [
+    [27, "v1", "(pointer uint32)"],
+    [[35, 36], "a0", "(pointer process)"],
+    [37, "a0", "process"]
+  ],
+  "toggle-pause": [
+    [43, "v1", "(pointer uint32)"],
+    [88, "v1", "(pointer uint32)"],
+    [126, "v1", "(pointer uint32)"]
+  ],
+  "letterbox": [
+    [53, "v1", "(pointer uint64)"],
+    [[54, 57], "v1", "(pointer uint32)"]
+  ],
+  "add-blackout": [[[32, 33], "a0", "(pointer uint64)"]],
+  "set-master-mode": [
+    [83, "v1", "(pointer uint8)"],
+    [[153, 154], "a0", "(pointer process)"],
+    [155, "a0", "process"]
+  ],
+  "display-sync": [
+    [2, "v1", "(pointer uint32)"],
+    [70, "v1", "(pointer uint32)"],
+    [97, "v1", "(pointer uint32)"],
+    [183, "v1", "(pointer uint32)"]
+  ],
+  "display-frame-finish": [
+    [[527, 533], "t1", "uint"],
+    [[570, 576], "t1", "uint"],
+    [[613, 619], "t1", "uint"],
+    [[656, 662], "t1", "uint"],
+    [[481, 487], "t3", "uint"],
+    [[482, 488], "t1", "(pointer uint64)"],
+    [[489, 492], "t1", "(pointer uint32)"],
+    [[493, 496], "t1", "(pointer uint64)"],
+    [[497, 501], "t1", "(pointer uint32)"],
+    [[736, 739], "t1", "(pointer uint64)"],
+    [[740, 744], "t1", "(pointer uint32)"],
+    [[745, 751], "t1", "(pointer uint64)"],
+    [[752, 753], "t1", "(pointer uint32)"],
+    [502, "a3", "(pointer uint32)"],
+    [534, "a3", "(pointer uint64)"],
+    [[535, 538], "a3", "(pointer uint32)"],
+    [577, "a3", "(pointer uint64)"],
+    [[578, 581], "a3", "(pointer uint32)"],
+    [620, "a3", "(pointer uint64)"],
+    [[621, 624], "a3", "(pointer uint32)"],
+    [663, "a3", "(pointer uint64)"],
+    [[664, 667], "a3", "(pointer uint32)"],
+    [545, "a2", "(pointer uint64)"],
+    [[546, 549], "a2", "(pointer uint32)"],
+    [588, "a2", "(pointer uint64)"],
+    [[589, 592], "a2", "(pointer uint32)"],
+    [631, "a2", "(pointer uint64)"],
+    [[632, 635], "a2", "(pointer uint32)"],
+    [674, "a2", "(pointer uint64)"],
+    [[675, 678], "a2", "(pointer uint32)"]
+  ]
 }

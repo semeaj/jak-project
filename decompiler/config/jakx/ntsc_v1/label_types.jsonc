@@ -50,5 +50,10 @@
   "gsound": [
     ["L356", "(array symbol)", true],
     ["L383", "(array array)", true]
+  ],
+  "pad": [["L116", "(pointer uint8)", 256]],
+  "main": [
+    ["L564", "uint128", true],
+    ["L572", "(pointer uint64)", 2]
   ]
 }
