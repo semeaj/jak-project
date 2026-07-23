@@ -427,3 +427,7 @@
 (define-extern *pc-settings-built-sha* string)
 
 (define-extern alloc-vagdir-names (function symbol (pointer uint64)))
+
+;; og:preserve-this temp home: *use-menu2* really belongs to the menu2 code (menu2-h.o loads
+;; after level.o), but play2 in level.o writes it, so it needs an early definition.
+(define *use-menu2* #f)

@@ -7,3 +7,7 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this hand-written until settings.gc decompiles: the original top-level creates
+;; *setting-control* with a custom new; a zeroed default-new instance is enough for the
+;; bring-up (play only writes user-default fields).
+(define-perm *setting-control* setting-control (new 'global 'setting-control 0))

@@ -642,7 +642,18 @@
   )
 
 ;; definition for function memcpy
-;; ERROR: function was not converted to expressions. Cannot decompile.
+;; og:preserve-this hand-written replacement: the original is an optimized MIPS asm copy the
+;; decompiler cannot convert. jakx GOAL code (e.g. level.o's load path) calls it directly.
+(defun memcpy ((dst pointer) (src pointer) (len int))
+  "Copy len bytes from src to dst. Returns dst."
+  (let ((i 0))
+    (while (< i len)
+      (set! (-> (the-as (pointer uint8) (&+ dst i)) 0) (-> (the-as (pointer uint8) (&+ src i)) 0))
+      (+! i 1)
+      )
+    )
+  dst
+  )
 
 ;; definition for function sp-process-block
 ;; WARN: Return type mismatch int vs none.

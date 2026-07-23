@@ -7,3 +7,15 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: the real set-blackout-frames needs *display* (display.gc)
+;; for clock math; blackout is meaningless without a display process anyway.
+(defun set-blackout-frames ((arg0 time-frame))
+  (none)
+  )
+
+;; og:preserve-this bring-up stub: the real on starts the display process (display-loop),
+;; which waits on main.gc's decomp. Reports and returns the (nonexistent) display process.
+(defun on ((arg0 symbol))
+  (format 0 "on: display process not yet implemented (bring-up stub)~%")
+  *dproc*
+  )

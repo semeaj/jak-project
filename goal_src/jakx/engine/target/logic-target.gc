@@ -7,3 +7,9 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: the real stop also kills the target process; no target
+;; exists yet on the bring-up, so just record the mode like the original does.
+(defun stop ((arg0 symbol))
+  (set! (-> *game-info* mode) arg0)
+  0
+  )

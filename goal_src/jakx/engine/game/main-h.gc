@@ -7,6 +7,10 @@
 
 (declare-type debug-menu-context basic)
 
+;; jak3 declares these here as well; bodies live in main.gc (bring-up stubs for now)
+(define-extern on (function symbol process))
+(define-extern set-blackout-frames (function time-frame none))
+
 ;; +++collide-spec
 (defenum collide-spec
   :bitfield #t

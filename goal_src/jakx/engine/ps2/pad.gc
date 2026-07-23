@@ -46,3 +46,6 @@
   )
 
 (define-extern *mouse* mouse-info)
+
+;; og:preserve-this hand-written until pad.gc decompiles; same definition as jak3's pad.gc.
+(define *cheat-mode* #f)
