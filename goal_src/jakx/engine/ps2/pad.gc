@@ -15,37 +15,1677 @@
   )
 ;; ---mouse-buttons
 
-;; DECOMP BEGINS
-
-(deftype mouse-info (basic)
-  ((active             symbol          :offset-assert 4) ;; guessed by decompiler
-   (cursor             symbol          :offset-assert 8) ;; guessed by decompiler
-   (valid              symbol          :offset-assert 12) ;; guessed by decompiler
-   (id                 uint8           :offset-assert 16)
-   (status             uint16          :offset-assert 18)
-   (button0            uint16          :offset-assert 20)
-   (deltax             int8            :offset-assert 22)
-   (deltay             int8            :offset-assert 23)
-   (wheel              uint8           :offset-assert 24)
-   (change-time        uint64          :offset-assert 32) ;; time-frame
-   (button0-abs        mouse-buttons 3 :offset-assert 40) ;; guessed by decompiler
-   (button0-shadow-abs mouse-buttons 1 :offset-assert 52) ;; guessed by decompiler
-   (button0-rel        mouse-buttons 3 :offset-assert 56) ;; guessed by decompiler
-   (pos                vector        2 :inline :offset-assert 80) ;; guessed by decompiler
-  ;;  (UNKNOWN            UNKNOWN         :offset-assert -1) ;; field could not be read.
-   (posx               float           :offset 80)
-   (posy               float           :offset 84)
-   (oldposx            float           :offset 96)
-   (oldposy            float           :offset 100)
-   (speedx             float           :offset 92)
-   (speedy             float           :offset 108)
-   )
-  :method-count-assert 9
-  :size-assert         #x70
-  :flag-assert         #x900000070
+(defenum pad-buttons
+  :bitfield #t
+  :type uint32
+  (select   0)
+  (l3       1)
+  (r3       2)
+  (start    3)
+  (up       4)
+  (right    5)
+  (down     6)
+  (left     7)
+  (l2       8)
+  (r2       9)
+  (l1       10)
+  (r1       11)
+  (triangle 12)
+  (circle   13)
+  (x        14)
+  (square   15)
+  ;; only 16 buttons are mapped to hardware, the rest are 'actions' or something else
+  (l-analog-up 16)
+  (l-analog-right 17)
+  (l-analog-down 18)
+  (l-analog-left 19)
+  (r-analog-up 20)
+  (r-analog-right 21)
+  (r-analog-down 22)
+  (r-analog-left 23)
+  (confirm 24)
   )
 
-(define-extern *mouse* mouse-info)
+(defenum abutton-idx
+  :type uint8
+  (right 0)
+  (left 1)
+  (up 2)
+  (down 3)
+  (triangle 4)
+  (circle 5)
+  (x 6)
+  (square 7)
+  (l1 8)
+  (r1 9)
+  (l2 10)
+  (r2 11)
+  )
 
-;; og:preserve-this hand-written until pad.gc decompiles; same definition as jak3's pad.gc.
-(define *cheat-mode* #f)
+(define-extern get-current-time (function time-frame)) ;; auto-added forward ref
+
+
+;; og:preserve-this: standard cpad accessor macros, ported from jak3 pad.gc
+(defmacro cpad-pressed (pad-idx)
+  `(-> *cpad-list* cpads ,pad-idx button0-rel 0)
+  )
+
+(defmacro cpad-hold (pad-idx)
+  `(-> *cpad-list* cpads ,pad-idx button0-abs 0)
+  )
+
+(defmacro cpad-pressed? (pad-idx &rest buttons)
+  `(logtest? (cpad-pressed ,pad-idx) (pad-buttons ,@buttons))
+  )
+
+(defmacro cpad-hold? (pad-idx &rest buttons)
+  `(logtest? (cpad-hold ,pad-idx) (pad-buttons ,@buttons))
+  )
+
+(defmacro cpad-clear! (pad-idx &rest buttons)
+  `(begin
+      (logclear! (cpad-pressed ,pad-idx) (pad-buttons ,@buttons))
+      (logclear! (cpad-hold ,pad-idx) (pad-buttons ,@buttons))
+      )
+  )
+
+(defmacro cpad-change-time (pad-idx)
+  `(-> *cpad-list* cpads ,pad-idx change-time)
+  )
+
+;; DECOMP BEGINS
+
+
+;; definition of type scf-time
+(deftype scf-time (structure)
+  ((stat    uint8)
+   (second  uint8)
+   (minute  uint8)
+   (hour    uint8)
+   (week    uint8)
+   (day     uint8)
+   (month   uint8)
+   (year    uint8)
+   )
+  )
+
+;; definition for method 3 of type scf-time
+(defmethod inspect ((this scf-time))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'scf-time)
+  (format #t "~1Tstat: ~D~%" (-> this stat))
+  (format #t "~1Tsecond: #x~X~%" (-> this second))
+  (format #t "~1Tminute: #x~X~%" (-> this minute))
+  (format #t "~1Thour: #x~X~%" (-> this hour))
+  (format #t "~1Tweek: #x~X~%" (-> this week))
+  (format #t "~1Tday: #x~X~%" (-> this day))
+  (format #t "~1Tmonth: #x~X~%" (-> this month))
+  (format #t "~1Tyear: #x~X~%" (-> this year))
+  (label cfg-4)
+  this
+  )
+
+;; definition for symbol *cheat-mode*, type symbol
+(define *cheat-mode* #t)
+
+;; definition of type hw-cpad
+(deftype hw-cpad (basic)
+  ((valid    uint8)
+   (status   uint8)
+   (button0  uint16)
+   (rightx   uint8)
+   (righty   uint8)
+   (leftx    uint8)
+   (lefty    uint8)
+   (abutton  uint8  12)
+   (dummy    uint8  12)
+   )
+  )
+
+;; definition for method 3 of type hw-cpad
+(defmethod inspect ((this hw-cpad))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tvalid: #x~X~%" (-> this valid))
+  (format #t "~1Tstatus: #x~X~%" (-> this status))
+  (format #t "~1Tbutton0: #x~X~%" (-> this button0))
+  (format #t "~1Trightx: ~D~%" (-> this rightx))
+  (format #t "~1Trighty: ~D~%" (-> this righty))
+  (format #t "~1Tleftx: ~D~%" (-> this leftx))
+  (format #t "~1Tlefty: ~D~%" (-> this lefty))
+  (format #t "~1Tabutton[12] @ #x~X~%" (-> this abutton))
+  (format #t "~1Tdummy[12] @ #x~X~%" (-> this dummy))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type cpad-info
+(deftype cpad-info (hw-cpad)
+  ((number              int32)
+   (cpad-file           int32)
+   (button0-abs         pad-buttons  3)
+   (button0-shadow-abs  pad-buttons  1)
+   (button0-rel         pad-buttons  3)
+   (stick0-dir          float)
+   (stick0-speed        float)
+   (new-pad             int32)
+   (state               int32)
+   (align               uint8        6)
+   (direct              uint8        6)
+   (buzz-val            uint8        2)
+   (buzz-pause-val      uint8        1)
+   (buzz-pause-time     uint8)
+   (buzz-time           time-frame   2)
+   (buzz                symbol)
+   (buzz-act            int32)
+   (change-time         uint64)
+   (real-change-time    uint64)
+   (old-rightx          uint8        2)
+   (old-righty          uint8        2)
+   (old-leftx           uint8        2)
+   (old-lefty           uint8        2)
+   )
+  (:methods
+    (new (symbol type int) _type_) ;; og:preserve-this: index arg (decomp guessed 2-arg)
+    (cpad-info-method-9 () none)
+    )
+  )
+
+;; definition for method 3 of type cpad-info
+(defmethod inspect ((this cpad-info))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tvalid: #x~X~%" (-> this valid))
+  (format #t "~1Tstatus: #x~X~%" (-> this status))
+  (format #t "~1Tbutton0: #x~X~%" (-> this button0))
+  (format #t "~1Trightx: ~D~%" (-> this rightx))
+  (format #t "~1Trighty: ~D~%" (-> this righty))
+  (format #t "~1Tleftx: ~D~%" (-> this leftx))
+  (format #t "~1Tlefty: ~D~%" (-> this lefty))
+  (format #t "~1Tabutton[12] @ #x~X~%" (-> this abutton))
+  (format #t "~1Tdummy[12] @ #x~X~%" (-> this dummy))
+  (format #t "~1Tnumber: ~D~%" (-> this number))
+  (format #t "~1Tcpad-file: ~D~%" (-> this cpad-file))
+  (format #t "~1Tbutton0-abs[3] @ #x~X~%" (-> this button0-abs))
+  (format #t "~1Tbutton0-shadow-abs[1] @ #x~X~%" (-> this button0-shadow-abs))
+  (format #t "~1Tbutton0-rel[3] @ #x~X~%" (-> this button0-rel))
+  (format #t "~1Tstick0-dir: ~f~%" (-> this stick0-dir))
+  (format #t "~1Tstick0-speed: ~f~%" (-> this stick0-speed))
+  (format #t "~1Tnew-pad: ~D~%" (-> this new-pad))
+  (format #t "~1Tstate: ~D~%" (-> this state))
+  (format #t "~1Talign[6] @ #x~X~%" (-> this align))
+  (format #t "~1Tdirect[6] @ #x~X~%" (-> this direct))
+  (format #t "~1Tbuzz-val[2] @ #x~X~%" (-> this buzz-val))
+  (format #t "~1Tbuzz-pause-val[1] @ #x~X~%" (-> this buzz-pause-val))
+  (format #t "~1Tbuzz-pause-time: ~D~%" (-> this buzz-pause-time))
+  (format #t "~1Tbuzz-time[2] @ #x~X~%" (-> this buzz-time))
+  (format #t "~1Tbuzz: ~A~%" (-> this buzz))
+  (format #t "~1Tbuzz-act: ~D~%" (-> this buzz-act))
+  (format #t "~1Tchange-time: ~D~%" (-> this change-time))
+  (format #t "~1Treal-change-time: ~D~%" (-> this real-change-time))
+  (format #t "~1Told-rightx[2] @ #x~X~%" (-> this old-rightx))
+  (format #t "~1Told-righty[2] @ #x~X~%" (-> this old-righty))
+  (format #t "~1Told-leftx[2] @ #x~X~%" (-> this old-leftx))
+  (format #t "~1Told-lefty[2] @ #x~X~%" (-> this old-lefty))
+  (label cfg-4)
+  this
+  )
+
+;; definition for function cpad-invalid!
+(defun cpad-invalid! ((arg0 cpad-info))
+  (logior! (-> arg0 valid) 128)
+  (set! (-> arg0 button0) (the-as uint 0))
+  (set! (-> arg0 button0-abs 0) (pad-buttons))
+  (set! (-> arg0 button0-shadow-abs 0) (pad-buttons))
+  (set! (-> arg0 button0-rel 0) (pad-buttons))
+  (dotimes (v1-2 12)
+    (nop!)
+    (set! (-> arg0 abutton v1-2) (the-as uint 0))
+    )
+  (set! (-> arg0 stick0-dir) 0.0)
+  (set! (-> arg0 stick0-speed) 0.0)
+  (set! (-> arg0 rightx) (the-as uint 128))
+  (set! (-> arg0 righty) (the-as uint 128))
+  (set! (-> arg0 leftx) (the-as uint 128))
+  (set! (-> arg0 lefty) (the-as uint 128))
+  (set! (-> arg0 align 0) (the-as uint 0))
+  (set! (-> arg0 align 1) (the-as uint 1))
+  (set! (-> arg0 align 2) (the-as uint 255))
+  (set! (-> arg0 align 3) (the-as uint 255))
+  (set! (-> arg0 align 4) (the-as uint 255))
+  (set! (-> arg0 align 5) (the-as uint 255))
+  (dotimes (v1-14 6)
+    (nop!)
+    (set! (-> arg0 direct v1-14) (the-as uint 0))
+    )
+  (dotimes (v1-17 2)
+    (nop!)
+    (set! (-> arg0 buzz-val v1-17) (the-as uint 0))
+    (set! (-> arg0 buzz-time v1-17) 0)
+    )
+  (set! (-> arg0 buzz-pause-val 0) (the-as uint 0))
+  (set! (-> arg0 buzz-time 0) 0)
+  arg0
+  )
+
+;; og:preserve-this hand-written (decomp dropped the index arg; jak3-identical body)
+(defmethod new cpad-info ((allocation symbol) (type-to-make type) (arg0 int))
+  "Allocate a new cpad-info and open the pad itself through the kernel."
+  (let ((s5-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> s5-0 number) arg0)
+    (set! (-> s5-0 buzz) #f)
+    (cpad-open s5-0 arg0)
+    (cpad-invalid! s5-0)
+    )
+  )
+
+;; definition for method 0 of type cpad-info
+;; ERROR: Function may read a register that is not set: a2
+;; NOTE: decomp still fails; commented out until fixed
+;; (defmethod new cpad-info ((allocation symbol) (type-to-make type))
+;;   (local-vars (a2-0 none))
+;;   (let ((s5-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+;;     (set! (-> s5-0 number) (the-as int a2-0))
+;;     (set! (-> s5-0 buzz) #f)
+;;     (cpad-open s5-0 (the-as int a2-0))
+;;     (cpad-invalid! s5-0)
+;;     )
+;;   )
+
+;; definition of type cpad-list
+(deftype cpad-list (basic)
+  ((num-cpads  int32)
+   (cpads      cpad-info  2)
+   )
+  )
+
+;; definition for method 3 of type cpad-list
+(defmethod inspect ((this cpad-list))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tnum-cpads: ~D~%" (-> this num-cpads))
+  (format #t "~1Tcpads[2] @ #x~X~%" (-> this cpads))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 0 of type cpad-list
+;; og:preserve-this hand-fixed: the decomp dropped the index args (the stray 0/1 bare
+;; statements); jak3-identical body.
+(defmethod new cpad-list ((allocation symbol) (type-to-make type))
+  (let ((gp-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> gp-0 num-cpads) 2)
+    (set! (-> gp-0 cpads 0) (new 'global 'cpad-info 0))
+    (set! (-> gp-0 cpads 1) (new 'global 'cpad-info 1))
+    gp-0
+    )
+  )
+
+;; definition for function analog-input
+(defun analog-input ((arg0 int) (arg1 float) (arg2 float) (arg3 float) (arg4 float))
+  (let* ((f1-1 (- (the float arg0) arg1))
+         (f0-3 (- (fabs f1-1) arg2))
+         (v1-0 (- arg3 arg2))
+         )
+    (if (< f1-1 0.0)
+        (set! arg4 (- arg4))
+        )
+    (cond
+      ((>= 0.0 f0-3)
+       0.0
+       )
+      ((>= f0-3 v1-0)
+       arg4
+       )
+      (else
+        (/ (* f0-3 arg4) v1-0)
+        )
+      )
+    )
+  )
+
+;; definition for function cpad-set-buzz!
+;; WARN: Return type mismatch int vs none.
+(defun cpad-set-buzz! ((arg0 cpad-info) (arg1 int) (arg2 int) (arg3 time-frame))
+  (cond
+    ((zero? arg2)
+     (set! (-> arg0 buzz-val arg1) (the-as uint 0))
+     0
+     )
+    ((= arg2 (-> arg0 buzz-val arg1))
+     (set! (-> arg0 buzz-time arg1) (the-as time-frame (max (-> arg0 buzz-time arg1) (+ (get-current-time) arg3))))
+     )
+    ((< (-> arg0 buzz-val arg1) (the-as uint arg2))
+     (set! (-> arg0 buzz-val arg1) (the-as uint arg2))
+     (set! (-> arg0 buzz-time arg1) (+ (get-current-time) arg3))
+     )
+    )
+  0
+  (none)
+  )
+
+;; definition for symbol *cpad-list*, type cpad-list
+(define *cpad-list* (new 'global 'cpad-list))
+
+;; definition for symbol *cpad-debug*, type symbol
+(define *cpad-debug* #f)
+
+;; definition for function service-cpads
+;; ERROR: failed type prop at 257: Called a function, but we do not know its type
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun service-cpads ()
+;;   (local-vars
+;;     (v0-0 cpad-info)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v0-4 none)
+;;     (v0-5 none)
+;;     (v0-6 none)
+;;     (v0-7 none)
+;;     (v0-8 none)
+;;     (v0-9 none)
+;;     (v0-10 none)
+;;     (v0-11 none)
+;;     (v0-12 cpad-list)
+;;     (v1-0 int)
+;;     (v1-1 int)
+;;     (v1-2 uint)
+;;     (v1-3 uint)
+;;     (v1-4 uint)
+;;     (v1-5 uint)
+;;     (v1-6 uint)
+;;     (v1-7 uint)
+;;     (v1-8 uint)
+;;     (v1-9 uint)
+;;     (v1-10 type)
+;;     (v1-12 uint)
+;;     (v1-13 uint)
+;;     (v1-14 none)
+;;     (v1-15 none)
+;;     (v1-16 none)
+;;     (v1-17 none)
+;;     (v1-18 none)
+;;     (v1-19 none)
+;;     (v1-20 none)
+;;     (v1-21 none)
+;;     (v1-22 none)
+;;     (v1-23 none)
+;;     (v1-24 none)
+;;     (v1-26 none)
+;;     (v1-28 none)
+;;     (v1-29 none)
+;;     (v1-30 none)
+;;     (v1-31 none)
+;;     (v1-32 none)
+;;     (v1-33 none)
+;;     (v1-34 none)
+;;     (v1-35 none)
+;;     (v1-37 none)
+;;     (v1-38 none)
+;;     (v1-39 none)
+;;     (v1-40 none)
+;;     (v1-41 none)
+;;     (v1-43 none)
+;;     (v1-46 int)
+;;     (v1-48 int)
+;;     (v1-49 pad-buttons)
+;;     (v1-50 pad-buttons)
+;;     (v1-51 pad-buttons)
+;;     (v1-52 pad-buttons)
+;;     (v1-53 int)
+;;     (v1-55 pad-buttons)
+;;     (v1-56 pad-buttons)
+;;     (v1-57 int)
+;;     (v1-58 pad-buttons)
+;;     (v1-59 pad-buttons)
+;;     (v1-60 int)
+;;     (v1-61 pad-buttons)
+;;     (v1-62 pad-buttons)
+;;     (v1-63 int)
+;;     (v1-64 pad-buttons)
+;;     (v1-65 pad-buttons)
+;;     (v1-66 int)
+;;     (v1-67 pad-buttons)
+;;     (v1-68 pad-buttons)
+;;     (v1-69 int)
+;;     (v1-70 pad-buttons)
+;;     (v1-71 pad-buttons)
+;;     (v1-72 int)
+;;     (v1-73 pad-buttons)
+;;     (v1-74 pad-buttons)
+;;     (v1-75 int)
+;;     (v1-76 pad-buttons)
+;;     (v1-77 pad-buttons)
+;;     (v1-78 int)
+;;     (v1-79 pad-buttons)
+;;     (v1-80 pad-buttons)
+;;     (v1-81 int)
+;;     (v1-82 pad-buttons)
+;;     (v1-83 pad-buttons)
+;;     (v1-84 int)
+;;     (v1-85 pad-buttons)
+;;     (v1-86 pad-buttons)
+;;     (v1-87 int)
+;;     (v1-88 pad-buttons)
+;;     (v1-89 pad-buttons)
+;;     (v1-90 int)
+;;     (v1-91 uint)
+;;     (v1-93 int)
+;;     (v1-95 none)
+;;     (v1-97 none)
+;;     (v1-99 uint)
+;;     (v1-101 int)
+;;     (v1-103 none)
+;;     (v1-105 none)
+;;     (v1-107 uint)
+;;     (v1-109 int)
+;;     (v1-111 none)
+;;     (v1-113 none)
+;;     (v1-115 uint)
+;;     (v1-117 int)
+;;     (v1-119 none)
+;;     (v1-121 none)
+;;     (v1-123 none)
+;;     (v1-124 none)
+;;     (v1-125 none)
+;;     (v1-126 none)
+;;     (v1-127 none)
+;;     (v1-129 none)
+;;     (v1-131 none)
+;;     (v1-133 none)
+;;     (v1-135 none)
+;;     (v1-136 none)
+;;     (v1-137 none)
+;;     (v1-139 none)
+;;     (v1-141 none)
+;;     (v1-143 none)
+;;     (v1-145 none)
+;;     (v1-146 none)
+;;     (v1-147 none)
+;;     (v1-149 none)
+;;     (v1-150 none)
+;;     (v1-151 none)
+;;     (v1-152 none)
+;;     (v1-153 none)
+;;     (v1-154 none)
+;;     (v1-155 none)
+;;     (v1-156 none)
+;;     (v1-157 none)
+;;     (v1-158 none)
+;;     (v1-159 none)
+;;     (v1-160 none)
+;;     (v1-163 none)
+;;     (v1-164 none)
+;;     (v1-165 none)
+;;     (v1-166 none)
+;;     (v1-168 none)
+;;     (v1-169 none)
+;;     (v1-170 none)
+;;     (v1-171 none)
+;;     (v1-172 none)
+;;     (v1-176 int)
+;;     (a0-0 cpad-list)
+;;     (a0-1 cpad-info)
+;;     (a0-2 cpad-info)
+;;     (a0-3 none)
+;;     (a0-4 none)
+;;     (a0-6 none)
+;;     (a0-7 none)
+;;     (a0-8 none)
+;;     (a0-9 none)
+;;     (a0-10 uint)
+;;     (a0-11 uint)
+;;     (a0-12 none)
+;;     (a0-13 none)
+;;     (a0-14 none)
+;;     (a0-15 none)
+;;     (a0-16 none)
+;;     (a0-17 none)
+;;     (a0-18 none)
+;;     (a0-19 none)
+;;     (a0-20 none)
+;;     (a0-21 none)
+;;     (a0-22 none)
+;;     (a0-23 none)
+;;     (a0-24 none)
+;;     (a0-25 none)
+;;     (a0-26 none)
+;;     (a0-28 none)
+;;     (a0-29 none)
+;;     (a0-30 none)
+;;     (a1-0 none)
+;;     (a1-1 none)
+;;     (a1-2 none)
+;;     (s2-0 none)
+;;     (s2-1 none)
+;;     (s3-0 int)
+;;     (s3-1 uint)
+;;     (s4-0 cpad-info)
+;;     (s5-0 int)
+;;     (t9-0 (function cpad-info cpad-info))
+;;     (t9-1 (function none))
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     (t9-4 none)
+;;     (t9-5 function)
+;;     (t9-6 none)
+;;     (t9-7 none)
+;;     (t9-8 none)
+;;     (t9-9 none)
+;;     (t9-10 none)
+;;     (t9-11 none)
+;;     (gp-0 cpad-list)
+;;     (f0-0 none)
+;;     (f0-1 none)
+;;     (f0-2 none)
+;;     (f0-3 none)
+;;     (f0-4 none)
+;;     (f0-5 none)
+;;     (f0-6 none)
+;;     (f0-7 none)
+;;     (f0-8 none)
+;;     (f0-9 none)
+;;     (f0-10 none)
+;;     (f0-11 none)
+;;     (f1-0 none)
+;;     (f1-1 none)
+;;     (f1-2 none)
+;;     (f1-3 none)
+;;     (f1-4 none)
+;;     (f1-5 none)
+;;     (f1-6 none)
+;;     (f1-7 none)
+;;     (f1-8 none)
+;;     (f2-0 none)
+;;     (f28-0 none)
+;;     (f30-0 none)
+;;     )
+;;   (set! gp-0 *cpad-list*)
+;;   (set! s5-0 0)
+;;   (while (begin (set! v1-176 (-> gp-0 num-cpads)) (<.si s5-0 v1-176))
+;;     (cond
+;;       ((begin
+;;          (set! v1-0 (sll s5-0 2))
+;;          (set! a0-0 *cpad-list*)
+;;          (set! v1-1 (+ v1-0 a0-0))
+;;          (set! s4-0 (dynamic-array-field-access v1-1 cpads PLACEHOLDER))
+;;          (set! v1-2 (-> s4-0 old-leftx 0))
+;;          (set! (-> s4-0 old-leftx 1) v1-2)
+;;          (set! v1-3 (-> s4-0 leftx))
+;;          (set! (-> s4-0 old-leftx 0) v1-3)
+;;          (set! v1-4 (-> s4-0 old-lefty 0))
+;;          (set! (-> s4-0 old-lefty 1) v1-4)
+;;          (set! v1-5 (-> s4-0 lefty))
+;;          (set! (-> s4-0 old-lefty 0) v1-5)
+;;          (set! v1-6 (-> s4-0 old-rightx 0))
+;;          (set! (-> s4-0 old-rightx 1) v1-6)
+;;          (set! v1-7 (-> s4-0 rightx))
+;;          (set! (-> s4-0 old-rightx 0) v1-7)
+;;          (set! v1-8 (-> s4-0 old-righty 0))
+;;          (set! (-> s4-0 old-righty 1) v1-8)
+;;          (set! v1-9 (-> s4-0 righty))
+;;          (set! (-> s4-0 old-righty 0) v1-9)
+;;          (set! t9-0 cpad-get-data)
+;;          (set! a0-1 s4-0)
+;;          (call! a0-1)
+;;          (set! a0-2 s4-0)
+;;          (set! v1-10 (-> a0-2 type))
+;;          (set! t9-1 (method-of-type v1-10 cpad-info-method-9))
+;;          (call!)
+;;          (set! v1-11 v0-1)
+;;          (set! v1-12 (-> s4-0 valid))
+;;          (set! v1-13 (logand v1-12 128))
+;;          (zero? v1-13)
+;;          )
+;;        (when (begin
+;;                (when (begin
+;;                        (cond
+;;                          ((begin
+;;                             (cond
+;;                               ((begin
+;;                                  (when (begin
+;;                                          (set! s3-0 0)
+;;                                          (while (<.si s3-0 2)
+;;                                            (cond
+;;                                              ((begin
+;;                                                 (and (begin (set! v1-14 (the-as none (-> s4-0 buzz))) v1-14)
+;;                                                      (begin
+;;                                                        (set! t9-2 (the-as none get-current-time))
+;;                                                        (set! v0-2 (the-as none (call!)))
+;;                                                        (set! v1-16 (the-as none (sll s3-0 3)))
+;;                                                        (set! v1-17 (the-as none (+ v1-16 s4-0)))
+;;                                                        (set! v1-18 (the-as none (l.d (+ v1-17 100))))
+;;                                                        (set! a0-3 (the-as none (<.si v0-2 v1-18)))
+;;                                                        a0-3
+;;                                                        )
+;;                                                      (begin
+;;                                                        (set! v1-19 (the-as none *master-mode*))
+;;                                                        (set! a0-4 (the-as none 'game))
+;;                                                        (set! v1-15 (the-as none (= v1-19 a0-4)))
+;;                                                        )
+;;                                                      )
+;;                                                 v1-15
+;;                                                 )
+;;                                               (cond
+;;                                                 ((begin (set! v1-20 (the-as none s3-0)) (zero? v1-20))
+;;                                                  (set! v1-21 (the-as none (+ s3-0 s4-0)))
+;;                                                  (set! s2-0 (the-as none (l.bu (+ v1-21 96))))
+;;                                                  (set! t9-3 (the-as none get-integral-current-time))
+;;                                                  (set! v0-3 (the-as none (call!)))
+;;                                                  (set! v1-22 (the-as none (logand v0-3 7)))
+;;                                                  (set! v1-23 (the-as none (- v1-22)))
+;;                                                  (set! v1-24 (the-as none (ash.ui s2-0 v1-23)))
+;;                                                  (set! v1-26 (the-as none (logand v1-24 1)))
+;;                                                  (set! a0-6 (the-as none (+ s3-0 s4-0)))
+;;                                                  (s.b! (+ a0-6 90) v1-26)
+;;                                                  )
+;;                                                 ((begin (set! a0-7 (the-as none 1)) (= v1-20 a0-7))
+;;                                                  (set! v1-28 (the-as none (+ s3-0 s4-0)))
+;;                                                  (set! v1-29 (the-as none (l.bu (+ v1-28 96))))
+;;                                                  (set! a0-8 (the-as none (+ s3-0 s4-0)))
+;;                                                  (s.b! (+ a0-8 90) v1-29)
+;;                                                  )
+;;                                                 )
+;;                                               )
+;;                                              ((begin
+;;                                                 (and (zero? s3-0)
+;;                                                      (begin (set! v1-31 (the-as none (l.bu (+ s4-0 99)))) (set! v1-30 (the-as none (>0.ui v1-31))))
+;;                                                      )
+;;                                                 v1-30
+;;                                                 )
+;;                                               (set! v1-32 (the-as none (+ s3-0 s4-0)))
+;;                                               (set! s2-1 (the-as none (l.bu (+ v1-32 98))))
+;;                                               (set! t9-4 (the-as none get-integral-current-time))
+;;                                               (set! v0-4 (the-as none (call!)))
+;;                                               (set! v1-33 (the-as none (logand v0-4 7)))
+;;                                               (set! v1-34 (the-as none (- v1-33)))
+;;                                               (set! v1-35 (the-as none (ash.ui s2-1 v1-34)))
+;;                                               (set! v1-37 (the-as none (logand v1-35 1)))
+;;                                               (set! a0-9 (the-as none (+ s3-0 s4-0)))
+;;                                               (s.b! (+ a0-9 90) v1-37)
+;;                                               (set! v1-38 (the-as none (l.bu (+ s4-0 99))))
+;;                                               (set! v1-39 (the-as none (+ v1-38 -1)))
+;;                                               (s.b! (+ s4-0 99) v1-39)
+;;                                               )
+;;                                              (else
+;;                                                (when (begin
+;;                                                        (set! v1-40 (the-as none (+ s3-0 s4-0)))
+;;                                                        (s.b! (+ v1-40 96) 0)
+;;                                                        (set! v1-41 (the-as none (+ s3-0 s4-0)))
+;;                                                        (s.b! (+ v1-41 90) 0)
+;;                                                        (zero? s3-0)
+;;                                                        )
+;;                                                  (s.b! (+ s4-0 99) 0)
+;;                                                  (set! v1-43 (the-as none 0))
+;;                                                  )
+;;                                                )
+;;                                              )
+;;                                            (set! s3-0 (the-as int (+ s3-0 1)))
+;;                                            )
+;;                                          (set! v1-46 192)
+;;                                          (set! a0-10 (-> s4-0 direct 1))
+;;                                          (<.ui v1-46 a0-10)
+;;                                          )
+;;                                    (set! (-> s4-0 direct 0) (the-as uint 0))
+;;                                    (set! v1-48 0)
+;;                                    )
+;;                                  (when (begin
+;;                                          (set! v1-49 (-> s4-0 button0-abs 1))
+;;                                          (set! (-> s4-0 button0-abs 2) v1-49)
+;;                                          (set! v1-50 (-> s4-0 button0-shadow-abs 0))
+;;                                          (set! (-> s4-0 button0-abs 1) v1-50)
+;;                                          (set! v1-51 (-> s4-0 button0-rel 1))
+;;                                          (set! (-> s4-0 button0-rel 2) v1-51)
+;;                                          (set! v1-52 (-> s4-0 button0-rel 0))
+;;                                          (set! (-> s4-0 button0-rel 1) v1-52)
+;;                                          (set! v1-53 115)
+;;                                          (set! a0-11 (-> s4-0 status))
+;;                                          (= a0-11 v1-53)
+;;                                          )
+;;                                    (if (begin (set! v1-55 (-> s4-0 button0-abs 0)) (set! v1-56 (logand v1-55 32)) (nonzero? v1-56))
+;;                                        (set! v1-57 255)
+;;                                        (set! v1-57 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 0) (the-as uint v1-57))
+;;                                          (set! v1-58 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-59 (logand v1-58 128))
+;;                                          (nonzero? v1-59)
+;;                                          )
+;;                                        (set! v1-60 255)
+;;                                        (set! v1-60 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 1) (the-as uint v1-60))
+;;                                          (set! v1-61 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-62 (logand v1-61 16))
+;;                                          (nonzero? v1-62)
+;;                                          )
+;;                                        (set! v1-63 255)
+;;                                        (set! v1-63 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 2) (the-as uint v1-63))
+;;                                          (set! v1-64 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-65 (logand v1-64 64))
+;;                                          (nonzero? v1-65)
+;;                                          )
+;;                                        (set! v1-66 255)
+;;                                        (set! v1-66 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 3) (the-as uint v1-66))
+;;                                          (set! v1-67 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-68 (logand v1-67 #x4000))
+;;                                          (nonzero? v1-68)
+;;                                          )
+;;                                        (set! v1-69 255)
+;;                                        (set! v1-69 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 6) (the-as uint v1-69))
+;;                                          (set! v1-70 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-71 (logand v1-70 8192))
+;;                                          (nonzero? v1-71)
+;;                                          )
+;;                                        (set! v1-72 255)
+;;                                        (set! v1-72 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 5) (the-as uint v1-72))
+;;                                          (set! v1-73 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-74 (logand v1-73 4096))
+;;                                          (nonzero? v1-74)
+;;                                          )
+;;                                        (set! v1-75 255)
+;;                                        (set! v1-75 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 4) (the-as uint v1-75))
+;;                                          (set! v1-76 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-77 (logand v1-76 #x8000))
+;;                                          (nonzero? v1-77)
+;;                                          )
+;;                                        (set! v1-78 255)
+;;                                        (set! v1-78 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 7) (the-as uint v1-78))
+;;                                          (set! v1-79 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-80 (logand v1-79 1024))
+;;                                          (nonzero? v1-80)
+;;                                          )
+;;                                        (set! v1-81 255)
+;;                                        (set! v1-81 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 8) (the-as uint v1-81))
+;;                                          (set! v1-82 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-83 (logand v1-82 256))
+;;                                          (nonzero? v1-83)
+;;                                          )
+;;                                        (set! v1-84 255)
+;;                                        (set! v1-84 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 10) (the-as uint v1-84))
+;;                                          (set! v1-85 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-86 (logand v1-85 2048))
+;;                                          (nonzero? v1-86)
+;;                                          )
+;;                                        (set! v1-87 255)
+;;                                        (set! v1-87 0)
+;;                                        )
+;;                                    (if (begin
+;;                                          (set! (-> s4-0 abutton 9) (the-as uint v1-87))
+;;                                          (set! v1-88 (-> s4-0 button0-abs 0))
+;;                                          (set! v1-89 (logand v1-88 512))
+;;                                          (nonzero? v1-89)
+;;                                          )
+;;                                        (set! v1-90 255)
+;;                                        (set! v1-90 0)
+;;                                        )
+;;                                    (set! (-> s4-0 abutton 11) (the-as uint v1-90))
+;;                                    )
+;;                                  (set! s3-1 (-> s4-0 button0))
+;;                                  (set! v1-91 (-> s4-0 lefty))
+;;                                  (<.ui v1-91 30)
+;;                                  )
+;;                                (set! v1-93 #x10000)
+;;                                (set! s3-1 (logior v1-93 s3-1))
+;;                                (set! v1-94 s3-1)
+;;                                )
+;;                               ((begin (set! v1-95 (the-as none 225)) (set! a0-12 (the-as none (-> s4-0 lefty))) (<.ui v1-95 a0-12))
+;;                                (set! v1-97 (the-as none #x40000))
+;;                                (set! s3-1 (the-as uint (logior v1-97 s3-1)))
+;;                                (set! v1-98 (the-as none s3-1))
+;;                                )
+;;                               )
+;;                             (cond
+;;                               ((begin (set! v1-99 (-> s4-0 leftx)) (<.ui v1-99 30))
+;;                                (set! v1-101 #x80000)
+;;                                (set! s3-1 (logior v1-101 s3-1))
+;;                                (set! v1-102 s3-1)
+;;                                )
+;;                               ((begin (set! v1-103 (the-as none 225)) (set! a0-13 (the-as none (-> s4-0 leftx))) (<.ui v1-103 a0-13))
+;;                                (set! v1-105 (the-as none #x20000))
+;;                                (set! s3-1 (the-as uint (logior v1-105 s3-1)))
+;;                                (set! v1-106 (the-as none s3-1))
+;;                                )
+;;                               )
+;;                             (set! v1-107 (-> s4-0 righty))
+;;                             (<.ui v1-107 30)
+;;                             )
+;;                           (set! v1-109 #x100000)
+;;                           (set! s3-1 (logior v1-109 s3-1))
+;;                           (set! v1-110 s3-1)
+;;                           )
+;;                          ((begin (set! v1-111 (the-as none 225)) (set! a0-14 (the-as none (-> s4-0 righty))) (<.ui v1-111 a0-14))
+;;                           (set! v1-113 (the-as none #x400000))
+;;                           (set! s3-1 (the-as uint (logior v1-113 s3-1)))
+;;                           (set! v1-114 (the-as none s3-1))
+;;                           )
+;;                          )
+;;                        (cond
+;;                          ((begin
+;;                             (cond
+;;                               ((begin (set! v1-115 (-> s4-0 rightx)) (<.ui v1-115 30))
+;;                                (set! v1-117 #x800000)
+;;                                (set! s3-1 (logior v1-117 s3-1))
+;;                                (set! v1-118 s3-1)
+;;                                )
+;;                               ((begin (set! v1-119 (the-as none 225)) (set! a0-15 (the-as none (-> s4-0 rightx))) (<.ui v1-119 a0-15))
+;;                                (set! v1-121 (the-as none #x200000))
+;;                                (set! s3-1 (the-as uint (logior v1-121 s3-1)))
+;;                                (set! v1-122 (the-as none s3-1))
+;;                                )
+;;                               )
+;;                             (or (begin
+;;                                   (set! t9-5 get-current-language)
+;;                                   (set! v0-5 (the-as none (call!)))
+;;                                   (set! v1-123 (the-as none v0-5))
+;;                                   (set! a0-16 (the-as none (+ v1-123 -6)))
+;;                                   (set! a1-0 (the-as none (zero? a0-16)))
+;;                                   a1-0
+;;                                   )
+;;                                 (begin (set! a0-17 (the-as none (+ v1-123 -7))) (set! v1-124 (the-as none (zero? a0-17))))
+;;                                 )
+;;                             v1-124
+;;                             )
+;;                           (cond
+;;                             ((begin
+;;                                (or (begin
+;;                                      (set! t9-6 (the-as none scf-get-territory))
+;;                                      (set! v0-6 (the-as none (call!)))
+;;                                      (set! v1-125 (the-as none v0-6))
+;;                                      (set! a0-18 (the-as none (+ v1-125 -2)))
+;;                                      (set! a1-1 (the-as none (zero? a0-18)))
+;;                                      a1-1
+;;                                      )
+;;                                    (begin (set! a0-19 (the-as none (+ v1-125 -3))) (set! v1-126 (the-as none (zero? a0-19))))
+;;                                    )
+;;                                v1-126
+;;                                )
+;;                              (when (begin (set! v1-127 (the-as none (logand s3-1 8192))) (nonzero? v1-127))
+;;                                (set! v1-129 (the-as none #x1000000))
+;;                                (set! s3-1 (the-as uint (logior v1-129 s3-1)))
+;;                                (set! v1-130 (the-as none s3-1))
+;;                                )
+;;                              )
+;;                             (else
+;;                               (when (begin (set! v1-131 (the-as none (logand s3-1 #x6000))) (nonzero? v1-131))
+;;                                 (set! v1-133 (the-as none #x1000000))
+;;                                 (set! s3-1 (the-as uint (logior v1-133 s3-1)))
+;;                                 (set! v1-134 (the-as none s3-1))
+;;                                 )
+;;                               )
+;;                             )
+;;                           )
+;;                          ((begin
+;;                             (or (begin
+;;                                   (set! t9-7 (the-as none scf-get-territory))
+;;                                   (set! v0-7 (the-as none (call!)))
+;;                                   (set! v1-135 (the-as none v0-7))
+;;                                   (set! a0-20 (the-as none (+ v1-135 -2)))
+;;                                   (set! a1-2 (the-as none (zero? a0-20)))
+;;                                   a1-2
+;;                                   )
+;;                                 (begin (set! a0-21 (the-as none (+ v1-135 -3))) (set! v1-136 (the-as none (zero? a0-21))))
+;;                                 )
+;;                             v1-136
+;;                             )
+;;                           (when (begin (set! v1-137 (the-as none (logand s3-1 #x6000))) (nonzero? v1-137))
+;;                             (set! v1-139 (the-as none #x1000000))
+;;                             (set! s3-1 (the-as uint (logior v1-139 s3-1)))
+;;                             (set! v1-140 (the-as none s3-1))
+;;                             )
+;;                           )
+;;                          (else
+;;                            (when (begin (set! v1-141 (the-as none (logand s3-1 #x4000))) (nonzero? v1-141))
+;;                              (set! v1-143 (the-as none #x1000000))
+;;                              (set! s3-1 (the-as uint (logior v1-143 s3-1)))
+;;                              (set! v1-144 (the-as none s3-1))
+;;                              )
+;;                            )
+;;                          )
+;;                        (s.w! (+ s4-0 52) s3-1)
+;;                        (s.w! (+ s4-0 40) s3-1)
+;;                        (set! v1-145 (the-as none (l.wu (+ s4-0 40))))
+;;                        (set! a0-22 (the-as none (l.wu (+ s4-0 44))))
+;;                        (set! a0-23 (the-as none (lognot a0-22)))
+;;                        (set! v1-146 (the-as none (logand v1-145 a0-23)))
+;;                        (s.w! (+ s4-0 56) v1-146)
+;;                        (set! v1-147 (the-as none *cpad-debug*))
+;;                        v1-147
+;;                        )
+;;                  (set! v1-149 (the-as none 255))
+;;                  (s.b! (+ s4-0 6) v1-149)
+;;                  (set! v1-150 (the-as none 255))
+;;                  (s.b! (+ s4-0 4) v1-150)
+;;                  )
+;;                (or (begin
+;;                      (cond
+;;                        ((begin
+;;                           (set! v1-151 (the-as none #x3f800000))
+;;                           (set! f0-0 (the-as none (gpr->fpr v1-151)))
+;;                           (s.f! (+ s4-0 72) f0-0)
+;;                           (set! v1-152 (the-as none 7))
+;;                           (set! a0-24 (the-as none (l.bu (+ s4-0 1))))
+;;                           (set! a0-25 (the-as none (srl a0-24 4)))
+;;                           (= a0-25 v1-152)
+;;                           )
+;;                         (when (begin
+;;                                 (set! v1-153 (the-as none #x3c000000))
+;;                                 (set! f0-1 (the-as none (gpr->fpr v1-153)))
+;;                                 (set! v1-154 (the-as none (l.bu (+ s4-0 6))))
+;;                                 (set! v1-155 (the-as none (+ v1-154 -128)))
+;;                                 (set! f1-0 (the-as none (gpr->fpr v1-155)))
+;;                                 (set! f1-1 (the-as none (i2f f1-0)))
+;;                                 (set! f30-0 (the-as none (*.s f0-1 f1-1)))
+;;                                 (set! v1-156 (the-as none #x3c000000))
+;;                                 (set! f0-2 (the-as none (gpr->fpr v1-156)))
+;;                                 (set! v1-157 (the-as none 127))
+;;                                 (set! a0-26 (the-as none (l.bu (+ s4-0 7))))
+;;                                 (set! v1-158 (the-as none (- v1-157 a0-26)))
+;;                                 (set! f1-2 (the-as none (gpr->fpr v1-158)))
+;;                                 (set! f1-3 (the-as none (i2f f1-2)))
+;;                                 (set! f28-0 (the-as none (*.s f0-2 f1-3)))
+;;                                 (set! t9-8 (the-as none atan))
+;;                                 (set! f0-3 (the-as none (neg.s f30-0)))
+;;                                 (set! a0-27 (the-as none (fpr->gpr f0-3)))
+;;                                 (set! a1-3 (the-as none (fpr->gpr f28-0)))
+;;                                 (set! v0-8 (the-as none (call!)))
+;;                                 (set! f0-4 (the-as none (gpr->fpr v0-8)))
+;;                                 (s.f! (+ s4-0 68) f0-4)
+;;                                 (set! v1-159 (the-as none #x3f800000))
+;;                                 (set! f0-5 (the-as none (gpr->fpr v1-159)))
+;;                                 (set! f1-4 (the-as none (*.s f30-0 f30-0)))
+;;                                 (set! f2-0 (the-as none (*.s f28-0 f28-0)))
+;;                                 (set! f1-5 (the-as none (+.s f1-4 f2-0)))
+;;                                 (set! f1-6 (the-as none (sqrt.s f1-5)))
+;;                                 (set! f0-6 (the-as none (min.s f0-5 f1-6)))
+;;                                 (s.f! (+ s4-0 72) f0-6)
+;;                                 (set! f0-7 (the-as none (l.f (+ s4-0 72))))
+;;                                 (set! v1-160 (the-as none #x3e99999a))
+;;                                 (set! f1-7 (the-as none (gpr->fpr v1-160)))
+;;                                 (<.s f0-7 f1-7)
+;;                                 )
+;;                           (set! f0-8 (the-as none 0))
+;;                           (s.f! (+ s4-0 72) f0-8)
+;;                           (set! v1-162 (the-as none (fpr->gpr f0-8)))
+;;                           )
+;;                         )
+;;                        (else
+;;                          (set! v1-163 (the-as none 128))
+;;                          (s.b! (+ s4-0 6) v1-163)
+;;                          (set! v1-164 (the-as none 128))
+;;                          (s.b! (+ s4-0 7) v1-164)
+;;                          (set! v1-165 (the-as none 128))
+;;                          (s.b! (+ s4-0 4) v1-165)
+;;                          (set! v1-166 (the-as none 128))
+;;                          (s.b! (+ s4-0 5) v1-166)
+;;                          (set! f0-9 (the-as none 0))
+;;                          (s.f! (+ s4-0 68) f0-9)
+;;                          (set! f0-10 (the-as none 0))
+;;                          (s.f! (+ s4-0 72) f0-10)
+;;                          (set! v1-167 (the-as none (fpr->gpr f0-10)))
+;;                          )
+;;                        )
+;;                      (set! v1-168 (the-as none (l.wu (+ s4-0 40))))
+;;                      (set! a0-28 (the-as none (l.wu (+ s4-0 44))))
+;;                      (set! a0-29 (the-as none (!= v1-168 a0-28)))
+;;                      a0-29
+;;                      )
+;;                    (begin
+;;                      (set! v1-170 (the-as none #x3e99999a))
+;;                      (set! f0-11 (the-as none (gpr->fpr v1-170)))
+;;                      (set! f1-8 (the-as none (l.f (+ s4-0 72))))
+;;                      (set! v1-171 (the-as none (<.s f0-11 f1-8)))
+;;                      (or v1-171 (begin
+;;                                   (set! v1-172 (the-as none #t))
+;;                                   (set! a0-30 (the-as none (l.d (+ s4-0 124))))
+;;                                   (cmove-#f-nonzero v1-169 a0-30 v1-172)
+;;                                   )
+;;                          )
+;;                      )
+;;                    )
+;;                v1-169
+;;                )
+;;          (set! t9-9 (the-as none get-current-time))
+;;          (set! v0-9 (the-as none (call!)))
+;;          (s.d! (+ s4-0 124) v0-9)
+;;          (set! t9-10 (the-as none get-real-current-time))
+;;          (set! v0-10 (the-as none (call!)))
+;;          (s.d! (+ s4-0 132) v0-10)
+;;          (set! v1-174 (the-as none v0-10))
+;;          )
+;;        )
+;;       (else
+;;         (set! t9-11 (the-as none cpad-invalid!))
+;;         (set! a0-31 (the-as none s4-0))
+;;         (call!)
+;;         (set! v1-175 (the-as none v0-11))
+;;         )
+;;       )
+;;     (set! s5-0 (the-as int (+ s5-0 1)))
+;;     )
+;;   (set! v0-12 *cpad-list*)
+;;   (ret-value v0-12)
+;;   )
+
+;; definition for function buzz-stop!
+;; WARN: Return type mismatch int vs none.
+(defun buzz-stop! ((arg0 int))
+  (cpad-set-buzz! (-> *cpad-list* cpads arg0) 0 0 0)
+  (cpad-set-buzz! (-> *cpad-list* cpads arg0) 1 0 0)
+  0
+  (none)
+  )
+
+;; definition of type mouse-info
+(deftype mouse-info (basic)
+  ((active              symbol)
+   (cursor              symbol)
+   (valid               symbol)
+   (id                  uint8)
+   (status              uint16)
+   (button0             uint16)
+   (deltax              int8)
+   (deltay              int8)
+   (wheel               uint8)
+   (change-time         uint64)
+   (button0-abs         mouse-buttons  3)
+   (button0-shadow-abs  mouse-buttons  1)
+   (button0-rel         mouse-buttons  3)
+   (pos                 vector         2 :inline)
+   (posx                float          :overlay-at (-> pos 0 data 0))
+   (posy                float          :overlay-at (-> pos 0 data 1))
+   (oldposx             float          :offset  96)
+   (oldposy             float          :offset 100)
+   (speedx              float          :overlay-at (-> pos 0 data 3))
+   (speedy              float          :offset 108)
+   )
+  )
+
+;; definition for method 3 of type mouse-info
+(defmethod inspect ((this mouse-info))
+  (when (not this)
+    (set! this this)
+    (goto cfg-7)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tactive: ~A~%" (-> this active))
+  (format #t "~1Tcursor: ~A~%" (-> this cursor))
+  (format #t "~1Tvalid: ~A~%" (-> this valid))
+  (format #t "~1Tid: ~D~%" (-> this id))
+  (format #t "~1Tstatus: #x~X~%" (-> this status))
+  (format #t "~1Tbutton0: #x~X~%" (-> this button0))
+  (format #t "~1Tdeltax: ~D~%" (-> this deltax))
+  (format #t "~1Tdeltay: ~D~%" (-> this deltay))
+  (format #t "~1Twheel: ~D~%" (-> this wheel))
+  (format #t "~1Tchange-time: ~D~%" (-> this change-time))
+  (format #t "~1Tbutton0-abs[3] @ #x~X~%" (-> this button0-abs))
+  (format #t "~1Tbutton0-shadow-abs[1] @ #x~X~%" (-> this button0-shadow-abs))
+  (format #t "~1Tbutton0-rel[3] @ #x~X~%" (-> this button0-rel))
+  (format #t "~1Tpos[2] @ #x~X~%" (-> this pos))
+  (dotimes (s5-0 2)
+    (format #t "~T  [~D]~1Tpos: ~`vector`P~%" s5-0 (-> this pos s5-0))
+    )
+  (format #t "~1Tposx: ~f~%" (-> this posx))
+  (format #t "~1Tposy: ~f~%" (-> this posy))
+  (format #t "~1Toldposx: ~f~%" (-> this oldposx))
+  (format #t "~1Toldposy: ~f~%" (-> this oldposy))
+  (format #t "~1Tspeedx: ~f~%" (-> this speedx))
+  (format #t "~1Tspeedy: ~f~%" (-> this speedy))
+  (label cfg-7)
+  this
+  )
+
+;; definition for method 0 of type mouse-info
+(defmethod new mouse-info ((allocation symbol) (type-to-make type))
+  (let ((v0-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> v0-0 active) #f)
+    (set! (-> v0-0 valid) #f)
+    (set! (-> v0-0 cursor) #f)
+    v0-0
+    )
+  )
+
+;; definition for symbol *mouse*, type mouse-info
+(define *mouse* (new 'global 'mouse-info))
+
+;; definition for function service-mouse
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch mouse-info vs none.
+;; ERROR: Failed store: (s.q! v1-0 a0-2) at op 7
+;; ERROR: Failed store: (s.q! v1-10 0) at op 33
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun service-mouse ()
+;;   (let ((gp-0 *mouse*))
+;;     (mouse-get-data gp-0)
+;;     (let ((v1-0 (&-> gp-0 oldposx))
+;;           (a0-2 (-> gp-0 pos 0 quad))
+;;           )
+;;       (s.q! v1-0 a0-2)
+;;       )
+;;     (set! (-> gp-0 button0-abs 2) (-> gp-0 button0-abs 1))
+;;     (set! (-> gp-0 button0-abs 1) (-> gp-0 button0-shadow-abs 0))
+;;     (set! (-> gp-0 button0-rel 2) (-> gp-0 button0-rel 1))
+;;     (set! (-> gp-0 button0-rel 1) (-> gp-0 button0-rel 0))
+;;     (set! (-> gp-0 button0-rel 0) (mouse-buttons))
+;;     (set! (-> gp-0 speedx) 0.0)
+;;     (set! (-> gp-0 speedy) 0.0)
+;;     (cond
+;;       ((or (not (-> gp-0 valid)) (not (-> gp-0 active)))
+;;        (set! (-> gp-0 valid) #f)
+;;        (set! (-> gp-0 status) (the-as uint 0))
+;;        (set! (-> gp-0 pos 0 quad) (the-as uint128 0))
+;;        (let ((v1-10 (&-> gp-0 oldposx)))
+;;          (s.q! v1-10 0)
+;;          )
+;;        )
+;;       ((logtest? (-> gp-0 status) 1)
+;;        (set! (-> gp-0 change-time) (the-as uint (get-current-time)))
+;;        (set! (-> gp-0 speedx) (* (sign (the float (-> gp-0 deltax))) (pow (fabs (the float (-> gp-0 deltax))) 1.3)))
+;;        (set! (-> gp-0 speedy) (* (sign (the float (-> gp-0 deltay))) (pow (fabs (the float (-> gp-0 deltay))) 1.3)))
+;;        (set! (-> gp-0 posx) (fmax -256.0 (fmin 256.0 (+ (-> gp-0 posx) (-> gp-0 speedx)))))
+;;        (set! (-> gp-0 posy) (fmax -208.0 (fmin 208.0 (+ (-> gp-0 posy) (-> gp-0 speedy)))))
+;;        (let ((v1-22 (-> gp-0 button0)))
+;;          (set! (-> gp-0 button0-shadow-abs 0) (the-as mouse-buttons v1-22))
+;;          (set! (-> gp-0 button0-abs 0) (the-as mouse-buttons v1-22))
+;;          )
+;;        (set! (-> gp-0 button0-rel 0) (logclear (-> gp-0 button0-abs 0) (-> gp-0 button0-abs 1)))
+;;        )
+;;       )
+;;     (if (and (-> gp-0 active) (-> gp-0 valid) (-> gp-0 cursor))
+;;         (add-debug-cursor
+;;           #t
+;;           (bucket-id bucket794)
+;;           (+ (the int (-> gp-0 posx)) 256)
+;;           (+ (the int (-> gp-0 posy)) 208)
+;;           (-> gp-0 button0-abs 0)
+;;           )
+;;         )
+;;     )
+;;   (none)
+;;   )
+
+;; definition of type keybd-info
+(deftype keybd-info (basic)
+  ((active  symbol)
+   (valid   symbol)
+   (kdata   uint8  16)
+   (keys    uint8  256)
+   )
+  )
+
+;; definition for method 3 of type keybd-info
+(defmethod inspect ((this keybd-info))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tactive: ~A~%" (-> this active))
+  (format #t "~1Tvalid: ~A~%" (-> this valid))
+  (format #t "~1Tkdata[16] @ #x~X~%" (-> this kdata))
+  (format #t "~1Tkeys[256] @ #x~X~%" (-> this keys))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 0 of type keybd-info
+(defmethod new keybd-info ((allocation symbol) (type-to-make type))
+  (let ((v0-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
+    (set! (-> v0-0 active) #f)
+    (set! (-> v0-0 valid) #f)
+    v0-0
+    )
+  )
+
+;; definition for symbol *keybd*, type keybd-info
+(define *keybd* (new 'global 'keybd-info))
+
+;; definition for function service-keybd
+;; ERROR: failed type prop at 1: Unknown symbol: keybd-get-data
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun service-keybd ()
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 none)
+;;     (v1-0 none)
+;;     (v1-3 none)
+;;     (v1-4 none)
+;;     (v1-5 none)
+;;     (v1-6 none)
+;;     (v1-7 none)
+;;     (v1-8 none)
+;;     (v1-9 none)
+;;     (v1-11 none)
+;;     (v1-12 none)
+;;     (v1-13 none)
+;;     (v1-14 none)
+;;     (v1-15 none)
+;;     (v1-16 none)
+;;     (v1-17 none)
+;;     (v1-19 none)
+;;     (v1-20 none)
+;;     (v1-22 none)
+;;     (v1-23 none)
+;;     (v1-26 none)
+;;     (v1-28 none)
+;;     (a0-1 none)
+;;     (a0-2 none)
+;;     (a0-3 none)
+;;     (a0-4 none)
+;;     (a0-5 none)
+;;     (a0-6 none)
+;;     (a0-7 none)
+;;     (a0-8 none)
+;;     (a0-9 none)
+;;     (a0-10 none)
+;;     (a0-11 none)
+;;     (a0-12 none)
+;;     (a0-13 none)
+;;     (a0-14 none)
+;;     (a1-0 none)
+;;     (s5-0 none)
+;;     (t9-0 none)
+;;     (t9-1 none)
+;;     (gp-0 keybd-info)
+;;     )
+;;   (set! gp-0 *keybd*)
+;;   (set! t9-0 (the-as none keybd-get-data))
+;;   (set! a0-0 (the-as none gp-0))
+;;   (call!)
+;;   (set! v1-0 (the-as none 0))
+;;   (while (<.si v1-0 256)
+;;     (set! a0-1 (the-as none (+ v1-0 gp-0)))
+;;     (set! a0-2 (the-as none (l.bu (+ a0-1 24))))
+;;     (set! a0-3 (the-as none (sll a0-2 1)))
+;;     (set! a0-4 (the-as none (logand a0-3 3)))
+;;     (set! a1-0 (the-as none (+ v1-0 gp-0)))
+;;     (s.b! (+ a1-0 24) a0-4)
+;;     (set! v1-0 (the-as none (+ v1-0 1)))
+;;     )
+;;   (set! s5-0 (the-as none 0))
+;;   (while (begin (set! v1-22 (the-as none (l.bu (+ gp-0 9)))) (set! v1-23 (the-as none (+ v1-22 -2))) (<.si s5-0 v1-23))
+;;     (when (begin
+;;             (and (begin
+;;                    (set! v1-3 (the-as none (+ s5-0 4)))
+;;                    (set! v1-4 (the-as none (+ v1-3 gp-0)))
+;;                    (set! v1-5 (the-as none (l.bu (+ v1-4 8))))
+;;                    (nonzero? v1-5)
+;;                    )
+;;                  (begin
+;;                    (set! v1-7 (the-as none (+ s5-0 4)))
+;;                    (set! v1-8 (the-as none (+ v1-7 gp-0)))
+;;                    (set! v1-9 (the-as none (l.bu (+ v1-8 8))))
+;;                    (set! a0-5 (the-as none (+ v1-9 -1)))
+;;                    (set! v1-6 (the-as none (nonzero? a0-5)))
+;;                    )
+;;                  )
+;;             v1-6
+;;             )
+;;       (when (begin
+;;               (set! v1-11 (the-as none (+ s5-0 4)))
+;;               (set! v1-12 (the-as none (+ v1-11 gp-0)))
+;;               (set! v1-13 (the-as none (l.bu (+ v1-12 8))))
+;;               (set! v1-14 (the-as none (+ v1-13 gp-0)))
+;;               (set! v1-15 (the-as none (l.bu (+ v1-14 24))))
+;;               (set! v1-16 (the-as none (logior v1-15 1)))
+;;               (set! a0-6 (the-as none (+ s5-0 4)))
+;;               (set! a0-7 (the-as none (+ a0-6 gp-0)))
+;;               (set! a0-8 (the-as none (l.bu (+ a0-7 8))))
+;;               (set! a0-9 (the-as none (+ a0-8 gp-0)))
+;;               (s.b! (+ a0-9 24) v1-16)
+;;               (set! v1-17 (the-as none 1))
+;;               (set! a0-10 (the-as none (+ s5-0 4)))
+;;               (set! a0-11 (the-as none (+ a0-10 gp-0)))
+;;               (set! a0-12 (the-as none (l.bu (+ a0-11 8))))
+;;               (set! a0-13 (the-as none (+ a0-12 gp-0)))
+;;               (set! a0-14 (the-as none (l.bu (+ a0-13 24))))
+;;               (= a0-14 v1-17)
+;;               )
+;;         (set! t9-1 (the-as none get-real-current-time))
+;;         (set! v0-1 (the-as none (call!)))
+;;         (set! v1-19 (the-as none *cpad-list*))
+;;         (set! v1-20 (the-as none (l.wu (+ v1-19 4))))
+;;         (s.d! (+ v1-20 132) v0-1)
+;;         (set! v1-21 (the-as none v0-1))
+;;         )
+;;       )
+;;     (set! s5-0 (the-as none (+ s5-0 1)))
+;;     )
+;;   (when (begin (set! v1-26 (the-as none (l.bu (+ gp-0 9)))) (nonzero? v1-26))
+;;     (set! v1-28 (the-as none (l.bu (+ gp-0 10))))
+;;     (s.b! (+ gp-0 24) v1-28)
+;;     )
+;;   (set! v0-2 (the-as none gp-0))
+;;   (ret-none)
+;;   )
+
+;; definition for symbol *usb-to-ascii-map*, type (pointer uint8)
+(define *usb-to-ascii-map* (new 'static 'array uint8 256
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x61
+                             #x41
+                             #x41
+                             #x62
+                             #x42
+                             #x42
+                             #x63
+                             #x43
+                             #x43
+                             #x64
+                             #x44
+                             #x44
+                             #x65
+                             #x45
+                             #x45
+                             #x66
+                             #x46
+                             #x46
+                             #x67
+                             #x47
+                             #x47
+                             #x68
+                             #x48
+                             #x48
+                             #x69
+                             #x49
+                             #x49
+                             #x6a
+                             #x4a
+                             #x4a
+                             #x6b
+                             #x4b
+                             #x4b
+                             #x6c
+                             #x4c
+                             #x4c
+                             #x6d
+                             #x4d
+                             #x4d
+                             #x6e
+                             #x4e
+                             #x4e
+                             #x6f
+                             #x4f
+                             #x4f
+                             #x70
+                             #x50
+                             #x50
+                             #x71
+                             #x51
+                             #x51
+                             #x72
+                             #x52
+                             #x52
+                             #x73
+                             #x53
+                             #x53
+                             #x74
+                             #x54
+                             #x54
+                             #x75
+                             #x55
+                             #x55
+                             #x76
+                             #x56
+                             #x56
+                             #x77
+                             #x57
+                             #x57
+                             #x78
+                             #x58
+                             #x58
+                             #x79
+                             #x59
+                             #x59
+                             #x7a
+                             #x5a
+                             #x5a
+                             #x31
+                             #x21
+                             #x31
+                             #x32
+                             #x40
+                             #x32
+                             #x33
+                             #x23
+                             #x33
+                             #x34
+                             #x24
+                             #x34
+                             #x35
+                             #x25
+                             #x35
+                             #x36
+                             #x5e
+                             #x36
+                             #x37
+                             #x26
+                             #x37
+                             #x38
+                             #x2a
+                             #x38
+                             #x39
+                             #x28
+                             #x39
+                             #x30
+                             #x29
+                             #x30
+                             #xd
+                             #xd
+                             #xd
+                             #x1b
+                             #x1b
+                             #x1b
+                             #x8
+                             #x8
+                             #x8
+                             #x0
+                             #x0
+                             #x0
+                             #x20
+                             #x20
+                             #x20
+                             #x2d
+                             #x5f
+                             #x2d
+                             #x3d
+                             #x2b
+                             #x3d
+                             #x5b
+                             #x7b
+                             #x5b
+                             #x5d
+                             #x7d
+                             #x5d
+                             #x5c
+                             #x7c
+                             #x5c
+                             #x0
+                             #x0
+                             #x0
+                             #x3b
+                             #x3a
+                             #x3b
+                             #x27
+                             #x22
+                             #x27
+                             #x60
+                             #x7e
+                             #x60
+                             #x2c
+                             #x3c
+                             #x2c
+                             #x2e
+                             #x3e
+                             #x2e
+                             #x2f
+                             #x3f
+                             #x2f
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x83
+                             #x83
+                             #x83
+                             #x82
+                             #x82
+                             #x82
+                             #x81
+                             #x81
+                             #x81
+                             #x80
+                             #x80
+                             #x80
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             #x0
+                             )
+        )
+
+;; definition for symbol *keybd-last-key*, type int
+(define *keybd-last-key* 0)
+
+;; definition for symbol *keybd-hold-ct*, type int
+(define *keybd-hold-ct* 0)
+
+;; definition for symbol *keybd-ungetc*, type int
+(define *keybd-ungetc* 0)
+
+;; definition for function keybd-read-ascii
+;; ERROR: function has no type analysis. Cannot decompile.
+
+
+
+
+
+;; og:preserve-this bring-up stubs: the real service functions fail decomp (unknown
+;; C callee at op 257 / keybd-get-data / sq stores). The C pad backend zero-fills when
+;; nothing is polled, so returning without polling is safe headless. Land real for input.
+(defun service-cpads ()
+  *cpad-list*
+  )
+
+(defun service-mouse ()
+  (none)
+  )
+
+(defun service-keybd ()
+  (none)
+  )
