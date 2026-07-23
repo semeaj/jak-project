@@ -8171,6 +8171,8 @@
   (tiny-center-small 17)
   (tiny-center-micro 18)
   (city-tiny-edge 19)
+  (unk-20 20) ;; jakx: load-buffer-mode value seen in (method 17 level)
+  (unk-30 30) ;; jakx: load-buffer-mode value seen in (method 17 level)
   )
 ;; ---level-h:level-memory-mode
 
@@ -8312,27 +8314,27 @@
   :size-assert         #x594
   :flag-assert         #x1e00000594
   (:methods
-    (level-method-9 () none) ;; 9 ;; (deactivate (_type_) _type_)
-    (level-method-10 () none) ;; 10 ;; (unload! (_type_) _type_)
-    (level-method-11 () none) ;; 11 ;; (is-object-visible? (_type_ int) symbol)
+    (deactivate (_type_) _type_) ;; 9
+    (unload! (_type_) _type_) ;; 10
+    (is-object-visible? (_type_ int) symbol) ;; 11
     (level-method-12 () none) ;; 12 ;; (level-method-12 () none)
-    (level-method-13 () none) ;; 13 ;; (bsp-name (_type_) symbol)
-    (level-method-14 () none) ;; 14 ;; (compute-memory-usage! (_type_ symbol) memory-usage-block)
-    (level-method-15 () none) ;; 15 ;; (inside-bsp? (_type_) symbol)
-    (level-method-16 () none) ;; 16 ;; (update-vis! (_type_ level-vis-info uint (pointer uint8)) symbol)
-    (level-method-17 () none) ;; 17 ;; (load-continue (_type_) _type_)
-    (level-method-18 () none) ;; 18 ;; (load-begin (_type_) _type_)
-    (level-method-19 () none) ;; 19 ;; (login-begin (_type_) _type_)
-    (level-method-20 () none) ;; 20 ;; (debug-print-region-splitbox (_type_ vector object) none)
-    (level-method-21 () none) ;; 21 ;; (get-art-group-by-name (_type_ string) art-group)
-    (level-method-22 () none) ;; 22 ;; (set-proto-vis! (_type_ symbol) int)
-    (level-method-23 () none) ;; 23 ;; (lookup-text (_type_ text-id symbol) string)
+    (bsp-name (_type_) symbol) ;; 13
+    (compute-memory-usage! (_type_ symbol) memory-usage-block) ;; 14
+    (inside-bsp? (_type_) symbol) ;; 15
+    (update-vis! (_type_ level-vis-info uint (pointer uint8)) symbol) ;; 16
+    (load-continue (_type_) _type_) ;; 17
+    (load-begin (_type_) _type_) ;; 18
+    (login-begin (_type_) _type_) ;; 19
+    (debug-print-region-splitbox (_type_ vector object) none) ;; 20
+    (get-art-group-by-name (_type_ string) art-group) ;; 21
+    (set-proto-vis! (_type_ symbol) int) ;; 22
+    (lookup-text (_type_ text-id symbol) string) ;; 23
     (level-method-24 () none) ;; 24 ;; (level-method-24 () none)
-    (level-method-25 () none) ;; 25 ;; (birth (_type_) _type_)
+    (birth (_type_) _type_) ;; 25
     (level-status-update! (_type_ symbol) _type_) ;; 26
-    (level-method-27 () none) ;; 27 ;; (load-common-package (_type_) none)
-    (level-method-28 () none) ;; 28 ;; (init-vis-from-bsp (_type_) none)
-    (level-method-29 () none) ;; 29 ;; (vis-clear (_type_) none)
+    (load-common-package (_type_) none) ;; 27
+    (init-vis-from-bsp (_type_) none) ;; 28
+    (vis-clear (_type_) none) ;; 29
     )
   )
 
@@ -8401,30 +8403,30 @@
   :flag-assert         #x2200006d04
   (:methods
     (level-get (_type_ symbol) level) ;; 9
-    (level-group-method-10 () none) ;; 10 ;; (level-get-with-status (_type_ symbol) level)
-    (level-group-method-11 () none) ;; 11 ;; (get-level-by-heap-ptr-and-status (_type_ pointer symbol) level)
+    (level-get-with-status (_type_ symbol) level) ;; 10
+    (get-level-by-heap-ptr-and-status (_type_ pointer symbol) level) ;; 11
     (level-get-for-use (_type_ symbol symbol int) level) ;; 12 ;; jakx adds an int arg vs jak3
-    (level-group-method-13 () none) ;; 13 ;; (activate-levels! (_type_) int)
-    (level-group-method-14 () none) ;; 14 ;; (debug-print-entities (_type_ symbol type string) none)
-    (level-group-method-15 () none) ;; 15 ;; (debug-draw-actors (_type_ symbol) none)
-    (level-group-method-16 () none) ;; 16 ;; (assign-draw-indices (_type_) none)
-    (level-group-method-17 () none) ;; 17 ;; (actors-update (_type_) none)
-    (level-group-method-18 () none) ;; 18 ;; (update-nav-meshes-method (_type_) none)
-    (level-group-method-19 () none) ;; 19 ;; (level-update (_type_) none)
-    (level-group-method-20 () none) ;; 20 ;; (level-get-target-inside (_type_) level)
-    (level-group-method-21 () none) ;; 21 ;; (init-level-system (_type_ symbol) none)
-    (level-group-method-22 () none) ;; 22 ;; (art-group-get-by-name (_type_ string (pointer level)) art-group)
-    (level-group-method-23 () none) ;; 23 ;; (update-vis-volumes (_type_) none)
+    (activate-levels! (_type_) int) ;; 13
+    (debug-print-entities (_type_ symbol type string) none) ;; 14
+    (debug-draw-actors (_type_ symbol) none) ;; 15
+    (assign-draw-indices (_type_) none) ;; 16
+    (actors-update (_type_) none) ;; 17
+    (update-nav-meshes-method (_type_) none) ;; 18
+    (level-update (_type_) none) ;; 19
+    (level-get-target-inside (_type_) level) ;; 20
+    (init-level-system (_type_ symbol) none) ;; 21
+    (art-group-get-by-name (_type_ string (pointer level)) art-group) ;; 22
+    (update-vis-volumes (_type_) none) ;; 23
     (level-group-method-24 () none) ;; 24 ;; (level-group-method-24 (_type_) none)
-    (level-group-method-25 () none) ;; 25 ;; (print-volume-sizes (_type_) none)
-    (level-group-method-26 () none) ;; 26 ;; (level-status? (_type_ symbol symbol) symbol)
-    (level-group-method-27 () none) ;; 27 ;; (do-nothing (_type_) none)
-    (level-group-method-28 () none) ;; 28 ;; (load-in-progress? (_type_) symbol)
-    (level-group-method-29 () none) ;; 29 ;; (is-load-allowed? (_type_ (pointer symbol)) symbol)
-    (level-group-method-30 () none) ;; 30 ;; (level-get-most-disposable (_type_) level)
-    (level-group-method-31 () none) ;; 31
-    (level-group-method-32 () none) ;; 32
-    (level-group-method-33 () none) ;; 33
+    (print-volume-sizes (_type_) none) ;; 25
+    (level-status? (_type_ symbol symbol) symbol) ;; 26
+    (do-nothing (_type_) none) ;; 27
+    (load-in-progress? (_type_) symbol) ;; 28
+    (is-load-allowed? (_type_ (pointer symbol)) symbol) ;; 29
+    (level-group-method-30 (_type_ int) level) ;; 30 ;; jakx: takes level index; NOT jak3 level-get-most-disposable (that role moved to 33)
+    (level-group-method-31 (_type_ int string) int) ;; 31 ;; jakx-new: appends string to level list at 1332
+    (level-group-method-32 (_type_) level) ;; 32
+    (level-group-method-33 (_type_) level) ;; 33 ;; called from level-get-for-use kick-out path (jak3 used level-get-most-disposable there)
     )
   )
 
@@ -16144,10 +16146,10 @@
 (define-extern view-push-context (function int none))
 (define-extern view-pop-context (function none))
 ;; (define-extern view-get-active-target function)
-;; (define-extern view-get-target function)
+(define-extern view-get-target (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-target function)
 ;; (define-extern view-get-active-camera function)
-;; (define-extern view-get-camera function)
+(define-extern view-get-camera (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-camera function)
 ;; (define-extern view-get-active-camera-combiner function)
 ;; (define-extern view-get-camera-combiner function)
@@ -16871,7 +16873,9 @@
    (audio-language          uint8               :offset-assert 652) ;; language-enum
    (unknown-usd-34             int32             11 :offset-assert 656) ;; added
    (special-volume          float               :offset-assert 700)
-   (unknown-usd-35             int32             17 :offset-assert 704) ;; added
+   (unknown-usd-35             int32             11 :offset-assert 704) ;; added
+   (unknown-usd-748            symbol               :offset 748) ;; added ;; truthy-tested flag read by load-state update! / update-sound-banks
+   (unknown-usd-35b            int32              5 :offset 752) ;; added
    )
   :method-count-assert 11
   :size-assert         #x304
@@ -17887,7 +17891,7 @@
 ;; (define-extern upload-textures function) ;; (function texture-pool none)
 ;; (define-extern *txt-dma-list* object) ;; dma-buffer
 ;; (define-extern texture-relocate function) ;; (function dma-buffer texture int gs-psm int dma-buffer)
-;; (define-extern relocate-later function) ;; (function symbol)
+(define-extern relocate-later (function symbol))
 ;; (define-extern texture-page-login function) ;; (function texture-id (function texture-pool texture-page kheap int texture-page) kheap texture-page-dir-entry)
 ;; (define-extern lookup-texture-by-id function) ;; (function texture-id texture)
 ;; (define-extern lookup-texture-by-id-fast function) ;; (function texture-id texture)
@@ -17899,13 +17903,13 @@
 ;; (define-extern *shader-list* object) ;; pair
 ;; (define-extern *edit-shader* object) ;; texture-id
 ;; (define-extern link-texture-by-id function) ;; (function texture-id adgif-shader texture-page-dir-entry)
-;; (define-extern unlink-textures-by-level function)
+(define-extern unlink-textures-by-level (function level int)) ;; jakx-new
 ;; (define-extern adgif-shader<-texture! function) ;; (function adgif-shader texture adgif-shader)
 ;; (define-extern adgif-shader-update! function) ;; (function adgif-shader texture none)
 ;; (define-extern adgif-shader<-texture-with-update! function) ;; (function adgif-shader texture adgif-shader)
 ;; (define-extern hack-texture function) ;; (function texture float)
 ;; (define-extern adgif-shader-login function) ;; (function adgif-shader texture)
-;; (define-extern adgif-shader-login-no-remap function) ;; (function adgif-shader texture)
+(define-extern adgif-shader-login-no-remap (function adgif-shader texture))
 ;; (define-extern adgif-shader-login-fast function) ;; (function adgif-shader texture)
 ;; (define-extern adgif-shader-login-no-remap-fast function) ;; (function adgif-shader texture)
 (define-extern adgif-shader<-texture-simple! (function adgif-shader texture adgif-shader))
@@ -20677,20 +20681,20 @@
   :flag-assert         #x1b00001088
   (:methods
     (new (symbol type) _type_) ;; 0 ;; (new (symbol type) _type_)
-    (load-state-method-9 () none) ;; 9 ;; (reset! (_type_) _type_)
-    (load-state-method-10 () none) ;; 10 ;; (update! (_type_) int)
-    (load-state-method-11 () none) ;; 11 ;; (want-levels (_type_ (pointer symbol)) int)
-    (load-state-method-12 () none) ;; 12 ;; (want-sound-banks (_type_ (pointer symbol)) none)
-    (load-state-method-13 () none) ;; 13 ;; (want-display-level (_type_ symbol symbol) int)
+    (reset! (_type_) _type_) ;; 9
+    (update! (_type_) int) ;; 10
+    (want-levels (_type_ (pointer symbol)) int) ;; 11
+    (want-sound-banks (_type_ (pointer symbol)) none) ;; 12
+    (want-display-level (_type_ symbol symbol) int) ;; 13
     (load-state-method-14 () none) ;; 14 ;; (want-vis-level (_type_ symbol) none)
-    (load-state-method-15 () none) ;; 15 ;; (want-force-vis (_type_ symbol symbol) int)
-    (load-state-method-16 () none) ;; 16 ;; (want-force-inside (_type_ symbol symbol) none)
+    (want-vis-level (_type_ symbol) none) ;; 15 ;; jak3 slot 14; jakx inserts a method at 14
+    (want-force-vis (_type_ symbol symbol) int) ;; 16 ;; jak3 slot 15
     (load-state-method-17 () none) ;; 17 ;; (execute-commands-up-to (_type_ float) none)
     (load-state-method-18 () none) ;; 18 ;; (backup-load-state-and-set-cmds (_type_ pair) int)
     (load-state-method-19 () none) ;; 19 ;; (restore-load-state-and-cleanup (_type_) int)
     (load-state-method-20 () none) ;; 20 ;; (restore-load-state (_type_) int)
     (load-state-method-21 () none) ;; 21 ;; (add-borrow-levels (_type_) none)
-    (load-state-method-22 () none) ;; 22
+    (add-borrow-levels (_type_) none) ;; 22 ;; jak3 slot 21
     (load-state-method-23 () none) ;; 23
     (load-state-method-24 () none) ;; 24
     (load-state-method-25 () none) ;; 25
@@ -20866,7 +20870,7 @@
   :size-assert         #x6a8
   :flag-assert         #x1f000006a8
   (:methods
-    (game-info-method-9 () none) ;; 9 ;; (initialize! (_type_ symbol game-save string resetter-spec) _type_)
+    (initialize! (_type_ symbol game-save string resetter-spec) _type_) ;; 9
     (game-info-method-10 () none) ;; 10 ;; (give (_type_ symbol float handle) float)
     (game-info-method-11 () none) ;; 11 ;; (task-complete? (_type_ game-task) symbol)
     (game-info-method-12 () none) ;; 12 ;; (subtask-index-by-name (_type_ string) int)
@@ -20877,7 +20881,7 @@
     (game-info-method-17 () none) ;; 17 ;; (debug-inspect (_type_ symbol) _type_)
     (game-info-method-18 () none) ;; 18 ;; (get-current-continue-forced (_type_) continue-point)
     (game-info-method-19 () none) ;; 19 ;; (get-continue-by-name (_type_ string) continue-point)
-    (game-info-method-20 () none) ;; 20 ;; (set-continue! (_type_ basic symbol) continue-point)
+    (set-continue! (_type_ basic int) continue-point) ;; 20 ;; jakx: third arg is player index, jak3 had symbol
     (game-info-method-21 () none) ;; 21 ;; (game-info-method-21 (_type_) none)
     (game-info-method-22 () none) ;; 22 ;; (save-game (_type_ game-save string) game-save)
     (game-info-method-23 () none) ;; 23 ;; (load-game (_type_ game-save) game-save)
@@ -31670,88 +31674,98 @@
   )
 
 ;; TODO - just copied from jak 3, size and such does match
-;; (deftype bsp-header (drawable)
-;;   "The bsp-header is really an entire level.
-;;    This probably started as a very simple structure, but now it is extremely complicated."
-;;   ((info file-info                                               :offset 4)
-;;    (all-visible-list         (pointer uint8)     :offset-assert 32) ;; guessed by decompiler
-;;    (visible-list-length      int16                :offset-assert 36)
-;;    (extra-vis-list-length    int16                :offset-assert 38)
-;;    (drawable-trees           drawable-tree-array  :offset-assert 40) ;; guessed by decompiler
-;;    (pat                      pointer              :offset-assert 44) ;; guessed by decompiler
-;;    (pat-length               int32                :offset-assert 48)
-;;    ;; jak2: unlikely to match jak 3 exactly!!
-;;    (texture-remap-table      (pointer uint64)            :offset-assert 52)
-;;    (texture-remap-table-len  int32                       :offset-assert 56)
-;;    (texture-ids              (pointer texture-id)        :offset-assert 60)
-;;    (texture-page-count       int32                       :offset-assert 64)
-;;    (unknown-basic            basic                       :offset-assert 68) ;; seems to be 0 everywhere.
-;;    (name                     symbol                      :offset-assert 72)
-;;    (nickname                 symbol                      :offset-assert 76)
-;;    (vis-info                 level-vis-info 8            :offset-assert 80)
-;;    (actors                   drawable-inline-array-actor :offset-assert 112)
-;;    (cameras                  (array entity-camera)       :offset-assert 116)
-;;    (nodes           (inline-array bsp-node)             :offset-assert 120)
+(defenum texture-page-flag
+  :type uint16
+  :bitfield #t
+  (alpha-enable 0)
+  )
 
-;;    ;; jak2: unlikely to match jak 3 exactly!!
-;;    (level                    level                       :offset-assert 124)
-;;    (current-leaf-idx         uint16                      :offset-assert 128)
-;;    (texture-flags            texture-page-flag 10        :offset-assert 130)
-;;    (cam-outside-bsp          uint8                       :offset        152)
-;;    (cam-using-back           uint8                       :offset-assert 153)
-;;    (cam-box-idx              uint16                      :offset-assert 154)
-;;    (ambients                 symbol                      :offset-assert 156) ;; now just #t?
-;;    (subdivide-close          float                       :offset 160)
-;;    (subdivide-far            float                       :offset-assert 164)
-;;    (race-meshes              (array entity-race-mesh)    :offset-assert 168)
-;;    (actor-birth-order        (pointer uint32)            :offset 172)
-;;    (light-hash               light-hash                  :offset-assert 176)
-;;    (nav-meshes               (array entity-nav-mesh)     :offset-assert 180)
-;;    (actor-groups             (array actor-group)         :offset-assert 184)
-;;    (region-trees             (array drawable-tree-region-prim) :offset 188)
-;;    (region-array             region-array                :offset-assert 192)
-;;    (collide-hash             collide-hash                :offset 196)
-;;    ; ;; 200 is some array
-;;    (wind-array uint32 :offset 200)
-;;    ; ;; 204 is maybe that array's length
-;;    (wind-array-length int32 :offset 204)
-;;    (city-level-info          city-level-info                    :offset 208)
-;;    (vis-spheres              vector-array                       :offset 216)
-;;    (vis-spheres-length       uint32                             :offset 248)
-;;    (region-tree              drawable-tree-region-prim          :offset 252)
+(declare-type entity-camera entity)
+(declare-type entity-nav-mesh structure)
+(declare-type entity-race-mesh entity)
+(declare-type city-level-info structure)
+(deftype bsp-header (drawable)
+  "The bsp-header is really an entire level.
+   This probably started as a very simple structure, but now it is extremely complicated."
+  ((info file-info                                               :offset 4)
+   (all-visible-list         (pointer uint8)     :offset-assert 32) ;; guessed by decompiler
+   (visible-list-length      int16                :offset-assert 36)
+   (extra-vis-list-length    int16                :offset-assert 38)
+   (drawable-trees           drawable-tree-array  :offset-assert 40) ;; guessed by decompiler
+   (pat                      pointer              :offset-assert 44) ;; guessed by decompiler
+   (pat-length               int32                :offset-assert 48)
+   ;; jak2: unlikely to match jak 3 exactly!!
+   (texture-remap-table      (pointer uint64)            :offset-assert 52)
+   (texture-remap-table-len  int32                       :offset-assert 56)
+   (texture-ids              (pointer texture-id)        :offset-assert 60)
+   (texture-page-count       int32                       :offset-assert 64)
+   (unknown-basic            basic                       :offset-assert 68) ;; seems to be 0 everywhere.
+   (name                     symbol                      :offset-assert 72)
+   (nickname                 symbol                      :offset-assert 76)
+   (vis-info                 level-vis-info 8            :offset-assert 80)
+   (actors                   drawable-inline-array-actor :offset-assert 112)
+   (cameras                  (array entity-camera)       :offset-assert 116)
+   (nodes           (inline-array bsp-node)             :offset-assert 120)
 
-;;    (tfrag-masks              texture-masks-array         :offset 256)
-;;    (tfrag-closest            (pointer float)             :offset-assert 260)
-;;    (tfrag-mask-count         uint32                      :offset        260)
+   ;; jak2: unlikely to match jak 3 exactly!!
+   (level                    level                       :offset-assert 124)
+   (current-leaf-idx         uint16                      :offset-assert 128)
+   (texture-flags            texture-page-flag 10        :offset-assert 130)
+   (cam-outside-bsp          uint8                       :offset        152)
+   (cam-using-back           uint8                       :offset-assert 153)
+   (cam-box-idx              uint16                      :offset-assert 154)
+   (ambients                 symbol                      :offset-assert 156) ;; now just #t?
+   (subdivide-close          float                       :offset 160)
+   (subdivide-far            float                       :offset-assert 164)
+   (race-meshes              (array entity-race-mesh)    :offset-assert 168)
+   (actor-birth-order        (pointer uint32)            :offset 172)
+   (light-hash               light-hash                  :offset-assert 176)
+   (nav-meshes               (array entity-nav-mesh)     :offset-assert 180)
+   (actor-groups             (array actor-group)         :offset-assert 184)
+   (region-trees             (array drawable-tree-region-prim) :offset 188)
+   (region-array             region-array                :offset-assert 192)
+   (collide-hash             collide-hash                :offset 196)
+   ; ;; 200 is some array
+   (wind-array uint32 :offset 200)
+   ; ;; 204 is maybe that array's length
+   (wind-array-length int32 :offset 204)
+   (city-level-info          city-level-info                    :offset 208)
+   (vis-spheres              vector-array                       :offset 216)
+   (vis-spheres-length       uint32                             :offset 248)
+   (region-tree              drawable-tree-region-prim          :offset 252)
 
-;;    (shrub-masks              texture-masks-array         :offset-assert 264)
-;;    (shrub-closest            (pointer float)             :offset-assert 268)
-;;    (shrub-mask-count         uint32                      :offset        268)
+   (tfrag-masks              texture-masks-array         :offset 256)
+   (tfrag-closest            (pointer float)             :offset-assert 260)
+   (tfrag-mask-count         uint32                      :offset        260)
 
-;;    (alpha-masks              texture-masks-array         :offset-assert 272)
-;;    (alpha-closest            (pointer float)             :offset-assert 276)
-;;    (alpha-mask-count         uint32                      :offset        276)
+   (shrub-masks              texture-masks-array         :offset-assert 264)
+   (shrub-closest            (pointer float)             :offset-assert 268)
+   (shrub-mask-count         uint32                      :offset        268)
 
-;;    (water-masks              texture-masks-array         :offset-assert 280)
-;;    (water-closest            (pointer float)             :offset-assert 284)
-;;    (water-mask-count         uint32                      :offset        284)
+   (alpha-masks              texture-masks-array         :offset-assert 272)
+   (alpha-closest            (pointer float)             :offset-assert 276)
+   (alpha-mask-count         uint32                      :offset        276)
 
-;;    (bsp-scale                vector :inline              :offset 288)
-;;    (bsp-offset               vector :inline              :offset-assert 304)
+   (water-masks              texture-masks-array         :offset-assert 280)
+   (water-closest            (pointer float)             :offset-assert 284)
+   (water-mask-count         uint32                      :offset        284)
 
-;;    (hfrag-drawable drawable :offset 320)
+   (bsp-scale                vector :inline              :offset 288)
+   (bsp-offset               vector :inline              :offset-assert 304)
+
+   (hfrag-drawable drawable :offset 320)
 
 
-;;    (end uint8 :offset #x18f)
-;;    )
-;;   :method-count-assert 19
-;;   :size-assert         #x190
-;;   :flag-assert         #x1300000190
-;;   (:methods
-;;     (birth (_type_) none) ;; 17
-;;     (deactivate-entities (_type_) none) ;; 18
-;;     )
-;;   )
+   (end uint8 :offset #x18f)
+   )
+  :method-count-assert 19
+  :size-assert         #x190
+  :flag-assert         #x1300000190
+  (:methods
+    (birth (_type_) none) ;; 17
+    (deactivate-entities (_type_) none) ;; 18
+    )
+  )
 
 #|
 (deftype game-level (basic)
@@ -33255,19 +33269,18 @@
 ;; entity-more-perm               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype entity-more-perm (structure)
-  ((aid         uint32    :offset-assert 0)
-   (ent         basic     :offset-assert 4)
-   (user-object UNKNOWN 2 :offset-assert 8)
-   (user-uint64 uint64    :offset-assert 8)
-   (user-float  UNKNOWN 2 :offset-assert 8)
-   (user-int32  UNKNOWN 2 :offset-assert 8)
-   (user-uint32 UNKNOWN 2 :offset-assert 8)
-   (user-int16  UNKNOWN 4 :offset-assert 8)
-   (user-uint16 UNKNOWN 4 :offset-assert 8)
-   (user-int8   UNKNOWN 8 :offset-assert 8)
-   (user-uint8  UNKNOWN 8 :offset-assert 8)
+  ((aid         uint32     :offset-assert 0)
+   (ent         basic      :offset-assert 4)
+   (user-object object   2 :offset 8)
+   (user-uint64 uint64     :offset 8)
+   (user-float  float    2 :offset 8)
+   (user-int32  int32    2 :offset 8)
+   (user-uint32 uint32   2 :offset 8)
+   (user-int16  int16    4 :offset 8)
+   (user-uint16 uint16   4 :offset 8)
+   (user-int8   int8     8 :offset 8)
+   (user-uint8  uint8    8 :offset 8)
    )
   :method-count-assert 10
   :size-assert         #x10
@@ -33276,13 +33289,11 @@
     (entity-more-perm-method-9 () none) ;; 9
     )
   )
-|#
 
-#|
 (deftype entity-more-perm-hash (structure)
-  ((data                UNKNOWN 512  :offset-assert 0)
-   (entity-more-perm-ct int32        :offset-assert 8192)
-   (entity-indices      UNKNOWN 1024 :offset-assert 8196)
+  ((data                entity-more-perm 512 :inline :offset-assert 0)
+   (entity-more-perm-ct int32                :offset-assert 8192)
+   (entity-indices      uint16 1024          :offset-assert 8196)
    )
   :method-count-assert 15
   :size-assert         #x2804
@@ -33292,11 +33303,10 @@
     (entity-more-perm-hash-method-10 () none) ;; 10
     (entity-more-perm-hash-method-11 () none) ;; 11
     (entity-more-perm-hash-method-12 () none) ;; 12
-    (entity-more-perm-hash-method-13 () none) ;; 13
+    (entity-more-perm-hash-method-13 (_type_ level) none) ;; 13 ;; called method-of-type style from (method 25 level)
     (entity-more-perm-hash-method-14 () none) ;; 14
     )
   )
-|#
 
 (define-extern *entity-more-perm* object) ;; TODO verify, no live consumers yet
 (define-extern *level-type-list* type)
@@ -35694,7 +35704,7 @@
 (define-extern new-sound-id (function sound-id)) ;; 
 ;; (define-extern check-irx-version function) ;; (function int)
 ;; (define-extern sound-bank-load function) ;; (function sound-name int int sound-id)
-;; (define-extern sound-bank-unload function) ;; (function sound-name int)
+(define-extern sound-bank-unload (function sound-name int))
 ;; (define-extern sound-music-load function) ;; (function sound-name int)
 ;; (define-extern sound-music-unload function) ;; (function int)
 ;; (define-extern set-language function) ;; (function language-enum int)
@@ -35894,7 +35904,7 @@
 ;; (define-extern bsp-camera-asm function) ;; (function bsp-header vector none)
 ;; (define-extern print-collide-stats function) ;; (function none)
 ;; (define-extern level-remap-texture function) ;; (function texture-id texture-id)
-;; (define-extern build-masks function) ;; (function bsp-header none)
+(define-extern build-masks (function bsp-header none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; subdivide                      ;;
@@ -36978,7 +36988,7 @@
 ;; (define-extern car-texture-anim-layer-func function)
 ;; (define-extern *default-car-texture-anim-array* texture-anim-array)
 ;; (define-extern set-car-highlight! function)
-;; (define-extern update-car-texture-anim-array function)
+(define-extern update-car-texture-anim-array (function int)) ;; jakx-new
 ;; (define-extern *default-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
 ;; (define-extern *default-hud-texture-anim-array* texture-anim-array)
 ;; (define-extern *ctf-pris-texture-anim-array* texture-anim-array)
@@ -37683,7 +37693,7 @@
 (define-extern sp-process-block-3d (function sparticle-system int int int int symbol none))
 (define-extern sp-copy-to-spr (function int pointer int none))
 (define-extern sp-copy-from-spr (function int pointer int none))
-(define-extern memcpy (function pointer pointer none))
+(define-extern memcpy (function pointer pointer int pointer)) ;; jakx GOAL code calls this with 3 args (dst src len)
 (define-extern sp-process-block (function sparticle-system int sprite-array-2d int none))
 (define-extern sp-process-particle-system (function sparticle-system int sprite-array-2d none))
 (define-extern *particles-flag* symbol)
@@ -37882,11 +37892,11 @@
 ;; (define-extern *dma-block-lists* array)
 ;; (define-extern can-place-block? function)
 ;; (define-extern dma-try-alloc-single function)
-;; (define-extern dma-try-alloc function)
-;; (define-extern dma-release function)
+(define-extern dma-try-alloc (function uint uint symbol int pointer basic)) ;; jakx-new
+(define-extern dma-release (function symbol int)) ;; jakx-new
 ;; (define-extern dma-dump function)
 ;; (define-extern dma-is-empty function)
-;; (define-extern dma-get-named-buffer function)
+(define-extern dma-get-named-buffer (function symbol int int basic)) ;; jakx-new, sig from level.o call sites
 ;; (define-extern lobby-dma-reserve-hook function)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -38173,10 +38183,10 @@
 ;; load-state                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern level-base-level-name function) ;; (function symbol object)
-;; (define-extern add-want-level function) ;; (function (inline-array level-buffer-state) (pointer int64) symbol symbol symbol symbol object)
-;; (define-extern *display-load-commands* object) ;; symbol
-;; (define-extern *backup-load-state* object) ;; load-state
+(define-extern level-base-level-name (function symbol object))
+(define-extern add-want-level (function (inline-array level-buffer-state) (pointer int64) symbol symbol symbol symbol object))
+(define-extern *display-load-commands* symbol)
+(define-extern *backup-load-state* load-state)
 ;; (define-extern *load-state* object) ;; load-state
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40092,7 +40102,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern command-get-int function) ;; (function object int int)
-;; (define-extern command-get-float function) ;; (function object float float)
+(define-extern command-get-float (function object float float))
 ;; (define-extern command-get-time function) ;; (function object int time-frame)
 ;; (define-extern command-get-param function) ;; (function object object object)
 ;; (define-extern command-get-quoted-param function) ;; (function object object object)
@@ -40280,7 +40290,7 @@
 ;; (define-extern *lightning-globals* object) ;; lightning-globals
 ;; (define-extern *lightning* object) ;; symbol
 ;; (define-extern lightning-draw-all function) ;; (function none)
-;; (define-extern unlink-lightning-spec-by-heap function) ;; (function kheap none)
+(define-extern unlink-lightning-spec-by-heap (function kheap none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; light-trails-h                 ;;
@@ -41714,7 +41724,7 @@
 ;; (define-extern vis-cull-all? function)
 ;; (define-extern vis-dist-additional-ok? function)
 ;; (define-extern vis-dist-ok? function)
-;; (define-extern entity-by-name function) ;; (function string entity)
+(define-extern entity-by-name (function string entity))
 ;; (define-extern entity-by-type function) ;; (function type entity-actor)
 ;; (define-extern entity-by-aid function) ;; (function uint entity)
 ;; (define-extern entity-actor-from-level-name function) ;; (function symbol entity-actor)
@@ -42115,7 +42125,7 @@
 ;; (define-extern reset-city-squad-control function) ;; (function symbol none)
 ;; (define-extern city-task-faction-commands function) ;; (function object)
 ;; (define-extern evaluate-faction-commands function) ;; (function pair object)
-;; (define-extern update-task-masks function) ;; (function symbol int)
+(define-extern update-task-masks (function symbol int))
 ;; (define-extern play-clean function) ;; (function symbol int)
 ;; (define-extern play-task function) ;; (function game-task symbol symbol string)
 ;; (define-extern task-node-by-name function) ;; (function string game-task-node-info)
@@ -48786,7 +48796,7 @@
 ;; (define-extern net-process-mgr-default-handler function)
 ;; (define-extern go-running function)
 ;; (define-extern *prev-time-of-day-time* object)
-;; (define-extern tweak-local-net-entities function)
+(define-extern tweak-local-net-entities (function int)) ;; jakx-new
 ;; (define-extern update-local-net-entities function)
 ;; (define-extern net-process-msg-handler function)
 
@@ -49295,7 +49305,7 @@
 ;; (define-extern get-total-humans function)
 ;; (define-extern get-total-skill-level function)
 ;; (define-extern get-player-clan-info function)
-;; (define-extern lobby-level-set! function)
+(define-extern lobby-level-set! (function int symbol symbol object)) ;; jakx-new, sig from (method 25 load-state) call site
 ;; (define-extern set-player-car-from-level-array function)
 ;; (define-extern *in-end-of-race-preload* object)
 ;; (define-extern end-of-race-start-preload function)

@@ -1,7 +1,8 @@
 {
+  "show-level": [[16, ["array", "symbol", 18]]],
   "play": [
     [16, "event-message-block"],
-    [96, ["array", "symbol", 10]]
+    [96, ["array", "symbol", 18]]
   ],
   "quaternion-smooth-seek!": [[16, ["inline-array", "quaternion", 2]]],
   "rotate-vector-to-vector": [[16, "quaternion"]],
