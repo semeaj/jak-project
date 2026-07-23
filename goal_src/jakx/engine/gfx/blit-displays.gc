@@ -7,3 +7,11 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up: jakx blit-displays is unlike jak3's -- the work methods are
+;; hand-optimized asm installed by the (degraded) top-level via method-set!, and the
+;; *blit-displays-work* instance is a static blob (label L77) full of DMA templates.
+;; Until those are hand-ported, the global stays UNDEFINED on purpose: every caller
+;; (viewport method 11, display-loop-main's per-frame method-17 call) is guarded with
+;; (nonzero? *blit-displays-work*), and an undefined symbol reads 0 = zero = skipped.
+;; Do NOT define it #f here: methods dispatched off a present-but-empty instance would
+;; jump through empty slots.

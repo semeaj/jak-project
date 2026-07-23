@@ -29,6 +29,8 @@
 
 (define *view-context-stack* (new 'static 'boxed-array :type int32 :length 0 :allocated-length 8))
 
-(define *view-context-stack-ptr* (the-as (pointer int32) -1))
+;; og:preserve-this retyped to int (see all-types): pointer-typed symbol loads zero-extend
+;; on x86-64, turning the -1 sentinel into #xffffffff and tripping the push-side (break!)
+(define *view-context-stack-ptr* -1)
 
 (define *view-default* (the-as symbol 0))
