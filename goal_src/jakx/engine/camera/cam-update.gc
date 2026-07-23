@@ -7,3 +7,12 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stubs: the camera system is not landed; the frame loop
+;; calls both inside the view push/pop bracket.
+(defun update-camera ()
+  0
+  )
+
+(defun execute-cam-post-hook-engine ()
+  0
+  )

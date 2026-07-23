@@ -7,3 +7,16 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stubs: results are DEREFERENCED by the sound-update tail
+;; (vector math), so they must return valid statics, never #f/0.
+(define *camera-pos-dummy* (new 'static 'vector :w 1.0))
+
+(defun camera-pos ()
+  *camera-pos-dummy*
+  )
+
+(define *math-camera-matrix-dummy* (new 'static 'matrix))
+
+(defun math-camera-matrix ()
+  *math-camera-matrix-dummy*
+  )
