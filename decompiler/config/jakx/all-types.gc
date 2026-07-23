@@ -104,6 +104,11 @@
 (declare-type mouse-info basic)
 (define-extern cpad-open (function cpad-info int cpad-info))
 (define-extern cpad-get-data (function cpad-info cpad-info))
+(define-extern scf-get-volume "Defined in the kernel" (function int))
+(define-extern scf-get-language "Defined in the kernel" (function int))
+(define-extern scf-get-aspect "Defined in the kernel" (function int))
+(define-extern crate type) ;; settings walks crate processes
+(define-extern *boot-video-mode* int)
 (define-extern scf-get-territory (function int)) ;; not actually a scf function...
 (define-extern mouse-get-data (function mouse-info none))
 (define-extern file-stream-open (function file-stream string symbol file-stream))
@@ -16768,10 +16773,10 @@
    (process-mask            process-mask        :offset-assert 4) ;; guessed by decompiler
    (common-page             int32               :offset-assert 8) ;; added
    (language                language-enum       :offset-assert 12) ;; language-enum
-   (unknown-usd-1                int32               :offset-assert 16) ;; added
-   (unknown-usd-2                int32               :offset-assert 20) ;; added
-   (unknown-usd-3              int32              :offset-assert 24) ;; added
-   (unknown-usd-4             int32              :offset-assert 28) ;; added
+   (unknown-usd-1                basic               :offset-assert 16) ;; added
+   (unknown-usd-2                basic               :offset-assert 20) ;; added
+   (unknown-usd-3              basic              :offset-assert 24) ;; added
+   (unknown-usd-4             basic              :offset-assert 28) ;; added
    (movie                   (pointer process)   :offset-assert 32) ;; guessed by decompiler
    (talking                 (pointer process)   :offset-assert 36) ;; guessed by decompiler
    (spooling                (pointer process)   :offset-assert 40) ;; guessed by decompiler
@@ -16779,11 +16784,11 @@
    (ambient                 (pointer process)   :offset-assert 48) ;; guessed by decompiler
    (video-mode              symbol              :offset-assert 52) ;; guessed by decompiler
    (aspect-ratio            symbol              :offset-assert 56) ;; guessed by decompiler
-   (unknown-usd-5             int32              :offset-assert 60) ;; added
-   (unknown-usd-6             int32              :offset-assert 64) ;; added
-   (unknown-usd-7             int32              :offset-assert 68) ;; added
+   (unknown-usd-5             basic              :offset-assert 60) ;; added
+   (unknown-usd-6             basic              :offset-assert 64) ;; added
+   (unknown-usd-7             basic              :offset-assert 68) ;; added
    (auto-save               symbol              :offset-assert 72) ;; guessed by decompiler
-   (unknown-usd-8             int32              :offset-assert 76) ;; added
+   (unknown-usd-8             basic              :offset-assert 76) ;; added
    (bg-r                    float               :offset-assert 80)
    (bg-g                    float               :offset-assert 84)
    (bg-b                    float               :offset-assert 88)
@@ -16795,16 +16800,16 @@
    (allow-progress          symbol              :offset-assert 112) ;; guessed by decompiler
    (allow-in-game-menu      basic               :offset-assert 116)
    (allow-pause             symbol              :offset-assert 120) ;; guessed by decompiler
-   (unknown-usd-9             int32              :offset-assert 124) ;; added
-   (unknown-usd-10             int32              :offset-assert 128) ;; added
-   (unknown-usd-11             int32              :offset-assert 132) ;; added
+   (unknown-usd-9             basic              :offset-assert 124) ;; added
+   (unknown-usd-10             basic              :offset-assert 128) ;; added
+   (unknown-usd-11             basic              :offset-assert 132) ;; added
    (movie-name              symbol              :offset-assert 136) ;; guessed by decompiler
    (weather                 symbol              :offset-assert 140) ;; guessed by decompiler
-   (unknown-usd-12             int32              :offset-assert 144) ;; added
-   (unknown-usd-13             int32              :offset-assert 148) ;; added
-   (unknown-usd-14             int32              :offset-assert 152) ;; added
+   (unknown-usd-12             basic              :offset-assert 144) ;; added
+   (unknown-usd-13             basic              :offset-assert 148) ;; added
+   (unknown-usd-14             basic              :offset-assert 152) ;; added
    (task-mask               task-mask           :offset-assert 156)
-   (unknown-usd-15             int32              :offset-assert 160) ;; added
+   (unknown-usd-15             basic              :offset-assert 160) ;; added
    (speed-mult              float               :offset-assert 164)
    (features                uint64              :offset-assert 168) ;; game-feature
    (vehicles                uint64              :offset-assert 176) ;; game-vehicles
@@ -16830,8 +16835,8 @@
    (airlock                 symbol              :offset-assert 260) ;; guessed by decompiler
    (minimap                 uint32              :offset-assert 264)
    (allow-continue          symbol              :offset-assert 268) ;; guessed by decompiler
-   (unknown-usd-16             int32              :offset-assert 272) ;; added
-   (unknown-usd-17             int32              :offset-assert 276) ;; added
+   (unknown-usd-16             basic              :offset-assert 272) ;; added
+   (unknown-usd-17             basic              :offset-assert 276) ;; added
    (subtitle                symbol              :offset-assert 280) ;; guessed by decompiler
    (doorway                 symbol              :offset-assert 284) ;; guessed by decompiler
    (gem                     symbol              :offset-assert 288) ;; guessed by decompiler
@@ -16859,7 +16864,7 @@
    (sound-bank-load         symbol              :offset-assert 376) ;; guessed by decompiler
    (allow-error             symbol              :offset-assert 380) ;; guessed by decompiler
    (under-water-pitch-mod   float               :offset-assert 384)
-   (unknown-usd-18             int32              :offset-assert 388) ;; added
+   (unknown-usd-18             basic              :offset-assert 388) ;; added
    (restart-info            resetter-spec       :offset-assert 392) ;; guessed by decompiler
    (fail-info               resetter-spec       :offset-assert 396) ;; guessed by decompiler
    (death-info              resetter-spec       :offset-assert 400) ;; guessed by decompiler
@@ -16871,38 +16876,61 @@
    (exclusive-task-count    uint32              :offset-assert 440)
    (exclusive-task          int32             3 :offset-assert 444) ;; guessed by decompiler
    (level-trans-time        int32               :offset-assert 456)
-   (unknown-usd-19             int32              :offset-assert 460) ;; added
-   (unknown-usd-20             int32              :offset-assert 464) ;; added
-   (unknown-usd-21             int32              :offset-assert 468) ;; added
-   (unknown-usd-22             int32              :offset-assert 472) ;; added
-   (unknown-usd-23             int32              :offset-assert 476) ;; added
+   (unknown-usd-19             basic              :offset-assert 460) ;; added
+   (unknown-usd-20             basic              :offset-assert 464) ;; added
+   (unknown-usd-21             basic              :offset-assert 468) ;; added
+   (unknown-usd-22             basic              :offset-assert 472) ;; added
+   (unknown-usd-23             basic              :offset-assert 476) ;; added
    (letterbox               float               :offset-assert 480)
    (letterbox-speed         float               :offset-assert 484)
-   (unknown-usd-24             int32              :offset-assert 488) ;; added
-   (unknown-usd-25             int32              :offset-assert 492) ;; added
-   (unknown-usd-26             int32              :offset-assert 496) ;; added
-   (unknown-usd-27             int32              :offset-assert 500) ;; added
-   (unknown-usd-28             int32              :offset-assert 504) ;; added
-   (unknown-usd-29             int32              :offset-assert 508) ;; added
-   (unknown-usd-30             int32              :offset-assert 512) ;; added
-   (unknown-usd-31             int32              :offset-assert 516) ;; added
-   (unknown-usd-32             int32              :offset-assert 520) ;; added
+   (unknown-usd-24             basic              :offset-assert 488) ;; added
+   (unknown-usd-25             basic              :offset-assert 492) ;; added
+   (unknown-usd-26             basic              :offset-assert 496) ;; added
+   (unknown-usd-27             basic              :offset-assert 500) ;; added
+   (unknown-usd-28             basic              :offset-assert 504) ;; added
+   (unknown-usd-29             basic              :offset-assert 508) ;; added
+   (unknown-usd-30             basic              :offset-assert 512) ;; added
+   (unknown-usd-31             basic              :offset-assert 516) ;; added
+   (unknown-usd-32             basic              :offset-assert 520) ;; added
    (borrow-city-count       uint32              :offset-assert 524)
    (borrow-city             pair              3 :offset-assert 528) ;; guessed by decompiler
-   (unknown-usd-33             int32             28 :offset-assert 540) ;; added
+   (unknown-usd-33             uint32            28 :offset-assert 540) ;; added
    (audio-language          uint8               :offset-assert 652) ;; language-enum
-   (unknown-usd-34             int32             11 :offset-assert 656) ;; added
+   (unknown-usd-656            basic                :offset-assert 656) ;; added
+   (unknown-usd-660            basic                :offset 660) ;; added
+   (unknown-usd-664            basic                :offset 664) ;; added
+   (unknown-usd-668            basic                :offset 668) ;; added
+   (unknown-usd-672            basic                :offset 672) ;; added
+   (unknown-usd-676            basic                :offset 676) ;; added
+   (unknown-usd-680            basic                :offset 680) ;; added
+   (unknown-usd-684            basic                :offset 684) ;; added
+   (unknown-usd-688            uint64               :offset 688) ;; added ;; l.d-copied by m23
+   (sound-ear-scale-value      float                :offset 696) ;; added ;; scaled by usd m10 sound-ear-scale
    (special-volume          float               :offset-assert 700)
-   (unknown-usd-35             int32             11 :offset-assert 704) ;; added
-   (unknown-usd-748            uint32               :offset 748) ;; added ;; truthy-tested flag (symbol-like) read via l.wu by display-sync/frame-start/update-sound-banks; typed uint32 so the unsigned load folds
-   (unknown-usd-35b            int32              5 :offset 752) ;; added
+   (unknown-usd-704            basic                :offset-assert 704) ;; added
+   (unknown-usd-708            basic                :offset 708) ;; added
+   (unknown-usd-712            basic                :offset 712) ;; added
+   (unknown-usd-716            basic                :offset 716) ;; added
+   (unknown-usd-720            basic                :offset 720) ;; added
+   (unknown-usd-724            basic                :offset 724) ;; added
+   (unknown-usd-728            basic                :offset 728) ;; added
+   (unknown-usd-732            basic                :offset 732) ;; added
+   (unknown-usd-736            float                :offset 736) ;; added ;; float-compared by setting-control m24
+   (unknown-usd-740            basic                :offset 740) ;; added
+   (unknown-usd-744            basic                :offset 744) ;; added
+   (unknown-usd-748            basic                :offset 748) ;; added ;; truthy-tested flag (symbol-like) read via l.wu by display-sync/frame-start/update-sound-banks; typed uint32 so the unsigned load folds
+   (unknown-usd-752            basic                :offset 752) ;; added ;; the movie word: setting-control+768 gate read by display-frame-start and m23
+   (unknown-usd-756            basic                :offset 756) ;; added
+   (unknown-usd-760            basic                :offset 760) ;; added
+   (unknown-usd-764            basic                :offset 764) ;; added
+   (unknown-usd-768            basic                :offset 768) ;; added
    )
   :method-count-assert 11
   :size-assert         #x304
   :flag-assert         #xb00000304
   (:methods
-    (user-setting-data-method-9 () none) ;; 9 ;; (user-setting-data-method-9 (_type_ engine engine-pers engine) user-setting-data)
-    (user-setting-data-method-10 () none) ;; 10 ;; (user-setting-data-method-10 (_type_ object symbol float uint) user-setting-data)
+    (user-setting-data-method-9 (_type_ engine engine-pers engine) user-setting-data) ;; 9 ;; (user-setting-data-method-9 (_type_ engine engine-pers engine) user-setting-data)
+    (user-setting-data-method-10 (_type_ object symbol float uint) user-setting-data) ;; 10 ;; (user-setting-data-method-10 (_type_ object symbol float uint) user-setting-data)
     )
   )
 
@@ -17025,8 +17053,8 @@
   :flag-assert         #xb00000190
   ;; field cam-slave-options is likely a value type. field cam-master-options is likely a value type.
   (:methods
-    (cam-setting-data-method-9 () none) ;; 9 ;; (cam-setting-data-method-9 (_type_ engine engine-pers engine) _type_)
-    (cam-setting-data-method-10 () none) ;; 10 ;; (cam-setting-data-method-10 (_type_ object (pointer process) float int) _type_)
+    (cam-setting-data-method-9 (_type_ engine engine-pers engine) _type_) ;; 9 ;; (cam-setting-data-method-9 (_type_ engine engine-pers engine) _type_)
+    (cam-setting-data-method-10 (_type_ object (pointer process) float int) _type_) ;; 10 ;; (cam-setting-data-method-10 (_type_ object (pointer process) float int) _type_)
     )
   )
 
@@ -17041,9 +17069,9 @@
   )
 
 (deftype engine-group (structure)
-  ((engine      basic  :offset-assert 0)
-   (engine-pers basic  :offset-assert 4)
-   (engine-hi   basic  :offset-assert 8)
+  ((engine      engine       :offset-assert 0)
+   (engine-pers engine-pers  :offset-assert 4)
+   (engine-hi   engine       :offset-assert 8)
    )
   :method-count-assert 9
   :size-assert         #xc
@@ -17058,29 +17086,29 @@
    (engine       engine                    :offset-assert 7168) ;; guessed by decompiler
    (engine-pers  engine-pers               :offset-assert 7172) ;; guessed by decompiler
    (engine-hi    engine                    :offset-assert 7176) ;; guessed by decompiler
-   (cam-engines  engine-group           4       :offset-assert 7180)
+   (cam-engines  uint32                 4       :offset-assert 7180) ;; really (engine-group 4); uint32 so the dynamic index folds, casts retype the fetch
    )
   :method-count-assert 25
   :size-assert         #x1c1c
   :flag-assert         #x1900001c1c
   (:methods
     (new (symbol type int) _type_) ;; 0
-    (setting-control-method-9 () none) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-10 () none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none)
-    (setting-control-method-11 () none) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-12 () none) ;; 12 ;; (remove-setting (_type_ process symbol) none)
-    (setting-control-method-13 () none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
+    (setting-control-method-9 (_type_ process symbol object object object object) connection) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection)
+    (setting-control-method-10 (_type_ symbol time-frame symbol symbol float int object) none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none)
+    (setting-control-method-11 (_type_ process symbol object object object object) connection) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection)
+    (setting-control-method-12 (_type_ object process object) none) ;; 12 ;; (remove-setting (_type_ process symbol) none)
+    (setting-control-method-13 (_type_ engine-pers object object object object) none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none) ;; 14 ;; (setting-control-method-14 (_type_ object) connectable)
-    (setting-control-method-15 () none) ;; 15 ;; (get-setting (_type_ object) connectable)
-    (setting-control-method-16 () none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
-    (setting-control-method-17 () none) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
-    (setting-control-method-18 () none) ;; 18 ;; (apply-settings (_type_) user-setting-data)
-    (setting-control-method-19 () none) ;; 19 ;; (update (_type_) user-setting-data)
-    (setting-control-method-20 () none) ;; 20
-    (setting-control-method-21 () none) ;; 21
-    (setting-control-method-22 () none) ;; 22
-    (setting-control-method-23 () none) ;; 23
-    (setting-control-method-24 () none) ;; 24
+    (setting-control-method-15 (_type_ object object object object object) connectable) ;; 15 ;; (get-setting (_type_ object) connectable)
+    (setting-control-method-16 (_type_ process object object) none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
+    (setting-control-method-17 (_type_ symbol object object object) connection) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
+    (setting-control-method-18 (_type_ object object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data)
+    (setting-control-method-19 (_type_ object) user-setting-data) ;; 19 ;; (update (_type_) user-setting-data)
+    (setting-control-method-20 (_type_ object) connection) ;; 20
+    (setting-control-method-21 (_type_ object) none) ;; 21
+    (setting-control-method-22 (_type_ object object object object) none) ;; 22
+    (setting-control-method-23 (_type_) none) ;; 23
+    (setting-control-method-24 (_type_) none) ;; 24
     )
   )
 
@@ -37928,7 +37956,7 @@
 ;; settings                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern get-current-language function) ;; (function language-enum)
+(define-extern get-current-language (function language-enum)) ;; (function language-enum)
 (define-extern *setting-control* setting-control) ;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50854,7 +50882,7 @@
 ;; (define-extern cam-mouse-input function) ;; (function matrix vector vector object)
 ;; (define-extern cam-free-floating-input function) ;; (function matrix vector vector int int vector)
 ;; (define-extern cam-free-floating-move function) ;; (function matrix vector vector int vector)
-;; (define-extern cam-free-floating state) ;; (state camera-slave)
+(define-extern cam-free-floating basic) ;; (state camera-slave), home not unlocked
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; speech-jak                     ;;

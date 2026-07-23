@@ -1075,32 +1075,13 @@
   )
 
 ;; definition for function sound-volume-off
+;; og:preserve-this hand-fixed dropped-arg emission: the original decomp (m15's sig was
+;; still a placeholder) left the call arguments as bare statements
 (defun sound-volume-off ()
   (with-pp
-    (let ((t9-0 (method-of-object *setting-control* setting-control-method-15)))
-      pp
-      'music-volume
-      'abs
-      0
-      0
-      (t9-0)
-      )
-    (let ((t9-1 (method-of-object *setting-control* setting-control-method-15)))
-      pp
-      'sfx-volume
-      'abs
-      0
-      0
-      (t9-1)
-      )
-    (let ((t9-2 (method-of-object *setting-control* setting-control-method-15)))
-      pp
-      'ambient-volume
-      'abs
-      0
-      0
-      (t9-2)
-      )
+    (setting-control-method-15 *setting-control* pp 'music-volume 'abs 0 0)
+    (setting-control-method-15 *setting-control* pp 'sfx-volume 'abs 0 0)
+    (setting-control-method-15 *setting-control* pp 'ambient-volume 'abs 0 0)
     0
     )
   )
@@ -1587,13 +1568,8 @@
 (defun jukebox-onoff ((arg0 symbol))
   (when (not arg0)
     (set! *last-music-position* (the-as uint -1))
-    (let ((t9-0 (method-of-object *setting-control* setting-control-method-15)))
-      *dproc*
-      'music
-      0
-      0
-      (t9-0)
-      )
+    ;; og:preserve-this hand-fixed dropped-arg emission (args verified from gsound_ir2)
+    (setting-control-method-15 *setting-control* *dproc* 'music #f 0 0)
     )
   (if arg0
       (set! *jukebox-time* (the-as int (-> *display* game-clock frame-counter)))
