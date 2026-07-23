@@ -268,6 +268,7 @@ void DirectRenderer::flush_pending(SharedRenderState* render_state, ScopedProfil
   glGetIntegerv(GL_VIEWPORT, viewport_size);
   glUniform1i(glGetUniformLocation(current_shader, "scissor_enable"),
               m_scissor_enable && !m_offscreen_mode);
+  glUniform1i(glGetUniformLocation(current_shader, "premult_alpha"), m_ogl.premult_alpha);
   glUniform4f(glGetUniformLocation(current_shader, "game_sizes"), 512.0f,
               game_height[render_state->version], viewport_size[2], viewport_size[3]);
 
@@ -446,6 +447,7 @@ void DirectRenderer::update_gl_blend() {
   const auto& state = m_blend_state;
   m_ogl.color_mult = 1.f;
   m_ogl.alpha_mult = 1.f;
+  m_ogl.premult_alpha = false;
   m_prim_gl_state_needs_gl_update = true;
   if (!state.alpha_blend_enable) {
     glDisable(GL_BLEND);
@@ -477,7 +479,10 @@ void DirectRenderer::update_gl_blend() {
       // (0 - Cs) * As + Cd
       // Cd - Cs * As
       // s, d
-      glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+      // GS As can exceed 1.0 (0x80 = 1.0), but GL clamps blend factors to 1, so the As
+      // multiply happens in the shader and the source factor is 1.
+      m_ogl.premult_alpha = true;
+      glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
       glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
     } else if (state.a == GsAlpha::BlendMode::SOURCE && state.b == GsAlpha::BlendMode::DEST &&
                state.c == GsAlpha::BlendMode::ZERO_OR_FIXED &&
