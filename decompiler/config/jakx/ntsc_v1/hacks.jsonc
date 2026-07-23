@@ -174,7 +174,12 @@
     "foreground-merc",
     // merc-blend-shape
     "blerc-a-fragment",
-    "blerc-execute"
+    "blerc-execute",
+    // font: hand-optimized asm, same treatment as jak3's draw-string-asm
+    "draw-string-asm-packed",
+    "draw-string3d-asm",
+    "get-string-length-asm",
+    "draw-string-init-justify"
   ],
   "mips2c_jump_table_functions": {},
   // there are some missing textures. I don't know what the game actually does here.

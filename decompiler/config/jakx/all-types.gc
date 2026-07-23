@@ -16312,10 +16312,10 @@
   :flag-assert         #x1e000000bb
   (:methods
     (new (symbol type matrix int int float font-color font-flags) _type_)
-    (font-context-method-9 () none) ;; 9 ;; (set-mat! (font-context matrix) font-context)
-    (font-context-method-10 () none) ;; 10 ;; (set-origin! (font-context int int) font-context)
-    (font-context-method-11 () none) ;; 11 ;; (set-depth! (font-context int) font-context)
-    (font-context-method-12 () none) ;; 12 ;; (set-w! (font-context float) font-context)
+    (font-context-method-9 (_type_ string) none) ;; 9
+    (font-context-method-10 (_type_ string) none) ;; 10
+    (font-context-method-11 (_type_ string) int) ;; 11
+    (font-context-method-12 (_type_ string) none) ;; 12
     (set-mat! (_type_ matrix) none) ;; 13 ;; (set-width! (font-context int) font-context)
     (set-x-y! (_type_ int int) none) ;; 14 ;; (set-height! (font-context int) font-context)
     (set-z! (_type_ int) none) ;; 15 ;; (set-projection! (font-context float) font-context)
@@ -19086,7 +19086,7 @@
     (draw-control-method-12 () none) ;; 12 ;; (setup-masks (_type_ int int) none)
     (draw-control-method-13 () none) ;; 13 ;; (setup-cspace-and-add (_type_ art-joint-geo symbol) cspace-array)
     (draw-control-method-14 () none) ;; 14 ;; (draw-control-method-14 (_type_ cspace-array joint-control) none)
-    (draw-control-method-15 () none) ;; 15 ;; (do-joint-math (_type_ cspace-array joint-control) none)
+    (do-joint-math (_type_ cspace-array joint-control) none) ;; 15
     )
   )
 
@@ -37067,23 +37067,23 @@
 (define-extern *font-curve-ghosting-2* array)
 ;; (define-extern evaluate-font-curve function)
 ;; (define-extern in-out-curve function)
-;; (define-extern char-effect-compute-colors function)
+(define-extern char-effect-compute-colors (function basic int int font-context none))
 ;; (define-extern char-effect-compute2 function)
 (define-extern *loading-pad-leftx* int)
 (define-extern *loading-pad-lefty* int)
 (define-extern *loading-pad-rightx* int)
 (define-extern *loading-pad-righty* int)
 ;; (define-extern char-effect-compute function)
-;; (define-extern draw-string-init-justify function)
-;; (define-extern draw-string-no-asm function)
-;; (define-extern draw-string-asm-packed function)
-;; (define-extern draw-string3d-asm function)
-;; (define-extern draw-effect-string function)
-;; (define-extern draw-string function) ;; (function string dma-buffer font-context draw-string-result)
-;; (define-extern get-string-length-asm function)
-;; (define-extern get-string-length function) ;; (function string font-context draw-string-result)
+(define-extern draw-string-init-justify (function string dma-buffer font-context none))
+(define-extern draw-string-no-asm (function string dma-buffer font-context draw-string-result))
+(define-extern draw-string-asm-packed (function string dma-buffer font-context draw-string-result))
+(define-extern draw-string3d-asm (function string dma-buffer font-context draw-string-result))
+(define-extern draw-effect-string (function string dma-buffer font-context draw-string-result))
+(define-extern draw-string (function string dma-buffer font-context draw-string-result))
+(define-extern get-string-length-asm (function string font-context draw-string-result))
+(define-extern get-string-length (function string font-context draw-string-result))
 (define-extern draw-string-xy (function string dma-buffer int int font-color font-flags draw-string-result))
-;; (define-extern draw-string-adv function) ;; (function string dma-buffer font-context none)
+(define-extern draw-string-adv (function string dma-buffer font-context none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; decomp                         ;;

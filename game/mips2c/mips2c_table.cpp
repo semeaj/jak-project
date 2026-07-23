@@ -406,6 +406,10 @@ namespace particle_adgif { extern void link(); }
 namespace sp_init_fields { extern void link(); }
 namespace sp_process_block_2d { extern void link(); }
 namespace sp_process_block_3d { extern void link(); }
+namespace get_string_length_asm { extern void link(); }
+namespace draw_string3d_asm { extern void link(); }
+namespace draw_string_asm_packed { extern void link(); }
+namespace draw_string_init_justify { extern void link(); }
 }
 // clang-format on
 
@@ -673,7 +677,10 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
      {"sparticle-launcher",
       {jakx::sparticle_motion_blur::link, jakx::sp_launch_particles_var::link,
        jakx::particle_adgif::link, jakx::sp_init_fields::link}},
-     {"sparticle", {jakx::sp_process_block_2d::link, jakx::sp_process_block_3d::link}}}};
+     {"sparticle", {jakx::sp_process_block_2d::link, jakx::sp_process_block_3d::link}},
+     {"font",
+      {jakx::get_string_length_asm::link, jakx::draw_string3d_asm::link,
+       jakx::draw_string_asm_packed::link, jakx::draw_string_init_justify::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});
