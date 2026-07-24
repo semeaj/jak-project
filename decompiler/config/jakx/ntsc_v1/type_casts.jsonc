@@ -706,8 +706,13 @@
   ],
   "(method 10 cam-setting-data)": [
     [[32, 42], "v1", "handle"],
+    [[477, 486], "v1", "handle"],
+    [[498, 507], "v1", "handle"],
     [[53, 56], "a0", "vector"],
-    [[438, 470], "a0", "vector"]
+    [[438, 440], "a0", "vector"],
+    [[447, 449], "a0", "vector"],
+    [[456, 458], "a0", "vector"],
+    [[467, 469], "a0", "vector"]
   ],
   "(method 10 user-setting-data)": [
     [[184, 199], "v1", "(array uint8)"],

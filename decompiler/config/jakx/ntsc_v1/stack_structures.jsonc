@@ -1,6 +1,7 @@
 {
   "show-level": [[16, ["array", "symbol", 18]]],
   "(method 25 level)": [[16, "event-message-block"]],
+  "(method 10 cam-setting-data)": [[16, "event-message-block"]],
   "play": [
     [16, "event-message-block"],
     [96, ["array", "symbol", 18]]

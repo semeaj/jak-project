@@ -16990,7 +16990,7 @@
 
 (deftype cam-setting-data (structure)
   ((fov                           degrees                    :offset-assert 0) ;; degrees
-   (pov-handle                    uint64                     :offset 16) ;; handle
+   (pov-handle                    handle                     :offset 16)
    (pov-bone                      int32                      :offset-assert 24)
    (pov-offset                    vector             :inline :offset-assert 32)
    (string-default                symbol                    :offset-assert 48) ;; symbol
@@ -17036,7 +17036,7 @@
    (use-mouse-tumble-point        symbol                     :offset-assert 320) ;; guessed by decompiler
    (mouse-input                   symbol                     :offset-assert 324) ;; guessed by decompiler
    (cpad1-skip-buttons            symbol                     :offset-assert 328) ;; guessed by decompiler
-   (butt-handle                   uint64                     :offset-assert 336) ;; handle
+   (butt-handle                   handle                     :offset-assert 336)
    (butt-angle                    float                      :offset-assert 344)
    (extra-follow-height           float                      :offset-assert 348)
    (interp-time-priority          uint32                     :offset-assert 352)
