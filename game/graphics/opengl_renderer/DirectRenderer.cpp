@@ -1047,7 +1047,9 @@ void DirectRenderer::handle_xyz2_packed(const u8* data,
   // The zbuf is PSMZ24, which saturates on the GS. Jak X's font packets use the
   // "huge z = always on top" idiom (z well past 24 bits); without saturating here
   // the normalized depth exceeds the clip volume and every glyph is discarded.
-  if (z > 0xffffff) {
+  // Gated to Jak X: earlier games discarded such fragments here and their
+  // rendering is validated against that behavior.
+  if (render_state->version == GameVersion::JakX && z > 0xffffff) {
     z = 0xffffff;
   }
 
