@@ -734,13 +734,18 @@
               )
             (set-background-regs! s2-1)
             (set-tie-guard-planes! s2-1)
-            (tie-scissor-make-perspective-matrix
-              (-> *instance-tie-work* tie-scissor-perspective-matrix)
-              (if (logtest? (-> s2-1 info level-flags) (level-flags use-camera-other))
-                  (-> s3-1 camera-temp-other)
-                  (-> s3-1 camera-temp)
+            ;; og:preserve-this runtime-link guard: tie-scissor-make-perspective-matrix's
+            ;; home (tie-near.o asm) is not landed, so the symbol links as 0. The scissor
+            ;; path is PS2-only on the PC port anyway.
+            (if (nonzero? tie-scissor-make-perspective-matrix)
+                (tie-scissor-make-perspective-matrix
+                  (-> *instance-tie-work* tie-scissor-perspective-matrix)
+                  (if (logtest? (-> s2-1 info level-flags) (level-flags use-camera-other))
+                      (-> s3-1 camera-temp-other)
+                      (-> s3-1 camera-temp)
+                      )
                   )
-              )
+                )
             )
           (let ((s3-2 (-> *display* frames (-> *display* on-screen) global-buf base)))
             (draw-drawable-tree-instance-tie (-> *background-work* tie-trees s4-1) s2-1)
