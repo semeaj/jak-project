@@ -5784,8 +5784,27 @@
 ;; og:preserve-this bring-up no-op: level-update (method 19) drives level transitions
 ;; per frame; the jakx body fails expression conversion. The boot level is already
 ;; 'loaded when the loop starts, so a no-op holds until the real port (hand-port from
-;; jak3 level-update planned).
+;; jak3 level-update planned). The PC level-list push (jak3's og addition) runs so the
+;; C++ loader learns which level fr3s to load and display.
 (defmethod level-update ((this level-group))
+  (let ((lev-names (new 'stack-no-clear 'array 'string 10))
+        (active-lev-names (new 'stack-no-clear 'array 'string 10)))
+    (dotimes (i 10)
+      (set! (-> active-lev-names i) "none")
+      (set! (-> lev-names i) "none")
+      (cond
+        ((or (= (-> this level i status) 'active)
+             (= (-> this level i status) 'alive)
+             (= (-> this level i status) 'loaded))
+          (set! (-> lev-names i) (symbol->string (bsp-name (-> this level i))))
+          (if (-> this level i display?)
+              (set! (-> active-lev-names i) (-> lev-names i)))
+          )
+        )
+      )
+    (__pc-set-levels lev-names)
+    (__pc-set-active-levels active-lev-names)
+    )
   0
   (none)
   )
