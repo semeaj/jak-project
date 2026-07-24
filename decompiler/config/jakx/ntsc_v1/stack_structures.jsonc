@@ -2,6 +2,11 @@
   "show-level": [[16, ["array", "symbol", 18]]],
   "(method 25 level)": [[16, "event-message-block"]],
   "(method 10 cam-setting-data)": [[16, "event-message-block"]],
+  "update-camera": [[16, ["inline-array", "vector", 7]]],
+  "update-view-planes": [
+    [208, "vector"],
+    [224, "vector"]
+  ],
   "play": [
     [16, "event-message-block"],
     [96, ["array", "symbol", 18]]

@@ -4502,6 +4502,11 @@
   (bucket786 786)
 
   (bucket788 788)
+  (bucket789 789)
+  (bucket790 790)
+  (bucket791 791)
+  (bucket792 792)
+  (bucket793 793)
 
   (bucket794 794)
   (bucket795 795)
@@ -16133,7 +16138,7 @@
 
 ;; (define-extern fog-corrector-setup function) ;; (function fog-corrector math-camera none)
 ;; (define-extern *math-camera-fog-correction* object) ;; fog-corrector
-;; (define-extern update-math-camera function) ;; (function math-camera symbol symbol float math-camera)
+(define-extern update-math-camera (function math-camera symbol symbol float math-camera)) ;; jak3-parity sig
 ;; (define-extern math-cam-start-smoothing function) ;; (function float float quaternion)
 ;; (define-extern move-target-from-pad function) ;; (function transform int transform)
 ;; (define-extern transform-point-vector! function) ;; (function vector vector symbol)
@@ -16154,9 +16159,10 @@
 (define-extern view-get-active-camera (function process))
 (define-extern view-get-camera (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-camera function)
-;; (define-extern view-get-active-camera-combiner function)
-;; (define-extern view-get-camera-combiner function)
-;; (define-extern view-set-active-camera-combiner function)
+(declare-type camera-combiner process)
+(define-extern view-get-active-camera-combiner (function camera-combiner)) ;; (-> (view-get-active) camera-combiner)
+(define-extern view-get-camera-combiner (function int camera-combiner))
+(define-extern view-set-active-camera-combiner (function camera-combiner camera-combiner))
 (define-extern view-get-active-math-camera (function math-camera))
 ;; (define-extern view-get-math-camera function)
 ;; (define-extern view-set-active-math-camera function)
@@ -31812,6 +31818,10 @@
    (bsp-offset               vector :inline              :offset-assert 304)
 
    (hfrag-drawable drawable :offset 320)
+   (current-leaf-idx-view uint16 4 :offset 324) ;; per-view (jakx); the scalar at 128 is the jak3-parity slot
+   (unknown-bsp-332       uint16 4 :offset 332) ;; per-view, read next to current-leaf-idx-view by update-visible
+   (cam-using-back-view   uint8  4 :offset 340) ;; per-view; nonzero prints the "back" warning in update-visible
+   (cam-outside-bsp-view  uint8  4 :offset 344) ;; per-view; nonzero prints the "front" warning in update-visible
 
 
    (end uint8 :offset #x18f)
@@ -31835,7 +31845,6 @@
   )
 |#
 
-#|
 (deftype view-frustum (structure)
   ((hither-top-left     vector :inline :offset-assert 0)
    (hither-top-right    vector :inline :offset-assert 16)
@@ -31850,7 +31859,6 @@
   :size-assert         #x80
   :flag-assert         #x900000080
   )
-|#
 
 (deftype collide-stats (structure)
   "Very strange collide stats type. It has been somewhat broken in all versions of the game.
@@ -35958,7 +35966,7 @@
 
 ;; (define-extern mem-usage-bsp-tree function) ;; (function bsp-header bsp-node memory-usage-block int none)
 ;; (define-extern *test-shrub* object) ;; int
-;; (define-extern bsp-camera-asm function) ;; (function bsp-header vector none)
+(define-extern bsp-camera-asm (function bsp-header vector int none)) ;; jakx adds a vis-index arg
 ;; (define-extern print-collide-stats function) ;; (function none)
 ;; (define-extern level-remap-texture function) ;; (function texture-id texture-id)
 (define-extern build-masks (function bsp-header none))
@@ -37217,7 +37225,7 @@
 ;; (define-extern highres-prototype-shrub-login function)
 ;; (define-extern shrub-vu1-block object) ;; vu-function
 ;; (define-extern shrub-num-tris function) ;; (function shrubbery uint)
-;; (define-extern shrub-make-perspective-matrix function) ;; (function matrix matrix matrix)
+(define-extern shrub-make-perspective-matrix (function matrix matrix matrix)) ;; jak3-parity sig
 ;; (define-extern shrub-init-view-data function) ;; (function shrub-view-data symbol)
 ;; (define-extern shrub-upload-view-data function) ;; (function dma-buffer symbol)
 ;; (define-extern shrub-time function) ;; (function int int int int int int)
@@ -37237,7 +37245,7 @@
 ;; shrub-work                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *instance-shrub-work* object) ;; instance-shrub-work
+(define-extern *instance-shrub-work* instance-shrub-work)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tfrag-near                     ;;
@@ -39616,13 +39624,13 @@
 ;; cam-update                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern plane-from-points function) ;; (function (inline-array plane) vector vector vector int float)
-;; (define-extern set-point function) ;; (function vector float float float float)
-;; (define-extern update-view-planes function) ;; (function math-camera (inline-array plane) float matrix float)
+(define-extern plane-from-points (function (inline-array plane) vector vector vector int float)) ;; jak3-parity sig
+(define-extern set-point (function vector float float float float)) ;; jak3-parity sig
+(define-extern update-view-planes (function math-camera (inline-array plane) float matrix float)) ;; jak3-parity sig
 (define-extern *update-leaf-when-outside-bsp* symbol)
-;; (define-extern update-visible function) ;; (function math-camera symbol)
+(define-extern update-visible (function math-camera int symbol)) ;; jakx adds a vis-index arg
 (define-extern *save-camera-inv-rot* matrix)
-;; (define-extern move-camera-from-pad function) ;; (function math-camera math-camera)
+(define-extern move-camera-from-pad (function math-camera math-camera)) ;; jak3-parity sig
 (define-extern external-cam-reset! (function none))
 (define-extern *start-timer* int)
 (define-extern *timer-value* int)
@@ -41318,7 +41326,7 @@
 
 ;; (define-extern *TARGET-bank* target-bank) ;; target-bank
 ;; (define-extern debounce-speed function) ;; (function float float vector vector float :behavior target)
-;; (define-extern target-pos function) ;; (function int vector)
+(define-extern target-pos (function int vector)) ;; jak3-parity sig
 ;; (define-extern target-rot function) ;; (function quaternion)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50885,7 +50893,7 @@
 ;; (define-extern *CAM_FREE-bank* cam-free-bank) ;; cam-free-bank
 ;; (define-extern cam-mouse-input function) ;; (function matrix vector vector object)
 ;; (define-extern cam-free-floating-input function) ;; (function matrix vector vector int int vector)
-;; (define-extern cam-free-floating-move function) ;; (function matrix vector vector int vector)
+(define-extern cam-free-floating-move (function matrix vector vector int vector)) ;; jak3-parity sig
 (define-extern cam-free-floating basic) ;; (state camera-slave), home not unlocked
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

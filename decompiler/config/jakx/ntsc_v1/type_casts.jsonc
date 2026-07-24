@@ -71,6 +71,26 @@
     [123, "a1", "drawable-tree-instance-shrub"],
     [[129, 133], "a2", "(inline-array prototype-bucket-shrub)"]
   ],
+  "update-camera": [
+    [[37, 99], "v0", "process-drawable"],
+    [[449, 460], "v0", "camera-master"],
+    [302, "v1", "vector"]
+  ],
+  "update-visible": [
+    [356, "v1", "bsp-node"],
+    [367, "v1", "bsp-node"],
+    [378, "v1", "bsp-node"],
+    [389, "v1", "bsp-node"],
+    [400, "v1", "bsp-node"],
+    [424, "v1", "bsp-node"],
+    [435, "v1", "bsp-node"],
+    [446, "v1", "bsp-node"],
+    [457, "v1", "bsp-node"],
+    [411, "v1", "bsp-node"],
+    [479, "v1", "bsp-node"],
+    [468, "v1", "bsp-node"]
+  ],
+  "external-cam-reset!": [[36, "v1", "vector"]],
   "cam-layout-function-call": [
     [15, "gp", "(function string int basic object)"]
   ],
