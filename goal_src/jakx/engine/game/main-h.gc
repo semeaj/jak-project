@@ -5856,7 +5856,7 @@
 
 (define *display-cam-coll-marks* #f)
 
-(define *display-camera-info* #f)
+(define *display-camera-info* #t) ;; og:preserve-this bring-up default: keeps the stdcon overlay populated every frame (retail default is #f)
 
 (define *display-camera-old-stats* #f)
 

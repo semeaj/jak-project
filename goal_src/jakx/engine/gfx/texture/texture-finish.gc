@@ -7,3 +7,9 @@
 
 ;; DECOMP BEGINS
 
+(setup-font-texture *texture-pool*)
+
+;; og:preserve-this the retail file also inits the texture-anim arrays here
+;; (*sky-texture-anim-array*, *ocean-texture-anim-array*, *default-pris/car/water/hud-texture-anim-array*)
+;; and calls kmemclose. Those arrays aren't landed yet; add the init calls when
+;; texture-anim-tables lands.

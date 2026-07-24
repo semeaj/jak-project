@@ -544,21 +544,27 @@
           (-> gp-0 trans z)
           (-> gp-0 fov)
           )
-        (format
-          *stdcon*
-          "cam vel ~7,,1M ~7,,1M ~7,,1M~%"
-          (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity x) (-> pp clock frames-per-second))
-          (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity y) (-> pp clock frames-per-second))
-          (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity z) (-> pp clock frames-per-second))
-          )
-        (let ((v1-92 (-> (the-as camera-master (view-get-active-camera)) settings)))
+        ;; og:preserve-this bring-up guards: no camera processes exist yet; the view
+        ;; slots hold #f (which passes nonzero?) or 0, so check both before deref
+        (when (and (nonzero? (view-get-active-camera-combiner)) (view-get-active-camera-combiner))
           (format
             *stdcon*
-            "string info min-l ~M max-l ~M min-h ~M max-h ~M~%"
-            (-> v1-92 string-min-length)
-            (-> v1-92 string-max-length)
-            (-> v1-92 string-min-height)
-            (-> v1-92 string-max-height)
+            "cam vel ~7,,1M ~7,,1M ~7,,1M~%"
+            (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity x) (-> pp clock frames-per-second))
+            (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity y) (-> pp clock frames-per-second))
+            (* (-> (the-as camera-combiner (view-get-active-camera-combiner)) velocity z) (-> pp clock frames-per-second))
+            )
+          )
+        (when (and (nonzero? (view-get-active-camera)) (view-get-active-camera))
+          (let ((v1-92 (-> (the-as camera-master (view-get-active-camera)) settings)))
+            (format
+              *stdcon*
+              "string info min-l ~M max-l ~M min-h ~M max-h ~M~%"
+              (-> v1-92 string-min-length)
+              (-> v1-92 string-max-length)
+              (-> v1-92 string-min-height)
+              (-> v1-92 string-max-height)
+              )
             )
           )
         )
