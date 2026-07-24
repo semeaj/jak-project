@@ -467,6 +467,20 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                                    323, 333, 344, 354, 365, 375};
     static constexpr int kTfragWaterBuckets[12] = {636, 645, 655, 664, 674, 683,
                                                    693, 702, 712, 721, 731, 740};
+    // Tie ground truth from instance-tie-patch-buckets' category bucket arrays
+    // (tie-methods.o), same 12-slot multiplex. The live GOAL block feeds the TIE
+    // bucket (tie-init-engine DMA + pc camera data + proto vis mask + envmap
+    // color); the other categories draw from the parent renderer's data.
+    static constexpr int kTieBuckets[12] = {9, 20, 32, 43, 55, 66, 78, 89, 101, 112, 124, 135};
+    static constexpr int kEtieBuckets[12] = {10, 21, 33, 44, 56, 67, 79, 90, 102, 113, 125, 136};
+    static constexpr int kTieTransBuckets[12] = {261, 271, 282, 292, 303, 313,
+                                                 324, 334, 345, 355, 366, 376};
+    static constexpr int kEtieTransBuckets[12] = {262, 272, 283, 293, 304, 314,
+                                                  325, 335, 346, 356, 367, 377};
+    static constexpr int kTieWaterBuckets[12] = {637, 646, 656, 665, 675, 684,
+                                                 694, 703, 713, 722, 732, 741};
+    static constexpr int kEtieWaterBuckets[12] = {638, 647, 657, 666, 676, 685,
+                                                  695, 704, 714, 723, 733, 742};
     for (int slot = 0; slot < 12; slot++) {
       const int lev = slot / 2;
       const int view = slot % 2;
@@ -482,6 +496,24 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                       BucketCategory::TFRAG, kTfragWaterBuckets[slot],
                                       std::vector{tfrag3::TFragmentTreeKind::WATER}, false, lev,
                                       anim_slot_array());
+      Tie3* tie = init_bucket_renderer<Tie3>(fmt::format("tie-l{}-v{}-tfrag", lev, view),
+                                             BucketCategory::TIE, kTieBuckets[slot], lev,
+                                             anim_slot_array());
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-tfrag", lev, view),
+                                                BucketCategory::TIE, kEtieBuckets[slot], tie,
+                                                tfrag3::TieCategory::NORMAL_ENVMAP);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("tie-t-l{}-v{}-alpha", lev, view),
+                                                BucketCategory::TIE, kTieTransBuckets[slot], tie,
+                                                tfrag3::TieCategory::TRANS);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-alpha", lev, view),
+                                                BucketCategory::TIE, kEtieTransBuckets[slot], tie,
+                                                tfrag3::TieCategory::TRANS_ENVMAP);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("tie-w-l{}-v{}-water", lev, view),
+                                                BucketCategory::TIE, kTieWaterBuckets[slot], tie,
+                                                tfrag3::TieCategory::WATER);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-water", lev, view),
+                                                BucketCategory::TIE, kEtieWaterBuckets[slot], tie,
+                                                tfrag3::TieCategory::WATER_ENVMAP);
     }
 
     init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);

@@ -308,13 +308,17 @@ bool Tie3::set_up_common_data_from_dma(DmaFollower& dma, SharedRenderState* rend
   auto row = dma.read_and_advance();
   ASSERT(row.size_bytes == 32);
 
+  // jak2/3: [optional 32-byte piece] [0-size] [pc port data]. Jak X's
+  // tie-init-engine ends with a 64-byte tail and no 0-size separator, so skip
+  // forward until either the separator or the pc data itself.
   auto next = dma.read_and_advance();
-  if (next.size_bytes == 32) {
+  while (next.size_bytes != 0 && next.size_bytes != sizeof(TfragPcPortData)) {
     next = dma.read_and_advance();
   }
-  ASSERT(next.size_bytes == 0);
-
-  auto pc_port_data = dma.read_and_advance();
+  auto pc_port_data = next;
+  if (pc_port_data.size_bytes == 0) {
+    pc_port_data = dma.read_and_advance();
+  }
   ASSERT(pc_port_data.size_bytes == sizeof(TfragPcPortData));
   memcpy(&m_pc_port_data, pc_port_data.data, sizeof(TfragPcPortData));
   m_pc_port_data.level_name[11] = '\0';
