@@ -43,10 +43,11 @@
   )
 
 ;; og:preserve-this bring-up gate: the retail top-level runs cam-start once per view
-;; (view-push-context i / cam-start / view-pop-context, i = 0..1). The camera
-;; process loops still reference slave states that live in unlanded cam-states.o,
-;; so activation stays behind this flag until those land. Flip to #t (or call
-;; (jakx-cam-start-now) from the REPL) to spawn the ring.
+;; (view-push-context i / cam-start / view-pop-context, i = 0..1). cam-states is
+;; landed now, but the first (go cam-combiner-active) dies INSIDE the go/enter-state
+;; machinery (this is the first defstate dispatch the jakx bring-up exercises; the
+;; init behavior completes, the :code never starts). Debug the jakx gstate/gkernel
+;; state path, then flip to #t (or call (jakx-cam-start-now) from the REPL).
 (define *jakx-cam-start* #f)
 
 (defun jakx-cam-start-now ()

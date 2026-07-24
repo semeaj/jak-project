@@ -569,7 +569,7 @@
    (spline-follow-dist             float)
    (enter-has-run                  symbol)
    (blend-from-type                camera-blend-from-type)
-   (blend-to-type                  camera-blend-to-type)
+   (blend-to-type                  int64) ;; camera-blend-to-type values; jakx reads it 64-bit
    (have-phony-joystick            basic)
    (phony-joystick-x               float)
    (phony-joystick-y               float)

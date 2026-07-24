@@ -161,13 +161,15 @@
     )
   :code (behavior ()
     (until #f
-      (when (and (not (logtest? (-> (the-as camera-master (view-get-active-camera)) master-options) (cam-master-options-u32 HAVE_TARGET)))
+      ;; og:preserve-this bring-up guard: the master may not exist yet (0/#f slot)
+      (when (and (nonzero? (view-get-active-camera)) (view-get-active-camera)
+                 (not (logtest? (-> (the-as camera-master (view-get-active-camera)) master-options) (cam-master-options-u32 HAVE_TARGET)))
                  (!= (-> self tracking-status) 0)
                  )
         (set! (-> self tracking-status) (the-as uint 0))
         0
         )
-      (when (view-get-active-camera)
+      (when (and (nonzero? (view-get-active-camera)) (view-get-active-camera))
         (let ((s5-0 (-> (the-as camera-master (view-get-active-camera)) slave))
               (s4-0 (-> (the-as camera-master (view-get-active-camera)) decel))
               (f30-0 (parameter-ease-sin-clamp (-> self interp-val)))
@@ -209,6 +211,10 @@
                    )
                  )
                (cond
+                 ;; og:preserve-this bring-up guard: the master may not exist yet
+                 ;; (the view slot holds 0/#f; PS2 tolerated 0-page reads, PC faults)
+                 ((not (and (nonzero? (view-get-active-camera)) (view-get-active-camera)))
+                  )
                  ((and (< 0.0 (-> (the-as camera-master (view-get-active-camera)) outro-t-step))
                        (< (-> (the-as camera-master (view-get-active-camera)) outro-t) (-> (the-as camera-master (view-get-active-camera)) outro-exit-value))
                        )
