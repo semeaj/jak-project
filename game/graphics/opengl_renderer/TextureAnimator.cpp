@@ -604,14 +604,19 @@ TextureAnimator::TextureAnimator(ShaderLibrary& shaders,
   m_output_debug_flags.resize(animated_texture_slots(m_version).size());
 
   // animation-specific stuff
-  setup_texture_anims_common();
   switch (m_version) {
     case GameVersion::Jak2:
+      setup_texture_anims_common();
       setup_texture_anims_jak2();
       break;
     case GameVersion::Jak3:
-    case GameVersion::JakX:
+      setup_texture_anims_common();
       setup_texture_anims_jak3();
+      break;
+    case GameVersion::JakX:
+      // Jak X's animated-texture set is not known yet, and the jak 2/3 defs look up
+      // textures by name that don't exist in Jak X's common tpage (which is fatal).
+      // Skip for bring-up; the output slots stay bound to the dummy texture.
       break;
     default:
       ASSERT_NOT_REACHED();
