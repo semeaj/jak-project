@@ -7,3 +7,8 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this early landing: hflip? is game-info.o's split-screen mirror query;
+;; math-camera's transform-point tails call it, so it lands ahead of the rest of the file
+(defun hflip? ()
+  (logtest? (-> *game-info* secrets) #x4000)
+  )

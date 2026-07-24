@@ -6,7 +6,7 @@
 ;; dgos: ENGINE, GAME
 
 ;; og:preserve-this externs for homes not landed yet; call sites carry runtime-link guards
-(define-extern update-math-camera (function math-camera symbol symbol float math-camera)) ;; math-camera.gc
+(define-extern update-math-camera (function math-camera symbol symbol float math-camera)) ;; real in math-camera.gc (compiles earlier); extern kept for clarity
 (define-extern bsp-camera-asm (function bsp-header vector int none)) ;; bsp.gc asm
 (define-extern cam-free-floating-move (function matrix vector vector int vector)) ;; cam-states.gc
 (define-extern shrub-make-perspective-matrix (function matrix matrix matrix)) ;; shrubbery.gc
@@ -448,15 +448,12 @@
         (set! *timer-value* 0)
         0
         )
-      ;; og:preserve-this runtime-link guard: home not landed yet
-      (if (nonzero? update-math-camera)
-          (update-math-camera
-            gp-0
-            (-> *setting-control* user-current video-mode)
-            (-> *video-params* aspect-ratio)
-            (-> gp-0 fov)
-            )
-          )
+      (update-math-camera
+        gp-0
+        (-> *setting-control* user-current video-mode)
+        (-> *video-params* aspect-ratio)
+        (-> gp-0 fov)
+        )
       (cond
         ((or (= *master-mode* 'pause) (= *master-mode* 'freeze) (= *master-mode* 'progress) *progress-process*)
          )

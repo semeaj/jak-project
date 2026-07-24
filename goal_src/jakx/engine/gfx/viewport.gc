@@ -472,7 +472,6 @@
 ;; WARN: Return type mismatch viewport vs none.
 (defmethod viewport-array-method-11 ((this viewport-array))
   (-> this data (-> this current-viewport-index))
-  (none)
   )
 
 ;; definition for method 10 of type viewport
