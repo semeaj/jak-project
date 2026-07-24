@@ -266,13 +266,7 @@
            )
        )
       )
-    ;; og:preserve-this runtime-link guard + dropped-arg fix: m23 (apply defaults through
-    ;; the engines) still degrades on the cam-engines indexed fetch, so its slot is 0
-    (let ((m23 (method-of-object *setting-control* setting-control-method-23)))
-      (if (nonzero? m23)
-          (m23 *setting-control*)
-          )
-      )
+    (setting-control-method-23 *setting-control*)
     )
   (if *debug-segment*
       (menu-respond-to-pause)
@@ -989,13 +983,7 @@
 ;;          (set! (-> *setting-control* user-current music-volume) 0.01)
 ;;          (set! (-> *setting-control* user-current dialog-volume) 0.01)
 ;;          (set! (-> *setting-control* user-current ambient-volume) 0.01)
-;;          ;; og:preserve-this runtime-link guard + dropped-arg fix: m23 (apply defaults through
-    ;; the engines) still degrades on the cam-engines indexed fetch, so its slot is 0
-    (let ((m23 (method-of-object *setting-control* setting-control-method-23)))
-      (if (nonzero? m23)
-          (m23 *setting-control*)
-          )
-      )
+;;          (setting-control-method-23 *setting-control*)
 ;;          (set! (-> *game-info* mode) 'play)
 ;;          (initialize! *game-info* 'game (the-as game-save #f) "fmv-intro" (the-as resetter-spec #f))
 ;;          )

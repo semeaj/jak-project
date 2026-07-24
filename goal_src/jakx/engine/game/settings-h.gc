@@ -365,17 +365,21 @@
    (unknown-usd-32           basic)
    (borrow-city-count        uint32)
    (borrow-city              pair   3)
-   (unknown-usd-33           uint32 28)
+   (unknown-usd-33           uint32)
+   (faction-command          symbol 3) ;; per-camera, set by usd m10 'faction-command
+   (unknown-usd-556          uint32 8)
+   (borrow-hold-perm         symbol 3) ;; per-camera, set by usd m10 'borrow-hold-perm
+   (unknown-usd-600          uint32)
+   (borrow-hold              symbol 3) ;; per-camera, set by usd m10 'borrow-hold
+   (unknown-usd-616          uint32 9)
    (audio-language           uint8)
    (unknown-usd-656          basic)
-   (unknown-usd-660          basic)
-   (unknown-usd-664          basic)
-   (unknown-usd-668          basic)
+   (city-sound               symbol 3) ;; per-camera, set by usd m10 'city-sound, read by sc m23
    (unknown-usd-672          basic)
    (unknown-usd-676          basic)
    (unknown-usd-680          basic)
    (unknown-usd-684          basic)
-   (unknown-usd-688          uint64)
+   (sound-ear                handle) ;; jak3 parity; ear-process handle set by usd m10 'sound-ear
    (sound-ear-scale-value    float)
    (special-volume           float)
    (unknown-usd-704          basic)
@@ -498,23 +502,23 @@
    (engine       engine                    :offset-assert 7168) ;; guessed by decompiler
    (engine-pers  engine-pers               :offset-assert 7172) ;; guessed by decompiler
    (engine-hi    engine                    :offset-assert 7176) ;; guessed by decompiler
-   (cam-engines  uint32                 4       :offset-assert 7180) ;; really (engine-group 4); uint32 so the dynamic index folds
+   (cam-engines  engine-group           4       :offset-assert 7180) ;; per-camera engine groups, indexed by camera id
    )
   :method-count-assert 25
   :size-assert         #x1c1c
   :flag-assert         #x1900001c1c
   (:methods
     (new (symbol type int) _type_) ;; 0
-    (setting-control-method-9 (_type_ process symbol object object object object) connection) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-10 (_type_ symbol time-frame symbol symbol float int object) none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none)
-    (setting-control-method-11 (_type_ process symbol object object object object) connection) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-12 (_type_ object process object) none) ;; 12 ;; (remove-setting (_type_ process symbol) none)
+    (setting-control-method-9 (_type_ int process symbol object object object) connection) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection); jakx puts the camera id first
+    (setting-control-method-10 (_type_ int symbol time-frame symbol symbol float object) none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none); jakx: camera id first, then name/delay/param0-3
+    (setting-control-method-11 (_type_ int process symbol object object object) connection) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection); jakx puts the camera id first
+    (setting-control-method-12 (_type_ int process object) none) ;; 12 ;; (remove-setting (_type_ process symbol) none); jakx puts the camera id first
     (setting-control-method-13 (_type_ engine-pers object object object object) none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none) ;; 14 ;; (setting-control-method-14 (_type_ object) connectable)
     (setting-control-method-15 (_type_ object object object object object) connectable) ;; 15 ;; (get-setting (_type_ object) connectable)
     (setting-control-method-16 (_type_ process object object) none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
     (setting-control-method-17 (_type_ symbol object object object) connection) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
-    (setting-control-method-18 (_type_ object object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data)
+    (setting-control-method-18 (_type_ int object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data); jakx: camera id first (cam-disconnect-by-key)
     (setting-control-method-19 (_type_ object) user-setting-data) ;; 19 ;; (update (_type_) user-setting-data)
     (setting-control-method-20 (_type_ object) connection) ;; 20
     (setting-control-method-21 (_type_ object) none) ;; 21
@@ -532,11 +536,9 @@
     (set! (-> s4-0 engine-pers)
           ((method-of-type engine-pers new) allocation engine-pers 'setting-control arg0 connection-pers)
           )
-    ;; og:preserve-this cam-engines is declared (uint32 4) so the decompiler folds the
-    ;; dynamic index; it really holds engine-group pointers, hence the casts here
     (dotimes (s3-0 4)
       (let ((group (new 'global 'engine-group)))
-        (set! (-> s4-0 cam-engines s3-0) (the-as uint group))
+        (set! (-> s4-0 cam-engines s3-0) group)
         (set! (-> group engine)
               ((method-of-type engine new) allocation engine 'setting-control arg0 connection)
               )
