@@ -1292,6 +1292,21 @@ void OpenGLRenderer::setup_frame(const RenderOptions& settings) {
     m_render_state.stencil_dirty = false;
   }
   // jak 2 does the clear in BlitDisplays.cpp
+  if (m_version == GameVersion::JakX) {
+    // Jak X's bring-up profile has no BlitDisplays, whose render() is what binds and
+    // clears the game FBO for jak 2/3 (and leaves it bound for the bucket renderers).
+    // Without this, DirectRenderer draws into whatever framebuffer was left bound and
+    // do_pcrtc_effects then stamps the never-written FBO over the window.
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_state.render_fbo->fbo_id);
+    glViewport(0, 0, m_fbo_state.render_fbo->width, m_fbo_state.render_fbo->height);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(0.0);
+    glClearStencil(0);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glDisable(GL_BLEND);
+    m_render_state.stencil_dirty = false;
+  }
 
   // setup the draw region to letterbox later
   m_render_state.draw_region_w = settings.draw_region_width;

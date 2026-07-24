@@ -1044,12 +1044,18 @@ void DirectRenderer::handle_xyz2_packed(const u8* data,
   u64 upper;
   memcpy(&upper, data + 8, 8);
   u32 z = upper;
+  // The zbuf is PSMZ24, which saturates on the GS. Jak X's font packets use the
+  // "huge z = always on top" idiom (z well past 24 bits); without saturating here
+  // the normalized depth exceeds the clip volume and every glyph is discarded.
+  if (z > 0xffffff) {
+    z = 0xffffff;
+  }
 
   bool adc = upper & (1ull << 47);
   handle_xyzf2_common(x << 16, y << 16, z, 0, render_state, prof, !adc);
 }
 
-PerGameVersion<u32> normal_zbp = {448, 304, 304, 304};
+PerGameVersion<u32> normal_zbp = {448, 304, 304, 302};
 void DirectRenderer::handle_zbuf1(u64 val,
                                   SharedRenderState* render_state,
                                   ScopedProfilerNode& prof) {
