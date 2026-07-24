@@ -603,6 +603,29 @@ int add_material_for_tex(const tfrag3::Level& level,
 }
 
 constexpr int kMaxColor = 1;
+
+/*!
+ * Pick the brightest of the 8 time-of-day palettes. Slot 0 is not always lit:
+ * JakX interiors bake their lighting into a different keyframe and leave slot 0
+ * black, which exported as an all-black model.
+ */
+int pick_lit_time_of_day(const tfrag3::PackedTimeOfDay& colors) {
+  int best = 0;
+  u64 best_sum = 0;
+  for (int tod = 0; tod < 8; tod++) {
+    u64 sum = 0;
+    for (u32 c = 0; c < colors.color_count; c++) {
+      for (int ch = 0; ch < 3; ch++) {
+        sum += colors.read(c, tod, ch);
+      }
+    }
+    if (sum > best_sum) {
+      best_sum = sum;
+      best = tod;
+    }
+  }
+  return best;
+}
 /*!
  * Add the given tfrag data to a node under tfrag_root.
  */
@@ -631,7 +654,8 @@ void add_tfrag(const tfrag3::Level& level,
   int colors[kMaxColor];
 
   for (int i = 0; i < kMaxColor; i++) {
-    colors[i] = make_color_buffer_accessor(tfrag.unpacked.vertices, model, tfrag, i);
+    colors[i] = make_color_buffer_accessor(tfrag.unpacked.vertices, model, tfrag,
+                                           i == 0 ? pick_lit_time_of_day(tfrag.colors) : i);
   }
 
   for (auto& draw : tfrag.draws) {
@@ -672,7 +696,8 @@ void add_tie(const tfrag3::Level& level,
   int colors[kMaxColor];
 
   for (int i = 0; i < kMaxColor; i++) {
-    colors[i] = make_color_buffer_accessor(tie.unpacked.vertices, model, tie, i);
+    colors[i] = make_color_buffer_accessor(tie.unpacked.vertices, model, tie,
+                                           i == 0 ? pick_lit_time_of_day(tie.colors) : i);
   }
 
   for (auto& draw : tie.static_draws) {
@@ -754,7 +779,8 @@ void add_shrub(const tfrag3::Level& level,
                                                        draw_to_start, draw_to_count);
   int colors[kMaxColor];
   for (int i = 0; i < kMaxColor; i++) {
-    colors[i] = make_color_buffer_accessor(shrub.unpacked.vertices, model, shrub, i);
+    colors[i] = make_color_buffer_accessor(shrub.unpacked.vertices, model, shrub,
+                                           i == 0 ? pick_lit_time_of_day(shrub.time_of_day_colors) : i);
   }
 
   // for (auto& draw : shrub.static_draws) {
