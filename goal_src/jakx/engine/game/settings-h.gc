@@ -409,7 +409,7 @@
 
 (deftype cam-setting-data (structure)
   ((fov                            degrees)
-   (pov-handle                     uint64  :offset  16)
+   (pov-handle                     handle  :offset  16)
    (pov-bone                       int32)
    (pov-offset                     vector  :inline)
    (string-default                 symbol)
@@ -455,7 +455,7 @@
    (use-mouse-tumble-point         symbol)
    (mouse-input                    symbol)
    (cpad1-skip-buttons             symbol)
-   (butt-handle                    uint64)
+   (butt-handle                    handle)
    (butt-angle                     float)
    (extra-follow-height            float)
    (interp-time-priority           uint32)
