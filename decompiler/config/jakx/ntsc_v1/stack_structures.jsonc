@@ -10,6 +10,7 @@
   "cam-helper-temp": [[16, ["inline-array", "vector", 3]]],
   "(code cam-combiner-active)": [[16, "vector"]],
   "(code cam-point-watch)": [[16, "vector"]],
+  "(method 22 blit-displays-work)": [[16, "blur-coords"]],
   "cam-mouse-input": [
     [16, "vector"],
     [32, "vector"],

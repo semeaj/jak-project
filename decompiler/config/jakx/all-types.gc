@@ -4494,9 +4494,12 @@
   (bucket774 774)
   (bucket775 775)
   (bucket776 776)
+  (bucket766 766) ;; used by blit m17
+
   (bucket777 777)
 
   (bucket780 780)
+  (bucket784 784) ;; used by blit m26
 
   (bucket785 785)
   (bucket786 786)
@@ -5379,10 +5382,15 @@
   :flag-assert #x900000008
   )
 
-;; (deftype gs-rgbaq (uint64)
-;;   ()
-;;   :flag-assert #x900000008
-;;   )
+(deftype gs-rgbaq (uint64)
+  ((r  uint8 :offset 0  :size 8)
+   (g  uint8 :offset 8  :size 8)
+   (b  uint8 :offset 16 :size 8)
+   (a  uint8 :offset 24 :size 8)
+   (q  float :offset 32 :size 32)
+   )
+  :flag-assert #x900000008
+  )
 
 ;; (deftype gs-xyz (uint64)
 ;;   ()
@@ -15870,9 +15878,9 @@
    (shadow-dma-tex0     uint64               :offset-assert 352)
    (shadow-dma          basic                :offset-assert 360)
    (warp-shader         adgif-shader :inline :offset-assert 368)
-   (blur-forward-dma    basic                :offset-assert 448)
-   (blur-reverse-dma    basic                :offset-assert 452)
-   (blur-finish-dma     basic                :offset-assert 456)
+   (blur-forward-dma    dma-buffer           :offset-assert 448) ;; +28 reads = (-> it data)
+   (blur-reverse-dma    dma-buffer           :offset-assert 452) ;; +28 reads = (-> it data)
+   (blur-finish-dma     dma-buffer           :offset-assert 456) ;; +28 reads = (-> it data)
    (blur-sx             int32                :offset-assert 460)
    (blur-sy             int32                :offset-assert 464)
    (blur-hx             int32                :offset-assert 468)
@@ -15968,24 +15976,29 @@
   :size-assert         #x254
   :flag-assert         #x1b00000254
   (:methods
-    (blit-displays-work-method-9 () none) ;; 9 ;; (blit-standard (_type_ dma-buffer int int int) none)
-    (blit-displays-work-method-10 () none) ;; 10 ;; (blit-slow-time (_type_ dma-buffer int int int) none)
-    (blit-displays-work-method-11 () none) ;; 11 ;; (draw-sprite-color (_type_ dma-buffer int) none)
-    (blit-displays-work-method-12 () none) ;; 12 ;; (draw-letterbox (_type_ dma-buffer float int float) none)
-    (blit-displays-work-method-13 () none) ;; 13 ;; (draw-antialias (_type_ dma-buffer int int int) none)
-    (blit-displays-work-method-14 () none) ;; 14 ;; (draw-color-filter (_type_ dma-buffer vector) none)
-    (blit-displays-work-method-15 () none) ;; 15 ;; (fx-to-raster-flipped (_type_ dma-buffer) none)
-    (blit-displays-work-method-16 () none) ;; 16 ;; (draw-zoom-blur (_type_ dma-buffer int) none)
-    (blit-displays-work-method-17 () none) ;; 17 ;; (setup-zoom-blur-2d (_type_ vector int float symbol) none)
-    (blit-displays-work-method-18 () none) ;; 18 ;; (draw-brightness-and-contrast (_type_ dma-buffer float float) none)
-    (get-horizontal-flip-flag (_type_) symbol) ;; 19 ;; (do-blit-displays (_type_) none)
-    (set-horizontal-flip-flag (_type_ symbol) symbol) ;; 20 ;; (blit-menu-mode (_type_ dma-buffer) none)
-    (blit-displays-work-method-21 () none) ;; 21 ;; (get-menu-mode (_type_) symbol)
-    (blit-displays-work-method-22 () none) ;; 22 ;; (get-screen-copied (_type_) symbol)
-    (blit-displays-work-method-23 () none) ;; 23 ;; ( (_type_) symbol)
-    (blit-displays-work-method-24 () none) ;; 24 ;; (set-menu-mode (_type_ symbol) symbol)
-    (blit-displays-work-method-25 () none) ;; 25 ;; (set-screen-copied (_type_ symbol) symbol)
-    (blit-displays-work-method-26 () none) ;; 26 ;; ( (_type_ symbol) symbol)
+    ;; arities derived from per-method register reads (unset-reg errors); names for
+    ;; 9-17 follow the jak3-parity hypothesis, the 21-26 tail keeps numbered names
+    ;; until the bodies identify them (jakx inserted the flip-flag pair at 19/20)
+    (blit-standard (_type_ dma-buffer int int int) none) ;; 9
+    (blit-slow-time (_type_ dma-buffer int int int) none) ;; 10
+    (draw-sprite-color (_type_ dma-buffer int) none) ;; 11
+    (draw-letterbox (_type_ dma-buffer float int float int) none) ;; 12 ;; jakx +1 arg (reads t0)
+    (draw-antialias (_type_ dma-buffer (pointer float) int) none) ;; 13 ;; arg1 derefs floats
+    (draw-color-filter (_type_ dma-buffer vector) none) ;; 14
+    (fx-to-raster-flipped (_type_ dma-buffer int) none) ;; 15 ;; jakx +1 arg (reads a1)
+    (draw-zoom-blur (_type_ dma-buffer float float int) none) ;; 16 ;; jakx +2 args; arg1/arg2 float
+    (setup-zoom-blur-2d (_type_ vector int object symbol int) none) ;; 17 ;; jakx +1 arg; arg2 reused as scratch pointer
+    (blit-displays-work-method-18 () none) ;; 18 ;; not in blit-displays.o
+    (get-horizontal-flip-flag (_type_) symbol) ;; 19
+    (set-horizontal-flip-flag (_type_ symbol) symbol) ;; 20
+    ;; the 21-25 family reads viewport blur fields (blur-sx/sy@460/464, blur-cx@476,
+    ;; blur-frame-0@488, frame@184): jakx multiplexes the blit path per viewport
+    (blit-displays-work-method-21 (_type_ dma-buffer viewport int) none) ;; 21
+    (blit-displays-work-method-22 (_type_ dma-buffer viewport int float int) none) ;; 22 ;; arg3 float (mtc1+mul.s)
+    (blit-displays-work-method-23 (_type_ dma-buffer viewport int) none) ;; 23
+    (blit-displays-work-method-24 (_type_ dma-buffer viewport int int) none) ;; 24
+    (blit-displays-work-method-25 (_type_ dma-buffer viewport int) none) ;; 25
+    (blit-displays-work-method-26 (_type_ dma-buffer) none) ;; 26
     )
   )
 
@@ -16726,8 +16739,8 @@
 ;; (define-extern vif1-handler-debug function) ;; (function int none)
 ;; (define-extern vif1-handler function) ;; (function none)
 (define-extern vblank-handler (function int))
-;; (define-extern set-display-gs-state function) ;; (function dma-buffer int int int int int dma-buffer)
-;; (define-extern set-display-gs-state-offset function) ;; (function dma-buffer int int int int int int int dma-buffer)
+(define-extern set-display-gs-state (function dma-buffer int int int int int dma-buffer))
+(define-extern set-display-gs-state-offset (function dma-buffer int int int int int int int dma-buffer))
 (define-extern reset-display-gs-state (function display dma-buffer display)) ;; 
 (define-extern *vu0-dma-list* dma-buffer) ;; 
 (define-extern *display* display) 
@@ -16905,8 +16918,8 @@
    (dust-storm-sound-scalar  float               :offset-assert 500) ;; named by usd m10 'dust-storm-sound-scalar
    (unknown-usd-28             basic              :offset-assert 504) ;; added
    (unknown-usd-29             basic              :offset-assert 508) ;; added
-   (unknown-usd-30             basic              :offset-assert 512) ;; added
-   (unknown-usd-31             basic              :offset-assert 516) ;; added
+   (zoom-blur-amount           float              :offset-assert 512) ;; floats fed to blit draw-zoom-blur (m17 reads)
+   (zoom-blur-amount2          float              :offset-assert 516) ;; second zoom-blur param
    (unknown-usd-32             basic              :offset-assert 520) ;; added
    (borrow-city-count       uint32              :offset-assert 524)
    (borrow-city             pair              3 :offset-assert 528) ;; guessed by decompiler
@@ -37005,7 +37018,7 @@
 
 ;; (define-extern fx-copy-init function)
 ;; (define-extern warp-shader-init function)
-;; (define-extern fx-copy-buf function) ;; (function dma-buffer none)
+(define-extern fx-copy-buf (function dma-buffer viewport none)) ;; jakx adds the viewport arg (jak3: dma-buffer only)
 (define-extern init-warp (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -37013,7 +37026,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern hflip-zbuf-init function)
-;; (define-extern hflip-z-buf function)
+(define-extern hflip-z-buf (function dma-buffer viewport none)) ;; jakx adds the viewport arg
 (define-extern init-hflip-zbuf (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -37106,21 +37119,22 @@
 ;; blit-displays                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
+;; jakx-new type; the inspect prints pos[8]/tex[8] over 64 bytes each = 8 float pairs
+;; per array (xy positions and st tex coords for the zoom-blur sprite fan); kept as
+;; flat float arrays since inline vector2 arrays pad their stride to 16
 (deftype blur-coords (structure)
-  ((pos UNKNOWN 8 :offset-assert 0)
-   (tex UNKNOWN 8 :offset-assert 64)
+  ((pos float 16 :offset-assert 0)
+   (tex float 16 :offset-assert 64)
    )
   :method-count-assert 9
   :size-assert         #x80
   :flag-assert         #x900000080
   )
-|#
 
-(define-extern *blit-displays-work* blit-displays-work) ;; 
-;; (define-extern clear-zbuf function)
+(define-extern *blit-displays-work* blit-displays-work) ;;
+(define-extern clear-zbuf (function blit-displays-work bucket-id none)) ;; jakx-new; arg1 flows to the bucket insert
 (define-extern draw-color-bars (function blit-displays-work none))
-;; (define-extern draw-raw-image function) ;; (function blit-displays-work bucket-id art-group vector vector level int none)
+(define-extern draw-raw-image (function blit-displays-work bucket-id art-group vector vector level int none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; font-data                      ;;
