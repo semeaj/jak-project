@@ -6,6 +6,7 @@
 #include "common/util/FileUtil.h"
 #include "common/util/Timer.h"
 
+#include "game/graphics/gfx.h"
 #include "game/graphics/opengl_renderer/slime_lut.h"
 #include "game/graphics/texture/TexturePool.h"
 
@@ -2827,6 +2828,33 @@ void TextureAnimator::setup_sky() {
 
 GLint TextureAnimator::run_clouds(const SkyInput& input, bool hires) {
   m_debug_sky_input = input;
+
+  if (Gfx::g_reset_sky_cloud_phase.exchange(false)) {
+    // Rewind the noise state to its boot value, replaying setup_sky's exact
+    // generation order so the regenerated textures match a fresh boot. Combined
+    // with the GOAL side zeroing the anim frame-times and scroll offsets, this
+    // makes the cloud pattern deterministic regardless of boot timing.
+    for (int i = 0; i < kRandomTableSize; i++) {
+      m_random_table[i] = kInitialRandomTable[i];
+    }
+    m_random_index = 0;
+    for (int i = 0; i < kNumSkyNoiseLayers; i++) {
+      auto& tex = m_sky_noise_textures[i];
+      m_random_index = update_opengl_noise_texture(tex.new_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      m_random_index = update_opengl_noise_texture(tex.old_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      tex.last_time = 0.f;
+    }
+    for (int i = 0; i < kNumSkyHiresNoiseLayers; i++) {
+      auto& tex = m_sky_hires_noise_textures[i];
+      m_random_index = update_opengl_noise_texture(tex.new_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      m_random_index = update_opengl_noise_texture(tex.old_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      tex.last_time = 0.f;
+    }
+  }
 
   // anim 0 creates a clut with rgba = 128, 128, 128, i, at tbp = (24 * 32)
   // (this has alphas from 0 to 256).
