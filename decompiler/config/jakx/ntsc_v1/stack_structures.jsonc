@@ -3,6 +3,10 @@
   "(method 25 level)": [[16, "event-message-block"]],
   "(method 10 cam-setting-data)": [[16, "event-message-block"]],
   "update-camera": [[16, ["inline-array", "vector", 7]]],
+  "init-for-transform": [
+    [80, "matrix"],
+    [192, "vector"]
+  ],
   "update-view-planes": [
     [208, "vector"],
     [224, "vector"]

@@ -15830,7 +15830,7 @@
   :flag-assert         #xa000006b4
   (:methods
     (new (symbol type) _type_)
-    (math-camera-method-9 () none) ;; 9
+    (math-camera-method-9 (_type_ float float float float) none) ;; screen-param setup, args proven by register reads
     )
   )
 
@@ -15933,7 +15933,7 @@
   (:methods
     (viewport-array-method-9 (_type_ viewport) none) ;; 9
     (get-viewport (_type_ uint) viewport) ;; 10
-    (viewport-array-method-11 (_type_) none) ;; 11
+    (viewport-array-method-11 (_type_) viewport) ;; 11 ;; returns the current viewport
     )
   )
 
@@ -16125,7 +16125,6 @@
 ;; math-camera                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype fog-corrector (structure)
   ((fog-end   float  :offset-assert 0)
    (fog-start float  :offset-assert 4)
@@ -16134,18 +16133,27 @@
   :size-assert         #x8
   :flag-assert         #x900000008
   )
-|#
 
-;; (define-extern fog-corrector-setup function) ;; (function fog-corrector math-camera none)
-;; (define-extern *math-camera-fog-correction* object) ;; fog-corrector
+(define-extern fog-corrector-setup (function fog-corrector math-camera none)) ;; jak3-parity sig
+(define-extern *math-camera-fog-correction* fog-corrector)
 (define-extern update-math-camera (function math-camera symbol symbol float math-camera)) ;; jak3-parity sig
-;; (define-extern math-cam-start-smoothing function) ;; (function float float quaternion)
-;; (define-extern move-target-from-pad function) ;; (function transform int transform)
-;; (define-extern transform-point-vector! function) ;; (function vector vector symbol)
+(define-extern math-cam-start-smoothing (function float float quaternion)) ;; jak3-parity sig
+(deftype transform (structure)
+  "Transformation. w components of vectors should be 1.0"
+  ((trans vector :inline :offset-assert 0)
+   (rot   vector :inline :offset-assert 16)
+   (scale vector :inline :offset-assert 32)
+   )
+  :method-count-assert 9
+  :size-assert         #x30
+  :flag-assert         #x900000030
+  )
+(define-extern move-target-from-pad (function transformq int transformq)) ;; jakx has no plain transform; transformq is layout-identical
+(define-extern transform-point-vector! (function vector vector symbol)) ;; jak3-parity sig
 (define-extern transform-point-qword! (function vector4w vector symbol)) ;; 
-;; (define-extern transform-point-vector-scale! function) ;; (function vector vector float)
-;; (define-extern reverse-transform-point! function) ;; (function vector vector vector vector none)
-;; (define-extern init-for-transform function) ;; (function matrix none)
+(define-extern transform-point-vector-scale! (function vector vector float)) ;; jak3-parity sig
+(define-extern reverse-transform-point! (function vector vector vector vector none)) ;; jak3-parity sig
+(define-extern init-for-transform (function matrix none)) ;; jak3-parity sig
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; view                           ;;
@@ -36192,7 +36200,7 @@
 |#
 
 ;; (define-extern *sprite-distorter-sine-tables* object) ;; sprite-distorter-sine-tables
-;; (define-extern sprite-distorter-generate-tables function) ;; (function none)
+(define-extern sprite-distorter-generate-tables (function math-camera viewport none)) ;; jakx adds per-view args (jak3 took none)
 ;; (define-extern sprite-distort-vu1-block object) ;; vu-function
 (define-extern sprite-init-distorter (function dma-buffer none))
 (define-extern sprite-draw-distorters (function dma-buffer none))
@@ -37900,7 +37908,7 @@
 ;; game-info                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern hflip? function)
+(define-extern hflip? (function symbol)) ;; jakx-new: split-screen horizontal flip query
 ;; (define-extern *default-continue* continue-point) ;; continue-point
 ;; (define-extern task-level->string function) ;; (function int string)
 ;; (define-extern level-name->task-level function) ;; (function symbol int)
