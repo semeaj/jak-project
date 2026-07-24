@@ -856,5 +856,80 @@
   "(method 15 setting-control)": [
     [3, "v1", "connection"],
     [6, "v1", "connection"]
+  ],
+  // tie leg: the 13 patch blocks each splice the category dma chain through a
+  // next-pointer loaded from *prototype-tie-work*; cast it for the l.d/s.d pair
+  // (jak3 uses the same 13-cast shape, one per block)
+  "instance-tie-patch-buckets": [
+    [[54, 62], "v1", "(pointer uint64)"],
+    [[165, 173], "v1", "(pointer uint64)"],
+    [[275, 283], "v1", "(pointer uint64)"],
+    [[385, 393], "v1", "(pointer uint64)"],
+    [[496, 504], "v1", "(pointer uint64)"],
+    [[608, 616], "v1", "(pointer uint64)"],
+    [[720, 728], "v1", "(pointer uint64)"],
+    [[831, 839], "v1", "(pointer uint64)"],
+    [[942, 950], "v1", "(pointer uint64)"],
+    [[1054, 1062], "v1", "(pointer uint64)"],
+    [[1166, 1174], "v1", "(pointer uint64)"],
+    [[1277, 1285], "v1", "(pointer uint64)"],
+    [[1388, 1396], "v1", "(pointer uint64)"],
+    [1407, "v1", "(pointer uint32)"],
+    [1408, "v1", "(pointer uint32)"]
+  ],
+  // jak3-parity casts, op numbers match
+  "draw-drawable-tree-instance-tie": [
+    [[23, 37], "v1", "drawable-inline-array-node"],
+    [25, "a0", "drawable-inline-array-node"],
+    [102, "s1", "drawable-inline-array-instance-tie"],
+    [[111, 113], "a0", "int"],
+    [120, "s2", "drawable-inline-array-instance-tie"],
+    [132, "v1", "int"],
+    [132, "a0", "int"]
+  ],
+  "tie-init-engine": [
+    [[41, 50], "a0", "dma-packet"],
+    [[64, 70], "a0", "dma-packet"],
+    [[73, 79], "a0", "dma-packet"],
+    [[83, 99], "a0", "(pointer uint32)"],
+    [[108, 114], "a1", "dma-packet"],
+    [[119, 123], "a1", "(pointer uint64)"],
+    [[126, 138], "a0", "(pointer uint64)"]
+  ],
+  "etie-init-engine": [
+    [[82, 91], "a0", "dma-packet"],
+    [[103, 109], "a0", "dma-packet"],
+    [[112, 118], "a0", "dma-packet"],
+    [[122, 138], "a0", "(pointer uint32)"]
+  ],
+  "etie-end-buffer": [
+    [[48, 53], "a1", "dma-packet"],
+    [[57, 69], "a0", "(pointer uint32)"]
+  ],
+  "tie-end-buffer": [
+    [[21, 27], "a1", "dma-packet"],
+    [[32, 36], "a1", "(pointer uint64)"],
+    [[40, 44], "a1", "(pointer uint64)"],
+    [[48, 53], "a1", "dma-packet"],
+    [[57, 69], "a0", "(pointer uint32)"]
+  ],
+  "(method 9 tie-fragment)": [
+    [[1, 70], "s5", "adgif-shader"]
+  ],
+  "(method 13 drawable-tree-instance-tie)": [
+    [[51, 70], "t1", "tie-fragment"],
+    [[102, 120], "a3", "tie-fragment"],
+    [[160, 178], "t1", "tie-fragment"],
+    [[211, 229], "a3", "tie-fragment"],
+    [[266, 286], "t1", "tie-fragment"],
+    [[320, 340], "a1", "tie-fragment"],
+    [[381, 400], "t1", "tie-fragment"],
+    [[432, 450], "a3", "tie-fragment"],
+    [[487, 507], "t1", "tie-fragment"],
+    [[541, 561], "a1", "tie-fragment"],
+    [[598, 616], "t1", "tie-fragment"],
+    [[649, 667], "a3", "tie-fragment"],
+    [[703, 723], "t1", "tie-fragment"],
+    [[756, 776], "a1", "tie-fragment"]
   ]
 }

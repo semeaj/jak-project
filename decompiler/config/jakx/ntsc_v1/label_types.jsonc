@@ -1,6 +1,23 @@
 {
   "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
-  "tfrag-methods": [["L92", "tfrag-init-data", true, 10], ["L99", "(pointer bucket-id)", 12], ["L96", "(pointer bucket-id)", 12], ["L94", "(pointer bucket-id)", 12], ["L98", "(pointer bucket-id)", 12], ["L95", "(pointer bucket-id)", 12], ["L93", "(pointer bucket-id)", 12]],
+  "tfrag-methods": [["L92", "(inline-array tfrag-init-data)", 12], ["L99", "(pointer bucket-id)", 12], ["L96", "(pointer bucket-id)", 12], ["L94", "(pointer bucket-id)", 12], ["L98", "(pointer bucket-id)", 12], ["L95", "(pointer bucket-id)", 12], ["L93", "(pointer bucket-id)", 12]],
+  // tie leg: 13 category bucket arrays (6 draw-levels x 2 viewports each), decoded
+  // from the patch-block order against jak3's category sequence
+  "tie-methods": [
+    ["L317", "(pointer bucket-id)", 12],
+    ["L318", "(pointer bucket-id)", 12],
+    ["L319", "(pointer bucket-id)", 12],
+    ["L320", "(pointer bucket-id)", 12],
+    ["L321", "(pointer bucket-id)", 12],
+    ["L322", "(pointer bucket-id)", 12],
+    ["L323", "(pointer bucket-id)", 12],
+    ["L324", "(pointer bucket-id)", 12],
+    ["L325", "(pointer bucket-id)", 12],
+    ["L326", "(pointer bucket-id)", 12],
+    ["L327", "(pointer bucket-id)", 12],
+    ["L329", "(pointer bucket-id)", 12],
+    ["L331", "(pointer bucket-id)", 12]
+  ],
   "cam-states-dbg": [
     ["L59", "vector"],
     ["L60", "vector"]

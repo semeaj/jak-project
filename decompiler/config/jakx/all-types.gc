@@ -4537,7 +4537,57 @@
 
   (bucket794 794)
   (bucket795 795)
-  )
+  
+  ;; tie leg: category buckets for the 6 draw-level x 2 viewport multiplex
+  (tie-scissor-water-m0 639)
+  (tie-scissor-water-m1 648)
+  (tie-scissor-water-m2 658)
+  (tie-scissor-water-m3 667)
+  (tie-scissor-water-m4 677)
+  (tie-scissor-water-m5 686)
+  (tie-scissor-water-m6 696)
+  (tie-scissor-water-m7 705)
+  (tie-scissor-water-m8 715)
+  (tie-scissor-water-m9 724)
+  (tie-scissor-water-m10 734)
+  (tie-scissor-water-m11 743)
+  (tie-water-m0 637)
+  (tie-water-m1 646)
+  (tie-water-m2 656)
+  (tie-water-m3 665)
+  (tie-water-m4 675)
+  (tie-water-m5 684)
+  (tie-water-m6 694)
+  (tie-water-m7 703)
+  (tie-water-m8 713)
+  (tie-water-m9 722)
+  (tie-water-m10 732)
+  (tie-water-m11 741)
+  (etie-water-m0 638)
+  (etie-water-m1 647)
+  (etie-water-m2 657)
+  (etie-water-m3 666)
+  (etie-water-m4 676)
+  (etie-water-m5 685)
+  (etie-water-m6 695)
+  (etie-water-m7 704)
+  (etie-water-m8 714)
+  (etie-water-m9 723)
+  (etie-water-m10 733)
+  (etie-water-m11 742)
+  (etie-scissor-water-m0 641)
+  (etie-scissor-water-m1 650)
+  (etie-scissor-water-m2 660)
+  (etie-scissor-water-m3 669)
+  (etie-scissor-water-m4 679)
+  (etie-scissor-water-m5 688)
+  (etie-scissor-water-m6 698)
+  (etie-scissor-water-m7 707)
+  (etie-scissor-water-m8 717)
+  (etie-scissor-water-m9 726)
+  (etie-scissor-water-m10 736)
+  (etie-scissor-water-m11 745)
+)
 ;; ---vu1-user-h:bucket-id
 
 ;; +++vu1-user-h:bucket-id-16
@@ -37345,7 +37395,7 @@
 (define-extern add-tfrag-mtx-0 (function dma-buffer symbol none))
 (define-extern add-tfrag-mtx-1 (function dma-buffer symbol none))
 (define-extern add-tfrag-data (function dma-buffer int int none))
-(define-extern t-stat basic) ;; tfrag stats blob
+(define-extern t-stat tfrag-stats) ;; tfrag stats blob
 (define-extern tfrag-print-stats (function symbol none))
 (define-extern tfrag-init-buffer (function dma-buffer gs-test int symbol none))
 (define-extern tfrag-end-buffer (function dma-buffer int none))
@@ -37360,12 +37410,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftype tfrag-init-data (structure)
-  ((tfrag-bucket               int32  :offset-assert 0) ;; bucket-id
-   (tfrag-scissor-bucket       int32  :offset-assert 4) ;; bucket-id
-   (tfrag-trans-bucket         int32  :offset-assert 8) ;; bucket-id
-   (tfrag-scissor-trans-bucket int32  :offset-assert 12) ;; bucket-id
-   (tfrag-water-bucket         int32  :offset-assert 16) ;; bucket-id
-   (tfrag-water-scissor-bucket int32  :offset-assert 20) ;; bucket-id
+  ((tfrag-bucket               bucket-id  :offset-assert 0)
+   (tfrag-scissor-bucket       bucket-id  :offset-assert 4)
+   (tfrag-trans-bucket         bucket-id  :offset-assert 8)
+   (tfrag-scissor-trans-bucket bucket-id  :offset-assert 12)
+   (tfrag-water-bucket         bucket-id  :offset-assert 16)
+   (tfrag-water-scissor-bucket bucket-id  :offset-assert 20)
    )
   :method-count-assert 9
   :size-assert         #x18
@@ -37391,28 +37441,27 @@
 ;; tie                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
+;; activated, jak3-parity layout (the commented original was all offset-0 overlay guesses)
 (deftype tie-consts (structure)
-  ((data      uint32   40      :offset-assert 0) ;; guessed by decompiler
-   (vector    vector   10      :offset-assert 0) ;; guessed by decompiler
-   (quads     uint128  10      :offset-assert 0) ;; guessed by decompiler
-   (adgif     qword    :inline :offset-assert 0) ;; gs-gif-tag :inline
-   (strgif    qword    :inline :offset-assert 16) ;; gs-gif-tag :inline
-   (extra     qword    :inline :offset-assert 32) ;; vector :inline
-   (gifbufs   qword    :inline :offset-assert 48) ;; vector :inline
-   (clrbufs   qword    :inline :offset-assert 64)
-   (misc      qword    :inline :offset-assert 80)
-   (atestgif  qword    :inline :offset-assert 96) ;; gs-gif-tag :inline
-   (alpha     qword    :inline :offset-assert 112) ;; gs-adcmd :inline
-   (atest     gs-adcmd 2       :offset-assert 128) ;; guessed by decompiler
-   (atest-tra gs-adcmd :inline :offset-assert 128)
-   (atest-def gs-adcmd :inline :offset-assert 144)
+  ((data      uint32   40           :offset-assert 0) ;; guessed by decompiler
+   (vector    vector   10 :inline   :offset 0) ;; guessed by decompiler
+   (quads     uint128  10           :offset 0) ;; guessed by decompiler
+   (adgif     gs-gif-tag    :inline :offset 0)
+   (strgif    gs-gif-tag    :inline :offset 16)
+   (extra     vector    :inline     :offset 32)
+   (gifbufs   vector    :inline     :offset 48)
+   (clrbufs   qword    :inline      :offset 64)
+   (misc      qword    :inline      :offset 80)
+   (atestgif  gs-gif-tag    :inline :offset 96)
+   (alpha     gs-adcmd    :inline   :offset 112)
+   (atest     gs-adcmd 2 :inline    :offset 128 :score -1) ;; guessed by decompiler
+   (atest-tra gs-adcmd :inline      :offset 128)
+   (atest-def gs-adcmd :inline      :offset 144)
    )
   :method-count-assert 9
   :size-assert         #xa0
   :flag-assert         #x9000000a0
   )
-|#
 
 #|
 (deftype drawable-inline-array-instance-tie (drawable-inline-array)
@@ -37438,10 +37487,10 @@
   )
 |#
 
-;; (define-extern tie-vu1-block object) ;; vu-function
-;; (define-extern tie-init-consts function) ;; (function tie-consts gs-alpha gs-test gs-test none)
-;; (define-extern tie-init-engine function) ;; (function dma-buffer gs-alpha gs-test gs-test none)
-;; (define-extern tie-end-buffer function) ;; (function dma-buffer none)
+(define-extern tie-vu1-block vu-function) ;; activated, jak3-parity
+(define-extern tie-init-consts (function tie-consts gs-alpha gs-test gs-test none)) ;; activated, prepared sig
+(define-extern tie-init-engine (function dma-buffer gs-alpha gs-test gs-test none)) ;; activated, prepared sig
+(define-extern tie-end-buffer (function dma-buffer none)) ;; activated, prepared sig
 ;; (define-extern tie-int-reg function) ;; (function int string)
 ;; (define-extern tie-float-reg function) ;; (function int string)
 ;; (define-extern tie-ints function) ;; (function none)
@@ -37560,8 +37609,8 @@
 ;; (define-extern etn-vu1-block object)
 ;; (define-extern etn-magic function)
 ;; (define-extern etn-init-consts function)
-;; (define-extern etn-init-engine function)
-;; (define-extern etn-end-buffer function)
+(define-extern etn-init-engine (function dma-buffer gs-alpha gs-test none)) ;; activated, etie-parity sig
+(define-extern etn-end-buffer (function dma-buffer none)) ;; activated, etie-parity sig
 ;; (define-extern etn-float-reg-calc function)
 ;; (define-extern etn-float-reg function)
 ;; (define-extern etn-floats function)
@@ -37596,8 +37645,8 @@
 
 ;; (define-extern tie-near-vu1-block object)
 ;; (define-extern tie-near-init-consts function)
-;; (define-extern tie-near-init-engine function)
-;; (define-extern tie-near-end-buffer function)
+(define-extern tie-near-init-engine (function dma-buffer gs-test int int none)) ;; activated; jak3 sig + jakx's 4th arg (call site passes a0-a3)
+(define-extern tie-near-end-buffer (function dma-buffer none)) ;; activated, jak3-parity sig
 (define-extern tie-scissor-make-perspective-matrix (function matrix matrix none))
 ;; (define-extern tie-near-int-reg function)
 ;; (define-extern tie-near-float-reg function)
@@ -37633,7 +37682,7 @@
 (define-extern *pke-hack* vector)
 (define-extern draw-inline-array-instance-tie (function pointer (inline-array instance-tie) int dma-buffer none))
 (define-extern draw-inline-array-prototype-tie-asm (function dma-buffer int prototype-array-tie none))
-(define-extern draw-inline-array-prototype-tie-shared-asm function)
+(define-extern draw-inline-array-prototype-tie-shared-asm (function dma-buffer int prototype-array-tie none)) ;; sibling-parity sig
 (define-extern instance-tie-patch-buckets (function dma-buffer level object))
 (define-extern draw-drawable-tree-instance-tie (function drawable-tree-instance-tie level none))
 
@@ -53057,7 +53106,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern *generic-envmap-texture* object) ;; texture
-;; (define-extern *default-envmap-shader* object) ;; adgif-shader
+(define-extern *default-envmap-shader* adgif-shader) ;; activated, jak3-parity
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; texture-finish                 ;;
