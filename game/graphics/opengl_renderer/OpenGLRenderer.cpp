@@ -457,25 +457,31 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
 
     init_bucket_renderer<VisDataHandler>("vis", BucketCategory::OTHER, BucketId::BUCKET_2);
 
-    for (int i = 0; i < LEVEL_MAX; i++) {
-#define GET_BUCKET_ID_FOR_LIST(bkt1, bkt2, idx) ((int)(bkt1) + ((int)(bkt2) - (int)(bkt1)) * (idx))
-      init_bucket_renderer<TextureUploadHandler>(
-          fmt::format("tex-l{}-tfrag", i), BucketCategory::TEX,
-          GET_BUCKET_ID_FOR_LIST(BucketId::TEX_L0_TFRAG, BucketId::TEX_L1_TFRAG, i),
-          m_texture_animator);
-      init_bucket_renderer<TFragment>(
-          fmt::format("tfrag-l{}-tfrag", i), BucketCategory::TFRAG,
-          GET_BUCKET_ID_FOR_LIST(BucketId::TFRAG_L0_TFRAG, BucketId::TFRAG_L1_TFRAG, i),
-          std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, i, anim_slot_array());
-      Tie3* tie = init_bucket_renderer<Tie3>(
-          fmt::format("tie-l{}-tfrag", i), BucketCategory::TIE,
-          GET_BUCKET_ID_FOR_LIST(BucketId::TIE_L0_TFRAG, BucketId::TIE_L1_TFRAG, i), i,
-          anim_slot_array());
-      init_bucket_renderer<Tie3AnotherCategory>(
-          fmt::format("etie-l{}-tfrag", i), BucketCategory::TIE,
-          GET_BUCKET_ID_FOR_LIST(BucketId::ETIE_L0_TFRAG, BucketId::ETIE_L1_TFRAG, i), tie,
-          tfrag3::TieCategory::NORMAL_ENVMAP);
-#undef GET_BUCKET_ID_FOR_LIST
+    // Ground truth from the game's *tfrag-init-table* and the draw-drawable-tree-tfrag*
+    // bucket arrays (tfrag-methods.o): Jak X multiplexes 12 draw slots = 6 draw-levels x
+    // 2 viewports (index = draw-index * 2 + current-viewport-index), with alternating
+    // group sizes, so the jak3-style uniform-stride enum names don't apply. Register the
+    // tfrag renderers at the real slots; both viewport slots of a pair share a level id.
+    static constexpr int kTfragBuckets[12] = {8, 19, 31, 42, 54, 65, 77, 88, 100, 111, 123, 134};
+    static constexpr int kTfragTransBuckets[12] = {260, 270, 281, 291, 302, 312,
+                                                   323, 333, 344, 354, 365, 375};
+    static constexpr int kTfragWaterBuckets[12] = {636, 645, 655, 664, 674, 683,
+                                                   693, 702, 712, 721, 731, 740};
+    for (int slot = 0; slot < 12; slot++) {
+      const int lev = slot / 2;
+      const int view = slot % 2;
+      init_bucket_renderer<TFragment>(fmt::format("tfrag-l{}-v{}-tfrag", lev, view),
+                                      BucketCategory::TFRAG, kTfragBuckets[slot],
+                                      std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, lev,
+                                      anim_slot_array());
+      init_bucket_renderer<TFragment>(fmt::format("tfrag-t-l{}-v{}-alpha", lev, view),
+                                      BucketCategory::TFRAG, kTfragTransBuckets[slot],
+                                      std::vector{tfrag3::TFragmentTreeKind::TRANS}, false, lev,
+                                      anim_slot_array());
+      init_bucket_renderer<TFragment>(fmt::format("tfrag-w-l{}-v{}-water", lev, view),
+                                      BucketCategory::TFRAG, kTfragWaterBuckets[slot],
+                                      std::vector{tfrag3::TFragmentTreeKind::WATER}, false, lev,
+                                      anim_slot_array());
     }
 
     init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);

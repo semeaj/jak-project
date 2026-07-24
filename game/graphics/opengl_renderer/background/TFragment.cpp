@@ -10,9 +10,12 @@ bool looks_like_tfragment_dma(const DmaFollower& follow) {
 }
 
 bool looks_like_tfrag_init(const DmaFollower& follow) {
+  // Jak X's setup direct is 5 qw (test + per-viewport frame/zbuf/scissor); earlier
+  // games use 2 qw (test only).
   return follow.current_tag_vifcode0().kind == VifCode::Kind::NOP &&
          follow.current_tag_vifcode1().kind == VifCode::Kind::DIRECT &&
-         follow.current_tag_vifcode1().immediate == 2;
+         (follow.current_tag_vifcode1().immediate == 2 ||
+          follow.current_tag_vifcode1().immediate == 5);
 }
 }  // namespace
 
@@ -204,8 +207,11 @@ void TFragment::handle_initialization(DmaFollower& dma) {
   auto setup_test = dma.read_and_advance();
   ASSERT(setup_test.vif0() == 0);
   ASSERT(setup_test.vifcode1().kind == VifCode::Kind::DIRECT);
-  ASSERT(setup_test.vifcode1().immediate == 2);
-  ASSERT(setup_test.size_bytes == 32);
+  // Jak X adds per-viewport frame/zbuf/scissor registers after the test register,
+  // growing the setup direct from 2 qw (32 bytes) to 5 qw (80 bytes). The test
+  // register pair always comes first, which is all we keep.
+  ASSERT(setup_test.vifcode1().immediate == 2 || setup_test.vifcode1().immediate == 5);
+  ASSERT(setup_test.size_bytes == 32 || setup_test.size_bytes == 80);
   memcpy(m_test_setup, setup_test.data, 32);
 
   // matrix 0
