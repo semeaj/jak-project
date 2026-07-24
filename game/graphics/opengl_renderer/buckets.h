@@ -1072,6 +1072,19 @@ enum class BucketId {
 };
 }
 
+namespace jakx {
+// Jak X's bucket layout is not fully mapped yet. The chain carries 796 buckets
+// (bucket795 is the last in the GOAL enum); only the landmarks used by the
+// minimal bring-up profile are named here.
+enum class BucketId {
+  BUCKET_2 = 2,
+  DEBUG = 793,           // debug-draw target (add-debug-box/sphere)
+  DEBUG_NO_ZBUF2 = 794,  // end-display's stdcon text
+  DEBUG_MENU = 795,
+  MAX_BUCKETS = 796,
+};
+}  // namespace jakx
+
 enum class BucketCategory {
   TFRAG,
   TIE,

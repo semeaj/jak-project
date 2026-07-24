@@ -157,8 +157,10 @@ OpenGLRenderer::OpenGLRenderer(std::shared_ptr<TexturePool> texture_pool,
       init_bucket_renderers_jak2();
       break;
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       init_bucket_renderers_jak3();
+      break;
+    case GameVersion::JakX:
+      init_bucket_renderers_jakx();
       break;
     default:
       ASSERT(false);
@@ -439,6 +441,34 @@ void OpenGLRenderer::init_bucket_renderers_jak3() {
     }
     m_jak3_eye_renderer->init_shaders(m_render_state.shaders);
     m_jak3_eye_renderer->init_textures(*m_render_state.texture_pool, GameVersion::Jak3);
+  }
+}
+
+void OpenGLRenderer::init_bucket_renderers_jakx() {
+  using namespace jakx;
+  // Minimal bring-up profile: Jak X's 796-bucket layout is not mapped yet, so only
+  // the debug/text buckets at the end of the frame get DirectRenderers (enough for
+  // the stdcon console text end-display draws every frame). Everything else is a
+  // SkipRenderer, which walks the bucket's DMA without drawing.
+  m_bucket_renderers.resize((int)BucketId::MAX_BUCKETS);
+  m_bucket_categories.resize((int)BucketId::MAX_BUCKETS, BucketCategory::OTHER);
+  {
+    auto p = scoped_prof("render-inits");
+
+    init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);
+    init_bucket_renderer<DirectRenderer>("debug-no-zbuf2", BucketCategory::OTHER,
+                                         BucketId::DEBUG_NO_ZBUF2, 0x8000);
+    init_bucket_renderer<DirectRenderer>("debug-menu", BucketCategory::OTHER, BucketId::DEBUG_MENU,
+                                         0x8000);
+
+    for (size_t i = 0; i < m_bucket_renderers.size(); i++) {
+      if (!m_bucket_renderers[i]) {
+        init_bucket_renderer<SkipRenderer>(fmt::format("bucket-{}", i), BucketCategory::OTHER, i);
+      }
+
+      m_bucket_renderers[i]->init_shaders(m_render_state.shaders);
+      m_bucket_renderers[i]->init_textures(*m_render_state.texture_pool, GameVersion::Jak3);
+    }
   }
 }
 
@@ -1419,7 +1449,22 @@ void OpenGLRenderer::dispatch_buckets_jak3(DmaFollower dma,
 
     // lg::info("Render: {} end", g_current_renderer);
     //  should have ended at the start of the next chain
-    ASSERT(dma.current_tag_offset() == m_render_state.next_bucket);
+    if (m_version == GameVersion::JakX &&
+        (dma.ended() || dma.current_tag_offset() != m_render_state.next_bucket)) {
+      // Jak X bring-up: some buckets still carry malformed chains (e.g. the hud tpage
+      // upload ends with a terminator instead of linking to the next bucket). The
+      // bucket array is contiguous, so resync the follower to the next slot instead
+      // of dying, and keep going so the later buckets still render.
+      static int s_resyncs = 0;
+      if (s_resyncs < 8) {
+        lg::warn("bucket {} chain misbehaved (ended {} at {}), resyncing to {}", bucket_id,
+                 dma.ended(), dma.current_tag_offset(), m_render_state.next_bucket);
+        s_resyncs++;
+      }
+      dma = DmaFollower(dma.base(), m_render_state.next_bucket);
+    } else {
+      ASSERT(dma.current_tag_offset() == m_render_state.next_bucket);
+    }
     m_render_state.next_bucket += 16;
     vif_interrupt_callback(bucket_id + 1);
     m_category_times[(int)m_bucket_categories[bucket_id]] += bucket_prof.get_elapsed_time();
@@ -1431,7 +1476,7 @@ void OpenGLRenderer::dispatch_buckets_jak3(DmaFollower dma,
       m_collide_renderer.render(&m_render_state, p);
     }
 
-    if (bucket_id == (int)jak3::BucketId::TEX_HUD_HUD_ALPHA) {
+    if (m_blit_displays && bucket_id == (int)jak3::BucketId::TEX_HUD_HUD_ALPHA) {
       auto p = prof.make_scoped_child("color-filter");
       m_blit_displays->apply_color_filter(&m_render_state, p);
     }

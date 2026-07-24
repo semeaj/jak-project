@@ -96,7 +96,7 @@ void DirectRenderer::render(DmaFollower& dma,
   reset_state();
 
   // just dump the DMA data into the other the render function
-  while (dma.current_tag_offset() != render_state->next_bucket) {
+  while (dma.current_tag_offset() != render_state->next_bucket && !dma.ended()) {
     auto data = dma.read_and_advance();
     if (data.size_bytes && m_enabled) {
       render_vif(data.vif0(), data.vif1(), data.data, data.size_bytes, render_state, prof);
