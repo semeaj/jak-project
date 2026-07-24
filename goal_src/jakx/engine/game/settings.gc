@@ -8,10 +8,10 @@
 (define-extern *progress-process* (pointer process)) ;; home (progress) not landed yet
 (define-extern update-task-masks (function symbol int)) ;; home task-control (loads later); stub there until real
 (define-extern crate type) ;; home crate.gc, not landed yet; m23 call site carries a runtime-link guard
-(define-extern cam-master-set-entity (function cam-setting-data none)) ;; home cam-master.gc, not landed; m24 guards
-(define-extern cam-master-activate-slave (function symbol none)) ;; home cam-master.gc, not landed; m24 guards
-(define-extern cam-endlessfall object) ;; camera-slave state, home cam-states.gc, not landed; compared by m24
-(define-extern cam-free-floating object) ;; camera-slave state, home cam-states.gc, not landed; compared by m24
+(define-extern cam-master-set-entity (function cam-setting-data none)) ;; home cam-master.gc (compiles later)
+(define-extern cam-master-activate-slave (function symbol none)) ;; home cam-master.gc (compiles later)
+(define-extern cam-endlessfall (state camera-slave)) ;; home cam-states.gc (compiles later); compared by m24
+(define-extern cam-free-floating (state camera-slave)) ;; home cam-states-dbg.gc (compiles later); compared by m24
 (define-extern *master-exit* symbol) ;; home main.gc (compiles later); read by m24
 (define-extern set-video-mode (function symbol none)) ;; home not landed; m24 guards
 

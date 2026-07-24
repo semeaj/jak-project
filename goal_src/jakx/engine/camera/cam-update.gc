@@ -8,7 +8,7 @@
 ;; og:preserve-this externs for homes not landed yet; call sites carry runtime-link guards
 (define-extern update-math-camera (function math-camera symbol symbol float math-camera)) ;; real in math-camera.gc (compiles earlier); extern kept for clarity
 (define-extern bsp-camera-asm (function bsp-header vector int none)) ;; bsp.gc asm
-(define-extern cam-free-floating-move (function matrix vector vector int vector)) ;; cam-states.gc
+(define-extern cam-free-floating-move (function camera-master matrix vector vector int vector)) ;; cam-states-dbg.gc
 (define-extern shrub-make-perspective-matrix (function matrix matrix matrix)) ;; shrubbery.gc
 (define-extern target-pos (function int vector)) ;; target-util.gc
 (define-extern *instance-shrub-work* instance-shrub-work) ;; shrubbery.gc
@@ -327,19 +327,19 @@
 ;; definition for function move-camera-from-pad
 ;; INFO: Used lq/sq
 (defun move-camera-from-pad ((arg0 math-camera))
-  (let ((s4-0 *external-cam-mode*))
-    (let ((s5-0 0))
-      (cond
-        ((= s4-0 'locked)
-         (set! s4-0 #f)
-         )
-        ((= s4-0 'pad-1)
-         (set! s5-0 1)
-         )
-        ((not (view-get-active-camera-combiner))
-         (set! s4-0 'pad-0)
-         )
+  (let ((s4-0 *external-cam-mode*)
+        (s5-0 0)
         )
+    (cond
+      ((= s4-0 'locked)
+       (set! s4-0 #f)
+       )
+      ((= s4-0 'pad-1)
+       (set! s5-0 1)
+       )
+      ((not (view-get-active-camera-combiner))
+       (set! s4-0 'pad-0)
+       )
       )
     (when s4-0
       (let ((s4-2
@@ -352,15 +352,15 @@
         (if (logtest? *external-cam-options* (external-cam-option allow-z))
             (set! s4-2 (the-as vector #f))
             )
-        ;; og:preserve-this runtime-link guard: home not landed yet
-        (if (nonzero? cam-free-floating-move)
-            (cam-free-floating-move
-              (the-as matrix (view-get-active-camera))
-              (-> *save-camera-inv-rot* rvec)
-              (-> arg0 trans)
-              (the-as int s4-2)
-              )
-            )
+        ;; og:preserve-this re-rendered with the real 5-arg jakx sig once cam-states-dbg
+        ;; landed (the old 4-arg extern had silently dropped the pad-index arg)
+        (cam-free-floating-move
+          (the-as camera-master (view-get-active-camera))
+          *save-camera-inv-rot*
+          (-> arg0 trans)
+          s4-2
+          s5-0
+          )
         )
       )
     )

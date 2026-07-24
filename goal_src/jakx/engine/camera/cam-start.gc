@@ -43,12 +43,11 @@
   )
 
 ;; og:preserve-this bring-up gate: the retail top-level runs cam-start once per view
-;; (view-push-context i / cam-start / view-pop-context, i = 0..1). cam-states is
-;; landed now, but the first (go cam-combiner-active) dies INSIDE the go/enter-state
-;; machinery (this is the first defstate dispatch the jakx bring-up exercises; the
-;; init behavior completes, the :code never starts). Debug the jakx gstate/gkernel
-;; state path, then flip to #t (or call (jakx-cam-start-now) from the REPL).
-(define *jakx-cam-start* #f)
+;; (view-push-context i / cam-start / view-pop-context, i = 0..1). Defaults ON since
+;; the state machinery landed (gstate enter-state) and the ring runs clean: master +
+;; both slaves (cam-free-floating / cam-fixed) + combiner all reach :code and survive
+;; a full 40 s headless boot (~2550 frames). Set #f to boot with the ring dormant.
+(define *jakx-cam-start* #t)
 
 (defun jakx-cam-start-now ()
   (dotimes (i 2)

@@ -408,7 +408,13 @@
 ;; INFO: Used lq/sq
 (defbehavior master-choose-entity camera-master ((arg0 cam-setting-data))
   (local-vars (r0-0 uint128) (v1-40 uint128))
-  (let ((s5-0 (entity-by-name (-> arg0 entity-name))))
+  ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc
+  (let ((s5-0 (if (and (nonzero? entity-by-name) (-> arg0 entity-name))
+                  (entity-by-name (-> arg0 entity-name))
+                  (the-as entity #f)
+                  )
+              )
+        )
     (set! (-> arg0 real-entity-name) #f)
     (when s5-0
       (let ((s2-0 (cam-state-from-entity s5-0)))
@@ -458,7 +464,13 @@
                            )
                          (< s2-1 (shr (* (the-as int v1-40) 2) 49))
                          )
-                  (let ((sv-144 (entity-by-name (the-as string (-> (the-as (pointer uint32) (&+ s4-1 (* s2-1 4))))))))
+                  ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc
+                  (let ((sv-144 (if (nonzero? entity-by-name)
+                                    (entity-by-name (the-as string (-> (the-as (pointer uint32) (&+ s4-1 (* s2-1 4))))))
+                                    (the-as entity #f)
+                                    )
+                                )
+                        )
                     (cond
                       (sv-144
                         (let ((s1-1 (cam-state-from-entity sv-144)))
@@ -622,10 +634,21 @@
       (set! (-> (the-as camera-master (view-get-active-camera)) slave) (the-as (pointer camera-slave) #f))
       )
     (let* ((s5-0 (-> (the-as camera-master (view-get-active-camera)) settings))
-           (gp-1 (entity-by-name (-> s5-0 real-entity-name)))
+           ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc,
+           ;; and a zeroed settings block holds 0 (not a string) in real-entity-name
+           (gp-1 (if (and (nonzero? entity-by-name)
+                          (nonzero? (-> s5-0 real-entity-name))
+                          (-> s5-0 real-entity-name)
+                          )
+                     (entity-by-name (-> s5-0 real-entity-name))
+                     (the-as entity #f)
+                     )
+                 )
            (s4-0 (the-as object (-> s5-0 cam-mode)))
            )
-      (if (not (the-as symbol s4-0))
+      ;; og:preserve-this 0-vs-#f: zeroed settings hold 0 in cam-mode (PS2 default was #f);
+      ;; both must fall back to cam-free-floating or the slave inits on a 0 state
+      (if (or (zero? (the-as int s4-0)) (not (the-as symbol s4-0)))
           (set! s4-0 cam-free-floating)
           )
       (send-event (view-get-active-camera) 'set-slave (ppointer->process (process-spawn

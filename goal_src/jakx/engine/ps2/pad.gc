@@ -1187,6 +1187,23 @@
 ;; definition for symbol *mouse*, type mouse-info
 (define *mouse* (new 'global 'mouse-info))
 
+;; og:preserve-this mouse button macros, ported jak3-identical (cam-states-dbg uses mouse-hold?)
+(defmacro mouse-pressed ()
+  `(-> *mouse* button0-rel 0)
+  )
+
+(defmacro mouse-hold ()
+  `(-> *mouse* button0-abs 0)
+  )
+
+(defmacro mouse-pressed? (&rest buttons)
+  `(logtest? (mouse-pressed) (mouse-buttons ,@buttons))
+  )
+
+(defmacro mouse-hold? (&rest buttons)
+  `(logtest? (mouse-hold) (mouse-buttons ,@buttons))
+  )
+
 ;; definition for function service-mouse
 ;; INFO: Used lq/sq
 ;; WARN: Return type mismatch mouse-info vs none.
