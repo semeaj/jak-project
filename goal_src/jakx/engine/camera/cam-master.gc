@@ -408,13 +408,7 @@
 ;; INFO: Used lq/sq
 (defbehavior master-choose-entity camera-master ((arg0 cam-setting-data))
   (local-vars (r0-0 uint128) (v1-40 uint128))
-  ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc
-  (let ((s5-0 (if (and (nonzero? entity-by-name) (-> arg0 entity-name))
-                  (entity-by-name (-> arg0 entity-name))
-                  (the-as entity #f)
-                  )
-              )
-        )
+  (let ((s5-0 (entity-by-name (-> arg0 entity-name))))
     (set! (-> arg0 real-entity-name) #f)
     (when s5-0
       (let ((s2-0 (cam-state-from-entity s5-0)))
@@ -464,13 +458,7 @@
                            )
                          (< s2-1 (shr (* (the-as int v1-40) 2) 49))
                          )
-                  ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc
-                  (let ((sv-144 (if (nonzero? entity-by-name)
-                                    (entity-by-name (the-as string (-> (the-as (pointer uint32) (&+ s4-1 (* s2-1 4))))))
-                                    (the-as entity #f)
-                                    )
-                                )
-                        )
+                  (let ((sv-144 (entity-by-name (the-as string (-> (the-as (pointer uint32) (&+ s4-1 (* s2-1 4))))))))
                     (cond
                       (sv-144
                         (let ((s1-1 (cam-state-from-entity sv-144)))
@@ -568,11 +556,6 @@
 ;; definition for function cam-master-set-entity
 ;; WARN: Return type mismatch int vs none.
 (defun cam-master-set-entity ((arg0 cam-setting-data))
-  ;; og:preserve-this bring-up guard: entity-by-name lives in unlanded entity.gc and
-  ;; links as 0; the settings pump calls this every apply, so the whole body must
-  ;; wait for it (master-choose-entity also go-es to states that live in unlanded
-  ;; cam-states.o).
-  (when (nonzero? entity-by-name)
   (if (-> arg0 entity-or-mode-changed)
       (master-choose-entity arg0)
       )
@@ -611,7 +594,6 @@
         )
       )
     )
-  )
   0
   (none)
   )
@@ -634,10 +616,10 @@
       (set! (-> (the-as camera-master (view-get-active-camera)) slave) (the-as (pointer camera-slave) #f))
       )
     (let* ((s5-0 (-> (the-as camera-master (view-get-active-camera)) settings))
-           ;; og:preserve-this runtime-link guard: entity-by-name lives in unlanded entity.gc,
-           ;; and a zeroed settings block holds 0 (not a string) in real-entity-name
-           (gp-1 (if (and (nonzero? entity-by-name)
-                          (nonzero? (-> s5-0 real-entity-name))
+           ;; og:preserve-this 0-vs-#f: this reads the CURRENT block, which can be
+           ;; genuinely zeroed (the pump only refreshes it on entity-or-mode-changed),
+           ;; and 0 is not a string, so gate the lookup on both forms
+           (gp-1 (if (and (nonzero? (-> s5-0 real-entity-name))
                           (-> s5-0 real-entity-name)
                           )
                      (entity-by-name (-> s5-0 real-entity-name))

@@ -236,14 +236,11 @@
 ;; definition for function camera-teleport-to-entity-named
 ;; WARN: Return type mismatch int vs none.
 (defun camera-teleport-to-entity-named ((arg0 string))
-  ;; og:preserve-this runtime-link guard: entity-by-name not landed
-  (when (nonzero? entity-by-name)
-    (let ((a0-3 (as-type (entity-by-name arg0) entity-actor)))
-      (if a0-3
-          (camera-teleport-to-entity (the-as entity-actor a0-3))
-          (format #t "sorry, couldn't find an actor named '~S'~%" arg0)
-          )
-      )
+  (let ((a0-3 (as-type (entity-by-name arg0) entity-actor)))
+    (if a0-3
+        (camera-teleport-to-entity (the-as entity-actor a0-3))
+        (format #t "sorry, couldn't find an actor named '~S'~%" arg0)
+        )
     )
   0
   (none)
