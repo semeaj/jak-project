@@ -645,9 +645,31 @@
     )
   )
 
+;; og:preserve-this restored from jak3: the decompiler rendered the inlined VU body
+;; as a SELF-CALL (infinite recursion, segfault on first use; same trap as vector-cross!)
 (defun vector-length ((arg0 vector))
   "Get the length of the xyz part."
-  (vector-length arg0)
+  (local-vars (v0-0 float))
+  (rlet ((acc :class vf)
+         (Q :class vf)
+         (vf0 :class vf)
+         (vf1 :class vf)
+         )
+    (init-vf0-vector)
+    (.lvf vf1 (&-> arg0 quad))
+    (.mul.vf vf1 vf1 vf1)
+    (.mul.x.vf.w acc vf0 vf1)
+    (.add.mul.y.vf.w acc vf0 vf1 acc)
+    (.add.mul.z.vf.w vf1 vf0 vf1 acc)
+    (.sqrt.vf Q vf1 :ftf #b11)
+    (.add.w.vf.x vf1 vf0 vf0)
+    (.wait.vf)
+    (.mul.vf.x vf1 vf1 Q)
+    (.nop.vf)
+    (.nop.vf)
+    (.mov v0-0 vf1)
+    v0-0
+    )
   )
 
 (defun vector-length-squared ((arg0 vector))
