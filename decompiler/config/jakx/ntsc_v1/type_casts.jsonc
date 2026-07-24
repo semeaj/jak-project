@@ -76,6 +76,13 @@
   "master-track-target": [[[55, 504], "gp", "process-focusable"], [[61, 66], "a0", "process-focusable"], [[129, 134], "a0", "process-focusable"], [[139, 146], "a0", "process-focusable"]],
   "(event cam-master-active)": [[[87, 89], "a0", "vector"], [87, "gp", "vector"], [[183, 185], "a0", "vector"], [183, "s5", "vector"], [[289, 292], "v1", "camera-slave"], [[356, 358], "a0", "camera-slave"], [[487, 489], "v1", "camera-slave"], [[560, 562], "v1", "camera-slave"], [[592, 594], "v1", "camera-slave"], [[664, 666], "a0", "vector"], [846, "gp", "vector"], [861, "v1", "float"]],
   "(method 17 camera-master)": [[[13, 17], "a2", "process-drawable"], [[14, 17], "v1", "collide-shape"]],
+  // background: the shared-tfrag tree id reads as lhu (int16 field), and the
+  // texture-mask entries read as raw quads past the 16-byte element
+  "finish-tfrag": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-shared"]],
+  "finish-tfrag-trans": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-trans-shared"]],
+  "finish-tfrag-water": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-water-shared"]],
+  "finish-texture": [[[74, 86], "a0", "(pointer uint128)"], [[74, 80], "t0", "(pointer uint128)"]],
+  "finish-texture-mask": [[[43, 44], "t3", "int"]],
   // blit-displays: dma template quad stores through (-> buf base); casts sit on
   // the exact failing store ops (auto-derived from the Failed store error list)
   "(method 25 blit-displays-work)": [[[76, 77], "t0", "(inline-array vector4w)"], [[94, 97], "t5", "(inline-array vector4w)"], [[99, 102], "t3", "(inline-array vector4w)"], [[104, 107], "t3", "(inline-array vector4w)"], [[109, 111], "t0", "(inline-array vector4w)"], [[112, 113], "t0", "(inline-array vector4w)"], [[126, 128], "a0", "(inline-array vector4w)"]],

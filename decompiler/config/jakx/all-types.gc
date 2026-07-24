@@ -32773,7 +32773,7 @@
 
 (deftype drawable-tree-tfrag (drawable-tree)
   "top level tfrag tree."
-  ((time-of-day-pal time-of-day-palette :offset 8)
+  ((time-of-day-pal time-of-day-palette :offset 12)
    (arrays    drawable-inline-array :dynamic :offset 32 :score 100) ;; either drawable-inline-array-node or drawable-inline-array-tfrag
    )
   :flag-assert #x1100000020
@@ -36814,7 +36814,7 @@
 ;; (define-extern *generic-consts* object) ;; generic-consts
 ;; (define-extern generic-work-init function) ;; (function generic-bucket-state none)
 ;; (define-extern generic-upload-vu0 function) ;; (function none)
-;; (define-extern upload-vu0-program function) ;; (function vu-function pointer none)
+(define-extern upload-vu0-program (function vu-function pointer none))
 ;; (define-extern generic-initialize-without-sync function) ;; (function matrix vu-lights none)
 ;; (define-extern generic-initialize function) ;; (function generic-bucket-state matrix vu-lights none)
 ;; (define-extern generic-wrapup function) ;; (function generic-bucket-state none)
@@ -37199,6 +37199,7 @@
 ;; background                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define-extern background-vu0-block vu-function)
 (define-extern *background-work* background-work)
 (define-extern background-upload-vu0 (function none))
 (define-extern init-background (function none))
@@ -37213,7 +37214,7 @@
 (define-extern finish-tfrag-trans (function none))
 (define-extern finish-tfrag-water (function none))
 (define-extern finish-tie (function none))
-(define-extern finish-texture-mask (function none))
+(define-extern finish-texture-mask (function texture-masks texture-masks-array (pointer float) float int symbol)) ;; jakx-new; a0=accumulator a1=masks a2=closest a3=distance
 (define-extern finish-texture (function none))
 (define-extern finish-background (function none))
 
@@ -37286,7 +37287,7 @@
 ;; (define-extern shrub-upload-model function) ;; (function shrubbery dma-buffer int symbol)
 ;; (define-extern draw-inline-array-instance-shrub function) ;; (function dma-buffer drawable int (inline-array prototype-bucket-shrub) none)
 ;; (define-extern draw-prototype-inline-array-shrub function) ;; (function int (inline-array prototype-bucket-shrub) pointer)
-;; (define-extern draw-drawable-tree-instance-shrub function) ;; (function drawable-tree-instance-shrub level none)
+(define-extern draw-drawable-tree-instance-shrub (function drawable-tree-instance-shrub level none))
 ;; (define-extern *dma-test* object) ;; dma-test
 ;; (define-extern *dma-test-work* object) ;; dma-test-work
 ;; (define-extern init-dma-test function) ;; (function none)
@@ -37359,9 +37360,9 @@
 |#
 
 ;; (define-extern edge-debug-lines function) ;; (function (array vector-array) none)
-;; (define-extern draw-drawable-tree-tfrag function) ;; (function drawable-tree-tfrag none)
-;; (define-extern draw-drawable-tree-tfrag-trans function) ;; (function drawable-tree-tfrag none)
-;; (define-extern draw-drawable-tree-tfrag-water function) ;; (function drawable-tree-tfrag none)
+(define-extern draw-drawable-tree-tfrag (function drawable-tree-tfrag none))
+(define-extern draw-drawable-tree-tfrag-trans (function drawable-tree-tfrag none))
+(define-extern draw-drawable-tree-tfrag-water (function drawable-tree-tfrag none))
 ;; (define-extern tfrag-vu1-init-buf function) ;; (function bucket-id gs-test int uint symbol none)
 ;; (define-extern tfrag-scissor-vu1-init-buf function) ;; (function bucket-id gs-test int uint symbol none)
 ;; (define-extern *tfrag-init-table* object) ;; (inline-array tfrag-init-data)
@@ -37584,7 +37585,7 @@
 ;; (define-extern tie-near-init-consts function)
 ;; (define-extern tie-near-init-engine function)
 ;; (define-extern tie-near-end-buffer function)
-;; (define-extern tie-scissor-make-perspective-matrix function) ;; (function matrix matrix none)
+(define-extern tie-scissor-make-perspective-matrix (function matrix matrix none))
 ;; (define-extern tie-near-int-reg function)
 ;; (define-extern tie-near-float-reg function)
 
