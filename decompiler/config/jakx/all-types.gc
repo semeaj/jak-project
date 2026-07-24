@@ -15986,8 +15986,8 @@
     (draw-antialias (_type_ dma-buffer (pointer float) int) none) ;; 13 ;; arg1 derefs floats
     (draw-color-filter (_type_ dma-buffer vector) none) ;; 14
     (fx-to-raster-flipped (_type_ dma-buffer int) none) ;; 15 ;; jakx +1 arg (reads a1)
-    (draw-zoom-blur (_type_ dma-buffer float float int) none) ;; 16 ;; jakx +2 args; arg1/arg2 float
-    (setup-zoom-blur-2d (_type_ vector int object symbol int) none) ;; 17 ;; jakx +1 arg; arg2 reused as scratch pointer
+    (draw-brightness-and-contrast (_type_ dma-buffer float float int) none) ;; 16 ;; body-proven (jak3 m18 shape); jakx +1 arg
+    (do-blit-displays (_type_ vector int object symbol int) none) ;; 17 ;; body-proven: the per-frame screen-effects pass (jak3 m19 shape)
     (blit-displays-work-method-18 () none) ;; 18 ;; not in blit-displays.o
     (get-horizontal-flip-flag (_type_) symbol) ;; 19
     (set-horizontal-flip-flag (_type_ symbol) symbol) ;; 20
@@ -16918,8 +16918,8 @@
    (dust-storm-sound-scalar  float               :offset-assert 500) ;; named by usd m10 'dust-storm-sound-scalar
    (unknown-usd-28             basic              :offset-assert 504) ;; added
    (unknown-usd-29             basic              :offset-assert 508) ;; added
-   (zoom-blur-amount           float              :offset-assert 512) ;; floats fed to blit draw-zoom-blur (m17 reads)
-   (zoom-blur-amount2          float              :offset-assert 516) ;; second zoom-blur param
+   (brightness                 float              :offset-assert 512) ;; named by usd m10 'brightness
+   (contrast                   float              :offset-assert 516) ;; named by usd m10 'contrast
    (unknown-usd-32             basic              :offset-assert 520) ;; added
    (borrow-city-count       uint32              :offset-assert 524)
    (borrow-city             pair              3 :offset-assert 528) ;; guessed by decompiler
