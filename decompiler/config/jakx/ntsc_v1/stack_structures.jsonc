@@ -9,6 +9,16 @@
   "(method 20 tracking-spline)": [[32, "vector"]],
   "cam-helper-temp": [[16, ["inline-array", "vector", 3]]],
   "(code cam-combiner-active)": [[16, "vector"]],
+  "(code cam-point-watch)": [[16, "vector"]],
+  "cam-mouse-input": [
+    [16, "vector"],
+    [32, "vector"],
+    [48, "vector"],
+    [64, "vector"],
+    [80, "quaternion"],
+    [96, "quaternion"],
+    [112, "matrix"]
+  ],
   "(event cam-master-active)": [[16, "event-message-block"], [96, "vector"], [112, "vector"]],
   "target-camera-heuristic-fov": [[16, "vector"]],
   "target-camera-heuristic-look-at!": [[16, ["inline-array", "vector", 9]], [160, "vector"], [176, "vector"]],

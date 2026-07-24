@@ -1,5 +1,9 @@
 {
   "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
+  "cam-states-dbg": [
+    ["L59", "vector"],
+    ["L60", "vector"]
+  ],
   "level": [
     ["L981", "uint64", true],
     ["L983", "uint64", true]

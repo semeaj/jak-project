@@ -50887,7 +50887,6 @@
 ;; cam-states-dbg                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype cam-point-watch-bank (basic)
   ((speed     float  :offset-assert 4)
    (rot-speed degrees    :offset-assert 8) ;; degrees
@@ -50896,9 +50895,7 @@
   :size-assert         #xc
   :flag-assert         #x90000000c
   )
-|#
 
-#|
 (deftype cam-free-bank (basic)
   ((speed     float  :offset-assert 4)
    (rot-speed degrees    :offset-assert 8) ;; degrees
@@ -50907,9 +50904,7 @@
   :size-assert         #xc
   :flag-assert         #x90000000c
   )
-|#
 
-#|
 (deftype camera-free-floating-move-info (structure)
   ((rv vector :inline :offset-assert 0)
    (tv vector :inline :offset-assert 16)
@@ -50920,15 +50915,16 @@
   :size-assert         #x70
   :flag-assert         #x900000070
   )
-|#
 
-;; (define-extern *CAM_POINT_WATCH-bank* cam-point-watch-bank) ;; cam-point-watch-bank
+(define-extern *CAM_POINT_WATCH-bank* cam-point-watch-bank)
 (define-extern cam-point-watch (state camera-slave))
-;; (define-extern *CAM_FREE-bank* cam-free-bank) ;; cam-free-bank
-;; (define-extern cam-mouse-input function) ;; (function matrix vector vector object)
-;; (define-extern cam-free-floating-input function) ;; (function matrix vector vector int int vector)
-(define-extern cam-free-floating-move (function matrix vector vector int vector)) ;; jak3-parity sig
-(define-extern cam-free-floating basic) ;; (state camera-slave), home not unlocked
+(define-extern *CAM_FREE-bank* cam-free-bank)
+;; jakx threads the active camera-master (settings carrier) as arg0 and appends the view index;
+;; jak3's single matrix arg is the arg1 slot here
+(define-extern cam-mouse-input (function camera-master matrix vector vector object))
+(define-extern cam-free-floating-input (function camera-master matrix vector vector symbol int vector))
+(define-extern cam-free-floating-move (function camera-master matrix vector vector int vector))
+(define-extern cam-free-floating (state camera-slave))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; speech-jak                     ;;

@@ -76,6 +76,26 @@
   "master-track-target": [[[55, 504], "gp", "process-focusable"], [[61, 66], "a0", "process-focusable"], [[129, 134], "a0", "process-focusable"], [[139, 146], "a0", "process-focusable"]],
   "(event cam-master-active)": [[[87, 89], "a0", "vector"], [87, "gp", "vector"], [[183, 185], "a0", "vector"], [183, "s5", "vector"], [[289, 292], "v1", "camera-slave"], [[356, 358], "a0", "camera-slave"], [[487, 489], "v1", "camera-slave"], [[560, 562], "v1", "camera-slave"], [[592, 594], "v1", "camera-slave"], [[664, 666], "a0", "vector"], [846, "gp", "vector"], [861, "v1", "float"]],
   "(method 17 camera-master)": [[[13, 17], "a2", "process-drawable"], [[14, 17], "v1", "collide-shape"]],
+  // cam-states-dbg: the (-> *cpad-list* cpads idx) element loads; cast the loaded
+  // element to cpad-info at each consuming op (casting the load op itself would
+  // clobber the strided address)
+  "cam-free-floating-input": [
+    [44, "v1", "cpad-info"],
+    [57, "v1", "cpad-info"],
+    [69, "v1", "cpad-info"],
+    [93, "v1", "cpad-info"],
+    [105, "v1", "cpad-info"],
+    [130, "v1", "cpad-info"],
+    [139, "v1", "cpad-info"],
+    [160, "v1", "cpad-info"],
+    [169, "v1", "cpad-info"],
+    [191, "v1", "cpad-info"],
+    [203, "v1", "cpad-info"],
+    [215, "v1", "cpad-info"],
+    [227, "v1", "cpad-info"],
+    [241, "a0", "cpad-info"],
+    [249, "v1", "cpad-info"]
+  ],
   "target-camera-test-los": [[[23, 35], "v1", "collide-query"], [38, "a1", "collide-query"], [[40, 47], "v1", "collide-query"], [[52, 65], "v1", "collide-query"], [68, "a1", "collide-query"]],
   "target-camera-heuristic-fov": [[[21, 25], "v1", "vector"]],
   "(method 12 crash-camera)": [[[22, 29], "v1", "process-drawable"], [[184, 186], "s4", "(pointer uint128)"]],
