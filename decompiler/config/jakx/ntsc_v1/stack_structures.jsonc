@@ -3,6 +3,19 @@
   "(method 25 level)": [[16, "event-message-block"]],
   "(method 10 cam-setting-data)": [[16, "event-message-block"]],
   "update-camera": [[16, ["inline-array", "vector", 7]]],
+  "camera-teleport-to-location": [[16, "transformq"]],
+  "camera-teleport-to-entity": [[16, "transformq"]],
+  "(method 18 tracking-spline)": [[16, "tracking-spline-sampler"]],
+  "(method 20 tracking-spline)": [[32, "vector"]],
+  "cam-helper-temp": [[16, ["inline-array", "vector", 3]]],
+  "(code cam-combiner-active)": [[16, "vector"]],
+  "(event cam-master-active)": [[16, "event-message-block"], [96, "vector"], [112, "vector"]],
+  "master-track-target": [[16, "vector"]],
+  "slave-set-rotation!": [
+    [96, "vector"],
+    [112, "matrix"],
+    [176, "vector"]
+  ],
   "init-for-transform": [
     [80, "matrix"],
     [192, "vector"]

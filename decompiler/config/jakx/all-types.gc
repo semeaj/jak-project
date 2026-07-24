@@ -908,7 +908,7 @@
    (heap-cur         pointer                                                           :offset-assert 120) ;; guessed by decompiler
    (stack-frame-top  stack-frame                                                       :offset-assert 124) ;; guessed by decompiler
    (connection-list  connectable                                              :inline  :offset-assert 128)
-   (stack            uint8                                                    :dynamic :offset-assert 144) ;; guessed by decompiler
+   (stack            uint8                                                    :dynamic :offset-assert 144 :score -1) ;; guessed by decompiler
    )
   :method-count-assert 15
   :size-assert         #x90
@@ -16164,15 +16164,17 @@
 (define-extern view-get-active-target (function process)) ;; really process-focusable, but that type parses later; cast at use sites
 (define-extern view-get-target (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-target function)
-(define-extern view-get-active-camera (function process))
+(declare-type camera-combiner process)
+(declare-type camera-master process)
+(declare-type camera-slave process)
+(define-extern view-get-active-camera (function camera-master))
 (define-extern view-get-camera (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-camera function)
-(declare-type camera-combiner process)
 (define-extern view-get-active-camera-combiner (function camera-combiner)) ;; (-> (view-get-active) camera-combiner)
 (define-extern view-get-camera-combiner (function int camera-combiner))
 (define-extern view-set-active-camera-combiner (function camera-combiner camera-combiner))
 (define-extern view-get-active-math-camera (function math-camera))
-;; (define-extern view-get-math-camera function)
+(define-extern view-get-math-camera (function int math-camera))
 ;; (define-extern view-set-active-math-camera function)
 ;; (define-extern view-get-real-active function)
 ;; (define-extern view-get-active function)
@@ -30750,11 +30752,11 @@
   (:methods
     (process-focusable-method-50 () none) ;; 50
     (get-trans (_type_ int) vector) ;; 51 ;; jak3 parity (id 21 there): trans getter used by sc m24 for point-of-interest
-    (process-focusable-method-52 () none) ;; 52
+    (process-focusable-method-52 (_type_ int) quaternion) ;; 52 ;; get-quat: result feeds quaternion->matrix; jakx adds an index int like m51
     (process-focusable-method-53 () none) ;; 53
     (process-focusable-method-54 () none) ;; 54
-    (process-focusable-method-55 () none) ;; 55
-    (process-focusable-method-56 () none) ;; 56
+    (process-focusable-method-55 (_type_) meters) ;; 55 ;; jak3 get-water-height(25)+30; result consumed as float
+    (process-focusable-method-56 (_type_) time-frame) ;; 56 ;; jak3 get-notice-time(26)+30
     (process-focusable-method-57 () none) ;; 57
     (process-focusable-method-58 () none) ;; 58
     )
@@ -33878,7 +33880,7 @@
    (spline-follow-dist            float                         :offset-assert 2612)
    (enter-has-run                 symbol                        :offset-assert 2616) ;; guessed by decompiler
    (blend-from-type               camera-blend-from-type                        :offset-assert 2624) ;; camera-blend-from-type
-   (blend-to-type                 camera-blend-to-type                        :offset-assert 2632) ;; camera-blend-to-type
+   (blend-to-type                 int64                         :offset-assert 2632) ;; camera-blend-to-type values; jakx reads it 64-bit (ld in (event cam-master-active))
    (have-phony-joystick           basic                         :offset-assert 2640)
    (phony-joystick-x              float                         :offset-assert 2644)
    (phony-joystick-y              float                         :offset-assert 2648)
@@ -33945,9 +33947,9 @@
   :size-assert         #x938
   :flag-assert         #x1208b00938
   (:methods
-    (camera-master-method-15 () none) ;; 14 ;; (camera-master-method-14 (_type_ vector) vector)15 ;; (camera-master-method-15 (_type_ vector) vector)
-    (camera-master-method-16 () none) ;; 16 ;; (camera-master-method-16 (_type_ symbol) int)
-    (camera-master-method-17 () none) ;; 17
+    (camera-master-method-15 (_type_ vector) vector) ;; 15 ;; jak3 m14, jakx methods shift +1
+    (camera-master-method-16 (_type_ vector) vector) ;; 16 ;; jak3 m15
+    (camera-master-method-17 (_type_ symbol) int) ;; 17 ;; jak3 m16
     )
   (:states
     cam-master-active
@@ -35942,7 +35944,7 @@
 ;; (define-extern real-joint-mod-gun-look-at-handler function) ;; (function cspace transformq none :behavior process)
 ;; (define-extern joint-mod-gun-look-at-handler function) ;; (function cspace transformq none :behavior process)
 ;; (define-extern joint-mod-foot-rot-handler function) ;; (function cspace transformq none :behavior process)
-;; (define-extern last-try-to-look-at-data object) ;; try-to-look-at-info
+(define-extern last-try-to-look-at-data try-to-look-at-info)
 ;; (define-extern joint-mod-look-at-handler function) ;; (function cspace transformq none :behavior process)
 ;; (define-extern joint-mod-world-look-at-handler function) ;; (function cspace transformq none :behavior process)
 ;; (define-extern joint-mod-rotate-handler function) ;; (function cspace transformq none :behavior process)
@@ -39549,37 +39551,37 @@
 ;; camera                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern cam-slave-get-vector-with-offset function) ;; (function entity-actor vector symbol symbol)
-;; (define-extern cam-slave-get-flags function) ;; (function entity symbol uint)
-;; (define-extern cam-slave-get-float function) ;; (function entity symbol float float)
-;; (define-extern cam-slave-get-fov function) ;; (function entity float)
-;; (define-extern cam-slave-get-intro-step function) ;; (function entity float)
-;; (define-extern cam-slave-get-interp-time function) ;; (function entity float)
-;; (define-extern cam-slave-get-rot function) ;; (function entity-actor matrix matrix)
-;; (define-extern cam-state-from-entity function) ;; (function entity (state camera-slave))
-;; (define-extern parameter-ease-none function) ;; (function object object)
-;; (define-extern parameter-ease-clamp function) ;; (function float float)
-;; (define-extern parameter-ease-lerp-clamp function) ;; (function float float)
-;; (define-extern parameter-ease-sqrt-clamp function) ;; (function float float)
-;; (define-extern fourth-power function) ;; (function float float)
-;; (define-extern third-power function) ;; (function float float)
-;; (define-extern parameter-ease-sqr-clamp function) ;; (function float float)
-;; (define-extern parameter-ease-cube-clamp function) ;; (function float float)
-;; (define-extern parameter-ease-sin-clamp function) ;; (function float float)
-;; (define-extern *cam-res-string* object) ;; string
-;; (define-extern cam-slave-init-vars function) ;; (function none :behavior camera-slave)
-;; (define-extern cam-slave-go function) ;; (function (state camera-slave) none :behavior camera-slave)
-;; (define-extern cam-slave-init function) ;; (function (state camera-slave) entity none :behavior camera-slave)
-;; (define-extern cam-standard-event-handler function) ;; (function process int symbol event-message-block object :behavior camera-slave)
-;; (define-extern cam-curve-pos function) ;; (function vector vector curve symbol vector :behavior camera-slave)
-;; (define-extern cam-curve-setup function) ;; (function vector none :behavior camera-slave)
-;; (define-extern cam-calc-follow! function) ;; (function cam-rotation-tracker vector symbol vector)
-;; (define-extern mat-remove-z-rot function) ;; (function matrix vector matrix)
-;; (define-extern slave-matrix-blend-2 function) ;; (function matrix cam-slave-options-u32 vector matrix matrix)
-;; (define-extern vector-into-frustum-nosmooth! function) ;; (function matrix vector float vector)
-;; (define-extern slave-set-rotation! function) ;; (function cam-rotation-tracker vector cam-slave-options-u32 float symbol none)
-;; (define-extern v-slrp2! function) ;; (function vector vector vector float vector float vector)
-;; (define-extern v-slrp3! function) ;; (function vector vector vector vector float vector)
+(define-extern cam-slave-get-vector-with-offset (function entity-actor vector symbol symbol))
+(define-extern cam-slave-get-flags (function entity symbol uint))
+(define-extern cam-slave-get-float (function entity symbol float float))
+(define-extern cam-slave-get-fov (function entity float))
+(define-extern cam-slave-get-intro-step (function entity float))
+(define-extern cam-slave-get-interp-time (function entity float))
+(define-extern cam-slave-get-rot (function entity-actor matrix matrix))
+(define-extern cam-state-from-entity (function entity (state camera-slave)))
+(define-extern parameter-ease-none (function object object))
+(define-extern parameter-ease-clamp (function float float))
+(define-extern parameter-ease-lerp-clamp (function float float))
+(define-extern parameter-ease-sqrt-clamp (function float float))
+(define-extern fourth-power (function float float))
+(define-extern third-power (function float float))
+(define-extern parameter-ease-sqr-clamp (function float float))
+(define-extern parameter-ease-cube-clamp (function float float))
+(define-extern parameter-ease-sin-clamp (function float float))
+(define-extern *cam-res-string* string)
+(define-extern cam-slave-init-vars (function none :behavior camera-slave))
+(define-extern cam-slave-go (function (state camera-slave) none :behavior camera-slave))
+(define-extern cam-slave-init (function (state camera-slave) entity none :behavior camera-slave))
+(define-extern cam-standard-event-handler (function process int symbol event-message-block object :behavior camera-slave))
+(define-extern cam-curve-pos (function vector vector curve symbol vector :behavior camera-slave))
+(define-extern cam-curve-setup (function vector none :behavior camera-slave))
+(define-extern cam-calc-follow! (function cam-rotation-tracker vector symbol vector))
+(define-extern mat-remove-z-rot (function matrix vector matrix))
+(define-extern slave-matrix-blend-2 (function matrix cam-slave-options-u32 vector matrix matrix))
+(define-extern vector-into-frustum-nosmooth! (function matrix vector float vector))
+(define-extern slave-set-rotation! (function cam-rotation-tracker vector cam-slave-options-u32 float symbol none))
+(define-extern v-slrp2! (function vector vector vector float vector float vector))
+(define-extern v-slrp3! (function vector vector vector vector float vector))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cam-interface                  ;;
@@ -39594,39 +39596,39 @@
 (define-extern camera-pos (function vector)) ;; 
 (define-extern camera-vel (function vector))
 (define-extern math-camera-pos (function vector))
-(define-extern math-camera-nearest-dist-sq (function float))
-(define-extern math-camera-nearest (function vector))
-(define-extern math-camera-nearest-matrix (function matrix))
-(define-extern math-camera-nearest-dist (function float))
+(define-extern math-camera-nearest-dist-sq (function vector float))
+(define-extern math-camera-nearest (function vector math-camera))
+(define-extern math-camera-nearest-matrix (function vector matrix))
+(define-extern math-camera-nearest-dist (function vector float))
 (define-extern camera-matrix (function matrix))
 (define-extern math-camera-matrix (function matrix)) ;; 
 (define-extern camera-angle (function float))
 (define-extern camera-teleport-to-entity (function entity-actor symbol :behavior process))
-;; (define-extern camera-teleport-to-entity-named function) ;; (function string none)
-;; (define-extern camera-teleport-to-location function) ;; (function float float float none)
+(define-extern camera-teleport-to-entity-named (function string none))
+(define-extern camera-teleport-to-location (function float float float none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cam-master                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern reset-follow function) ;; (function symbol object :behavior camera-master)
-;; (define-extern reset-target-tracking function) ;; (function object :behavior camera-master)
-;; (define-extern master-track-target function) ;; (function object :behavior camera-master)
-;; (define-extern setup-slave-for-hopefull function) ;; (function camera-slave none)
-;; (define-extern master-is-hopeful-better? function) ;; (function camera-slave camera-slave symbol :behavior camera-master)
-;; (define-extern master-choose-entity function) ;; (function cam-setting-data symbol :behavior camera-master)
+(define-extern reset-follow (function symbol object :behavior camera-master))
+(define-extern reset-target-tracking (function object :behavior camera-master))
+(define-extern master-track-target (function object :behavior camera-master))
+(define-extern setup-slave-for-hopefull (function camera-slave none))
+(define-extern master-is-hopeful-better? (function camera-slave camera-slave symbol :behavior camera-master))
+(define-extern master-choose-entity (function cam-setting-data symbol :behavior camera-master))
 (define-extern cam-master-set-entity (function cam-setting-data none)) ;; jak3-parity sig
 (define-extern cam-master-activate-slave (function symbol none)) ;; jak3-parity sig
-;; (define-extern cam-master-active state) ;; (state camera-master)
-;; (define-extern cam-master-init function) ;; (function none :behavior camera-master)
+(define-extern cam-master-active (state camera-master))
+(define-extern cam-master-init (function none :behavior camera-master))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cam-combiner                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern cam-helper-temp function) ;; (function (pointer camera-slave) (pointer camera-slave) float matrix :behavior camera-combiner)
-;; (define-extern cam-combiner-active state) ;; (state camera-combiner)
-;; (define-extern cam-combiner-init function) ;; (function none :behavior camera-combiner)
+(define-extern cam-helper-temp (function (pointer camera-slave) (pointer camera-slave) float matrix :behavior camera-combiner))
+(define-extern cam-combiner-active (state camera-combiner))
+(define-extern cam-combiner-init (function none :behavior camera-combiner))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cam-update                     ;;
@@ -40041,7 +40043,7 @@
 ;; (define-extern camera-line-draw function) ;; (function vector vector none)
 ;; (define-extern camera-line function) ;; (function vector vector vector4w none)
 ;; (define-extern camera-line-rel function) ;; (function vector vector vector4w none)
-;; (define-extern camera-line-rel-len function) ;; (function vector vector float vector4w none)
+(define-extern camera-line-rel-len (function vector vector float vector4w none))
 ;; (define-extern camera-sphere function) ;; (function vector float vector4w none)
 ;; (define-extern camera-cross function) ;; (function vector vector vector vector4w meters none)
 ;; (define-extern camera-bounding-box-draw function) ;; (function bounding-box basic rgba none)
@@ -40057,7 +40059,7 @@
 ;; (define-extern camera-fov-frame function) ;; (function matrix vector float float float vector4w symbol)
 ;; (define-extern debug-euler function) ;; (function cam-dbg-scratch object)
 ;; (define-extern bike-cam-limit function) ;; (function float float)
-;; (define-extern camera-slave-debug function) ;; (function camera-slave none)
+(define-extern camera-slave-debug (function camera-slave none))
 ;; (define-extern master-draw-coordinates function) ;; (function vector none)
 ;; (define-extern *cam-collision-record-first* object) ;; int
 ;; (define-extern *cam-collision-record-last* object) ;; int
@@ -50817,17 +50819,17 @@
   )
 |#
 
-;; (define-extern cam-fixed state) ;; (state camera-slave)
-;; (define-extern cam-fixed-read-entity state) ;; (state camera-slave)
+(define-extern cam-fixed (state camera-slave))
+(define-extern cam-fixed-read-entity (state camera-slave))
 ;; (define-extern cam-standoff-calc-trans function) ;; (function vector :behavior camera-slave)
-;; (define-extern cam-standoff state) ;; (state camera-slave)
-;; (define-extern cam-standoff-read-entity state) ;; (state camera-slave)
+(define-extern cam-standoff (state camera-slave))
+(define-extern cam-standoff-read-entity (state camera-slave))
 ;; (define-extern cam-curve-closest-point function) ;; (function curve vector float float int float)
-;; (define-extern cam-spline state) ;; (state camera-slave)
-;; (define-extern cam-decel state) ;; (state camera-slave)
+(define-extern cam-spline (state camera-slave))
+(define-extern cam-decel (state camera-slave))
 (define-extern cam-endlessfall (state camera-slave)) ;; jak3-parity sig
 ;; (define-extern cam-vehicle-update function)
-;; (define-extern cam-vehicle state)
+(define-extern cam-vehicle (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern *target-camera-runtime* object)
 ;; (define-extern target-cam-runtime-push function)
 ;; (define-extern *freeze-camera* array)
@@ -50839,10 +50841,10 @@
 ;; (define-extern target-time-go-normal function)
 ;; (define-extern *plow-camera* array)
 ;; (define-extern choose-crash-camera function)
-;; (define-extern cam-vehicle-crash state)
+(define-extern cam-vehicle-crash (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern *camera-training-lifetime* object)
 ;; (define-extern set-training-camera-lifetime function)
-;; (define-extern cam-training state)
+(define-extern cam-training (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern *victor-prefix-camera-array* array)
 ;; (define-extern choose-victor-prefix-camera function)
 ;; (define-extern target-camera-active? function)
@@ -50855,7 +50857,7 @@
 ;; (define-extern choose-target-camera function)
 ;; (define-extern camera-go-target function)
 ;; (define-extern cam-akira-mode-enter function)
-;; (define-extern cam-vehicle-shot state)
+(define-extern cam-vehicle-shot (state camera-slave)) ;; parent assumed; jakx-new state
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cam-states-dbg                 ;;
@@ -50897,7 +50899,7 @@
 |#
 
 ;; (define-extern *CAM_POINT_WATCH-bank* cam-point-watch-bank) ;; cam-point-watch-bank
-;; (define-extern cam-point-watch state) ;; (state camera-slave)
+(define-extern cam-point-watch (state camera-slave))
 ;; (define-extern *CAM_FREE-bank* cam-free-bank) ;; cam-free-bank
 ;; (define-extern cam-mouse-input function) ;; (function matrix vector vector object)
 ;; (define-extern cam-free-floating-input function) ;; (function matrix vector vector int int vector)
@@ -55643,11 +55645,11 @@
 ;; (define-extern cam-battle-intro-update function)
 ;; (define-extern update-framing function)
 ;; (define-extern do-battle-intro function)
-;; (define-extern cam-battle-intro state)
+(define-extern cam-battle-intro (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern print-intro-text function)
 ;; (define-extern cam-event-intro-update function)
 ;; (define-extern do-event-intro function)
-;; (define-extern cam-event-intro state)
+(define-extern cam-event-intro (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern calc-team-score function)
 ;; (define-extern net-game-mgr-default-handler function)
 ;; (define-extern reset-game-now function)
@@ -55699,7 +55701,7 @@
 ;; (define-extern change-to-eye-position function)
 ;; (define-extern set-race-camera-matrix function)
 ;; (define-extern cam-race-intro-update function)
-;; (define-extern cam-race-intro state)
+(define-extern cam-race-intro (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern set-race-end-camera function)
 ;; (define-extern get-race-line-info function)
 ;; (define-extern adjust-position-to-above-ground function)
@@ -55707,7 +55709,7 @@
 ;; (define-extern cam-race-end-low-fixed function)
 ;; (define-extern cam-race-end-high-aiming function)
 ;; (define-extern do-race-end function)
-;; (define-extern cam-race-end state)
+(define-extern cam-race-end (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern get-nearest-race-point function)
 ;; (define-extern net-game-mgr-race-startup function)
 ;; (define-extern race-info-find-ground function)
@@ -61872,7 +61874,7 @@
 ;; (define-extern lobby-start function)
 ;; (define-extern flash-game-started function)
 ;; (define-extern update-lobby-camera function)
-;; (define-extern cam-lobby state)
+(define-extern cam-lobby (state camera-slave)) ;; parent assumed; jakx-new state
 ;; (define-extern text-id-for-vehicle-type function)
 ;; (define-extern text-id-class-for-vehicle-type function)
 

@@ -71,6 +71,39 @@
     [123, "a1", "drawable-tree-instance-shrub"],
     [[129, 133], "a2", "(inline-array prototype-bucket-shrub)"]
   ],
+  "reset-follow": [[[10, 19], "a0", "process-focusable"]],
+  "reset-target-tracking": [[[8, 167], "gp", "process-focusable"], [[11, 20], "a0", "process-focusable"], [[40, 45], "a0", "process-focusable"], [[51, 56], "a0", "process-focusable"]],
+  "master-track-target": [[[55, 504], "gp", "process-focusable"], [[61, 66], "a0", "process-focusable"], [[129, 134], "a0", "process-focusable"], [[139, 146], "a0", "process-focusable"]],
+  "(event cam-master-active)": [[[87, 89], "a0", "vector"], [87, "gp", "vector"], [[183, 185], "a0", "vector"], [183, "s5", "vector"], [[289, 292], "v1", "camera-slave"], [[356, 358], "a0", "camera-slave"], [[487, 489], "v1", "camera-slave"], [[560, 562], "v1", "camera-slave"], [[592, 594], "v1", "camera-slave"], [[664, 666], "a0", "vector"], [846, "gp", "vector"], [861, "v1", "float"]],
+  "(method 17 camera-master)": [[[13, 17], "a2", "process-drawable"], [[14, 17], "v1", "collide-shape"]],
+  "(event cam-combiner-active)": [
+    [103, "gp", "camera-slave"],
+    [105, "gp", "camera-slave"],
+    [189, "gp", "camera-slave"],
+    [191, "gp", "camera-slave"],
+    [206, "gp", "camera-slave"],
+    [210, "gp", "camera-slave"],
+    [214, "gp", "camera-slave"],
+    [230, "gp", "camera-slave"],
+    [234, "gp", "camera-slave"]
+  ],
+  "cam-slave-get-vector-with-offset": [
+    [59, "v0", "vector"],
+    [24, "v0", "vector"],
+    [69, "s3", "vector"],
+    [[60, 76], "s3", "vector"]
+  ],
+  "cam-calc-follow!": [
+    ["_stack_", 288, "float"],
+    ["_stack_", 304, "float"]
+  ],
+  "(method 9 cam-index)": [[[92, 103], "v0", "vector"], [94, "a0", "vector"], [[100, 103], "a1", "vector"]],
+  "cam-slave-get-interp-time": [[29, "f0", "float"]],
+  "cam-standard-event-handler": [
+    [13, "gp", "(state camera-slave)"],
+    [19, "gp", "(state camera-slave)"],
+    [22, "gp", "(state camera-slave)"]
+  ],
   "init-init-buffer": [[[76, 78], "a0", "(pointer uint32)"]],
   "init-end-buffer": [[[78, 80], "a0", "(pointer uint32)"]],
   "update-math-camera": [[[475, 485], "a0", "(pointer uint32)"]],
