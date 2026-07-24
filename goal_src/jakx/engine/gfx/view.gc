@@ -241,6 +241,11 @@
   arg0
   )
 
+(defun view-set-active-camera ((arg0 basic))
+  (set! (-> (view-get-active) camera) arg0)
+  arg0
+  )
+
 ;; failed to figure out what this is:
 (dotimes (gp-0 2)
   (format 0 "allocating view ~D~%" gp-0)

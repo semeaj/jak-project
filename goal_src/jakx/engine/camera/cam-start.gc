@@ -7,3 +7,57 @@
 
 ;; DECOMP BEGINS
 
+(defun cam-stop ()
+  (kill-by-name "camera-master" *active-pool*)
+  (kill-by-name "camera-slave" *active-pool*)
+  (kill-by-name "camera-combiner" *active-pool*)
+  (view-set-active-camera (the-as basic #f))
+  (view-set-active-camera-combiner (the-as basic #f))
+  #f
+  )
+
+(defun cam-start ((arg0 symbol))
+  (cam-stop)
+  (view-set-active-camera-combiner (the-as basic (ppointer->process (process-spawn
+                                                                      camera-combiner
+                                                                      :init cam-combiner-init
+                                                                      :name "camera-combiner"
+                                                                      :from *camera-dead-pool*
+                                                                      :to *camera-pool*
+                                                                      )
+                                                                    )
+                                           )
+                                   )
+  (view-set-active-camera (the-as basic (ppointer->process (process-spawn
+                                                             camera-master
+                                                             :init cam-master-init
+                                                             :name "camera-master"
+                                                             :from *camera-master-dead-pool*
+                                                             :to *camera-pool*
+                                                             )
+                                                           )
+                                  )
+                          )
+  0
+  (none)
+  )
+
+;; og:preserve-this bring-up gate: the retail top-level runs cam-start once per view
+;; (view-push-context i / cam-start / view-pop-context, i = 0..1). The camera
+;; process loops still reference slave states that live in unlanded cam-states.o,
+;; so activation stays behind this flag until those land. Flip to #t (or call
+;; (jakx-cam-start-now) from the REPL) to spawn the ring.
+(define *jakx-cam-start* #f)
+
+(defun jakx-cam-start-now ()
+  (dotimes (i 2)
+    (view-push-context i)
+    (cam-start #f)
+    (view-pop-context)
+    )
+  0
+  )
+
+(if *jakx-cam-start*
+    (jakx-cam-start-now)
+    )
