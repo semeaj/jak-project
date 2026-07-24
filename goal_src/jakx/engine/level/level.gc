@@ -2806,6 +2806,12 @@
     (set! (-> *load-state* vis-nick) (-> s5-0 name))
     (set! (-> *load-state* want 0 name) (-> s5-0 name))
     (set! (-> *load-state* want 0 display?) 'display)
+    ;; og:preserve-this bring-up shim: the load-state update! method (which propagates
+    ;; want -> target -> level display?) is not landed yet, so flip the level's
+    ;; display? directly at boot activation. Retire with the update! landing.
+    (if s5-0
+        (set! (-> s5-0 display?) 'display)
+        )
     (when (-> s5-0 info continues)
       (dotimes (s4-0 2)
         (let* ((a0-15 *game-info*)
@@ -2842,6 +2848,10 @@
   )
 
 ;; definition for function play
+;; og:preserve-this bring-up extern: home is cam-start.gc, which compiles after the
+;; camera ring types this file cannot see. Retire with the warp helper.
+(define-extern jakx-cam-warp-to-level (function level none))
+
 (defun play ((arg0 symbol) (arg1 symbol))
   (kmemopen global "level-boot")
   (format 0 "(play)~%")
@@ -2950,6 +2960,18 @@
     (let ((s4-2 (level-get *level* s5-0)))
       (if s4-2
           (level-status-update! s4-2 'active)
+          )
+      ;; og:preserve-this bring-up shim: the load-state update! method (which propagates
+      ;; want -> target -> level display?) is not landed yet, so flip the level's
+      ;; display? directly after boot activation. Retire with the update! landing.
+      (if s4-2
+          (set! (-> s4-2 display?) 'display)
+          )
+      ;; og:preserve-this bring-up shim: no camera/target start chain is landed, so the
+      ;; free camera sits at the origin ~400 m from brdroom's geometry. Warp the camera
+      ;; ring onto the level once at boot activation. Retire with the camera start chain.
+      (if s4-2
+          (jakx-cam-warp-to-level s4-2)
           )
       )
     )

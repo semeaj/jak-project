@@ -42,6 +42,102 @@
   (none)
   )
 
+;; og:preserve-this bring-up camera warp: nothing sends the camera-combiner
+;; 'start-tracking through a real game flow yet (no target/entity chain), so after
+;; the ring's boot settle the combiner trans freezes at the origin and cam-update
+;; copies it over the math-camera every frame, frustum-culling the whole level away
+;; (brdroom sits ~400 m out). A one-shot warp at play time gets undone by the ring's
+;; settle (the master's early 'set-slave / 'start-tracking pulls the combiner back
+;; toward the origin-parked slave), so play arms a warp that display-loop-main
+;; re-applies every frame for ~10 s (combiner + current slave + view-0 math-camera),
+;; then releases. Retire with the real camera start chain.
+(define *jakx-cam-warp-level* (the level #f))
+(define *jakx-cam-warp-frames* 0)
+
+(defun jakx-cam-warp-to-level ((lev level))
+  "og:preserve-this bring-up helper: arm the per-frame camera warp for the level
+(see the comment above). Prefers the level bsphere; falls back to the extracted
+brdroom glb bounds center when the bsphere is unset (brdroom's is)."
+  (let ((bs (-> lev bsp bsphere)))
+    (format 0 "cam-warp: armed for ~A bsphere <~m ~m ~m r ~m>~%"
+            (-> lev name) (-> bs x) (-> bs y) (-> bs z) (-> bs w))
+    )
+  (set! *jakx-cam-warp-level* lev)
+  (set! *jakx-cam-warp-frames* 600)
+  0
+  (none)
+  )
+
+(defun jakx-cam-warp-tick ()
+  "og:preserve-this bring-up helper: while armed, pin the camera ring onto the
+warp target each frame so the ring's boot settle cannot drag it back to the
+origin; release after the counter runs out."
+  (when (and *jakx-cam-warp-level* (> *jakx-cam-warp-frames* 0))
+    (set! *jakx-cam-warp-frames* (- *jakx-cam-warp-frames* 1))
+    (let ((bs (-> *jakx-cam-warp-level* bsp bsphere))
+          (warp (new 'stack-no-clear 'vector))
+          )
+      (cond
+        ((< 0.0 (-> bs w))
+         (set! (-> warp x) (-> bs x))
+         (set! (-> warp y) (-> bs y))
+         (set! (-> warp z) (-> bs z))
+         )
+        (else
+          (set! (-> warp x) -1457697.0)
+          (set! (-> warp y) 435999.0)
+          (set! (-> warp z) -602753.0)
+          )
+        )
+      (let ((cc (the-as camera-combiner (view-get-active-camera-combiner))))
+        (when (and (nonzero? cc) cc)
+          (set! (-> cc trans x) (-> warp x))
+          (set! (-> cc trans y) (-> warp y))
+          (set! (-> cc trans z) (-> warp z))
+          )
+        )
+      (let ((cam (the-as camera-master (view-get-active-camera))))
+        (when (and (nonzero? cam) cam (nonzero? (-> cam slave)))
+          (let ((slave (-> cam slave 0)))
+            (when (nonzero? (the-as int slave))
+              (set! (-> slave trans x) (-> warp x))
+              (set! (-> slave trans y) (-> warp y))
+              (set! (-> slave trans z) (-> warp z))
+              )
+            )
+          )
+        )
+      (let ((mc (view-get-math-camera 0)))
+        (when (nonzero? (the-as int mc))
+          (set! (-> mc trans x) (-> warp x))
+          (set! (-> mc trans y) (-> warp y))
+          (set! (-> mc trans z) (-> warp z))
+          )
+        )
+      ;; at the end of the pin window the ring has settled ('set-slave storms are
+      ;; boot-time only), so retire the combiner: killing it and clearing the view
+      ;; slots drops update-camera into its no-combiner pad fallback
+      ;; (move-camera-from-pad), the verified-good path that flies the math-camera
+      ;; directly off the pad and never resets it. The combiner branch is not
+      ;; usable yet: it blends through an uninitialized stack matrix on this
+      ;; bring-up, so it never produces a valid view even with a correct trans.
+      (when (zero? *jakx-cam-warp-frames*)
+        (kill-by-name "camera-combiner" *active-pool*)
+        (dotimes (i 2)
+          (view-push-context i)
+          (view-set-active-camera-combiner (the-as basic #f))
+          (view-pop-context)
+          )
+        (format 0 "cam-warp: released at <~m ~m ~m>, combiner retired~%"
+                (-> warp x) (-> warp y) (-> warp z))
+        (set! *jakx-cam-warp-level* (the level #f))
+        )
+      )
+    )
+  0
+  (none)
+  )
+
 ;; og:preserve-this bring-up gate: the retail top-level runs cam-start once per view
 ;; (view-push-context i / cam-start / view-pop-context, i = 0..1). Defaults ON since
 ;; the state machinery landed (gstate enter-state) and the ring runs clean: master +

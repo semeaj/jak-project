@@ -25,6 +25,7 @@
 (define-extern execute-math-engine (function int))
 (define-extern execute-cloth-engine (function int))
 (define-extern update-camera (function symbol))
+(define-extern jakx-cam-warp-tick (function none)) ;; og:preserve-this bring-up, home cam-start.gc
 (define-extern execute-cam-post-hook-engine (function int))
 (define-extern temp-render-chat-messages (function int))
 (define-extern load-level-text-files (function int int))
@@ -3050,6 +3051,11 @@
   ;; camera update inside the jakx view context bracket
   (view-push-context 0)
   (update-camera)
+  ;; og:preserve-this bring-up: deferred camera warp onto the boot level; home is
+  ;; cam-start.gc, runtime-link guarded like the other not-always-landed hooks
+  (if (nonzero? jakx-cam-warp-tick)
+      (jakx-cam-warp-tick)
+      )
   (execute-cam-post-hook-engine)
   (view-pop-context)
   (temp-render-chat-messages)
