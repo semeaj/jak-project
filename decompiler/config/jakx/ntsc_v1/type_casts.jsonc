@@ -689,21 +689,17 @@
     [[22, 66], "s3", "connection"]
   ],
   "(method 12 setting-control)": [
-    [18, "v1", "engine-group"],
     [[30, 45], "s4", "connection"]
   ],
-  "(method 9 setting-control)": [[28, "v1", "engine-group"]],
-  "(method 10 setting-control)": [[23, "v1", "engine-group"]],
-  "(method 11 setting-control)": [[36, "v1", "engine-group"]],
   "(method 16 setting-control)": [
     [[1, 12], "a1", "process"],
     [[13, 30], "s4", "connection"]
   ],
-  "(method 18 setting-control)": [[16, "v1", "engine-group"]],
   "(method 20 setting-control)": [[[3, 17], "v1", "connection"]],
   "(method 24 setting-control)": [
     [[273, 282], "v1", "handle"],
-    [287, "v1", "process-drawable"]
+    [287, "v1", "process-drawable"],
+    [763, "v0", "process-focusable"]
   ],
   "(method 10 cam-setting-data)": [
     [[32, 42], "v1", "handle"],
@@ -712,7 +708,8 @@
   ],
   "(method 10 user-setting-data)": [
     [[184, 199], "v1", "(array uint8)"],
-    [[499, 506], "a2", "(pointer process)"]
+    [[499, 505], "a1", "handle"],
+    [510, "v1", "handle"]
   ],
   "(method 15 setting-control)": [
     [3, "v1", "connection"],

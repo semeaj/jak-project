@@ -16148,7 +16148,7 @@
 
 (define-extern view-push-context (function int none))
 (define-extern view-pop-context (function none))
-(define-extern view-get-active-target (function process))
+(define-extern view-get-active-target (function process)) ;; really process-focusable, but that type parses later; cast at use sites
 (define-extern view-get-target (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-target function)
 (define-extern view-get-active-camera (function process))
@@ -16894,17 +16894,21 @@
    (unknown-usd-32             basic              :offset-assert 520) ;; added
    (borrow-city-count       uint32              :offset-assert 524)
    (borrow-city             pair              3 :offset-assert 528) ;; guessed by decompiler
-   (unknown-usd-33             uint32            28 :offset-assert 540) ;; added
+   (unknown-usd-33             uint32               :offset-assert 540) ;; added
+   (faction-command         symbol            3  :offset-assert 544) ;; per-camera, set by usd m10 'faction-command
+   (unknown-usd-556            uint32            8  :offset-assert 556) ;; added
+   (borrow-hold-perm        symbol            3  :offset-assert 588) ;; per-camera, set by usd m10 'borrow-hold-perm
+   (unknown-usd-600            uint32               :offset-assert 600) ;; added
+   (borrow-hold             symbol            3  :offset-assert 604) ;; per-camera, set by usd m10 'borrow-hold
+   (unknown-usd-616            uint32            9  :offset-assert 616) ;; added
    (audio-language          uint8               :offset-assert 652) ;; language-enum
    (unknown-usd-656            basic                :offset-assert 656) ;; added
-   (unknown-usd-660            basic                :offset 660) ;; added
-   (unknown-usd-664            basic                :offset 664) ;; added
-   (unknown-usd-668            basic                :offset 668) ;; added
+   (city-sound              symbol            3  :offset 660) ;; per-camera, set by usd m10 'city-sound, read by sc m23
    (unknown-usd-672            basic                :offset 672) ;; added
    (unknown-usd-676            basic                :offset 676) ;; added
    (unknown-usd-680            basic                :offset 680) ;; added
    (unknown-usd-684            basic                :offset 684) ;; added
-   (unknown-usd-688            uint64               :offset 688) ;; added ;; l.d-copied by m23
+   (sound-ear                  handle               :offset 688) ;; jak3 parity; ear-process handle set by usd m10 'sound-ear
    (sound-ear-scale-value      float                :offset 696) ;; added ;; scaled by usd m10 sound-ear-scale
    (special-volume          float               :offset-assert 700)
    (unknown-usd-704            basic                :offset-assert 704) ;; added
@@ -17086,23 +17090,23 @@
    (engine       engine                    :offset-assert 7168) ;; guessed by decompiler
    (engine-pers  engine-pers               :offset-assert 7172) ;; guessed by decompiler
    (engine-hi    engine                    :offset-assert 7176) ;; guessed by decompiler
-   (cam-engines  uint32                 4       :offset-assert 7180) ;; really (engine-group 4); uint32 so the dynamic index folds, casts retype the fetch
+   (cam-engines  engine-group           4       :offset-assert 7180) ;; per-camera engine groups, indexed by camera id
    )
   :method-count-assert 25
   :size-assert         #x1c1c
   :flag-assert         #x1900001c1c
   (:methods
     (new (symbol type int) _type_) ;; 0
-    (setting-control-method-9 (_type_ process symbol object object object object) connection) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-10 (_type_ symbol time-frame symbol symbol float int object) none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none)
-    (setting-control-method-11 (_type_ process symbol object object object object) connection) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection)
-    (setting-control-method-12 (_type_ object process object) none) ;; 12 ;; (remove-setting (_type_ process symbol) none)
+    (setting-control-method-9 (_type_ int process symbol object object object) connection) ;; 9 ;; (add-setting (_type_ process symbol object object object) connection); jakx puts the camera id first
+    (setting-control-method-10 (_type_ int symbol time-frame symbol symbol float object) none) ;; 10 ;; (persist-with-delay (_type_ symbol time-frame symbol symbol float int) none); jakx: camera id first, then name/delay/param0-3
+    (setting-control-method-11 (_type_ int process symbol object object object) connection) ;; 11 ;; (set-setting (_type_ process symbol object object object) connection); jakx puts the camera id first
+    (setting-control-method-12 (_type_ int process object) none) ;; 12 ;; (remove-setting (_type_ process symbol) none); jakx puts the camera id first
     (setting-control-method-13 (_type_ engine-pers object object object object) none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none) ;; 14 ;; (setting-control-method-14 (_type_ object) connectable)
     (setting-control-method-15 (_type_ object object object object object) connectable) ;; 15 ;; (get-setting (_type_ object) connectable)
     (setting-control-method-16 (_type_ process object object) none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
     (setting-control-method-17 (_type_ symbol object object object) connection) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
-    (setting-control-method-18 (_type_ object object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data)
+    (setting-control-method-18 (_type_ int object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data); jakx: camera id first (cam-disconnect-by-key)
     (setting-control-method-19 (_type_ object) user-setting-data) ;; 19 ;; (update (_type_) user-setting-data)
     (setting-control-method-20 (_type_ object) connection) ;; 20
     (setting-control-method-21 (_type_ object) none) ;; 21
@@ -39595,7 +39599,7 @@
 ;; (define-extern setup-slave-for-hopefull function) ;; (function camera-slave none)
 ;; (define-extern master-is-hopeful-better? function) ;; (function camera-slave camera-slave symbol :behavior camera-master)
 ;; (define-extern master-choose-entity function) ;; (function cam-setting-data symbol :behavior camera-master)
-;; (define-extern cam-master-set-entity function) ;; (function cam-setting-data none)
+(define-extern cam-master-set-entity (function cam-setting-data none)) ;; jak3-parity sig
 ;; (define-extern cam-master-activate-slave function) ;; (function symbol none)
 ;; (define-extern cam-master-active state) ;; (state camera-master)
 ;; (define-extern cam-master-init function) ;; (function none :behavior camera-master)
