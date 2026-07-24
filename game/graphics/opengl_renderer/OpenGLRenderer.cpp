@@ -446,14 +446,37 @@ void OpenGLRenderer::init_bucket_renderers_jak3() {
 
 void OpenGLRenderer::init_bucket_renderers_jakx() {
   using namespace jakx;
-  // Minimal bring-up profile: Jak X's 796-bucket layout is not mapped yet, so only
-  // the debug/text buckets at the end of the frame get DirectRenderers (enough for
-  // the stdcon console text end-display draws every frame). Everything else is a
-  // SkipRenderer, which walks the bucket's DMA without drawing.
+  // Bring-up profile: the debug/text buckets get DirectRenderers (stdcon), and the
+  // per-level tfrag group gets the world renderers (texture upload, tfrag, tie, etie)
+  // following the jak3 pattern. Everything unmapped stays a SkipRenderer, which walks
+  // the bucket's DMA without drawing.
   m_bucket_renderers.resize((int)BucketId::MAX_BUCKETS);
   m_bucket_categories.resize((int)BucketId::MAX_BUCKETS, BucketCategory::OTHER);
   {
     auto p = scoped_prof("render-inits");
+
+    init_bucket_renderer<VisDataHandler>("vis", BucketCategory::OTHER, BucketId::BUCKET_2);
+
+    for (int i = 0; i < LEVEL_MAX; i++) {
+#define GET_BUCKET_ID_FOR_LIST(bkt1, bkt2, idx) ((int)(bkt1) + ((int)(bkt2) - (int)(bkt1)) * (idx))
+      init_bucket_renderer<TextureUploadHandler>(
+          fmt::format("tex-l{}-tfrag", i), BucketCategory::TEX,
+          GET_BUCKET_ID_FOR_LIST(BucketId::TEX_L0_TFRAG, BucketId::TEX_L1_TFRAG, i),
+          m_texture_animator);
+      init_bucket_renderer<TFragment>(
+          fmt::format("tfrag-l{}-tfrag", i), BucketCategory::TFRAG,
+          GET_BUCKET_ID_FOR_LIST(BucketId::TFRAG_L0_TFRAG, BucketId::TFRAG_L1_TFRAG, i),
+          std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, i, anim_slot_array());
+      Tie3* tie = init_bucket_renderer<Tie3>(
+          fmt::format("tie-l{}-tfrag", i), BucketCategory::TIE,
+          GET_BUCKET_ID_FOR_LIST(BucketId::TIE_L0_TFRAG, BucketId::TIE_L1_TFRAG, i), i,
+          anim_slot_array());
+      init_bucket_renderer<Tie3AnotherCategory>(
+          fmt::format("etie-l{}-tfrag", i), BucketCategory::TIE,
+          GET_BUCKET_ID_FOR_LIST(BucketId::ETIE_L0_TFRAG, BucketId::ETIE_L1_TFRAG, i), tie,
+          tfrag3::TieCategory::NORMAL_ENVMAP);
+#undef GET_BUCKET_ID_FOR_LIST
+    }
 
     init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);
     init_bucket_renderer<DirectRenderer>("debug-no-zbuf2", BucketCategory::OTHER,

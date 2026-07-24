@@ -1073,11 +1073,39 @@ enum class BucketId {
 }
 
 namespace jakx {
-// Jak X's bucket layout is not fully mapped yet. The chain carries 796 buckets
-// (bucket795 is the last in the GOAL enum); only the landmarks used by the
-// minimal bring-up profile are named here.
+// Jak X's bucket layout follows jak3's per-level scheme: <renderer>-l<level>-<group>.
+// The tfrag group runs 10 levels at stride 12 from bucket 10, the shrub group 10
+// levels at stride 10 from bucket 130. Only the anchors the renderer loop needs are
+// named; the rest of the 796-bucket chain stays SkipRenderer until mapped.
 enum class BucketId {
-  BUCKET_2 = 2,
+  BUCKET_2 = 2,  // pc vis data
+  BLIT_START = 3,
+  TEX_LCOM_SKY_PRE = 4,
+  SKY = 5,
+  HFRAG = 8,
+  // tfrag group, level 0 (stride 12 per level)
+  TEX_L0_TFRAG = 10,
+  TFRAG_L0_TFRAG = 11,
+  TIE_L0_TFRAG = 12,
+  ETIE_L0_TFRAG = 13,
+  TFRAG_S_L0_TFRAG = 14,
+  TIE_S_L0_TFRAG = 15,
+  ETIE_S_L0_TFRAG = 16,
+  MERC_L0_TFRAG = 17,
+  EMERC_L0_TFRAG = 18,
+  GMERC_L0_TFRAG = 19,
+  TIE_V_L0_TFRAG = 20,
+  GMERC2_L0_TFRAG = 21,
+  // tfrag group, level 1 (the stride anchors)
+  TEX_L1_TFRAG = 22,
+  TFRAG_L1_TFRAG = 23,
+  TIE_L1_TFRAG = 24,
+  ETIE_L1_TFRAG = 25,
+  // shrub group (stride 10 per level)
+  TEX_L0_SHRUB = 130,
+  SHRUB_L0_SHRUB = 131,
+  TEX_L1_SHRUB = 140,
+  SHRUB_L1_SHRUB = 141,
   DEBUG = 793,           // debug-draw target (add-debug-box/sphere)
   DEBUG_NO_ZBUF2 = 794,  // end-display's stdcon text
   DEBUG_MENU = 795,
