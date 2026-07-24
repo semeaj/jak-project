@@ -314,3 +314,5 @@
 
 
 (define *instance-tie-work-copy* (the-as instance-tie-work #f))
+
+(define-extern *prototype-tie-work* prototype-tie-work)
