@@ -382,7 +382,10 @@
     "DGO/XIMLEV.DGO"
   ],
 
-  "levels_to_extract": [],
+  "levels_to_extract": [
+    // bring-up: smallest real world-geometry level (board room)
+    "BRDROOM.DGO"
+  ],
 
   // some objects are part of STR files (streaming data).
   "str_file_names": [],

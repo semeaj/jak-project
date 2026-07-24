@@ -425,7 +425,12 @@ void extract_all_levels(const ObjectFileDB& db,
   SimpleThreadGroup threads;
   threads.run(
       [&](int idx) {
-        extract_from_level(db, tex_db, dgo_names[idx], config, output_path, entities_dir);
+        try {
+          extract_from_level(db, tex_db, dgo_names[idx], config, output_path, entities_dir);
+        } catch (const std::exception& e) {
+          lg::error("Level extraction failed for {}: {}", dgo_names[idx], e.what());
+          throw;
+        }
       },
       dgo_names.size(), num_workers);
   threads.join();
