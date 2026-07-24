@@ -248,6 +248,12 @@
 ;; Flip to #t in the REPL to experiment with the load path.
 (define *jakx-boot-level-load* #t)
 
+;; og:preserve-this bring-up lever: which level play's boot path loads (retail loads
+;; 'fmvlev). Set to any level-load-info symbol whose DGO is built in game.gp;
+;; 'brdroom is the smallest real world-geometry level (3 tpages + pool-water art +
+;; the bsp with tfrag/tie trees).
+(define *jakx-boot-level* 'brdroom)
+
 ;; DECOMP BEGINS
 
 

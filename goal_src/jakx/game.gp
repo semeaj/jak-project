@@ -181,7 +181,7 @@
 ;; (cgo-file "dkx.gd" common-dep)
 ;; (cgo-file "hvd.gd" common-dep)
 ;; (cgo-file "snw.gd" common-dep)
-;; (cgo-file "brdroom.gd" common-dep)
+(cgo-file "brdroom.gd" common-dep) ;; second bring-up level: smallest real world-geometry DGO
 ;; (cgo-file "icc.gd" common-dep)
 ;; (cgo-file "sewers.gd" common-dep)
 ;; (cgo-file "garage.gd" common-dep)

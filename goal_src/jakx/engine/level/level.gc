@@ -2861,7 +2861,10 @@
                    'menu2
                    )
                  (else
-                   'fmvlev
+                   ;; og:preserve-this bring-up lever: retail boots 'fmvlev (the intro
+                   ;; movie level); *jakx-boot-level* picks the level to exercise the
+                   ;; load chain with (brdroom = smallest real world-geometry DGO)
+                   *jakx-boot-level*
                    )
                  )
                )
