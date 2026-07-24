@@ -209,7 +209,7 @@
     (prototype-node-group-method-11 () none)
     (prototype-node-group-method-12 (_type_ prototype-bucket-tie) (pointer uint32)) ;; jakx: sibling of method 10
     (prototype-node-group-method-13 (_type_ level) none) ;; unlink all nodes belonging to a level
-    (prototype-node-group-method-14 () none)
+    (prototype-node-group-method-14 (_type_) none) ;; called by finish-tie on shared-ties
     )
   )
 
