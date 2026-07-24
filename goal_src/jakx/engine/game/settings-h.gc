@@ -335,7 +335,7 @@
    (sound-bank-load          symbol)
    (allow-error              symbol)
    (under-water-pitch-mod    float)
-   (unknown-usd-18           basic)
+   (slow-time                float) ;; jak3 parity; seek'd by sc m24
    (restart-info             resetter-spec)
    (fail-info                resetter-spec)
    (death-info               resetter-spec)
@@ -347,8 +347,8 @@
    (exclusive-task-count     uint32)
    (exclusive-task           int32  3)
    (level-trans-time         int32)
-   (unknown-usd-19           basic)
-   (unknown-usd-20           basic)
+   (fog-special-interp-targ  float) ;; named by usd m10
+   (fog-special-interp-rate  float) ;; named by usd m10
    (unknown-usd-21           basic)
    (unknown-usd-22           basic)
    (unknown-usd-23           basic)
@@ -356,8 +356,8 @@
    (letterbox-speed          float)
    (unknown-usd-24           basic)
    (unknown-usd-25           basic)
-   (unknown-usd-26           basic)
-   (unknown-usd-27           basic)
+   (dust-storm-fog-scalar     float) ;; named by usd m10
+   (dust-storm-sound-scalar   float) ;; named by usd m10
    (unknown-usd-28           basic)
    (unknown-usd-29           basic)
    (unknown-usd-30           basic)
@@ -375,7 +375,7 @@
    (audio-language           uint8)
    (unknown-usd-656          basic)
    (city-sound               symbol 3) ;; per-camera, set by usd m10 'city-sound, read by sc m23
-   (unknown-usd-672          basic)
+   (board-max-speed           float) ;; named by usd m10
    (unknown-usd-676          basic)
    (unknown-usd-680          basic)
    (unknown-usd-684          basic)
@@ -395,8 +395,8 @@
    (unknown-usd-744          basic)
    (unknown-usd-748          basic) ;; truthy-tested flag read via l.wu
    (unknown-usd-752          basic) ;; the movie word (setting-control+768 gate)
-   (unknown-usd-756          basic)
-   (unknown-usd-760          basic)
+   (fog-mult                  float) ;; named by usd m10
+   (fog-speed                 float) ;; named by usd m10
    (unknown-usd-764          basic)
    (unknown-usd-768          basic)
    )
@@ -450,7 +450,7 @@
    (no-intro                       symbol)
    (use-point-of-interest          symbol)
    (point-of-interest              vector  :inline)
-   (handle-of-interest             uint64)
+   (handle-of-interest             handle)
    (mouse-tumble-point             vector  :inline)
    (use-mouse-tumble-point         symbol)
    (mouse-input                    symbol)

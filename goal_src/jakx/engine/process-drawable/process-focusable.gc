@@ -61,7 +61,7 @@
   :flag-assert         #x3b00700100
   (:methods
     (process-focusable-method-50 () none) ;; 50
-    (process-focusable-method-51 () none) ;; 51
+    (get-trans (_type_ int) vector) ;; 51 ;; jak3 parity (id 21 there): trans getter used by sc m24 for point-of-interest
     (process-focusable-method-52 () none) ;; 52
     (process-focusable-method-53 () none) ;; 53
     (process-focusable-method-54 () none) ;; 54
