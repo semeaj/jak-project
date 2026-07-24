@@ -63,10 +63,14 @@
   (when (!= (-> this index) 2)
     ;; og:preserve-this guarded: math-camera methods are not landed (math-camera.gc
     ;; skeleton) and the decomp dropped this call's args; skip until the camera lands.
-    (let ((t9-0 (method-of-object (-> this math-camera) math-camera-method-9)))
-      (if (nonzero? (the-as int t9-0))
-          0
-          )
+    ;; The viewport's math-camera is 0 during bring-up, and method-of-object on 0
+    ;; faults on the type-tag read, so the field must be checked FIRST.
+    (when (nonzero? (-> this math-camera))
+      (let ((t9-0 (method-of-object (-> this math-camera) math-camera-method-9)))
+        (if (nonzero? (the-as int t9-0))
+            0
+            )
+        )
       )
     ;; og:preserve-this bring-up guard: the blit-displays-work methods are asm and not
     ;; landed (see blit-displays.gc); the decomp of these calls also dropped their args

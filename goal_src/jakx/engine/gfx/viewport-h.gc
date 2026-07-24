@@ -89,6 +89,10 @@
   ((mode                    uint32)
    (num-viewports           uint32)
    (current-viewport-index  uint32)
+   ;; og:preserve-this: the asm layout puts data at +16 from an untagged base, but the
+   ;; bring-up allocates with the tagged heap new, so auto-layout (+12) keeps the inline
+   ;; viewports 16-aligned in memory. Quadword writes into viewports must respect this
+   ;; (see update-view-planes' scalar fog-corner stores).
    (data                    viewport  3 :inline)
    (default                 viewport  :inline :overlay-at (-> data 2))
    )

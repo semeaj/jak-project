@@ -36,6 +36,18 @@
   :flag-assert         #x900000014
   )
 
+(deftype view-frustum (structure)
+  ((hither-top-left     vector :inline)
+   (hither-top-right    vector :inline)
+   (hither-bottom-left  vector :inline)
+   (hither-bottom-right vector :inline)
+   (yon-top-left        vector :inline)
+   (yon-top-right       vector :inline)
+   (yon-bottom-left     vector :inline)
+   (yon-bottom-right    vector :inline)
+   )
+  )
+
 (deftype bsp-header (drawable)
   "The bsp-header is really an entire level.
    This probably started as a very simple structure, but now it is extremely complicated."
@@ -106,6 +118,10 @@
    (bsp-offset               vector :inline              :offset-assert 304)
 
    (hfrag-drawable drawable :offset 320)
+   (current-leaf-idx-view uint16 4 :offset 324) ;; per-view (jakx); the scalar at 128 is the jak3-parity slot
+   (unknown-bsp-332       uint16 4 :offset 332) ;; per-view, read next to current-leaf-idx-view by update-visible
+   (cam-using-back-view   uint8  4 :offset 340) ;; per-view; nonzero prints the "back" warning in update-visible
+   (cam-outside-bsp-view  uint8  4 :offset 344) ;; per-view; nonzero prints the "front" warning in update-visible
 
 
    (end uint8 :offset #x18f)

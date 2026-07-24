@@ -62,13 +62,16 @@
 ;; ERROR: function has no type analysis. Cannot decompile.
 
 ;; definition for function view-get-active-camera-combiner
-;; ERROR: function has no type analysis. Cannot decompile.
+;; (landed in the hand section at the end of the file; needs view-get-active)
 
 ;; definition for function view-get-camera-combiner
-;; ERROR: function has no type analysis. Cannot decompile.
+(defun view-get-camera-combiner ((arg0 int))
+  ;; og:preserve-this basic return: camera-combiner's deftype compiles later (camera-h.gc)
+  (-> *views* arg0 camera-combiner)
+  )
 
 ;; definition for function view-set-active-camera-combiner
-;; ERROR: function has no type analysis. Cannot decompile.
+;; (landed in the hand section at the end of the file; needs view-get-active)
 
 ;; definition for function view-get-active-math-camera
 ;; ERROR: failed type prop at 1: Called a function, but we do not know its type
@@ -226,6 +229,16 @@
 
 (defun view-get-active-math-camera ()
   (the-as math-camera (-> (view-get-active) math-camera))
+  )
+
+(defun view-get-active-camera-combiner ()
+  ;; og:preserve-this basic return: camera-combiner's deftype compiles later (camera-h.gc)
+  (-> (view-get-active) camera-combiner)
+  )
+
+(defun view-set-active-camera-combiner ((arg0 basic))
+  (set! (-> (view-get-active) camera-combiner) arg0)
+  arg0
   )
 
 ;; failed to figure out what this is:
