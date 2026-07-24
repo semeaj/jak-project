@@ -28435,7 +28435,7 @@
 
 (define-extern *net-aux-msg-handlers* (pointer uint32))
 (define-extern *net-mgr-startup-status* symbol)
-(define-extern *net-mgr* symbol)
+(define-extern *net-mgr* net-mgr)
 (define-extern *net-error* int)
 (define-extern *medius-world-status* int)
 (define-extern *dme-initted* symbol)
@@ -28646,7 +28646,7 @@
     (process-drawable-method-46 () none) ;; 46
     (process-drawable-method-47 () none) ;; 47
     (process-drawable-method-48 () none) ;; 48
-    (process-drawable-method-49 () none) ;; 49
+    (process-drawable-method-49 (_type_) process) ;; 49 ;; returns the associated vehicle process (cam-vehicle-update checks its next-state)
     )
   (:states
     process-drawable-idle ;; associated process guessed by decompiler, old: (state process-drawable)
@@ -32008,7 +32008,7 @@
   (:methods
     (new (symbol type int int) _type_)
     (collide-cache-method-9 () none) ;; 9 ;; (debug-draw (_type_) none)
-    (collide-cache-method-10 () none) ;; 10 ;; (fill-and-probe-using-line-sphere (_type_ collide-query) float)
+    (collide-cache-method-10 (_type_ collide-query) float) ;; 10 ;; fill-and-probe-using-line-sphere
     (collide-cache-method-11 () none) ;; 11 ;; (fill-and-probe-using-spheres (_type_ collide-query) symbol)
     (collide-cache-method-12 () none) ;; 12 ;; (fill-using-bounding-box (_type_ collide-query) none)
     (collide-cache-method-13 () none) ;; 13 ;; (fill-using-line-sphere (_type_ collide-query) none)
@@ -33389,6 +33389,34 @@
 (define-extern *entity-more-perm* object) ;; TODO verify, no live consumers yet
 (define-extern *level-type-list* type)
 (declare-type gui-control basic)
+;; og:bring-up minimal gui-control deftype: the full one is commented (broken field read);
+;; cam-states only calls m9 (the add-request method).
+(deftype gui-control (basic)
+  ((engine  engine  :offset-assert 4)
+   )
+  :method-count-assert 26
+  :size-assert         #x8
+  :flag-assert         #x1a00000008
+  (:methods
+    (gui-control-method-9 (_type_ process int int string float int) uint) ;; 9
+    (gui-control-method-10 () none) ;; 10
+    (gui-control-method-11 () none) ;; 11
+    (gui-control-method-12 () none) ;; 12
+    (gui-control-method-13 () none) ;; 13
+    (gui-control-method-14 () none) ;; 14
+    (gui-control-method-15 () none) ;; 15
+    (gui-control-method-16 (_type_ int uint int int string basic process) int) ;; 16 ;; set-action!
+    (gui-control-method-17 (_type_ uint) uint) ;; 17 ;; get-status
+    (gui-control-method-18 () none) ;; 18
+    (gui-control-method-19 () none) ;; 19
+    (gui-control-method-20 (_type_ uint symbol int int int float) object) ;; 20 ;; sound-params-set!
+    (gui-control-method-21 () none) ;; 21
+    (gui-control-method-22 () none) ;; 22
+    (gui-control-method-23 () none) ;; 23
+    (gui-control-method-24 () none) ;; 24
+    (gui-control-method-25 () none) ;; 25
+    )
+  )
 (declare-type process-nettable process)
 (declare-type net-world process-nettable)
 (define-extern *art-control* external-art-control)
@@ -42420,7 +42448,7 @@
 ;; (define-extern find-nearest-nav-mesh function) ;; (function vector float nav-mesh)
 ;; (define-extern point-to-poly-boundary function) ;; (function nav-poly vector vector float)
 ;; (define-extern find-first-containing-nav-mesh function)
-;; (define-extern find-nav-mesh function)
+(define-extern find-nav-mesh (function object vector float float float collide-cache object))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; nav-control                    ;;
@@ -45740,48 +45768,47 @@
   )
 |#
 
-#|
 (deftype net-player (process-nettable)
-  ((last-known-pos          vector :inline :offset-assert 192)
-   (last-known-pos-valid    basic          :offset-assert 208)
-   (mgr                     basic          :offset-assert 212)
-   (vehicle                 uint64         :offset-assert 216)
-   (rev-mgr                 uint64         :offset-assert 224)
-   (score                   int32          :offset-assert 236)
-   (player-num              int8           :offset-assert 240)
-   (team                    uint8          :offset-assert 241)
-   (color                   uint32         :offset-assert 244)
-   (font-color              uint8          :offset-assert 248)
-   (multiplier              int8           :offset-assert 249)
-   (death-indicator-1       uint64         :offset-assert 256)
-   (death-indicator-2       uint64         :offset-assert 264)
-   (wpn-left-type           uint8          :offset-assert 272)
-   (wpn-right-type          uint8          :offset-assert 273)
-   (wpn-left-ammo           uint8          :offset-assert 274)
-   (wpn-right-ammo          uint8          :offset-assert 275)
-   (turbo-qty               uint8          :offset-assert 276)
-   (dark-eco                uint8          :offset-assert 277)
-   (health                  uint8          :offset-assert 278)
-   (last-weapon-provision   float          :offset-assert 280)
-   (top-speed               float          :offset-assert 284)
-   (player-id               int8           :offset-assert 288)
-   (flags                   uint8          :offset-assert 289)
-   (rank                    int8           :offset-assert 290)
-   (human-rank              int8           :offset-assert 291)
-   (next-spawn-time         uint64         :offset-assert 296)
-   (state-time              uint64         :offset-assert 304)
-   (vehicle-impact-callback basic          :offset-assert 312)
-   (spawn-count             int32          :offset-assert 316)
-   (speech-id               uint8          :offset-assert 320)
-   (last-speech-time        uint64         :offset-assert 328)
-   (best-power-slide        float          :offset-assert 336)
-   (best-hang-time          int32          :offset-assert 340)
-   (display-score           int32          :offset-assert 344)
-   (kills                   int32          :offset-assert 348)
-   (deaths                  int32          :offset-assert 352)
-   (last-spawn-time         uint64         :offset-assert 360)
-   (dead-camera-pos-valid   basic          :offset-assert 368)
-   (dead-camera-pos         vector :inline :offset-assert 384)
+  ((last-known-pos          vector :inline :offset 192)
+   (last-known-pos-valid    basic          :offset 208)
+   (mgr                     basic          :offset 212)
+   (vehicle                 uint64         :offset 216)
+   (rev-mgr                 uint64         :offset 224)
+   (score                   int32          :offset 236)
+   (player-num              int8           :offset 240)
+   (team                    uint8          :offset 241)
+   (color                   uint32         :offset 244)
+   (font-color              uint8          :offset 248)
+   (multiplier              int8           :offset 249)
+   (death-indicator-1       uint64         :offset 256)
+   (death-indicator-2       uint64         :offset 264)
+   (wpn-left-type           uint8          :offset 272)
+   (wpn-right-type          uint8          :offset 273)
+   (wpn-left-ammo           uint8          :offset 274)
+   (wpn-right-ammo          uint8          :offset 275)
+   (turbo-qty               uint8          :offset 276)
+   (dark-eco                uint8          :offset 277)
+   (health                  uint8          :offset 278)
+   (last-weapon-provision   float          :offset 280)
+   (top-speed               float          :offset 284)
+   (player-id               int8           :offset 288)
+   (flags                   uint8          :offset 289)
+   (rank                    int8           :offset 290)
+   (human-rank              int8           :offset 291)
+   (next-spawn-time         uint64         :offset 296)
+   (state-time              uint64         :offset 304)
+   (vehicle-impact-callback basic          :offset 312)
+   (spawn-count             int32          :offset 316)
+   (speech-id               uint8          :offset 320)
+   (last-speech-time        uint64         :offset 328)
+   (best-power-slide        float          :offset 336)
+   (best-hang-time          int32          :offset 340)
+   (display-score           int32          :offset 344)
+   (kills                   int32          :offset 348)
+   (deaths                  int32          :offset 352)
+   (last-spawn-time         uint64         :offset 360)
+   (dead-camera-pos-valid   basic          :offset 368)
+   (dead-camera-pos         vector :inline :offset 384)
    )
   :method-count-assert 98
   :size-assert         #x190
@@ -45794,7 +45821,7 @@
     (net-player-method-46 () none) ;; 46
     (net-player-method-47 () none) ;; 47
     (net-player-method-48 () none) ;; 48
-    (net-player-method-49 () none) ;; 49
+    (net-player-method-49 (_type_) process) ;; 49 ;; returns the driven vehicle process (cam-vehicle-update checks its next-state)
     (net-player-method-50 () none) ;; 50
     (net-player-method-51 () none) ;; 51
     (net-player-method-52 () none) ;; 52
@@ -45845,12 +45872,12 @@
     (net-player-method-97 () none) ;; 97
     )
   )
-|#
 
 ;; (define-extern net-player-init-remote function)
 ;; (define-extern *msg-map-net-player* array)
 ;; (define-extern *net-process-class-info-net-player* object)
-;; (define-extern *net-players* array)
+(declare-type net-player process)
+(define-extern *net-players* (array net-player))
 ;; (define-extern *active-net-player-count* object)
 ;; (define-extern *active-net-players* array)
 ;; (define-extern *active-net-non-spectator-count* object)
@@ -50701,10 +50728,9 @@
 ;; cam-states                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype target-camera-runtime-info (structure)
   ((active                basic              :offset-assert 0)
-   (shot                  uint64             :offset-assert 8)
+   (shot                  handle             :offset-assert 8)
    (mirror                basic              :offset-assert 16)
    (need-new-cam          basic              :offset-assert 20)
    (prefix                basic              :offset-assert 24)
@@ -50716,16 +50742,14 @@
    (cur-quat              quaternion :inline :offset-assert 64)
    (interp-from-trans     vector     :inline :offset-assert 80)
    (interp-from-quat      quaternion :inline :offset-assert 96)
-   (vehicle-release-timer uint64             :offset-assert 112)
+   (vehicle-release-timer handle             :offset-assert 112)
    (state-time            uint64             :offset-assert 120)
    )
   :method-count-assert 9
   :size-assert         #x80
   :flag-assert         #x900000080
   )
-|#
 
-#|
 (deftype crash-camera (basic)
   ((camera-type             uint64         :offset-assert 8)
    (world-position          vector :inline :offset-assert 16)
@@ -50742,8 +50766,8 @@
    (camera-rotation         float          :offset-assert 104)
    (likelyhood              float          :offset-assert 108)
    (group                   int32          :offset-assert 112)
-   (camera-valid?           basic          :offset-assert 116)
-   (allow-shake?            basic          :offset-assert 120)
+   (camera-valid?           uint32         :offset-assert 116) ;; static data holds raw ints
+   (allow-shake?            uint32         :offset-assert 120) ;; static data holds raw ints
    (last-visible-check-time int32          :offset-assert 124)
    (last-car-visible-time   int32          :offset-assert 128)
    (force-cut               basic          :offset-assert 132)
@@ -50753,30 +50777,26 @@
   :size-assert         #x8c
   :flag-assert         #x130000008c
   (:methods
-    (crash-camera-method-9 () none) ;; 9
-    (crash-camera-method-10 () none) ;; 10
-    (crash-camera-method-11 () none) ;; 11
-    (crash-camera-method-12 () none) ;; 12
-    (crash-camera-method-13 () none) ;; 13
-    (crash-camera-method-14 () none) ;; 14
-    (crash-camera-method-15 () none) ;; 15
-    (crash-camera-method-16 () none) ;; 16
-    (crash-camera-method-17 () none) ;; 17
-    (crash-camera-method-18 () none) ;; 18
+    (crash-camera-method-9 (_type_) none) ;; 9
+    (crash-camera-method-10 (_type_ float float) float) ;; 10
+    (crash-camera-method-11 (_type_ object) float) ;; 11 ;; arg used both as symbol and matrix
+    (crash-camera-method-12 (_type_ camera-slave vector) vector) ;; 12
+    (crash-camera-method-13 (_type_ camera-slave symbol matrix) float) ;; 13
+    (crash-camera-method-14 (_type_ crash-camera) vector) ;; 14
+    (crash-camera-method-15 (_type_) symbol) ;; 15
+    (crash-camera-method-16 (_type_ object) symbol) ;; 16 ;; asm reads a1
+    (crash-camera-method-17 (_type_ symbol) symbol) ;; 17
+    (crash-camera-method-18 (_type_) object) ;; 18
     )
   )
-|#
 
-#|
 (deftype victor-prefix-camera (crash-camera)
   ()
   :method-count-assert 19
   :size-assert         #x8c
   :flag-assert         #x130000008c
   )
-|#
 
-#|
 (deftype target-camera (basic)
   ((offset-mode   basic   :offset-assert 4)
    (behind-offset float   :offset-assert 8)
@@ -50790,73 +50810,77 @@
   :size-assert         #x28
   :flag-assert         #xb00000028
   (:methods
-    (target-camera-method-9 () none) ;; 9
-    (target-camera-method-10 () none) ;; 10
+    (target-camera-method-9 (_type_ camera-slave process-focusable process-focusable) quaternion) ;; 9
+    (target-camera-method-10 (_type_ process-focusable process-focusable vector vector) float) ;; 10
     )
   )
-|#
 
-#|
 (deftype vehicle-AI-control-timer (process)
   ((timeout   int32   :offset-assert 144)
-   (veh       uint64  :offset-assert 152)
+   (veh       handle  :offset-assert 152)
    (cam-timer float   :offset-assert 160)
    )
   :method-count-assert 16
   :size-assert         #xa4
   :flag-assert         #x10002000a4
-  (:methods
-    (vehicle-AI-control-timer-method-9 () none) ;; 9
-    (vehicle-AI-control-timer-method-10 () none) ;; 10
-    (vehicle-AI-control-timer-method-11 () none) ;; 11
-    (vehicle-AI-control-timer-method-12 () none) ;; 12
-    (vehicle-AI-control-timer-method-13 () none) ;; 13
-    (vehicle-AI-control-timer-method-14 () none) ;; 14
-    )
   (:state-methods
     idle ;; 15
     )
   )
-|#
 
+;; og:bring-up minimal vehicle deftype: the real one (rigid-body-object child) is still
+;; commented; cam-states only reads the handle at 752 and type-checks against it.
+(deftype vehicle (process-drawable)
+  ((vehicle-flags-264  uint64 :offset 264) ;; name guessed; flag-tested (andi 8) by (trans cam-vehicle-shot)
+   (cam-target-handle handle :offset 752) ;; name guessed; truthy-tested and handle-derefed by cam-states
+   )
+  :method-count-assert 50
+  :size-assert         #x2f8
+  :flag-assert         #x32027002f8
+  )
+(declare-type hud-slowmo process) ;; real deftype still commented (in-game-hud child)
+(define-extern vehicle type) ;; the type symbol, for type? calls
+(declare-type wvehicle process)
+(define-extern wvehicle type) ;; the type symbol, for type? calls
+(define-extern hud-slowmo type) ;; the type symbol, for spawn/type? calls
 (define-extern cam-fixed (state camera-slave))
 (define-extern cam-fixed-read-entity (state camera-slave))
-;; (define-extern cam-standoff-calc-trans function) ;; (function vector :behavior camera-slave)
+(define-extern cam-standoff-calc-trans (function vector :behavior camera-slave))
 (define-extern cam-standoff (state camera-slave))
 (define-extern cam-standoff-read-entity (state camera-slave))
-;; (define-extern cam-curve-closest-point function) ;; (function curve vector float float int float)
+(define-extern cam-curve-closest-point (function curve vector float float int float))
 (define-extern cam-spline (state camera-slave))
 (define-extern cam-decel (state camera-slave))
 (define-extern cam-endlessfall (state camera-slave)) ;; jak3-parity sig
-;; (define-extern cam-vehicle-update function)
+(define-extern cam-vehicle-update (function object :behavior camera-slave))
 (define-extern cam-vehicle (state camera-slave)) ;; parent assumed; jakx-new state
-;; (define-extern *target-camera-runtime* object)
-;; (define-extern target-cam-runtime-push function)
-;; (define-extern *freeze-camera* array)
-;; (define-extern *crash-camera-array* array)
-;; (define-extern *crash-camera-force-position* object)
-;; (define-extern *crash-camera-force-position-valid* object)
-;; (define-extern *target-time-speed* object)
-;; (define-extern target-time-go-slow function)
-;; (define-extern target-time-go-normal function)
-;; (define-extern *plow-camera* array)
-;; (define-extern choose-crash-camera function)
+(define-extern *target-camera-runtime* target-camera-runtime-info)
+(define-extern target-cam-runtime-push (function target-camera-runtime-info camera-slave vector))
+(define-extern *freeze-camera* (array crash-camera))
+(define-extern *crash-camera-array* (array (array crash-camera)))
+(define-extern *crash-camera-force-position* vector)
+(define-extern *crash-camera-force-position-valid* symbol)
+(define-extern *target-time-speed* float)
+(define-extern target-time-go-slow (function float symbol object))
+(define-extern target-time-go-normal (function object))
+(define-extern *plow-camera* (array crash-camera))
+(define-extern choose-crash-camera (function symbol symbol crash-camera :behavior camera-slave))
 (define-extern cam-vehicle-crash (state camera-slave)) ;; parent assumed; jakx-new state
-;; (define-extern *camera-training-lifetime* object)
-;; (define-extern set-training-camera-lifetime function)
+(define-extern *camera-training-lifetime* float)
+(define-extern set-training-camera-lifetime (function float int))
 (define-extern cam-training (state camera-slave)) ;; parent assumed; jakx-new state
-;; (define-extern *victor-prefix-camera-array* array)
-;; (define-extern choose-victor-prefix-camera function)
-;; (define-extern target-camera-active? function)
-;; (define-extern *target-camera-array* array)
-;; (define-extern vehicle-AI-control-timer-init-by-other function)
-;; (define-extern target-camera-heuristic-cam-point! function)
-;; (define-extern target-camera-heuristic-look-at! function)
-;; (define-extern target-camera-heuristic-fov function)
-;; (define-extern target-camera-test-los function)
-;; (define-extern choose-target-camera function)
-;; (define-extern camera-go-target function)
-;; (define-extern cam-akira-mode-enter function)
+(define-extern *victor-prefix-camera-array* (array (array victor-prefix-camera)))
+(define-extern choose-victor-prefix-camera (function crash-camera :behavior camera-slave))
+(define-extern target-camera-active? (function process))
+(define-extern *target-camera-array* (array target-camera))
+(define-extern vehicle-AI-control-timer-init-by-other (function handle int float object :behavior vehicle-AI-control-timer))
+(define-extern target-camera-heuristic-cam-point! (function vector process-focusable process-focusable float symbol float float vector))
+(define-extern target-camera-heuristic-look-at! (function vector process-focusable process-focusable vector vector))
+(define-extern target-camera-heuristic-fov (function target-camera process-focusable process-focusable vector float))
+(define-extern target-camera-test-los (function vector process-focusable process-focusable float symbol))
+(define-extern choose-target-camera (function process-focusable process-focusable target-camera))
+(define-extern camera-go-target (function handle int))
+(define-extern cam-akira-mode-enter (function object :behavior camera-slave))
 (define-extern cam-vehicle-shot (state camera-slave)) ;; parent assumed; jakx-new state
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53763,7 +53787,7 @@
 ;; explosion                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *explosion-effect-suppress* object)
+(define-extern *explosion-effect-suppress* symbol)
 ;; (define-extern explosion-init-by-other function) ;; (function explosion-init-params object :behavior explosion)
 ;; (define-extern explosion-spawn-legacy-version function) ;; (function process-drawable type explosion-init-params (pointer process))
 ;; (define-extern explosion-spawn function) ;; (function explosion-init-params process-drawable none)
@@ -54358,7 +54382,7 @@
 ;; (define-extern get-player-id-by-team function)
 ;; (define-extern *hud-slowmo* array)
 ;; (define-extern *hud-slowmo-proc* object)
-;; (define-extern spawn-hud-slowmo function)
+(define-extern spawn-hud-slowmo (function object))
 ;; (define-extern *hud-top-split-bar* array)
 ;; (define-extern *hud-top-split-bar-proc* object)
 ;; (define-extern spawn-hud-top-split-bar function)
@@ -55383,7 +55407,7 @@
 |#
 
 ;; (define-extern *text-display-nice-shot* array)
-;; (define-extern *text-display-nice-shot-proc* object)
+(define-extern *text-display-nice-shot-proc* process)
 ;; (define-extern spawn-text-display-nice-shot function)
 ;; (define-extern display-nice-shot-to-view function)
 ;; (define-extern *hud-headset-talker-race* array)
@@ -56971,7 +56995,7 @@
 ;; (define-extern estimate-eng-torque-from-gear function)
 ;; (define-extern plot-engine-torque-curve function)
 ;; (define-extern plot-x-with-transform function)
-;; (define-extern vehicle-handle->net-player function)
+(define-extern vehicle-handle->net-player (function handle net-player))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wvehicle-events                ;;
