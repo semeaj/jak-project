@@ -774,9 +774,11 @@
   (bucket774 774)
   (bucket775 775)
   (bucket776 776)
+  (bucket766 766) ;; used by blit setup-zoom-blur-2d
   (bucket777 777)
 
   (bucket780 780)
+  (bucket784 784) ;; blit motion-blur splice bucket
 
   (bucket785 785)
   (bucket786 786)

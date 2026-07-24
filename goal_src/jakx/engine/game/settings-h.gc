@@ -360,8 +360,10 @@
    (dust-storm-sound-scalar   float) ;; named by usd m10
    (unknown-usd-28           basic)
    (unknown-usd-29           basic)
-   (unknown-usd-30           basic)
-   (unknown-usd-31           basic)
+   ;; og:preserve-this named by the m10 dispatcher case symbols (authoritative):
+   ;; screen brightness/contrast, 0.5 = neutral, consumed by the blit pass
+   (brightness               float)
+   (contrast                 float)
    (unknown-usd-32           basic)
    (borrow-city-count        uint32)
    (borrow-city              pair   3)
