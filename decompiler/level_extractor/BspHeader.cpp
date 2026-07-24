@@ -831,7 +831,17 @@ void DrawableTreeTfrag::read_from_file(TypedRef ref,
     throw Error("misaligned data array");
   }
 
-  time_of_day.read_from_file(deref_label(get_field_ref(ref, "time-of-day-pal", dts)));
+  if (get_word_kind_for_field(ref, "time-of-day-pal", dts) == decompiler::LinkedWord::PTR) {
+    time_of_day.read_from_file(deref_label(get_field_ref(ref, "time-of-day-pal", dts)));
+  } else {
+    // JakX interiors can have a null palette; give the extractor a neutral single-frame
+    // palette (all white) so downstream color indexing stays valid.
+    lg::warn("drawable-tree-tfrag has no time-of-day palette; using a neutral one");
+    time_of_day.width = 8;
+    time_of_day.height = 1;
+    time_of_day.pad = 0;
+    time_of_day.colors.resize(8, 0xffffffff);
+  }
 
   for (int idx = 0; idx < length; idx++) {
     Ref array_slot_ref = data_ref;
@@ -1832,7 +1842,9 @@ void DrawableTreeArray::read_from_file(TypedRef ref,
     Ref object_ref = deref_label(array_slot_ref);
     object_ref.byte_offset -= 4;
 
-    trees.push_back(make_drawable_tree(typed_ref_from_basic(object_ref, dts), dts, version));
+    auto tree_ref = typed_ref_from_basic(object_ref, dts);
+    lg::info("  drawable-tree {}/{}: {}", idx + 1, length, tree_ref.type->get_name());
+    trees.push_back(make_drawable_tree(tree_ref, dts, version));
   }
 }
 
