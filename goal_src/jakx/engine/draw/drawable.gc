@@ -3266,10 +3266,8 @@
   )
 
 ;; definition for symbol *draw-hook*, type (function none)
-;; og:preserve-this phase-1 bring-up: leave *draw-hook* = nothing (from main-h) instead
-;; of the original (define *draw-hook* main-draw-hook); real-main-draw-hook's callees
-;; (sky, ocean, foreground, background engines) are not landed yet.
-;; (define *draw-hook* main-draw-hook)
+;; og:preserve-this phase-1 bring-up: *draw-hook* is set at the end of this file, after
+;; the hand-written real-main-draw-hook (background chain only) is defined.
 
 ;; definition for function init-init-buffer
 ;; WARN: Return type mismatch int vs none.
@@ -4155,3 +4153,18 @@
 
 
 
+
+;; og:preserve-this PHASE-1 HAND-WRITTEN draw hook: the decompiled original degrades
+;; to raw ops on the profiling/foreground blocks. This minimal version runs only the
+;; background chain (the connection engine draws each active level's bsp into
+;; *background-work*, and finish-background turns that into bucket DMA). The
+;; foreground/ocean/sprite/particle legs return here as their subsystems land.
+(defun real-main-draw-hook ()
+  (init-background)
+  (execute-connections *background-draw-engine* #f)
+  (finish-background)
+  0
+  (none)
+  )
+
+(define *draw-hook* main-draw-hook)
