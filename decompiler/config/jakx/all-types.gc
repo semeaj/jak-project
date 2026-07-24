@@ -37199,23 +37199,23 @@
 ;; background                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *background-work* object) ;; background-work
-;; (define-extern background-vu0-block object) ;; vu-function
-;; (define-extern background-upload-vu0 function) ;; (function none)
-;; (define-extern init-background function) ;; (function none)
-;; (define-extern upload-vis-bits function) ;; (function level level bsp-header none)
-;; (define-extern set-background-regs! function) ;; (function level none)
-;; (define-extern set-tie-guard-planes! function)
-;; (define-extern set-shrub-guard-planes! function)
-;; (define-extern set-subdivide-settings! function) ;; (function level none)
-;; (define-extern finish-shrub function)
-;; (define-extern finish-tfrag function)
-;; (define-extern finish-tfrag-trans function)
-;; (define-extern finish-tfrag-water function)
-;; (define-extern finish-tie function)
-;; (define-extern finish-texture-mask function)
-;; (define-extern finish-texture function)
-;; (define-extern finish-background function) ;; (function none)
+(define-extern *background-work* background-work)
+(define-extern background-upload-vu0 (function none))
+(define-extern init-background (function none))
+(define-extern upload-vis-bits (function level level bsp-header none))
+(define-extern set-background-regs! (function level none))
+(define-extern set-tie-guard-planes! (function level none))
+(define-extern set-shrub-guard-planes! (function level none))
+(define-extern set-subdivide-settings! (function level none))
+;; jakx splits jak3's finish-background into per-renderer finishers
+(define-extern finish-shrub (function none))
+(define-extern finish-tfrag (function none))
+(define-extern finish-tfrag-trans (function none))
+(define-extern finish-tfrag-water (function none))
+(define-extern finish-tie (function none))
+(define-extern finish-texture-mask (function none))
+(define-extern finish-texture (function none))
+(define-extern finish-background (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; draw-node                      ;;
