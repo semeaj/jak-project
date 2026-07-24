@@ -699,7 +699,10 @@
   "(method 24 setting-control)": [
     [[273, 282], "v1", "handle"],
     [287, "v1", "process-drawable"],
-    [763, "v0", "process-focusable"]
+    [763, "v0", "process-focusable"],
+    [[738, 1040], "s3", "cam-setting-data"],
+    [994, "s2", "process-focusable"],
+    [[647, 649], "v1", "(pointer uint32)"]
   ],
   "(method 10 cam-setting-data)": [
     [[32, 42], "v1", "handle"],

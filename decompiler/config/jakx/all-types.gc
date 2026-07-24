@@ -16864,7 +16864,7 @@
    (sound-bank-load         symbol              :offset-assert 376) ;; guessed by decompiler
    (allow-error             symbol              :offset-assert 380) ;; guessed by decompiler
    (under-water-pitch-mod   float               :offset-assert 384)
-   (unknown-usd-18             basic              :offset-assert 388) ;; added
+   (slow-time               float               :offset-assert 388) ;; jak3 parity (same neighbor there); seek'd by sc m24
    (restart-info            resetter-spec       :offset-assert 392) ;; guessed by decompiler
    (fail-info               resetter-spec       :offset-assert 396) ;; guessed by decompiler
    (death-info              resetter-spec       :offset-assert 400) ;; guessed by decompiler
@@ -16876,8 +16876,8 @@
    (exclusive-task-count    uint32              :offset-assert 440)
    (exclusive-task          int32             3 :offset-assert 444) ;; guessed by decompiler
    (level-trans-time        int32               :offset-assert 456)
-   (unknown-usd-19             basic              :offset-assert 460) ;; added
-   (unknown-usd-20             basic              :offset-assert 464) ;; added
+   (fog-special-interp-targ float               :offset-assert 460) ;; named by usd m10 'fog-special-interp-targ; clamped by sc m24
+   (fog-special-interp-rate float               :offset-assert 464) ;; named by usd m10 'fog-special-interp-rate
    (unknown-usd-21             basic              :offset-assert 468) ;; added
    (unknown-usd-22             basic              :offset-assert 472) ;; added
    (unknown-usd-23             basic              :offset-assert 476) ;; added
@@ -16885,8 +16885,8 @@
    (letterbox-speed         float               :offset-assert 484)
    (unknown-usd-24             basic              :offset-assert 488) ;; added
    (unknown-usd-25             basic              :offset-assert 492) ;; added
-   (unknown-usd-26             basic              :offset-assert 496) ;; added
-   (unknown-usd-27             basic              :offset-assert 500) ;; added
+   (dust-storm-fog-scalar    float               :offset-assert 496) ;; named by usd m10 'dust-storm-fog-scalar
+   (dust-storm-sound-scalar  float               :offset-assert 500) ;; named by usd m10 'dust-storm-sound-scalar
    (unknown-usd-28             basic              :offset-assert 504) ;; added
    (unknown-usd-29             basic              :offset-assert 508) ;; added
    (unknown-usd-30             basic              :offset-assert 512) ;; added
@@ -16904,7 +16904,7 @@
    (audio-language          uint8               :offset-assert 652) ;; language-enum
    (unknown-usd-656            basic                :offset-assert 656) ;; added
    (city-sound              symbol            3  :offset 660) ;; per-camera, set by usd m10 'city-sound, read by sc m23
-   (unknown-usd-672            basic                :offset 672) ;; added
+   (board-max-speed          float               :offset 672) ;; named by usd m10 'board-max-speed
    (unknown-usd-676            basic                :offset 676) ;; added
    (unknown-usd-680            basic                :offset 680) ;; added
    (unknown-usd-684            basic                :offset 684) ;; added
@@ -16924,8 +16924,8 @@
    (unknown-usd-744            basic                :offset 744) ;; added
    (unknown-usd-748            basic                :offset 748) ;; added ;; truthy-tested flag (symbol-like) read via l.wu by display-sync/frame-start/update-sound-banks; typed uint32 so the unsigned load folds
    (unknown-usd-752            basic                :offset 752) ;; added ;; the movie word: setting-control+768 gate read by display-frame-start and m23
-   (unknown-usd-756            basic                :offset 756) ;; added
-   (unknown-usd-760            basic                :offset 760) ;; added
+   (fog-mult                 float               :offset 756) ;; named by usd m10 'fog-mult
+   (fog-speed                float               :offset 760) ;; named by usd m10 'fog-speed
    (unknown-usd-764            basic                :offset 764) ;; added
    (unknown-usd-768            basic                :offset 768) ;; added
    )
@@ -17031,7 +17031,7 @@
    (no-intro                      symbol                     :offset-assert 252) ;; guessed by decompiler
    (use-point-of-interest         symbol                     :offset-assert 256) ;; guessed by decompiler
    (point-of-interest             vector             :inline :offset-assert 272)
-   (handle-of-interest            uint64                     :offset-assert 288) ;; handle
+   (handle-of-interest            handle                     :offset-assert 288)
    (mouse-tumble-point            vector             :inline :offset-assert 304)
    (use-mouse-tumble-point        symbol                     :offset-assert 320) ;; guessed by decompiler
    (mouse-input                   symbol                     :offset-assert 324) ;; guessed by decompiler
@@ -21359,7 +21359,7 @@
   :flag-assert         #x1100000dc0
   (:methods
     (speech-control-method-9 () none) ;; 9 ;; (speech-table-reset! (_type_) none)
-    (speech-control-method-10 () none) ;; 10 ;; (speech-table-set! (_type_ speech-type speech-type-info) none)
+    (speech-control-method-10 (_type_) none) ;; 10 ;; per-frame update, called by sc m24 ;; (speech-table-set! (_type_ speech-type speech-type-info) none)
     (speech-control-method-11 () none) ;; 11 ;; (speech-control-method-11 (_type_) none)
     (speech-control-method-12 () none) ;; 12 ;; (speech-control-method-12 (_type_ process-drawable speech-type) none)
     (speech-control-method-13 () none) ;; 13 ;; (speech-control-method-13 (_type_ process-drawable speech-type int) none)
@@ -30735,7 +30735,7 @@
   :flag-assert         #x3b00700100
   (:methods
     (process-focusable-method-50 () none) ;; 50
-    (process-focusable-method-51 () none) ;; 51
+    (get-trans (_type_ int) vector) ;; 51 ;; jak3 parity (id 21 there): trans getter used by sc m24 for point-of-interest
     (process-focusable-method-52 () none) ;; 52
     (process-focusable-method-53 () none) ;; 53
     (process-focusable-method-54 () none) ;; 54
@@ -39600,7 +39600,7 @@
 ;; (define-extern master-is-hopeful-better? function) ;; (function camera-slave camera-slave symbol :behavior camera-master)
 ;; (define-extern master-choose-entity function) ;; (function cam-setting-data symbol :behavior camera-master)
 (define-extern cam-master-set-entity (function cam-setting-data none)) ;; jak3-parity sig
-;; (define-extern cam-master-activate-slave function) ;; (function symbol none)
+(define-extern cam-master-activate-slave (function symbol none)) ;; jak3-parity sig
 ;; (define-extern cam-master-active state) ;; (state camera-master)
 ;; (define-extern cam-master-init function) ;; (function none :behavior camera-master)
 
@@ -50809,7 +50809,7 @@
 ;; (define-extern cam-curve-closest-point function) ;; (function curve vector float float int float)
 ;; (define-extern cam-spline state) ;; (state camera-slave)
 ;; (define-extern cam-decel state) ;; (state camera-slave)
-;; (define-extern cam-endlessfall state) ;; (state camera-slave)
+(define-extern cam-endlessfall (state camera-slave)) ;; jak3-parity sig
 ;; (define-extern cam-vehicle-update function)
 ;; (define-extern cam-vehicle state)
 ;; (define-extern *target-camera-runtime* object)
