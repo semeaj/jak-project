@@ -1,5 +1,6 @@
 {
   "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
+  "tfrag-methods": [["L92", "tfrag-init-data", true, 10], ["L99", "(pointer bucket-id)", 12], ["L96", "(pointer bucket-id)", 12], ["L94", "(pointer bucket-id)", 12], ["L98", "(pointer bucket-id)", 12], ["L95", "(pointer bucket-id)", 12], ["L93", "(pointer bucket-id)", 12]],
   "cam-states-dbg": [
     ["L59", "vector"],
     ["L60", "vector"]

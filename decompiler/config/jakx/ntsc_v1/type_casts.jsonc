@@ -78,6 +78,18 @@
   "(method 17 camera-master)": [[[13, 17], "a2", "process-drawable"], [[14, 17], "v1", "collide-shape"]],
   // background: the shared-tfrag tree id reads as lhu (int16 field), and the
   // texture-mask entries read as raw quads past the 16-byte element
+  "(top-level-login tfrag)": [[[50, 51], "v1", "(inline-array vector4w)"], [[52, 53], "v1", "(inline-array vector4w)"], [[54, 55], "v1", "(inline-array vector4w)"]],
+  "tfrag-scissor-end-buffer": [[[25, 27], "a2", "(inline-array vector4w)"], [[33, 34], "a0", "(inline-array vector4w)"], [[35, 36], "a0", "(inline-array vector4w)"], [[37, 42], "a0", "(inline-array vector4w)"], [[43, 44], "a0", "(inline-array vector4w)"], [[45, 46], "a0", "(inline-array vector4w)"], [[47, 49], "a0", "(inline-array vector4w)"]],
+  "tfrag-scissor-init-buffer": [[[95, 96], "v1", "(inline-array vector4w)"], [[97, 98], "v1", "(inline-array vector4w)"]],
+  "tfrag-init-buffer": [[[95, 96], "v1", "(inline-array vector4w)"], [[97, 98], "v1", "(inline-array vector4w)"]],
+  "add-tfrag-mtx-1": [[[10, 11], "a0", "(inline-array vector4w)"], [[15, 16], "a0", "(inline-array vector4w)"]],
+  "add-tfrag-mtx-0": [[[10, 11], "a0", "(inline-array vector4w)"], [[15, 16], "a0", "(inline-array vector4w)"]],
+  "tfrag-scissor-vu1-init-buf": [[[52, 54], "v1", "(inline-array vector4w)"], [[84, 86], "v1", "(inline-array vector4w)"], [[89, 90], "v1", "(inline-array vector4w)"]],
+  "tfrag-vu1-init-buf": [[[52, 54], "v1", "(inline-array vector4w)"], [[84, 86], "v1", "(inline-array vector4w)"], [[89, 90], "v1", "(inline-array vector4w)"]],
+  "tfrag-print-stats": [[[16, 17], "v1", "(pointer int32)"]],
+  "draw-drawable-tree-tfrag": [[[17, 18], "v1", "(pointer int16)"], [[19, 20], "a0", "(pointer int16)"]],
+  "draw-drawable-tree-tfrag-trans": [[[18, 19], "v1", "(pointer int16)"], [[20, 21], "a0", "(pointer int16)"]],
+  "draw-drawable-tree-tfrag-water": [[[18, 19], "v1", "(pointer int16)"], [[20, 21], "a0", "(pointer int16)"]],
   "finish-tfrag": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-shared"]],
   "finish-tfrag-trans": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-trans-shared"]],
   "finish-tfrag-water": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-water-shared"]],

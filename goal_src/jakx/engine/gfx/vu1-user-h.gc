@@ -725,42 +725,66 @@
   (bucket633 633)
   (bucket634 634)
   (bucket635 635)
+  (bucket636 636) ;; water/trans tfrag draw slot
+  (bucket640 640) ;; water/trans tfrag draw slot
 
   (bucket642 642)
   (bucket643 643)
   (bucket644 644)
+  (bucket645 645) ;; water/trans tfrag draw slot
+  (bucket649 649) ;; water/trans tfrag draw slot
 
   (bucket651 651)
   (bucket652 652)
   (bucket653 653)
   (bucket654 654)
+  (bucket655 655) ;; water/trans tfrag draw slot
+  (bucket659 659) ;; water/trans tfrag draw slot
 
   (bucket661 661)
   (bucket662 662)
   (bucket663 663)
+  (bucket664 664) ;; water/trans tfrag draw slot
+  (bucket668 668) ;; water/trans tfrag draw slot
 
   (bucket670 670)
   (bucket671 671)
   (bucket672 672)
   (bucket673 673)
+  (bucket674 674) ;; water/trans tfrag draw slot
+  (bucket678 678) ;; water/trans tfrag draw slot
 
   (bucket680 680)
   (bucket681 681)
   (bucket682 682)
+  (bucket683 683) ;; water/trans tfrag draw slot
+  (bucket687 687) ;; water/trans tfrag draw slot
 
   (bucket689 689)
   (bucket690 690)
   (bucket691 691)
   (bucket692 692)
+  (bucket693 693) ;; water/trans tfrag draw slot
+  (bucket697 697) ;; water/trans tfrag draw slot
 
   (bucket699 699)
   (bucket700 700)
   (bucket701 701)
+  (bucket702 702) ;; water/trans tfrag draw slot
+  (bucket706 706) ;; water/trans tfrag draw slot
 
   (bucket708 708)
   (bucket709 709)
+  (bucket712 712) ;; water/trans tfrag draw slot
+  (bucket716 716) ;; water/trans tfrag draw slot
+  (bucket721 721) ;; water/trans tfrag draw slot
+  (bucket725 725) ;; water/trans tfrag draw slot
 
   (bucket728 728)
+  (bucket731 731) ;; water/trans tfrag draw slot
+  (bucket735 735) ;; water/trans tfrag draw slot
+  (bucket740 740) ;; water/trans tfrag draw slot
+  (bucket744 744) ;; water/trans tfrag draw slot
 
   (bucket747 747)
 

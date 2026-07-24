@@ -4445,42 +4445,66 @@
   (bucket633 633)
   (bucket634 634)
   (bucket635 635)
+  (bucket636 636) ;; water/trans tfrag draw slot
+  (bucket640 640) ;; water/trans tfrag draw slot
 
   (bucket642 642)
   (bucket643 643)
   (bucket644 644)
+  (bucket645 645) ;; water/trans tfrag draw slot
+  (bucket649 649) ;; water/trans tfrag draw slot
 
   (bucket651 651)
   (bucket652 652)
   (bucket653 653)
   (bucket654 654)
+  (bucket655 655) ;; water/trans tfrag draw slot
+  (bucket659 659) ;; water/trans tfrag draw slot
 
   (bucket661 661)
   (bucket662 662)
   (bucket663 663)
+  (bucket664 664) ;; water/trans tfrag draw slot
+  (bucket668 668) ;; water/trans tfrag draw slot
 
   (bucket670 670)
   (bucket671 671)
   (bucket672 672)
   (bucket673 673)
+  (bucket674 674) ;; water/trans tfrag draw slot
+  (bucket678 678) ;; water/trans tfrag draw slot
 
   (bucket680 680)
   (bucket681 681)
   (bucket682 682)
+  (bucket683 683) ;; water/trans tfrag draw slot
+  (bucket687 687) ;; water/trans tfrag draw slot
 
   (bucket689 689)
   (bucket690 690)
   (bucket691 691)
   (bucket692 692)
+  (bucket693 693) ;; water/trans tfrag draw slot
+  (bucket697 697) ;; water/trans tfrag draw slot
 
   (bucket699 699)
   (bucket700 700)
   (bucket701 701)
+  (bucket702 702) ;; water/trans tfrag draw slot
+  (bucket706 706) ;; water/trans tfrag draw slot
 
   (bucket708 708)
   (bucket709 709)
+  (bucket712 712) ;; water/trans tfrag draw slot
+  (bucket716 716) ;; water/trans tfrag draw slot
+  (bucket721 721) ;; water/trans tfrag draw slot
+  (bucket725 725) ;; water/trans tfrag draw slot
 
   (bucket728 728)
+  (bucket731 731) ;; water/trans tfrag draw slot
+  (bucket735 735) ;; water/trans tfrag draw slot
+  (bucket740 740) ;; water/trans tfrag draw slot
+  (bucket744 744) ;; water/trans tfrag draw slot
 
   (bucket747 747)
 
@@ -37234,7 +37258,7 @@
   )
 |#
 
-;; (define-extern draw-node-cull function) ;; (function pointer pointer (inline-array draw-node) int none)
+(define-extern draw-node-cull (function pointer pointer (inline-array draw-node) int none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; shrubbery                      ;;
@@ -37312,39 +37336,29 @@
 ;; tfrag                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
-(deftype drawable-inline-array-tfrag (drawable-inline-array)
-  ((length  int16              :offset-assert 2)
-   (data    tfragment :dynamic :offset-assert 32) ;; guessed by decompiler
-   (UNKNOWN UNKNOWN            :offset-assert -1) ;; field could not be read.
-   )
-  :method-count-assert 17
-  :size-assert         #x64
-  :flag-assert         #x1100000064
-  )
-|#
+;; drawable-inline-array-tfrag deftype is already active earlier in the file
 
-;; (define-extern *tfrag-display-stats* object) ;; symbol
-;; (define-extern tfrag-vu1-block object) ;; vu-function
-;; (define-extern tfrag-data-setup function) ;; (function tfrag-data int int none)
-;; (define-extern add-tfrag-mtx-0 function) ;; (function dma-buffer symbol none)
-;; (define-extern add-tfrag-mtx-1 function) ;; (function dma-buffer symbol none)
-;; (define-extern add-tfrag-data function) ;; (function dma-buffer int int none)
-;; (define-extern t-stat object) ;; tfrag-stats
-;; (define-extern tfrag-print-stats function) ;; (function symbol none)
-;; (define-extern tfrag-init-buffer function) ;; (function dma-buffer gs-test int symbol none)
-;; (define-extern tfrag-end-buffer function) ;; (function dma-buffer int none)
-;; (define-extern draw-inline-array-tfrag function) ;; (function pointer drawable-inline-array int dma-buffer none)
-;; (define-extern tfrag-scissor-init-buffer function) ;; (function dma-buffer gs-test int symbol none)
-;; (define-extern tfrag-scissor-end-buffer function) ;; (function dma-buffer uint none)
-;; (define-extern draw-inline-array-tfrag-scissor function) ;; (function pointer drawable-inline-array int dma-buffer none)
-;; (define-extern stats-tfrag-asm function) ;; (function tfragment none)
+(define-extern *tfrag-display-stats* symbol)
+(define-extern tfrag-vu1-block vu-function)
+(define-extern tnear-vu1-block vu-function)
+(define-extern tfrag-data-setup (function tfrag-data int int none))
+(define-extern add-tfrag-mtx-0 (function dma-buffer symbol none))
+(define-extern add-tfrag-mtx-1 (function dma-buffer symbol none))
+(define-extern add-tfrag-data (function dma-buffer int int none))
+(define-extern t-stat basic) ;; tfrag stats blob
+(define-extern tfrag-print-stats (function symbol none))
+(define-extern tfrag-init-buffer (function dma-buffer gs-test int symbol none))
+(define-extern tfrag-end-buffer (function dma-buffer int none))
+(define-extern draw-inline-array-tfrag (function pointer drawable-inline-array int dma-buffer none))
+(define-extern tfrag-scissor-init-buffer (function dma-buffer gs-test int symbol none))
+(define-extern tfrag-scissor-end-buffer (function dma-buffer uint none))
+(define-extern draw-inline-array-tfrag-scissor (function pointer drawable-inline-array int dma-buffer none))
+(define-extern stats-tfrag-asm (function tfragment none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tfrag-methods                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype tfrag-init-data (structure)
   ((tfrag-bucket               int32  :offset-assert 0) ;; bucket-id
    (tfrag-scissor-bucket       int32  :offset-assert 4) ;; bucket-id
@@ -37357,15 +37371,14 @@
   :size-assert         #x18
   :flag-assert         #x900000018
   )
-|#
 
-;; (define-extern edge-debug-lines function) ;; (function (array vector-array) none)
+(define-extern edge-debug-lines (function (array vector-array) none))
 (define-extern draw-drawable-tree-tfrag (function drawable-tree-tfrag none))
 (define-extern draw-drawable-tree-tfrag-trans (function drawable-tree-tfrag none))
 (define-extern draw-drawable-tree-tfrag-water (function drawable-tree-tfrag none))
-;; (define-extern tfrag-vu1-init-buf function) ;; (function bucket-id gs-test int uint symbol none)
-;; (define-extern tfrag-scissor-vu1-init-buf function) ;; (function bucket-id gs-test int uint symbol none)
-;; (define-extern *tfrag-init-table* object) ;; (inline-array tfrag-init-data)
+(define-extern tfrag-vu1-init-buf (function bucket-id gs-test int uint symbol none))
+(define-extern tfrag-scissor-vu1-init-buf (function bucket-id gs-test int uint symbol none))
+(define-extern *tfrag-init-table* (inline-array tfrag-init-data))
 (define-extern tfrag-vu1-init-buffers (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -41996,7 +42009,7 @@
 ;; (define-extern sphere-in-view-frustum-any? function)
 ;; (define-extern line-in-view-frustum-any? function)
 ;; (define-extern find-nearest-camera-distance function)
-;; (define-extern vis-cull function) ;; (function int symbol)
+(define-extern vis-cull (function int symbol))
 ;; (define-extern vis-cull-debug function) ;; (function work-area int symbol)
 ;; (define-extern error-sphere function) ;; (function drawable-error string none)
 (define-extern *edit-instance* string)
