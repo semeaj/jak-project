@@ -5945,9 +5945,9 @@
    (force-sync           uint32           :offset-assert 184)
    (mem-reserve-size     uint32           :offset-assert 188)
    (dma-buffer-overflow  symbol           :offset-assert 192) ;; guessed by decompiler
-   (default-end-buffer   basic            :offset-assert 196)
-   (init-buffer-zbuf-on  basic            :offset-assert 200)
-   (init-buffer-zbuf-off basic            :offset-assert 204)
+   (default-end-buffer   dma-buffer       :offset-assert 196)
+   (init-buffer-zbuf-on  dma-buffer       :offset-assert 200)
+   (init-buffer-zbuf-off dma-buffer       :offset-assert 204)
    )
   :method-count-assert 10
   :size-assert         #xd0
@@ -41990,8 +41990,8 @@
 (define-extern real-main-draw-hook (function none))
 (define-extern main-draw-hook (function none))
 (define-extern *draw-hook* (function none))
-(define-extern init-init-buffer (function basic viewport uint int none)) ;; args from drawable ir2 op 442-447
-(define-extern init-end-buffer (function basic viewport uint int none)) ;; sibling of init-init-buffer
+(define-extern init-init-buffer (function dma-buffer viewport uint int none)) ;; fills the prebuilt per-bucket GS-init call target
+(define-extern init-end-buffer (function dma-buffer viewport uint int none)) ;; fills the prebuilt end-of-bucket call target
 (define-extern screen-shot-scale (function int string none))
 (define-extern screen-shot-debug function) ;; refine after unlock
 (define-extern screen-shot (function none))

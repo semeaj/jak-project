@@ -71,6 +71,8 @@
     [123, "a1", "drawable-tree-instance-shrub"],
     [[129, 133], "a2", "(inline-array prototype-bucket-shrub)"]
   ],
+  "init-init-buffer": [[[76, 78], "a0", "(pointer uint32)"]],
+  "init-end-buffer": [[[78, 80], "a0", "(pointer uint32)"]],
   "update-math-camera": [[[475, 485], "a0", "(pointer uint32)"]],
   "update-camera": [
     [[37, 99], "v0", "process-drawable"],
