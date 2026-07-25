@@ -457,6 +457,14 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
 
     init_bucket_renderer<VisDataHandler>("vis", BucketCategory::OTHER, BucketId::BUCKET_2);
 
+    // Sky (jak3 pattern; bucket ground truth from sky-tng's dma-bucket-insert-tag calls
+    // and the *texture-page-translate* first entry): the cloud/fog textures arrive as
+    // TextureAnimator PC DMA in bucket 4, the sky dome draws as direct GIF packets in
+    // bucket 5. TextureAnimator already routes JakX through the jak3 clouds paths.
+    init_bucket_renderer<TextureUploadHandler>("tex-lcom-sky-pre", BucketCategory::TEX,
+                                               BucketId::TEX_LCOM_SKY_PRE, m_texture_animator);
+    init_bucket_renderer<DirectRenderer>("sky", BucketCategory::OTHER, BucketId::SKY, 1024 * 8);
+
     // Ground truth from the game's *tfrag-init-table* and the draw-drawable-tree-tfrag*
     // bucket arrays (tfrag-methods.o): Jak X multiplexes 12 draw slots = 6 draw-levels x
     // 2 viewports (index = draw-index * 2 + current-viewport-index), with alternating

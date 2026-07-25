@@ -400,6 +400,19 @@ namespace method_21_cloth_system { extern void link(); }
 namespace jakx {
 namespace live_func_curve { extern void link(); }
 namespace birth_func_curve { extern void link(); }
+namespace set_sky_vf27 { extern void link(); }
+namespace set_sky_vf23_value { extern void link(); }
+namespace set_tex_offset { extern void link(); }
+namespace draw_large_polygon { extern void link(); }
+namespace render_sky_quad { extern void link(); }
+namespace render_sky_tri { extern void link(); }
+namespace method_16_sky_work { extern void link(); }
+namespace method_17_sky_work { extern void link(); }
+namespace method_28_sky_work { extern void link(); }
+namespace method_29_sky_work { extern void link(); }
+namespace method_30_sky_work { extern void link(); }
+namespace method_32_sky_work { extern void link(); }
+namespace method_33_sky_work { extern void link(); }
 namespace sparticle_motion_blur { extern void link(); }
 namespace sp_launch_particles_var { extern void link(); }
 namespace particle_adgif { extern void link(); }
@@ -680,7 +693,14 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
      {"sparticle", {jakx::sp_process_block_2d::link, jakx::sp_process_block_3d::link}},
      {"font",
       {jakx::get_string_length_asm::link, jakx::draw_string3d_asm::link,
-       jakx::draw_string_asm_packed::link, jakx::draw_string_init_justify::link}}}};
+       jakx::draw_string_asm_packed::link, jakx::draw_string_init_justify::link}},
+     {"sky-tng",
+      {jakx::set_tex_offset::link, jakx::draw_large_polygon::link, jakx::render_sky_quad::link,
+       jakx::render_sky_tri::link, jakx::method_16_sky_work::link, jakx::method_17_sky_work::link,
+       jakx::method_32_sky_work::link, jakx::method_33_sky_work::link,
+       jakx::method_28_sky_work::link, jakx::method_29_sky_work::link,
+       jakx::method_30_sky_work::link, jakx::set_sky_vf27::link,
+       jakx::set_sky_vf23_value::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});

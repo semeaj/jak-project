@@ -17485,34 +17485,36 @@
   :size-assert         #x2784
   :flag-assert         #x2500002784
   (:methods
-    (sky-work-method-9 () none) ;; 9 ;; (init-sun-data! (_type_ int float float float) none)
-    (sky-work-method-10 () none) ;; 10 ;; (init-orbit-settings! (_type_ int float float float float float float) none)
-    (sky-work-method-11 () none) ;; 11 ;; (update-colors-for-time (_type_ float) none)
-    (sky-work-method-12 () none) ;; 12 ;; (update-time-and-speed (_type_ float float) none)
-    (sky-work-method-13 () none) ;; 13 ;; (draw-erase (_type_ dma-buffer vector) none)
-    (sky-work-method-14 () none) ;; 14 ;; (draw (_type_) none)
-    (sky-work-method-15 () none) ;; 15 ;; (update-camera-matrix (_type_ matrix) none)
-    (sky-work-method-16 () none) ;; 16 ;; (update-template-colors (_type_) none)
-    (sky-work-method-17 () none) ;; 17 ;; (init-regs-for-large-polygon-draw (_type_) none)
-    (sky-work-method-18 () none) ;; 18 ;; (init-regs-for-sky-asm (_type_) none)
-    (sky-work-method-19 () none) ;; 19 ;; (cloud-vtx-light-update (_type_ vector vector cloud-lights vector vector) none)
-    (sky-work-method-20 () none) ;; 20 ;; (cloud-vtx-tex-update (_type_ vector vector vector cloud-lights) none)
-    (sky-work-method-21 () none) ;; 21 ;; (adjust-cloud-lighting (_type_) none)
-    (sky-work-method-22 () none) ;; 22 ;; (cloud-vtx1-to-sky (_type_ sky-vertex cloud-vertex) none)
-    (sky-work-method-23 () none) ;; 23 ;; (cloud-vtx2-to-sky (_type_ sky-vertex cloud-vertex) none)
-    (sky-work-method-24 () none) ;; 24 ;; (draw-clouds (_type_ dma-buffer) none)
-    (sky-work-method-25 () none) ;; 25 ;; (apply-haze-light (_type_ vector vector haze-lights float) none)
-    (sky-work-method-26 () none) ;; 26 ;; (adjust-haze-lighting (_type_) none)
-    (sky-work-method-27 () none) ;; 27 ;; (haze-vtx-to-sky (_type_ sky-vertex sky-vertex haze-vertex) none)
-    (sky-work-method-28 () none) ;; 28 ;; (draw-haze (_type_ dma-buffer) none)
-    (sky-work-method-29 () none) ;; 29 ;; (sun-dma (_type_ dma-buffer) none)
-    (sky-work-method-30 () none) ;; 30 ;; (green-sun-dma (_type_ dma-buffer) none)
-    (sky-work-method-31 () none) ;; 31 ;; (moon-dma (_type_ dma-buffer) none)
-    (sky-work-method-32 () none) ;; 32 ;; (day-star-dma (_type_ dma-buffer) none)
-    (sky-work-method-33 () none) ;; 33 ;; (setup-stars (_type_ matrix sky-upload-data) none)
-    (sky-work-method-34 () none) ;; 34 ;; (stars-transform-asm (_type_) none)
-    (sky-work-method-35 () none) ;; 35 ;; (stars-dma (_type_ dma-buffer) none)
-    (sky-work-method-36 () none) ;; 36 ;; (draw-roof (_type_ dma-buffer) none)
+    ;; body-content mapping vs jak3 (jakx drops jak3 13 draw-erase and 32
+    ;; day-star-dma: -1 shift from slot 13, -2 from slot 31)
+    (init-sun-data! (_type_ int float float float) none) ;; 9
+    (init-orbit-settings! (_type_ int float float float float float float) none) ;; 10
+    (update-colors-for-time (_type_ float) none) ;; 11 ;; jak3 11
+    (update-time-and-speed (_type_ float float) none) ;; 12 ;; jak3 12
+    (draw (_type_) none) ;; 13 ;; jak3 14 (bucket-5 inserts prove it)
+    (update-camera-matrix (_type_ viewport) none) ;; 14 ;; jak3 15
+    (update-template-colors (_type_) none) ;; 15 ;; jak3 16
+    (init-regs-for-large-polygon-draw (_type_ viewport) none) ;; 16 ;; jak3 17, mips2c
+    (init-regs-for-sky-asm (_type_ viewport) none) ;; 17 ;; jak3 18, mips2c
+    (cloud-vtx-light-update (_type_ vector vector cloud-lights vector vector) none) ;; 18 ;; jak3 19
+    (cloud-vtx-tex-update (_type_ vector vector vector cloud-lights) none) ;; 19 ;; jak3 20
+    (adjust-cloud-lighting (_type_) none) ;; 20 ;; jak3 21
+    (cloud-vtx1-to-sky (_type_ sky-vertex cloud-vertex) none) ;; 21 ;; jak3 22
+    (cloud-vtx2-to-sky (_type_ sky-vertex cloud-vertex) none) ;; 22 ;; jak3 23
+    (draw-clouds (_type_ dma-buffer viewport) none) ;; 23 ;; jak3 24
+    (apply-haze-light (_type_ vector vector haze-lights float) none) ;; 24 ;; jak3 25
+    (adjust-haze-lighting (_type_) none) ;; 25 ;; jak3 26
+    (haze-vtx-to-sky (_type_ sky-vertex sky-vertex haze-vertex) none) ;; 26 ;; jak3 27
+    (draw-haze (_type_ dma-buffer viewport) none) ;; 27 ;; jak3 28
+    (sun-dma (_type_ dma-buffer viewport) none) ;; 28 ;; jak3 29, mips2c
+    (green-sun-dma (_type_ dma-buffer viewport) none) ;; 29 ;; jak3 30, mips2c
+    (moon-dma (_type_ dma-buffer viewport) none) ;; 30 ;; jak3 31, mips2c
+    (setup-stars (_type_ matrix sky-upload-data) none) ;; 31 ;; jak3 33
+    (stars-transform-asm (_type_) none) ;; 32 ;; jak3 34, mips2c
+    (stars-dma (_type_ dma-buffer viewport) none) ;; 33 ;; jak3 35, mips2c
+    (draw-roof (_type_ dma-buffer viewport) none) ;; 34 ;; jak3 36
+    (draw-base (_type_ dma-buffer viewport) none) ;; 35 ;; jak3 37
+    (draw-fog (_type_ dma-buffer viewport) none) ;; 36 ;; jak3 38
     )
   )
 
@@ -37184,7 +37186,7 @@
   )
 |#
 
-;; (define-extern *sky-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
+(define-extern *sky-texture-anim-array* texture-anim-array) ;; activated for the sky leg
 (define-extern set-fog-height! (function float none)) ;; activated, prepared sig
 (define-extern set-cloud-minmax! (function float float none)) ;; activated, read-derived sig
 (define-extern *default-pris-texture-anim-array* texture-anim-array)
@@ -38332,28 +38334,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extern *sky-work* sky-work)
-;; (define-extern sky-base-polygons object) ;; (inline-array sky-vertex)
-;; (define-extern sky-roof-polygons object) ;; (inline-array sky-vertex)
-;; (define-extern *cloud-vert-array* object) ;; cloud-vert-array
-;; (define-extern *cloud-poly* object) ;; (inline-array sky-vertex)
-;; (define-extern init-cloud-vert-array function) ;; (function symbol)
-;; (define-extern *haze-vert-array* object) ;; haze-vert-array
-;; (define-extern *haze-poly* object) ;; (inline-array sky-vertex)
-;; (define-extern init-haze-vert-array function) ;; (function symbol)
-;; (define-extern sky-make-sun-data function) ;; (function sky-work int float none)
-;; (define-extern sky-make-moon-data function) ;; (function sky-work float none)
+(define-extern sky-base-polygons (inline-array sky-vertex))
+(define-extern sky-roof-polygons (inline-array sky-vertex))
+(define-extern *cloud-vert-array* cloud-vert-array)
+(define-extern *cloud-poly* (inline-array sky-vertex))
+(define-extern init-cloud-vert-array (function symbol))
+(define-extern *haze-vert-array* haze-vert-array)
+(define-extern *haze-poly* (inline-array sky-vertex))
+(define-extern init-haze-vert-array (function symbol))
+(define-extern sky-make-sun-data (function sky-work int float none))
+(define-extern sky-make-moon-data (function sky-work float none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sky-tng                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern set-tex-offset function) ;; (function int int none)
-;; (define-extern draw-large-polygon function)
-;; (define-extern clip-polygon-against-positive-hyperplane function)
-;; (define-extern clip-polygon-against-negative-hyperplane function)
-;; (define-extern render-sky-quad function) ;; (function (inline-array sky-vertex) dma-buffer none)
-;; (define-extern render-sky-tri function) ;; (function (inline-array sky-vertex) dma-buffer none)
-;; (define-extern close-sky-buffer function) ;; (function dma-buffer none)
+(define-extern set-tex-offset (function int int none))
+(define-extern draw-large-polygon (function none))
+(define-extern clip-polygon-against-positive-hyperplane (function none))
+(define-extern clip-polygon-against-negative-hyperplane (function none))
+(define-extern render-sky-quad (function (inline-array sky-vertex) dma-buffer none))
+(define-extern render-sky-tri (function (inline-array sky-vertex) dma-buffer none))
+(define-extern close-sky-buffer (function dma-buffer none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; load-state                     ;;

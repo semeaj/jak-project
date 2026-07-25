@@ -25,6 +25,24 @@
   ],
   "mood-funcs2": [["L47", "uint64", true]],
   "shrubbery": [["L138", "uint64", true]],
+  // sky leg: the four inline sky-vertex arrays (same label numbers as jak3 by
+  // coincidence; sizes verified against the ir2 data segment)
+  "sky-data": [
+    ["L26", "(inline-array sky-vertex)", 12],
+    ["L25", "(inline-array sky-vertex)", 12],
+    ["L23", "(inline-array sky-vertex)", 648],
+    ["L21", "(inline-array sky-vertex)", 144]
+  ],
+  "sky-tng": [
+    ["L127", "vector"],
+    ["L128", "vector"],
+    ["L129", "vector"],
+    ["L130", "uint64", true],
+    ["L131", "uint64", true],
+    ["L132", "uint64", true],
+    ["L133", "uint64", true],
+    ["L134", "uint64", true]
+  ],
   "cam-states-dbg": [
     ["L59", "vector"],
     ["L60", "vector"]

@@ -977,5 +977,37 @@
     [[649, 667], "a3", "tie-fragment"],
     [[703, 723], "t1", "tie-fragment"],
     [[756, 776], "a1", "tie-fragment"]
+  ],
+  // sky leg: the draw method runs on the fake-scratchpad copy of *sky-work*;
+  // the draw-* methods write dma-packet headers and float/int template runs
+  // through (-> buf base) pointers
+  "(method 13 sky-work)": [
+    [[160, 163], "a2", "dma-packet"],
+    [[173, 174], "a2", "(pointer uint64)"],
+    [[180, 189], "a1", "(pointer uint64)"],
+    [[242, 245], "a2", "dma-packet"],
+    [[255, 256], "a2", "(pointer uint64)"],
+    [[262, 271], "a1", "(pointer uint64)"],
+    [[280, 310], "s3", "sky-work"],
+    [488, "a1", "(inline-array vector4w)"],
+    [[501, 504], "t2", "(pointer uint32)"],
+    [[506, 509], "a1", "(pointer uint32)"]
+  ],
+  "sky-make-sun-data": [[[7, 120], "s3", "sky-sun-data"]],
+  "(method 23 sky-work)": [[[287, 293], "s3", "dma-packet"]],
+  "(method 27 sky-work)": [[[146, 152], "s3", "dma-packet"]],
+  "(method 34 sky-work)": [[[79, 85], "s5", "dma-packet"]],
+  "(method 35 sky-work)": [[[66, 72], "s5", "dma-packet"]],
+  "(method 36 sky-work)": [
+    [114, "v1", "(inline-array vector4w)"],
+    [[119, 124], "t1", "(pointer uint32)"],
+    [[127, 133], "t1", "(pointer float)"],
+    [[135, 138], "t1", "(pointer uint32)"],
+    [[141, 147], "t1", "(pointer float)"],
+    [[149, 152], "t1", "(pointer uint32)"],
+    [[155, 161], "t0", "(pointer float)"],
+    [[163, 166], "t0", "(pointer uint32)"],
+    [[169, 175], "a3", "(pointer float)"],
+    [[177, 180], "v1", "(pointer uint32)"]
   ]
 }
