@@ -4160,6 +4160,12 @@
 ;; *background-work*, and finish-background turns that into bucket DMA). The
 ;; foreground/ocean/sprite/particle legs return here as their subsystems land.
 (defun real-main-draw-hook ()
+  ;; og:preserve-this mood leg: the retail hook runs the time-of-day pump before
+  ;; the background draws (see the commented original's update-time-of-day call);
+  ;; it fills each level's mood-context times/itimes and the env color
+  (if (nonzero? update-time-of-day)
+      (update-time-of-day *time-of-day-context*)
+      )
   (init-background)
   (execute-connections *background-draw-engine* #f)
   (finish-background)
