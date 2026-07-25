@@ -4166,6 +4166,13 @@
   (if (nonzero? update-time-of-day)
       (update-time-of-day *time-of-day-context*)
       )
+  ;; og:preserve-this sky leg: draw the sky dome into bucket 5 (retail hook
+  ;; order: pump, then sky, then the background dispatch; the commented original
+  ;; wraps this in the sky profiler block)
+  (when (nonzero? *sky-work*)
+    (draw *sky-work*)
+    (flush-cache 0)
+    )
   (init-background)
   (execute-connections *background-draw-engine* #f)
   (finish-background)

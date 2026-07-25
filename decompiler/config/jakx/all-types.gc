@@ -38353,7 +38353,7 @@
 (define-extern draw-large-polygon (function none))
 (define-extern clip-polygon-against-positive-hyperplane (function none))
 (define-extern clip-polygon-against-negative-hyperplane (function none))
-(define-extern render-sky-quad (function (inline-array sky-vertex) dma-buffer none))
+(define-extern render-sky-quad (function (inline-array sky-vertex) dma-buffer math-camera none))
 (define-extern render-sky-tri (function (inline-array sky-vertex) dma-buffer none))
 (define-extern close-sky-buffer (function dma-buffer none))
 

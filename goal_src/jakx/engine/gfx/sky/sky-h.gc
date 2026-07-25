@@ -221,3 +221,5 @@
     (draw-fog (_type_ dma-buffer viewport) none) ;; 36
     )
   )
+
+(define-extern *sky-work* sky-work)

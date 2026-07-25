@@ -363,13 +363,14 @@
     ;; errors and stays unlanded; weather (rain/snow) fields stay zeroed, which
     ;; interiors never read. Restore with the m9 landing.
     ;; (init-weather! *mood-control*)
-    ;; og:preserve-this commented: the sky system (*sky-work* + its update-colors
-    ;; method) is not landed; the degraded call dropped its args anyway
-    ;; *sky-work*
-    ;; (let ((t9-1 (method-of-type sky-work sky-work-method-11)))
-    ;;   (-> arg0 time)
-    ;;   (t9-1)
-    ;;   )
+    ;; og:preserve-this sky leg: the retail call here is update-colors-for-time
+    ;; (the degraded decomp had dropped its args). The orbit update normally
+    ;; runs from the tod-proc's :post (time-of-day-update), which is not landed,
+    ;; so the pump drives it too; ratio 1.0 stands in for the frame ratio.
+    (when (nonzero? *sky-work*)
+      (update-time-and-speed *sky-work* (-> arg0 time) 1.0)
+      (update-colors-for-time *sky-work* (-> arg0 time))
+      )
     (cond
       ((-> arg0 override-enable)
        (mem-copy!
