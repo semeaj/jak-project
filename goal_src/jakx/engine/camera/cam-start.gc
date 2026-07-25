@@ -92,8 +92,22 @@ origin; release after the counter runs out."
             (dotimes (i (-> trees length))
               (let ((tree (-> trees trees i)))
                 (when (and (not tree-bs) (< 0.0 (-> tree bsphere w)) (> (-> tree length) 0))
-                  ;; first inline element of the tree's top drawable-inline-array
-                  (let ((dr (the-as drawable (&+ (the-as pointer (-> tree data 0)) 32))))
+                  ;; start from the MIDDLE root child, then first-child descent:
+                  ;; the first leaf of a track BVH tends to be interior detail
+                  ;; (junglea: a stone tunnel wall at point-blank range), while
+                  ;; a mid-list branch lands in more representative geometry.
+                  ;; The stride-32 pick only applies to draw-node arrays.
+                  (let* ((dia (the-as drawable-inline-array (-> tree data 0)))
+                         (dr (the-as drawable (&+ (the-as pointer dia) 32)))
+                         )
+                    (when (and (= (-> dr type) draw-node) (> (the int (-> dia length)) 1))
+                      (set! dr (the-as drawable
+                                       (&+ (the-as pointer dia)
+                                           (+ 32 (* 32 (/ (+ -1 (the int (-> dia length))) 2)))
+                                           )
+                               )
+                            )
+                      )
                     (dotimes (d 8)
                       (when (and dr (= (-> dr type) draw-node))
                         (set! dr (-> (the-as draw-node dr) child))
