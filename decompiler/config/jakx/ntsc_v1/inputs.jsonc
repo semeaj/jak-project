@@ -384,7 +384,9 @@
 
   "levels_to_extract": [
     // bring-up: smallest real world-geometry level (board room)
-    "BRDROOM.DGO"
+    "BRDROOM.DGO",
+    // the garage hub, second world-geometry level
+    "GARAGE.DGO"
   ],
 
   // some objects are part of STR files (streaming data).

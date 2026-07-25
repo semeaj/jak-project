@@ -77,16 +77,39 @@ origin; release after the counter runs out."
     (let ((bs (-> *jakx-cam-warp-level* bsp bsphere))
           (warp (new 'stack-no-clear 'vector))
           )
-      (cond
-        ((< 0.0 (-> bs w))
-         (set! (-> warp x) (-> bs x))
-         (set! (-> warp y) (-> bs y))
-         (set! (-> warp z) (-> bs z))
-         )
-        (else
-          (set! (-> warp x) -1457697.0)
-          (set! (-> warp y) 435999.0)
-          (set! (-> warp z) -602753.0)
+      ;; drawable-tree bspheres carry the real level bounds even when the bsp
+      ;; header bsphere is zeroed (garage: tfrag tree center matches the glb
+      ;; bounds; brdroom: same). Note the continue-point trans is NOT a usable
+      ;; fallback: garage's continue sits ~1km from the geometry.
+      (let ((tree-bs (the-as vector #f)))
+        (let ((trees (-> *jakx-cam-warp-level* bsp drawable-trees)))
+          (when (nonzero? (the-as int trees))
+            (dotimes (i (-> trees length))
+              (let ((tree (-> trees trees i)))
+                (when (and (not tree-bs) (< 0.0 (-> tree bsphere w)))
+                  (set! tree-bs (-> tree bsphere))
+                  )
+                )
+              )
+            )
+          )
+        (cond
+          ((< 0.0 (-> bs w))
+           (set! (-> warp x) (-> bs x))
+           (set! (-> warp y) (-> bs y))
+           (set! (-> warp z) (-> bs z))
+           )
+          (tree-bs
+            (set! (-> warp x) (-> tree-bs x))
+            (set! (-> warp y) (-> tree-bs y))
+            (set! (-> warp z) (-> tree-bs z))
+            )
+          (else
+            ;; extracted brdroom glb bounds center, the original bring-up target
+            (set! (-> warp x) -1457697.0)
+            (set! (-> warp y) 435999.0)
+            (set! (-> warp z) -602753.0)
+            )
           )
         )
       (let ((cc (the-as camera-combiner (view-get-active-camera-combiner))))

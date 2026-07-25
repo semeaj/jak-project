@@ -184,7 +184,7 @@
 (cgo-file "brdroom.gd" common-dep) ;; second bring-up level: smallest real world-geometry DGO
 ;; (cgo-file "icc.gd" common-dep)
 ;; (cgo-file "sewers.gd" common-dep)
-;; (cgo-file "garage.gd" common-dep)
+(cgo-file "garage.gd" common-dep) ;; third bring-up level: the garage hub
 ;; (cgo-file "ashvl2.gd" common-dep)
 ;; (cgo-file "jkclev.gd" common-dep)
 ;; (cgo-file "jakvl.gd" common-dep)

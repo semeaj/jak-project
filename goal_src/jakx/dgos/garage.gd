@@ -1,5 +1,6 @@
+;; og:preserve-this bring-up: entries converted to .go raw copies (brdroom recipe)
 ("GARAGE.DGO"
- ("tpage-1057.o"
+ ("tpage-1057.go"
   "tpage-2180.go"
   "tpage-2495.go"
   "car-color-tab-ag.go"
@@ -12,5 +13,5 @@
   "garage-car-arm-ag.go"
   "garage-turntable-ag.go"
   "garage-door-ag.go"
-  "garage.o"
+  "garage.go"
  ))
