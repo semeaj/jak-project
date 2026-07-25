@@ -18,6 +18,12 @@
     ["L329", "(pointer bucket-id)", 12],
     ["L331", "(pointer bucket-id)", 12]
   ],
+  // mood leg: the top-level type registrations load their flag qwords from labels
+  "mood-funcs": [
+    ["L52", "uint64", true],
+    ["L53", "uint64", true]
+  ],
+  "mood-funcs2": [["L47", "uint64", true]],
   "cam-states-dbg": [
     ["L59", "vector"],
     ["L60", "vector"]

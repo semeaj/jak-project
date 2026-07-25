@@ -37152,7 +37152,7 @@
 ;; (define-extern *fog-texture-tbp* object)
 ;; (define-extern fog-texture-anim-init function) ;; (function texture-anim int)
 ;; (define-extern fog-texture-anim-init2 function)
-;; (define-extern *fog-texture-work* object) ;; fog-texture-work
+(define-extern *fog-texture-work* fog-texture-work) ;; activated, jak3-parity
 ;; (define-extern real-fog-texture-anim-func function) ;; (function dma-buffer texture-anim int)
 ;; (define-extern fog-texture-anim-func function) ;; (function dma-buffer texture-anim int)
 
@@ -37171,8 +37171,8 @@
 |#
 
 ;; (define-extern *sky-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern set-fog-height! function) ;; (function float none)
-;; (define-extern set-cloud-minmax! function) ;; (function float float none)
+(define-extern set-fog-height! (function float none)) ;; activated, prepared sig
+(define-extern set-cloud-minmax! (function float float none)) ;; activated, read-derived sig
 (define-extern *default-pris-texture-anim-array* texture-anim-array)
 ;; (define-extern *car-texture-anim-array-work* object)
 ;; (define-extern car-texture-anim-layer-func function)
@@ -38189,7 +38189,6 @@
 ;; mood-funcs                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype default-states (structure)
   ((light light-state  :inline :offset-assert 0)
    (flame flames-state :inline :offset-assert 8)
@@ -38198,9 +38197,7 @@
   :size-assert         #xf
   :flag-assert         #x90000000f
   )
-|#
 
-#|
 (deftype default-exterior-states (structure)
   ((light light-state  :inline :offset-assert 0)
    (flame flames-state :inline :offset-assert 8)
@@ -38209,9 +38206,7 @@
   :size-assert         #xf
   :flag-assert         #x90000000f
   )
-|#
 
-#|
 (deftype mountain-states (structure)
   ((light0 light-state        :inline :offset-assert 0)
    (light1 light-state        :inline :offset-assert 8)
@@ -38227,20 +38222,18 @@
   :size-assert         #x2c
   :flag-assert         #x90000002c
   )
-|#
 
-;; (define-extern update-mood-default function) ;; (function mood-context float int none :behavior time-of-day-proc)
-;; (define-extern update-mood-copy-parent function) ;; (function mood-context object int none)
-;; (define-extern get-sphere-interp function) ;; (function sphere vector float float float)
-;; (define-extern update-mood-default-exterior (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern init-mood-mountain function) ;; (function mood-context uint)
-;; (define-extern update-mood-mountain function) ;; (function mood-context float int none :behavior time-of-day-proc)
+(define-extern update-mood-default (function mood-context float int none :behavior time-of-day-proc))
+(define-extern update-mood-copy-parent (function mood-context object int none))
+(define-extern get-sphere-interp (function sphere vector float float float))
+(define-extern update-mood-default-exterior (function mood-context float int none :behavior time-of-day-proc))
+(define-extern init-mood-mountain (function mood-context uint))
+(define-extern update-mood-mountain (function mood-context float int none :behavior time-of-day-proc))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; mood-funcs2                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype rustyh-states (structure)
   ((effect float  :offset-assert 0)
    )
@@ -38248,9 +38241,7 @@
   :size-assert         #x4
   :flag-assert         #x900000004
   )
-|#
 
-#|
 (deftype garage-states (structure)
   ((switched float  :offset-assert 0)
    )
@@ -38258,39 +38249,34 @@
   :size-assert         #x4
   :flag-assert         #x900000004
   )
-|#
 
-#|
-(deftype default-interior-states (UNKNOWN)
+(deftype default-interior-states (structure)
   ()
-  :method-count-assert 0
-  :size-assert         #x0
-  :flag-assert         #x0
   )
-|#
 
-#|
-(deftype hiphog-states (UNKNOWN)
-  ()
-  :method-count-assert 0
-  :size-assert         #x0
-  :flag-assert         #x0
+(deftype hiphog-states (structure)
+  ((door                entity  :offset-assert 0) ;; guessed by decompiler
+   (door-current-interp float   :offset-assert 4)
+   (door-target-interp  float   :offset-assert 8)
+   )
+  :method-count-assert 9
+  :size-assert         #xc
+  :flag-assert         #x90000000c
   )
-|#
 
-;; (define-extern init-mood-fog-default function)
-;; (define-extern init-mood-fog-temple function)
-;; (define-extern init-mood-fog-drome function)
-;; (define-extern update-mood-default-interior (function mood-context float int none :behavior time-of-day-proc)) ;; (function mood-context none :behavior time-of-day-proc)
-;; (define-extern update-mood-default-interior-ambient (function mood-context float int none :behavior time-of-day-proc)) ;; (function mood-context none :behavior time-of-day-proc)
-;; (define-extern update-rustyh-lights function)
-;; (define-extern update-mood-rustyh (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern set-rustyh-effect-light! function)
-;; (define-extern update-hiphog-lights function) ;; (function mood-context none)
-;; (define-extern update-mood-hiphog (function mood-context float int none :behavior time-of-day-proc)) ;; (function mood-context float none :behavior time-of-day-proc)
-;; (define-extern update-garage-brdroom-lights function)
-;; (define-extern update-mood-garage-brdroom (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern set-garage-switched! function)
+(define-extern init-mood-fog-default (function mood-context none))
+(define-extern init-mood-fog-temple (function mood-context none))
+(define-extern init-mood-fog-drome (function mood-context none))
+(define-extern update-mood-default-interior (function mood-context float int none :behavior time-of-day-proc))
+(define-extern update-mood-default-interior-ambient (function mood-context float int none :behavior time-of-day-proc))
+(define-extern update-rustyh-lights (function mood-context none))
+(define-extern update-mood-rustyh (function mood-context float int none :behavior time-of-day-proc))
+(define-extern set-rustyh-effect-light! (function object none))
+(define-extern update-hiphog-lights (function mood-context none))
+(define-extern update-mood-hiphog (function mood-context float int none :behavior time-of-day-proc))
+(define-extern update-garage-brdroom-lights (function mood-context none))
+(define-extern update-mood-garage-brdroom (function mood-context float int none :behavior time-of-day-proc))
+(define-extern set-garage-switched! (function symbol none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jungle-shared                  ;;

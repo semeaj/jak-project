@@ -857,6 +857,31 @@
     [3, "v1", "connection"],
     [6, "v1", "connection"]
   ],
+  // mood leg: the per-level mood funcs read their states blob through the
+  // mood-context state field (uint32 array at 1840); cast to the states type
+  // over the pointer's live range, jak3's recipe
+  "copy-mood-exterior": [
+    [[16, 20], "a1", "mood-context"],
+    [30, "a0", "(inline-array vector)"],
+    [33, "a0", "(inline-array vector)"],
+    [31, "v1", "(inline-array vector)"],
+    [32, "v1", "(inline-array vector)"],
+    [[17, 19], "v1", "(inline-array vector)"]
+  ],
+  "copy-mood-exterior-ambi": [
+    [[12, 17], "a2", "mood-context"],
+    [[13, 16], "v1", "mood-context"]
+  ],
+  "update-mood-garage-brdroom": [[[52, 128], "s5", "garage-states"]],
+  "update-garage-brdroom-lights": [
+    [[2, 3], "a1", "garage-states"],
+    [[28, 106], "a0", "garage-states"]
+  ],
+  "update-mood-hiphog": [[[20, 21], "v1", "hiphog-states"]],
+  "update-mood-rustyh": [[[18, 27], "v1", "rustyh-states"]],
+  "update-rustyh-lights": [[[22, 101], "a0", "rustyh-states"]],
+  "update-mood-default-interior": [[[14, 16], "v1", "(pointer float)"]],
+  "update-mood-default-interior-ambient": [[[14, 16], "v1", "(pointer float)"]],
   // tie leg: the 13 patch blocks each splice the category dma chain through a
   // next-pointer loaded from *prototype-tie-work*; cast it for the l.d/s.d pair
   // (jak3 uses the same 13-cast shape, one per block)
