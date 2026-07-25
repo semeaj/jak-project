@@ -78,16 +78,40 @@ origin; release after the counter runs out."
           (warp (new 'stack-no-clear 'vector))
           )
       ;; drawable-tree bspheres carry the real level bounds even when the bsp
-      ;; header bsphere is zeroed (garage: tfrag tree center matches the glb
-      ;; bounds; brdroom: same). Note the continue-point trans is NOT a usable
-      ;; fallback: garage's continue sits ~1km from the geometry.
-      (let ((tree-bs (the-as vector #f)))
+      ;; header bsphere is zeroed (garage, brdroom, junglea all zero it). But a
+      ;; track's bounds CENTER is empty air (junglea: zero verts within 100m of
+      ;; it), so descend the first tree's BVH to its first leaf cluster: that
+      ;; bsphere sits ON geometry for interiors and exteriors alike. Note the
+      ;; continue-point trans is NOT a usable fallback: garage's continue sits
+      ;; ~1km from the geometry.
+      (let ((tree-bs (the-as vector #f))
+            (leaf-lift 0.0)
+            )
         (let ((trees (-> *jakx-cam-warp-level* bsp drawable-trees)))
           (when (nonzero? (the-as int trees))
             (dotimes (i (-> trees length))
               (let ((tree (-> trees trees i)))
-                (when (and (not tree-bs) (< 0.0 (-> tree bsphere w)))
-                  (set! tree-bs (-> tree bsphere))
+                (when (and (not tree-bs) (< 0.0 (-> tree bsphere w)) (> (-> tree length) 0))
+                  ;; first inline element of the tree's top drawable-inline-array
+                  (let ((dr (the-as drawable (&+ (the-as pointer (-> tree data 0)) 32))))
+                    (dotimes (d 8)
+                      (when (and dr (= (-> dr type) draw-node))
+                        (set! dr (-> (the-as draw-node dr) child))
+                        )
+                      )
+                    (cond
+                      ((and dr (< 0.0 (-> dr bsphere w)))
+                       (set! tree-bs (-> dr bsphere))
+                       ;; hover half the cluster radius above its center so the
+                       ;; camera is not embedded in the surface (higher lifts
+                       ;; can clear the local geometry entirely into empty sky)
+                       (set! leaf-lift (* 0.5 (-> dr bsphere w)))
+                       )
+                      (else
+                        (set! tree-bs (-> tree bsphere))
+                        )
+                      )
+                    )
                   )
                 )
               )
@@ -101,7 +125,7 @@ origin; release after the counter runs out."
            )
           (tree-bs
             (set! (-> warp x) (-> tree-bs x))
-            (set! (-> warp y) (-> tree-bs y))
+            (set! (-> warp y) (+ (-> tree-bs y) leaf-lift))
             (set! (-> warp z) (-> tree-bs z))
             )
           (else

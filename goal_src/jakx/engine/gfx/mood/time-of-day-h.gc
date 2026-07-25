@@ -149,3 +149,9 @@ blend between them."
 
 
 (define *time-of-day-context* (new 'static 'time-of-day-context))
+
+;; og:preserve-this bring-up: the tod tick process (clock advance) is not landed,
+;; so the clock stays wherever it boots. Zero = midnight, which renders exterior
+;; levels under the night palettes; pin noon so daylight palettes verify the
+;; mood chain. Interiors ignore the clock. Retire with the tod tick landing.
+(set! (-> *time-of-day-context* time) 12.0)

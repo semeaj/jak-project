@@ -312,7 +312,7 @@
 ;; (cgo-file "hvjgtt.gd" common-dep)
 ;; (cgo-file "thavl2.gd" common-dep)
 ;; (cgo-file "colx.gd" common-dep)
-;; (cgo-file "jga.gd" common-dep)
+(cgo-file "jga.gd" common-dep) ;; fourth bring-up level: junglea, first exterior track section
 ;; (cgo-file "cya.gd" common-dep)
 ;; (cgo-file "hvb.gd" common-dep)
 ;; (cgo-file "sptrtt.gd" common-dep)

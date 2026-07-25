@@ -386,7 +386,9 @@
     // bring-up: smallest real world-geometry level (board room)
     "BRDROOM.DGO",
     // the garage hub, second world-geometry level
-    "GARAGE.DGO"
+    "GARAGE.DGO",
+    // junglea, first exterior track section
+    "JGA.DGO"
   ],
 
   // some objects are part of STR files (streaming data).

@@ -252,7 +252,7 @@
 ;; 'fmvlev). Set to any level-load-info symbol whose DGO is built in game.gp;
 ;; 'brdroom is the smallest real world-geometry level (3 tpages + pool-water art +
 ;; the bsp with tfrag/tie trees).
-(define *jakx-boot-level* 'garage)
+(define *jakx-boot-level* 'junglea)
 
 ;; DECOMP BEGINS
 

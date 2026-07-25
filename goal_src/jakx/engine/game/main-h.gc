@@ -5788,7 +5788,11 @@
 
 (define *stats-sound* #f)
 
-(define *artist-all-visible* #f)
+;; og:preserve-this bring-up: #t (retail #f). Vis-string levels (the -vis bsps,
+;; e.g. junglea) read their PVS strings from disc .VIS files the fakeiso does
+;; not provide, so the string path leaves vis-bits zeroed and every drawable
+;; culls. The artist lever forces the all-visible list. Retire with .VIS load.
+(define *artist-all-visible* #t)
 
 (define *artist-flip-visible* #f)
 
