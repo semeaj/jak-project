@@ -1341,6 +1341,14 @@
                 )
               )
             (dma-buffer-add-gs-set s3-0 (texflush 1))
+            ;; og:preserve-this PC port (jak3 parity): hand the page to the C++
+            ;; TextureUploadHandler as a pc-port packet (page pointer + mode);
+            ;; the GS bitbltbuf DMA above is not parsed on PC
+            (#when PC_PORT
+              (dma-buffer-add-cnt-vif2 s3-0 1 (new 'static 'vif-tag :cmd (vif-cmd pc-port)) (the-as vif-tag 3))
+              (dma-buffer-add-uint64 s3-0 arg2)
+              (dma-buffer-add-uint64 s3-0 arg3)
+              )
             (let ((a3-3 (-> s3-0 base)))
               (when (!= s4-0 a3-3)
                 (let ((v1-56 (the-as dma-packet (-> s3-0 base))))

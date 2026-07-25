@@ -5,5 +5,34 @@
 ;; name in dgo: texture-upload
 ;; dgos: ART, GAME
 
+;; og:preserve-this landing notes (jak3-parity; the jakx top level is
+;; instruction-identical): builds the default envmap shader, then switches the
+;; texture pool's allocate-func to texture-page-common-boot-allocate so the
+;; tpage objects that link right after this one in the DGO register themselves
+;; into level-default's per-category texture-page-dir (page 8 = the sky
+;; textures -> category 9). Without this the sky/sprite/hud categories never
+;; get their per-frame uploads. The raw texture id #x200100 is the jakx
+;; generic-envmap source texture (page #x20, index 1).
+
 ;; DECOMP BEGINS
 
+(define *generic-envmap-texture* (lookup-texture-by-id (the-as texture-id #x200100)))
+(define *default-envmap-shader* (new 'global 'adgif-shader))
+
+(let ((gp-0 *default-envmap-shader*))
+  (let ((a1-1 *generic-envmap-texture*))
+    (adgif-shader<-texture! gp-0 a1-1)
+    )
+  (set! (-> gp-0 tex1) (new 'static 'gs-tex1 :mmag #x1 :mmin #x1))
+  (set! (-> gp-0 clamp) (new 'static 'gs-clamp :wms (gs-tex-wrap-mode clamp) :wmt (gs-tex-wrap-mode clamp)))
+  (set! (-> gp-0 alpha) (new 'static 'gs-miptbp :tbp1 #x58))
+  (set! (-> gp-0 prims 1) (gs-reg64 tex0-1))
+  (set! (-> gp-0 prims 3) (gs-reg64 tex1-1))
+  (set! (-> gp-0 prims 5) (gs-reg64 miptbp1-1))
+  (set! (-> gp-0 clamp-reg) (gs-reg64 clamp-1))
+  (set! (-> gp-0 prims 9) (gs-reg64 alpha-1))
+  )
+
+(set! (-> *texture-pool* allocate-func) texture-page-common-boot-allocate)
+
+(kmemopen global "tpages")

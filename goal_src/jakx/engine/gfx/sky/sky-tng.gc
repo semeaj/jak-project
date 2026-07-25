@@ -902,20 +902,22 @@
                                (set-sky-vf27 (&-> this giftag-base quad))
                                (draw-roof (the-as sky-work s3-0) s2-0 sv-16)
                                (init-regs-for-sky-asm (the-as sky-work s3-0) sv-16)
-                               ;; og:preserve-this bring-up: the star/sun/moon sprite passes look
-                               ;; up their textures from the sky tpage (0x8009xx family), which is
-                               ;; not uploaded yet (texture-anim leg); restore with the sky tpage
-                               ;; (if (nonzero? (-> (the-as sky-work s3-0) star-colors 0 x))
-                               ;;     (stars-dma (the-as sky-work s3-0) s2-0 sv-16)
-                               ;;     )
-                               ;; ((method-of-type sky-work sun-dma) (the-as sky-work s3-0) s2-0 sv-16)
-                               ;; ((method-of-type sky-work green-sun-dma) (the-as sky-work s3-0) s2-0 sv-16)
-                               ;; ((method-of-type sky-work moon-dma) (the-as sky-work s3-0) s2-0 sv-16)
+                               (if (nonzero? (-> (the-as sky-work s3-0) star-colors 0 x))
+                                   (stars-dma (the-as sky-work s3-0) s2-0 sv-16)
+                                   )
+                               ((method-of-type sky-work sun-dma) (the-as sky-work s3-0) s2-0 sv-16)
+                               ((method-of-type sky-work green-sun-dma) (the-as sky-work s3-0) s2-0 sv-16)
+                               ((method-of-type sky-work moon-dma) (the-as sky-work s3-0) s2-0 sv-16)
                                ((method-of-type sky-work draw-haze) (the-as sky-work s3-0) s2-0 sv-16)
                                ((method-of-type sky-work draw-clouds) (the-as sky-work s3-0) s2-0 sv-16)
                                (set-sky-vf27 (&-> this giftag-base quad))
                                ((method-of-type sky-work draw-base) (the-as sky-work s3-0) s2-0 sv-16)
-                               ((method-of-type sky-work draw-fog) (the-as sky-work s3-0) s2-0 sv-16) ;; og:preserve-this: unbound (none-typed spill slot)
+                               (when (nonzero? *sky-texture-anim-array*) ;; og:preserve-this bring-up guard:
+                                 ;; without the anim fog texture the fog quad (tme on) samples the
+                                 ;; last-bound texture fullscreen; skip the whole pass until the
+                                 ;; texture-anim leg lands
+                                 ((method-of-type sky-work draw-fog) (the-as sky-work s3-0) s2-0 sv-16) ;; unbound: none-typed spill slot
+                                 )
                                )
                              (view-pop-context)
                              )

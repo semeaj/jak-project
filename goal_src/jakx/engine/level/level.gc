@@ -5797,6 +5797,12 @@
     (set! (-> gp-0 level-default draw-priority) 20.0)
     (set! (-> gp-0 level-default info) default-level)
     (set! (-> *kernel-context* login-level-index) (-> gp-0 level-default index))
+    ;; og:preserve-this bring-up: retail marks level-default 'reserved from the
+    ;; loader (load-dir art-group load path; loader.o is a stub here). Without
+    ;; it, assign-draw-indices leaves draw-level slot 18 empty and the
+    ;; *texture-page-translate* walk never uploads the lcom tpages (the sky
+    ;; textures page among them). Retire with the loader landing.
+    (set! (-> gp-0 level-default status) 'reserved)
     (set! *default-level* (-> gp-0 level-default))
     (set! (-> gp-0 shared-ties) (new 'global 'prototype-node-group))
     )

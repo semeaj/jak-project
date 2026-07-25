@@ -856,7 +856,8 @@ u64 execute(void* ctxt) {
   // nop                                            // sll r0, r0, 0
   c->sqc2(vf10, 144, t0);                           // sqc2 vf10, 144(t0)
   c->load_symbol2(t9, cache.draw_large_polygon);    // lw t9, draw-large-polygon(s7)
-  // Unknown instr: jr t9
+  // Unknown instr: jr t9  -- retail TAIL-CALLS draw-large-polygon; call it directly (jak2 parity)
+  draw_large_polygon::execute(ctxt);
   // nop                                            // sll r0, r0, 0
   //jr ra                                           // jr ra
   c->daddu(sp, sp, r0);                             // daddu sp, sp, r0
@@ -936,7 +937,8 @@ u64 execute(void* ctxt) {
   // nop                                            // sll r0, r0, 0
   c->sqc2(vf7, 96, t0);                             // sqc2 vf7, 96(t0)
   c->load_symbol2(t9, cache.draw_large_polygon);    // lw t9, draw-large-polygon(s7)
-  // Unknown instr: jr t9
+  // Unknown instr: jr t9  -- retail TAIL-CALLS draw-large-polygon; call it directly (jak2 parity)
+  draw_large_polygon::execute(ctxt);
   // nop                                            // sll r0, r0, 0
   //jr ra                                           // jr ra
   c->daddu(sp, sp, r0);                             // daddu sp, sp, r0

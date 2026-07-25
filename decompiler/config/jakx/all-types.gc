@@ -53103,7 +53103,7 @@
 ;; texture-upload                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *generic-envmap-texture* object) ;; texture
+(define-extern *generic-envmap-texture* texture) ;; activated, texture-upload leg
 (define-extern *default-envmap-shader* adgif-shader) ;; activated, jak3-parity
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
