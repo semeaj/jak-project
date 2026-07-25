@@ -24,6 +24,7 @@
     ["L53", "uint64", true]
   ],
   "mood-funcs2": [["L47", "uint64", true]],
+  "shrubbery": [["L138", "uint64", true]],
   "cam-states-dbg": [
     ["L59", "vector"],
     ["L60", "vector"]

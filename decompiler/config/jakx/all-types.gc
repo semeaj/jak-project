@@ -4587,6 +4587,20 @@
   (etie-scissor-water-m9 726)
   (etie-scissor-water-m10 736)
   (etie-scissor-water-m11 745)
+
+  ;; shrub leg: main shrubbery category buckets (aliases; values also carry stale jak3-copied names)
+  (shrub-m0 146)
+  (shrub-m1 155)
+  (shrub-m2 165)
+  (shrub-m3 174)
+  (shrub-m4 184)
+  (shrub-m5 193)
+  (shrub-m6 203)
+  (shrub-m7 212)
+  (shrub-m8 222)
+  (shrub-m9 231)
+  (shrub-m10 241)
+  (shrub-m11 250)
 )
 ;; ---vu1-user-h:bucket-id
 
@@ -37314,17 +37328,14 @@
 ;; shrubbery                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype dma-test (structure)
-  ((data qword 101 :offset-assert 0) ;; guessed by decompiler
+  ((data qword 101 :inline :offset-assert 0) ;; guessed by decompiler; inline per size-assert
    )
   :method-count-assert 9
   :size-assert         #x650
   :flag-assert         #x900000650
   )
-|#
 
-#|
 (deftype dma-test-work (structure)
   ((upload dma-packet :inline :offset-assert 0)
    (end    dma-packet :inline :offset-assert 16)
@@ -37333,7 +37344,6 @@
   :size-assert         #x20
   :flag-assert         #x900000020
   )
-|#
 
 #|
 (deftype prototype-shrubbery (drawable-inline-array)
@@ -37348,25 +37358,25 @@
 |#
 
 ;; (define-extern mem-usage-shrub-walk function) ;; (function draw-node int memory-usage-block int draw-node)
-;; (define-extern highres-shrub-login function) ;; (function draw-node none)
-;; (define-extern highres-prototype-shrub-login function)
-;; (define-extern shrub-vu1-block object) ;; vu-function
-;; (define-extern shrub-num-tris function) ;; (function shrubbery uint)
+(define-extern highres-shrub-login (function draw-node none)) ;; activated, prepared sig
+(define-extern highres-prototype-shrub-login (function prototype-shrubbery none)) ;; activated, read-derived
+(define-extern shrub-vu1-block vu-function) ;; activated
+(define-extern shrub-num-tris (function shrubbery uint)) ;; activated, prepared sig
 (define-extern shrub-make-perspective-matrix (function matrix matrix matrix)) ;; jak3-parity sig
-;; (define-extern shrub-init-view-data function) ;; (function shrub-view-data symbol)
-;; (define-extern shrub-upload-view-data function) ;; (function dma-buffer symbol)
-;; (define-extern shrub-time function) ;; (function int int int int int int)
-;; (define-extern shrub-do-init-frame function) ;; (function dma-buffer symbol)
+(define-extern shrub-init-view-data (function shrub-view-data symbol)) ;; activated, prepared sig
+(define-extern shrub-upload-view-data (function dma-buffer symbol)) ;; activated, prepared sig
+(define-extern shrub-time (function int int int int int int)) ;; activated, prepared sig
+(define-extern shrub-do-init-frame (function dma-buffer symbol)) ;; activated, prepared sig
 ;; (define-extern shrub-init-frame function) ;; (function dma-buffer gs-test symbol)
 ;; (define-extern shrub-upload-model function) ;; (function shrubbery dma-buffer int symbol)
 ;; (define-extern draw-inline-array-instance-shrub function) ;; (function dma-buffer drawable int (inline-array prototype-bucket-shrub) none)
 ;; (define-extern draw-prototype-inline-array-shrub function) ;; (function int (inline-array prototype-bucket-shrub) pointer)
 (define-extern draw-drawable-tree-instance-shrub (function drawable-tree-instance-shrub level none))
-;; (define-extern *dma-test* object) ;; dma-test
-;; (define-extern *dma-test-work* object) ;; dma-test-work
-;; (define-extern init-dma-test function) ;; (function none)
-;; (define-extern dma-test-func function) ;; (function none)
-;; (define-extern move-test-func function) ;; (function none)
+(define-extern *dma-test* dma-test) ;; activated
+(define-extern *dma-test-work* dma-test-work) ;; activated
+(define-extern init-dma-test (function none)) ;; activated
+(define-extern dma-test-func (function none)) ;; activated
+(define-extern move-test-func (function none)) ;; activated
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; shrub-work                     ;;

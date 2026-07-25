@@ -912,6 +912,27 @@
     [132, "v1", "int"],
     [132, "a0", "int"]
   ],
+  // shrub leg: init/upload dma templates (jak3-pattern casts, jakx-derived op ranges)
+  "shrub-upload-view-data": [[[7, 16], "a0", "dma-packet"]],
+  "shrub-do-init-frame": [
+    [[15, 21], "a0", "dma-packet"],
+    [[24, 29], "a0", "dma-packet"],
+    [[31, 55], "v1", "(pointer uint32)"]
+  ],
+  "shrub-init-frame": [
+    [[8, 12], "a0", "dma-packet"],
+    [[18, 21], "a0", "gs-gif-tag"],
+    [24, "v1", "(pointer gs-test)"],
+    [26, "v1", "(pointer gs-reg64)"]
+  ],
+  "shrub-upload-model": [
+    [[17, 26], "a3", "dma-packet"],
+    [[33, 41], "a0", "dma-packet"],
+    [[47, 55], "a0", "dma-packet"]
+  ],
+  "draw-drawable-tree-instance-shrub": [[71, "v1", "drawable-inline-array-instance-shrub"]],
+  "(method 8 drawable-tree-instance-shrub)": [[51, "v1", "drawable-inline-array-instance-shrub"]],
+  "(method 13 drawable-tree-instance-shrub)": [[19, "a1", "drawable-inline-array-instance-shrub"]],
   "tie-init-engine": [
     [[41, 50], "a0", "dma-packet"],
     [[64, 70], "a0", "dma-packet"],
