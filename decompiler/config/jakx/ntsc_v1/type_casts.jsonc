@@ -978,6 +978,14 @@
     [[703, 723], "t1", "tie-fragment"],
     [[756, 776], "a1", "tie-fragment"]
   ],
+  // texture-anim leg: init-textures! resolves the func-id symbol overlays
+  "(method 9 texture-anim)": [
+    [5, "v1", "symbol"],
+    [11, "v1", "symbol"],
+    [17, "v1", "symbol"],
+    [23, "v1", "symbol"],
+    ["_stack_", 16, "texture-page"]
+  ],
   // sky leg: the draw method runs on the fake-scratchpad copy of *sky-work*;
   // the draw-* methods write dma-packet headers and float/int template runs
   // through (-> buf base) pointers

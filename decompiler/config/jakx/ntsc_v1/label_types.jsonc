@@ -27,6 +27,11 @@
   "shrubbery": [["L138", "uint64", true]],
   // sky leg: the four inline sky-vertex arrays (same label numbers as jak3 by
   // coincidence; sizes verified against the ir2 data segment)
+  // texture-anim leg: the type-new packed (size, method-count) qword
+  "texture-anim-tables": [["L150", "uint64", true], ["L151", "uint64", true], ["L152", "uint64", true], ["L163", "uint64", true]],
+  // texture-anim leg: the pages table (32 uint8) and mip array (72 uint16),
+  // sized from the ir2 data blocks (jak3's are 16 and 48)
+  "texture-anim": [["L200", "(pointer uint8)", 32], ["L199", "(pointer uint16)", 72]],
   "sky-data": [
     ["L26", "(inline-array sky-vertex)", 12],
     ["L25", "(inline-array sky-vertex)", 12],

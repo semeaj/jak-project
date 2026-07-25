@@ -7111,10 +7111,10 @@
    (func-id      symbol                                          :offset-assert 4 :overlay-at func) ;; guessed by decompiler
    (init-func    (function texture-anim int)                     :offset-assert 8) ;; guessed by decompiler
    (init-func-id symbol                                          :offset-assert 8 :overlay-at init-func) ;; guessed by decompiler
-   (mip-func     basic                                           :offset-assert 12)
-   (mip-func-id  basic                                           :offset-assert 12 :overlay-at mip-func)
-   (time-func    basic                                           :offset-assert 16)
-   (time-func-id basic                                           :offset-assert 16 :overlay-at time-func)
+   (mip-func     (function dma-buffer texture none)              :offset-assert 12) ;; symbol overlay so statics decode
+   (mip-func-id  symbol                                          :offset-assert 12 :overlay-at mip-func)
+   (time-func    (function texture-anim texture-anim int)        :offset-assert 16) ;; symbol overlay so statics decode
+   (time-func-id symbol                                          :offset-assert 16 :overlay-at time-func)
    (tex          texture                                         :offset-assert 20) ;; guessed by decompiler
    (tex-name     string                                          :offset-assert 24) ;; guessed by decompiler
    (extra        vector                                 :inline  :offset-assert 32)
@@ -7131,8 +7131,8 @@
   :size-assert         #x58
   :flag-assert         #xb00000058
   (:methods
-    (texture-anim-method-9 () none) ;; 9 ;; (init-textures! (_type_) _type_)
-    (texture-anim-method-10 () none) ;; 10 ;; (clear-textures! (_type_) _type_)
+    (init-textures! (_type_) _type_) ;; 9
+    (clear-textures! (_type_) _type_) ;; 10
     )
   )
 
@@ -37123,60 +37123,59 @@
 ;; texture-anim                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *texture-anim-work* object) ;; texture-anim-work
-;; (define-extern texture-anim-layer-interp function) ;; (function texture-anim-layer float none)
-;; (define-extern texture-anim-layer-add-shader function) ;; (function dma-buffer texture-anim-layer int none)
-;; (define-extern texture-anim-layer-add-clut-shader function) ;; (function dma-buffer texture-anim-layer int none)
-;; (define-extern texture-anim-layer-draw function) ;; (function dma-buffer int int texture-anim-layer none)
-;; (define-extern default-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern blend-clut-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern add-clut-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern dest-blend-clut-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern move-rg-to-ba-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern fill-rgb-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern texture-anim-draw-mip-shader function) ;; (function dma-buffer texture int none)
-;; (define-extern clear-texture-ids function) ;; (function texture none)
-;; (define-extern texture-anim-draw-mips function) ;; (function dma-buffer texture none)
-;; (define-extern texture-anim-draw-ocean-mips function)
-;; (define-extern update-texture-anim function) ;; (function bucket-id texture-anim-array none)
-;; (define-extern no-alpha-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern copy-alpha-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern copy-clut-alpha-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern set-alpha-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern set-clut-alpha-texture-anim-layer-func function) ;; (function dma-buffer uint int int texture-anim-layer float int)
-;; (define-extern dest-texture-init function) ;; (function texture-anim none)
-;; (define-extern src-texture-init function) ;; (function texture-anim-layer none)
-;; (define-extern src-texture-init-mt8 function) ;; (function texture-anim-layer none)
-;; (define-extern make-noise-texture function) ;; (function pointer int int int none)
-;; (define-extern make-cloud-clut function) ;; (function (pointer uint32) float float none)
-;; (define-extern texture-anim-cloud-clut-upload function) ;; (function dma-buffer texture-anim none)
-;; (define-extern texture-anim-cloud-clut-init function) ;; (function texture-anim none)
-;; (define-extern make-slime-clut function) ;; (function (pointer uint32) none)
-;; (define-extern make-ramp-clut function) ;; (function (pointer uint32) pointer object none)
-;; (define-extern make-alpha-ramp-clut function) ;; (function (pointer uint32) none)
-;; (define-extern texture-anim-alpha-ramp-clut-upload function) ;; (function dma-buffer texture-anim none)
-;; (define-extern texture-anim-alpha-ramp-clut-init function) ;; (function texture-anim none)
-;; (define-extern texture-anim-override-size-init function)
-;; (define-extern texture-anim-change-mt8h-init function) ;; (function texture-anim none)
-;; (define-extern *texture-anim-pages-table* object) ;; (pointer uint8)
-;; (define-extern *texture-anim-mip-array* object) ;; (pointer uint16)
+(define-extern *texture-anim-work* texture-anim-work) ;; activated, texture-anim leg
+(define-extern texture-anim-layer-interp (function texture-anim-layer float none)) ;; activated, texture-anim leg
+(define-extern texture-anim-layer-add-shader (function dma-buffer texture-anim-layer int none)) ;; activated, texture-anim leg
+(define-extern texture-anim-layer-add-clut-shader (function dma-buffer texture-anim-layer int none)) ;; activated, texture-anim leg
+(define-extern texture-anim-layer-draw (function dma-buffer int int texture-anim-layer none)) ;; activated, texture-anim leg
+(define-extern default-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern blend-clut-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern add-clut-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern dest-blend-clut-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern move-rg-to-ba-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern fill-rgb-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern texture-anim-draw-mip-shader (function dma-buffer texture int none)) ;; activated, texture-anim leg
+(define-extern clear-texture-ids (function texture none)) ;; activated, texture-anim leg
+(define-extern texture-anim-draw-mips (function dma-buffer texture none)) ;; activated, texture-anim leg
+(define-extern texture-anim-draw-ocean-mips (function dma-buffer texture none)) ;; activated, texture-anim leg
+(define-extern update-texture-anim (function bucket-id texture-anim-array none)) ;; activated, texture-anim leg
+(define-extern no-alpha-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern copy-alpha-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern copy-clut-alpha-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern set-alpha-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern set-clut-alpha-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern dest-texture-init (function texture-anim none)) ;; activated, texture-anim leg
+(define-extern src-texture-init (function texture-anim-layer none)) ;; activated, texture-anim leg
+(define-extern src-texture-init-mt8 (function texture-anim-layer none)) ;; activated, texture-anim leg
+(define-extern make-noise-texture (function pointer int int int none)) ;; activated, texture-anim leg
+(define-extern make-cloud-clut (function (pointer uint32) float float none)) ;; activated, texture-anim leg
+(define-extern texture-anim-cloud-clut-upload (function dma-buffer texture-anim none)) ;; activated, texture-anim leg
+(define-extern texture-anim-cloud-clut-init (function texture-anim none)) ;; activated, texture-anim leg
+(define-extern make-slime-clut (function (pointer uint32) none)) ;; activated, texture-anim leg
+(define-extern make-ramp-clut (function (pointer uint32) pointer object none)) ;; activated, texture-anim leg
+(define-extern make-alpha-ramp-clut (function (pointer uint32) none)) ;; activated, texture-anim leg
+(define-extern texture-anim-alpha-ramp-clut-upload (function dma-buffer texture-anim none)) ;; activated, texture-anim leg
+(define-extern texture-anim-alpha-ramp-clut-init (function texture-anim none)) ;; activated, texture-anim leg
+(define-extern texture-anim-override-size-init (function texture-anim none)) ;; activated, texture-anim leg
+(define-extern texture-anim-change-mt8h-init (function texture-anim none)) ;; activated, texture-anim leg
+(define-extern *texture-anim-pages-table* (pointer uint8)) ;; activated, texture-anim leg
+(define-extern *texture-anim-mip-array* (pointer uint16)) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; texture-anim-funcs             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *fog-texture-tbp* object)
-;; (define-extern fog-texture-anim-init function) ;; (function texture-anim int)
-;; (define-extern fog-texture-anim-init2 function)
+(define-extern *fog-texture-tbp* int) ;; activated, texture-anim leg
+(define-extern fog-texture-anim-init (function texture-anim int)) ;; activated, texture-anim leg
+(define-extern fog-texture-anim-init2 (function texture-anim int)) ;; activated, texture-anim leg
 (define-extern *fog-texture-work* fog-texture-work) ;; activated, jak3-parity
-;; (define-extern real-fog-texture-anim-func function) ;; (function dma-buffer texture-anim int)
-;; (define-extern fog-texture-anim-func function) ;; (function dma-buffer texture-anim int)
+(define-extern real-fog-texture-anim-func (function dma-buffer texture-anim int)) ;; activated, texture-anim leg
+(define-extern fog-texture-anim-func (function dma-buffer texture-anim int)) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; texture-anim-tables            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype car-texture-anim-array-work (structure)
   ((sprite-tmpl dma-gif-packet :inline :offset-assert 0)
    )
@@ -37184,26 +37183,25 @@
   :size-assert         #x20
   :flag-assert         #x900000020
   )
-|#
 
 (define-extern *sky-texture-anim-array* texture-anim-array) ;; activated for the sky leg
 (define-extern set-fog-height! (function float none)) ;; activated, prepared sig
 (define-extern set-cloud-minmax! (function float float none)) ;; activated, read-derived sig
 (define-extern *default-pris-texture-anim-array* texture-anim-array)
-;; (define-extern *car-texture-anim-array-work* object)
-;; (define-extern car-texture-anim-layer-func function)
-;; (define-extern *default-car-texture-anim-array* texture-anim-array)
-;; (define-extern set-car-highlight! function)
+(define-extern *car-texture-anim-array-work* car-texture-anim-array-work) ;; activated, texture-anim leg
+(define-extern car-texture-anim-layer-func (function dma-buffer uint int int texture-anim-layer float int)) ;; activated, texture-anim leg
+(define-extern *default-car-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern set-car-highlight! (function object object object none)) ;; activated; reads 3 args
 (define-extern update-car-texture-anim-array (function int)) ;; jakx-new
-;; (define-extern *default-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern *default-hud-texture-anim-array* texture-anim-array)
-;; (define-extern *ctf-pris-texture-anim-array* texture-anim-array)
-;; (define-extern *ctf-water-texture-anim-array* texture-anim-array)
-;; (define-extern *fcshield-water-texture-anim-array* texture-anim-array)
-;; (define-extern *this-way-water-texture-anim-array* texture-anim-array)
-;; (define-extern this-way-water-texture-anim-func function)
-;; (define-extern *ocean-texture-anim-array* texture-anim-array)
-;; (define-extern ocean-texture-anim-time-func function)
+(define-extern *default-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *default-hud-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *ctf-pris-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *ctf-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *fcshield-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *this-way-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern this-way-water-texture-anim-func (function dma-buffer texture-anim int)) ;; activated, texture-anim leg
+(define-extern *ocean-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern ocean-texture-anim-time-func (function texture-anim texture-anim int)) ;; activated; arg0 is the anim (writes frame-time)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; blit-displays                  ;;
@@ -49518,8 +49516,8 @@
 ;; (define-extern *fmv-snd-name* object)
 ;; (define-extern *fmv-old-hflip* object)
 ;; (define-extern *fmv-work* object)
-;; (define-extern *menu-movie-texture-anim-array* texture-anim-array)
-;; (define-extern *movie-texture-anim-array* texture-anim-array)
+(define-extern *menu-movie-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *movie-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 ;; (define-extern movie-texture-anim-init function)
 ;; (define-extern movie-texture-anim-func function)
 ;; (define-extern fmv-file-init function)
@@ -58594,7 +58592,7 @@
 ;; atoll-effects                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *atoll-water-texture-anim-array* texture-anim-array)
+(define-extern *atoll-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; atoll-part                     ;;
@@ -59462,9 +59460,9 @@
 ;; canyon-effects                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *canyona-water-texture-anim-array* texture-anim-array)
-;; (define-extern *canyonc-water-texture-anim-array* texture-anim-array)
-;; (define-extern *canyone-water-texture-anim-array* texture-anim-array)
+(define-extern *canyona-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *canyonc-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *canyone-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; net-time-box                   ;;
@@ -59649,7 +59647,7 @@
 ;; cliffs-effects                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *cliffs-water-texture-anim-array* texture-anim-array)
+(define-extern *cliffs-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; cliffs-ocean                   ;;
@@ -60522,7 +60520,7 @@
 ;; (define-extern collectoid-init-remote function)
 ;; (define-extern *msg-map-collectoid* array)
 ;; (define-extern *net-process-class-info-collectoid* object)
-;; (define-extern *desclct-pris-texture-anim-array* texture-anim-array)
+(define-extern *desclct-pris-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; credits-h                      ;;
@@ -60640,7 +60638,7 @@
 ;; kras-effects                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *kras-alpha-texture-anim-array* texture-anim-array)
+(define-extern *kras-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; train-obs                      ;;
@@ -60974,7 +60972,7 @@
 |#
 
 ;; (define-extern update-mood-drome (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern *dromec-water-texture-anim-array* texture-anim-array)
+(define-extern *dromec-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; drome-part                     ;;
@@ -61025,7 +61023,7 @@
 ;; desisle-effects                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *desisle-water-texture-anim-array* texture-anim-array)
+(define-extern *desisle-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; desisle-part                   ;;
@@ -61322,7 +61320,7 @@
 |#
 
 ;; (define-extern update-mood-desarena (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern *desarena-water-texture-anim-array* texture-anim-array)
+(define-extern *desarena-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; garage-part                    ;;
@@ -61344,8 +61342,8 @@
 ;; haven-effects                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *havend-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *havend-water-texture-anim-array* texture-anim-array)
+(define-extern *havend-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *havend-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; haven-part                     ;;
@@ -61577,17 +61575,17 @@
 ;; jungle-effects                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *junglea-water-texture-anim-array* texture-anim-array)
-;; (define-extern *jungleb-water-texture-anim-array* texture-anim-array)
-;; (define-extern *jungley-water-texture-anim-array* texture-anim-array)
+(define-extern *junglea-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *jungleb-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *jungley-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; havjung-effects                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *junglee-water-texture-anim-array* texture-anim-array)
-;; (define-extern *junglef-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *havjung-water-texture-anim-array* texture-anim-array)
+(define-extern *junglee-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *junglef-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *havjung-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; havsew-effects                 ;;
@@ -61603,9 +61601,9 @@
 |#
 
 ;; (define-extern update-mood-havsewx (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern *havsewx-water-texture-anim-array* texture-anim-array)
-;; (define-extern *havsewy-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *havsewy-water-texture-anim-array* texture-anim-array)
+(define-extern *havsewx-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *havsewy-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *havsewy-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sewer-effects                  ;;
@@ -61632,12 +61630,12 @@
 
 ;; (define-extern update-mood-sewer (function mood-context float int none :behavior time-of-day-proc))
 ;; (define-extern update-mood-sewerx (function mood-context float int none :behavior time-of-day-proc))
-;; (define-extern *sewb-water-texture-anim-array* texture-anim-array)
-;; (define-extern *sewc-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern *sewd-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern *sewe-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern *sewf-water-texture-anim-array* texture-anim-array)
-;; (define-extern *sewx-water-texture-anim-array* texture-anim-array)
+(define-extern *sewb-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *sewc-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *sewd-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *sewe-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *sewf-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *sewx-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sewer-part                     ;;
@@ -61834,7 +61832,7 @@
 ;; kcross-effects                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *kcross-water-texture-anim-array* texture-anim-array)
+(define-extern *kcross-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; speech-keira                   ;;
@@ -63872,13 +63870,13 @@
 ;; temple-effects                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *templec-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *templed-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *templed-water-texture-anim-array* texture-anim-array)
-;; (define-extern *templee-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *templex-alpha-texture-anim-array* texture-anim-array)
-;; (define-extern *templex-water-texture-anim-array* texture-anim-array) ;; (texture-anim-array texture-anim)
-;; (define-extern *templey-water-texture-anim-array* texture-anim-array)
+(define-extern *templec-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templed-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templed-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templee-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templex-alpha-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templex-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
+(define-extern *templey-water-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; temple-ocean                   ;;

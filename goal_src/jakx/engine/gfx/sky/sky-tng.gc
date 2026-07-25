@@ -11,16 +11,23 @@
 ;; .lvf vf27 loads become set-sky-vf27 and the vf23 constant becomes
 ;; set-sky-vf23-value, smuggling those registers into the C++ side's shared
 ;; sky_regs_vfs state. close-sky-buffer is hand-adapted (jr-ra delay slot).
-;; draw-clouds/draw-fog and the level texture-anim slot carry bring-up guards
-;; until the texture-anim leg lands *sky-texture-anim-array*.
+;; the texture-anim leg lands *sky-texture-anim-array*, so the level slot and
+;; the anim tex reads are live; draw-clouds and draw-fog stay gated (clouds:
+;; *sky-clouds-clut-ready*, fog: real-fog-texture-anim-func) until the C++
+;; animator grows their per-frame texture generation paths.
 
 ;; DECOMP BEGINS
 
 ;; the C++ sky renderer keeps VF state between mips2c calls; these two setters
 ;; let the GOAL side hand it the giftag pointer and the vf23 constant
-(define-extern *sky-texture-anim-array* texture-anim-array) ;; og:preserve-this: home (texture-anim-tables) not landed
+(define-extern *sky-texture-anim-array* texture-anim-array) ;; og:preserve-this: defined in texture-anim-tables.o (links later)
 (def-mips2c set-sky-vf27 (function object none))
 (def-mips2c set-sky-vf23-value (function int none))
+
+;; og:preserve-this bring-up toggle: the clouds pass needs the per-frame
+;; generated clut (make-cloud-clut density ramp); the C++ animator has no jakx
+;; clut path yet, and the baked disc clut renders garbage. Flip when it lands.
+(define *sky-clouds-clut-ready* #f)
 
 ;; og:preserve-this PC helper ported from jak2 (jakx baselines are identical:
 ;; -267/267, -126/126, -357/357, -1207/1207, -232/232): rescale the sprite
@@ -909,13 +916,23 @@
                                ((method-of-type sky-work green-sun-dma) (the-as sky-work s3-0) s2-0 sv-16)
                                ((method-of-type sky-work moon-dma) (the-as sky-work s3-0) s2-0 sv-16)
                                ((method-of-type sky-work draw-haze) (the-as sky-work s3-0) s2-0 sv-16)
-                               ((method-of-type sky-work draw-clouds) (the-as sky-work s3-0) s2-0 sv-16)
+                               (when *sky-clouds-clut-ready*
+                                 ;; og:preserve-this bring-up guard: the clouds texture's clut is
+                                 ;; GENERATED per frame on PS2 (make-cloud-clut density ramp); the
+                                 ;; baked disc clut renders garbage blobs, so skip the pass until
+                                 ;; the C++ animator grows a jakx clut path and flips this define
+                                 ((method-of-type sky-work draw-clouds) (the-as sky-work s3-0) s2-0 sv-16)
+                                 )
                                (set-sky-vf27 (&-> this giftag-base quad))
                                ((method-of-type sky-work draw-base) (the-as sky-work s3-0) s2-0 sv-16)
-                               (when (nonzero? *sky-texture-anim-array*) ;; og:preserve-this bring-up guard:
-                                 ;; without the anim fog texture the fog quad (tme on) samples the
-                                 ;; last-bound texture fullscreen; skip the whole pass until the
-                                 ;; texture-anim leg lands
+                               (when (and (nonzero? *sky-texture-anim-array*)
+                                          (nonzero? real-fog-texture-anim-func)
+                                          )
+                                 ;; og:preserve-this bring-up guard: the anim array now lands, but
+                                 ;; the per-frame fog generator (real-fog-texture-anim-func) is not
+                                 ;; yet PC-ported, so the fog texture record exists with no content
+                                 ;; and the fog quad (tme on) would sample the last-bound texture
+                                 ;; fullscreen; the second check self-heals when the fog leg lands
                                  ((method-of-type sky-work draw-fog) (the-as sky-work s3-0) s2-0 sv-16) ;; unbound: none-typed spill slot
                                  )
                                )
