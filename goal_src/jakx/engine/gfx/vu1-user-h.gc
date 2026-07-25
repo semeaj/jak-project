@@ -865,6 +865,20 @@
   (etie-scissor-water-m9 726)
   (etie-scissor-water-m10 736)
   (etie-scissor-water-m11 745)
+
+  ;; shrub leg: main shrubbery category buckets (aliases; values also carry stale jak3-copied names)
+  (shrub-m0 146)
+  (shrub-m1 155)
+  (shrub-m2 165)
+  (shrub-m3 174)
+  (shrub-m4 184)
+  (shrub-m5 193)
+  (shrub-m6 203)
+  (shrub-m7 212)
+  (shrub-m8 222)
+  (shrub-m9 231)
+  (shrub-m10 241)
+  (shrub-m11 250)
 )
 ;; ---bucket-id
 

@@ -296,7 +296,10 @@
       (let ((s5-1 (-> *background-work* shrub-trees gp-1))
             (s4-1 (-> *background-work* shrub-levels gp-1))
             )
-        (if (nonzero? (-> s5-1 colors-added))
+        ;; og:preserve-this runtime-link guard: time-of-day-interp-colors is the
+        ;; unlanded asm palette interpolator (jak3 PC parity: the C++ renderers
+        ;; interpolate from itimes instead)
+        (if (and (nonzero? time-of-day-interp-colors) (nonzero? (-> s5-1 colors-added)))
             (time-of-day-interp-colors
               (-> *instance-shrub-work* colors)
               (the-as uint (-> s5-1 colors-added))

@@ -481,6 +481,11 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                                  694, 703, 713, 722, 732, 741};
     static constexpr int kEtieWaterBuckets[12] = {638, 647, 657, 666, 676, 685,
                                                   695, 704, 714, 723, 733, 742};
+    // Shrub ground truth from draw-prototype-inline-array-shrub's category
+    // arrays (shrubbery.o, block 3 = the main shrubbery category); the shrub
+    // region starts at 145 with stride 19 per draw-level (tex + 2 views x 9).
+    static constexpr int kShrubBuckets[12] = {146, 155, 165, 174, 184, 193,
+                                              203, 212, 222, 231, 241, 250};
     for (int slot = 0; slot < 12; slot++) {
       const int lev = slot / 2;
       const int view = slot % 2;
@@ -514,6 +519,8 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
       init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-water", lev, view),
                                                 BucketCategory::TIE, kEtieWaterBuckets[slot], tie,
                                                 tfrag3::TieCategory::WATER_ENVMAP);
+      init_bucket_renderer<Shrub>(fmt::format("shrub-l{}-v{}-shrub", lev, view),
+                                  BucketCategory::SHRUB, kShrubBuckets[slot]);
     }
 
     init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);
