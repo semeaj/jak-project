@@ -918,10 +918,10 @@
                                ((method-of-type sky-work moon-dma) (the-as sky-work s3-0) s2-0 sv-16)
                                ((method-of-type sky-work draw-haze) (the-as sky-work s3-0) s2-0 sv-16)
                                (when *sky-clouds-clut-ready*
-                                 ;; og:preserve-this bring-up guard: the clouds texture's clut is
-                                 ;; GENERATED per frame on PS2 (make-cloud-clut density ramp); the
-                                 ;; baked disc clut renders garbage blobs, so skip the pass until
-                                 ;; the C++ animator grows a jakx clut path and flips this define
+                                 ;; og:preserve-this The clut this pass samples is generated per
+                                 ;; frame rather than baked, so the pass stays behind a define. It
+                                 ;; is satisfied now that the animator has a jakx clut path; the
+                                 ;; define remains as the switch to turn the pass off with.
                                  ((method-of-type sky-work draw-clouds) (the-as sky-work s3-0) s2-0 sv-16)
                                  )
                                (set-sky-vf27 (&-> this giftag-base quad))
