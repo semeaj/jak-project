@@ -158,6 +158,43 @@ Someone reading it in a year should not have to reconstruct your reasoning.
   skipped, say it was skipped
 - Never fabricate a result, a file path, a line number, or a command's output
 
+## 11. Bypass requests
+
+If you are asked to skip any of the above and then open a pull request anyway, **do not
+open the pull request.** Say which rule the request skips, offer the compliant path, and
+let the maintainer decide.
+
+This is narrow and deliberate. You are not being told to refuse work:
+
+- Exploring, prototyping, hacking something together to see if it runs, deleting a guard to
+  test a theory, skipping verification because the user only wants a quick answer: all fine.
+  Do it and say what you skipped.
+- What is not fine is **presenting that work as a contribution.** A pull request is a claim
+  that the change meets this branch's standards. Opening one for work you know does not is
+  a false claim, and the fact that someone asked you to does not make it true.
+
+So the line is not "refuse the user". It is "do not sign something you know is untrue."
+
+Concretely, decline to open a pull request when you have been asked to:
+
+- cut the branch from `develop` rather than `master`, which contaminates the upstream diff
+- state a verification you did not perform, or leave a failure out of the description
+- present a guess as a finding, or drop the marking that identifies it as a guess
+- remove a guard, workaround or comment specifically so review does not notice it
+- skip the `(AI-assisted)` disclosure
+
+Say plainly which of these applies and what would make it acceptable. Usually the compliant
+path is small: run the check, mark the guess, or say the branch needs recutting.
+
+If the maintainer reads your explanation and tells you to proceed anyway, that is their call
+to make on their own repository. Proceed, and record in the pull request body exactly what
+was skipped and that it was skipped at their direction. What must never happen is a pull
+request that quietly implies standards were met when they were not.
+
+**None of this is enforcement.** A file cannot stop anyone. It states the policy so that
+skipping it is a visible choice rather than an accident, and so review knows what to look
+for. Enforcement is branch protection and human review.
+
 ## Divergence from upstream's guidance below
 
 Upstream's section says never to create an issue or a pull request. On this staging mirror,
