@@ -104,6 +104,37 @@ void OceanMidAndFar::render_jak2(DmaFollower& dma,
   }
   m_direct.reset_state();
 
+  // the progress menu draws directly renderable packets into this bucket from process context,
+  // ahead of any ocean chain the draw hook appends, and during menus the ocean skips emission
+  // entirely. every real ocean chain starts with a set-display-gs-state packet writing SCISSOR_1
+  // (the 64x64 envmap or 128x128 texture setup), so render everything before the first SCISSOR_1
+  // write through the direct renderer.
+  {
+    auto child = prof.make_scoped_child("direct-head");
+    bool got_direct = false;
+    while (dma.current_tag_offset() != render_state->next_bucket) {
+      DmaFollower peek = dma;
+      auto data = peek.read_and_advance();
+      u64 scissor;
+      if (scan_gs_set(data.data, data.size_bytes, GsRegisterAddress::SCISSOR_1, &scissor)) {
+        // the ocean chain begins here, leave it for the ocean renderers.
+        break;
+      }
+      dma = peek;
+      got_direct = true;
+      m_direct.render_vif(data.vif0(), data.vif1(), data.data, data.size_bytes, render_state,
+                          child);
+    }
+    if (got_direct) {
+      m_direct.flush_pending(render_state, child);
+    }
+  }
+
+  // menus suppress ocean emission, so the bucket may have contained only menu draws.
+  if (dma.current_tag_offset() == render_state->next_bucket) {
+    return;
+  }
+
   {
     auto p = prof.make_scoped_child("envmap");
     m_envmap_renderer.handle_ocean_envmap_jak2(dma, render_state, p);

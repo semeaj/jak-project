@@ -419,7 +419,7 @@ enum class BucketId {
   TEX_LCOM_SKY_PRE = 4,
   SKY = 5,
   OCEAN_MID_FAR = 6,
-  PROGRESS_HACK = 7,
+  TEX_ALL_HFRAG = 7,
   HFRAG = 8,
   TEX_L0_TFRAG = 10,
   TFRAG_L0_TFRAG = 11,

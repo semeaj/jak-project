@@ -96,7 +96,7 @@
          (a1-1 (the int (-> v1-1 x)))
          (a3-1 (the int (- (-> v1-1 z) (-> v1-1 x))))
          (f0-6 (- 1.0 (-> this menu-transition))))
-    (with-dma-buffer-add-bucket ((s3-0 (-> *display* frames (-> *display* on-screen) global-buf)) (bucket-id hud-draw-hud-alpha))
+    (with-dma-buffer-add-bucket ((s3-0 (-> *display* frames (-> *display* on-screen) global-buf)) (bucket-id particles))
       (when (not (-> *pc-settings* use-vis?))
         (set! a1-1 (the int (adjust-game-x (the float a1-1))))
         (set! a3-1 (the int (* (-> *pc-settings* aspect-ratio-reciprocal) a3-1))))
@@ -111,8 +111,7 @@
 
 (defmethod draw-bg-box-outline ((this progress) (arg0 progress-box) (arg1 float))
   (with-dma-buffer-add-bucket ((s4-0 (-> *display* frames (-> *display* on-screen) global-buf))
-                               ;; og:preserve-this changed from particles bucket
-                               (bucket-id hud-draw-hud-alpha))
+                               (bucket-id particles))
     (let* ((box (case (get-aspect-ratio)
                   (('aspect4x3) (-> arg0 aspect4x3))
                   (('aspect16x9) (-> arg0 aspect16x9))))
@@ -143,8 +142,7 @@
 
 (defmethod draw-bg-box-alpha-1 ((this progress) (arg0 progress-box) (arg1 float))
   (with-dma-buffer-add-bucket ((s4-0 (-> *display* frames (-> *display* on-screen) global-buf))
-                               ;; og:preserve-this changed from bucket6
-                               (bucket-id bucket7))
+                               (bucket-id bucket6))
     (let* ((box (case (get-aspect-ratio)
                   (('aspect4x3) (-> arg0 aspect4x3))
                   (('aspect16x9) (-> arg0 aspect16x9))))
@@ -1080,7 +1078,7 @@
           (set! (-> s1-1 box max y) (+ (-> s1-1 box min y) f30-1))
           (set-vector! (-> s1-1 color) 192 192 96 (the int (* 128.0 arg6)))
           (with-dma-buffer-add-bucket ((s2-1 (-> *display* frames (-> *display* on-screen) global-buf))
-                                        (bucket-id hud-draw-hud-alpha)
+                                        (bucket-id particles)
                                         )
             (set! (-> s1-1 box min x) (adjust-x-if-needed arg2))
             (set! (-> s1-1 box max x) arg3)

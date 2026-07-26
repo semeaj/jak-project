@@ -18,6 +18,34 @@ bool looks_like_2d_chunk_start(const DmaFollower& dma) {
 }
 
 /*!
+ * Does this transfer look like the sprite distorter's GS setup packet? (nop + direct 0x7 carrying
+ * a single giftag with 6 a+d registers). The pre-sprite direct data can also contain 7-qw direct
+ * transfers (e.g. the progress menu's box outline template), so the size alone can't identify it.
+ */
+bool looks_like_distort_gs_setup(const DmaTransfer& data) {
+  if (data.size_bytes != 7 * 16) {
+    return false;
+  }
+  if (data.vifcode0().kind != VifCode::Kind::NOP) {
+    return false;
+  }
+  auto vif1 = data.vifcode1();
+  if (vif1.kind != VifCode::Kind::DIRECT || vif1.immediate != 7) {
+    return false;
+  }
+  GifTag gif_tag(data.data);
+  if (gif_tag.nloop() != 1 || !gif_tag.eop() || gif_tag.nreg() != 6) {
+    return false;
+  }
+  for (u32 i = 0; i < 6; i++) {
+    if (gif_tag.reg(i) != GifTag::RegisterDescriptor::AD) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/*!
  * Read the header. Asserts if it's bad.
  * Returns the number of sprites.
  * Advances 1 dma transfer
@@ -298,8 +326,14 @@ bool Sprite3::render_direct(DmaFollower& dma,
                             SharedRenderState* render_state,
                             ScopedProfilerNode& prof) {
   m_direct.reset_state();
-  while (dma.current_tag().qwc != 7 && dma.current_tag_offset() != render_state->next_bucket) {
-    auto direct_data = dma.read_and_advance();
+  while (dma.current_tag_offset() != render_state->next_bucket) {
+    DmaFollower peek = dma;
+    auto direct_data = peek.read_and_advance();
+    if (looks_like_distort_gs_setup(direct_data)) {
+      // leave it for the distorter.
+      break;
+    }
+    dma = peek;
     m_direct.render_vif(direct_data.vif0(), direct_data.vif1(), direct_data.data,
                         direct_data.size_bytes, render_state, prof);
   }
@@ -470,15 +504,26 @@ void Sprite3::render_jak2(DmaFollower& dma,
     glow_dma_and_draw(dma, render_state, p);
   }
 
-  // fmt::print("next bucket is 0x{}\n", render_state->next_bucket);
-  while (dma.current_tag_offset() != render_state->next_bucket) {
-    // auto tag = dma.current_tag();
-    auto data = dma.read_and_advance();
-    (void)data;
-    // VifCode code(data.vif0());
-    // fmt::print("@ 0x{:x} tag: {}", dma.current_tag_offset(), tag.print());
-    // fmt::print(" vif0: {}\n", code.print());
-    // fmt::print(" vif1: {}\n", VifCode(data.vif1()).print());
+  // anything appended to the bucket after sprite-draw ran lands here; render direct data instead
+  // of silently dropping it.
+  {
+    auto child = prof.make_scoped_child("direct-tail");
+    bool got_direct = false;
+    while (dma.current_tag_offset() != render_state->next_bucket) {
+      auto data = dma.read_and_advance();
+      if (data.vifcode0().kind == VifCode::Kind::DIRECT ||
+          data.vifcode1().kind == VifCode::Kind::DIRECT) {
+        if (!got_direct) {
+          m_direct.reset_state();
+          got_direct = true;
+        }
+        m_direct.render_vif(data.vif0(), data.vif1(), data.data, data.size_bytes, render_state,
+                            child);
+      }
+    }
+    if (got_direct) {
+      m_direct.flush_pending(render_state, child);
+    }
   }
 }
 
