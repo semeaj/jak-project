@@ -1,0 +1,93 @@
+# Forge CI for this staging mirror.
+#
+# Deliberately NOT a copy of upstream's build matrix. Upstream already runs Linux
+# clang/gcc, Windows MSVC/clang and macOS Intel/ARM on every pull request, on hardware
+# this homelab does not have. Duplicating that would mean maintaining a Windows VM and
+# never covering macOS at all, to re-check something that is already checked for free at
+# submission time.
+#
+# What this runs instead is the set that catches problems BEFORE a submission exists:
+# formatting and lint, which upstream only tells you about after a push, and a Linux build
+# plus the unit tests, which is the platform most work here is done against.
+#
+# Forgejo reads .forgejo/workflows in preference to .github/workflows, so upstream's
+# matrix stays on disk, untouched, and simply does not run here. That also stops jobs
+# queueing forever against windows-2022 and macos-15 labels that no runner provides.
+#
+# Runner: atlas-ci, instance-level, labels ubuntu-22.04 / ubuntu-latest / self-hosted,
+# backed by catthehacker/ubuntu:act-22.04.
+
+name: Forge CI
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint and format
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned to 18 on purpose. Later clang-format releases disagree with this codebase
+      # (braced-init-list bin packing, among others) and will fail a clean tree, so a
+      # newer one on PATH produces false failures and, worse, reformats code that CI
+      # then rejects.
+      - name: Install clang-format 18
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-18
+          clang-format-18 --version
+
+      - name: Check formatting
+        run: |
+          chmod +x ./third-party/run-clang-format/run-clang-format.py
+          ./third-party/run-clang-format/run-clang-format.py \
+            -r common decompiler game goalc test tools lsp \
+            --color always \
+            --clang-format-executable "$(which clang-format-18)"
+
+      - name: Required checks
+        run: |
+          python3 ./scripts/ci/lint-trailing-whitespace.py
+          python3 ./scripts/gsrc/check-for-conflicts.py
+          python3 ./scripts/ci/check-for-asserts.py
+          python3 ./scripts/ci/lint-characters.py
+          python3 ./scripts/ci/lint-autoglottonyms.py
+
+  build-and-test:
+    name: Linux clang build and unit tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake clang gcc g++ lcov make \
+            nasm libxrandr-dev libxinerama-dev libxcursor-dev libpulse-dev \
+            libxi-dev zip ninja-build libgl1-mesa-dev libssl-dev
+
+      # No sccache here. Upstream's setup uses GitHub's hosted Actions Cache service,
+      # which this instance does not provide. Atlas has the cores to absorb a cold build.
+      #
+      # Release-linux-clang rather than upstream's -asan variant: ASAN roughly doubles
+      # build time and slows the test run considerably, and its value is finding
+      # memory errors that upstream's matrix will catch at submission anyway.
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: cmake -B build --preset=Release-linux-clang
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      # 1509 tests, no ISO data required, no GPU required.
+      - name: Unit tests
+        run: ./build/goalc-test --gtest_color=yes --gtest_filter="-*MANUAL_TEST*"
