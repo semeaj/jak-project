@@ -10,9 +10,16 @@
 # formatting and lint, which upstream only tells you about after a push, and a Linux build
 # plus the unit tests, which is the platform most work here is done against.
 #
-# Forgejo reads .forgejo/workflows in preference to .github/workflows, so upstream's
-# matrix stays on disk, untouched, and simply does not run here. That also stops jobs
-# queueing forever against windows-2022 and macos-15 labels that no runner provides.
+# Forgejo prefers .forgejo/workflows over .github/workflows, but that preference is
+# resolved PER REF, not repository-wide. A ref carrying no .forgejo/workflows directory
+# falls back to .github/workflows and runs upstream's matrix in full, which here fails in
+# seconds against windows-2022 and macos-15 labels that no runner provides. Only develop
+# carries this file, so only develop is covered by the preference.
+#
+# What keeps that fallback from firing on pull requests is upstream's own trigger filter:
+# every workflow in .github/workflows is `branches: [master]`, and for a pull_request that
+# filter matches the BASE ref. So a pull request based on develop cannot match them, while
+# one based on master runs the whole matrix red. Base forge pull requests on develop.
 #
 # Runner: atlas-ci, instance-level, labels ubuntu-22.04 / ubuntu-latest / self-hosted,
 # backed by catthehacker/ubuntu:act-22.04.
@@ -26,9 +33,10 @@ on:
 
   # pull_request_target, not pull_request, and the reason is structural. Branches here are
   # cut from master so their upstream diff stays clean, and master deliberately does not
-  # carry this file. A pull_request event resolves the workflow from the HEAD ref, finds
-  # nothing, and the pull request silently gets no CI at all. pull_request_target resolves
-  # it from the BASE ref, which is develop, which does have it.
+  # carry this file. A pull_request event resolves the workflow from the HEAD ref, which
+  # therefore does not have it; worse than getting no CI, that falls back to
+  # .github/workflows and runs upstream's matrix. pull_request_target resolves from the
+  # BASE ref, which is develop, which does have it.
   #
   # The tradeoff is real: pull_request_target runs with the base repository's context, and
   # the checkout below deliberately takes the pull request's head so that the code under
