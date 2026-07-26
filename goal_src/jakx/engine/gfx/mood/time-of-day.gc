@@ -56,7 +56,12 @@
 ;; definition for function time-of-day-update
 ;; WARN: Return type mismatch int vs none.
 (defbehavior time-of-day-update time-of-day-proc ()
-  (time-of-day-effect)
+  ;; og:preserve-this runtime-link guard: time-of-day-effect is extern-only (its home is
+  ;; not landed), so the symbol links as 0 and calling it jumps to address 0. It is the
+  ;; first statement of this :post, which runs every frame once the tick process spawns.
+  (if (nonzero? time-of-day-effect)
+      (time-of-day-effect)
+      )
   (if (-> *time-of-day-context* use-camera-other)
       (-> (view-get-active-math-camera) inv-camera-rot-other)
       (-> (view-get-active-math-camera) inv-camera-rot)
@@ -74,35 +79,46 @@
            (+! (-> self start-timer) 1)
            )
           (else
+            ;; og:preserve-this bring-up guards on the three launch controls. init-time-of-day
+            ;; cannot build them yet (part groups 3, 4 and 5 are undefined, see there), so the
+            ;; fields hold 0 and both spawn and method 21 would dereference it. These are the
+            ;; sun/moon PARTICLE effects only; the sky's sun and moon sprites are a separate
+            ;; pass and draw regardless. Each guard retires with its part group.
             (let ((s5-0 (-> *time-of-day-context* sky)))
               (cond
-                ((and (>= (-> self time-of-day) 6.25) (and (< (-> self time-of-day) 18.75) s5-0))
+                ((and (nonzero? (-> self sun))
+                      (>= (-> self time-of-day) 6.25)
+                      (and (< (-> self time-of-day) 18.75) s5-0)
+                      )
                  (if (zero? (-> self sun-count))
                      (spawn (-> self sun) gp-0)
                      )
                  )
-                ((> (-> self sun-count) 0)
+                ((and (> (-> self sun-count) 0) (nonzero? (-> self sun)))
                  (sparticle-launch-control-method-21 (-> self sun))
                  )
                 )
               (cond
-                ((and (or (>= (-> self time-of-day) 21.75) (>= 10.25 (-> self time-of-day))) s5-0)
+                ((and (nonzero? (-> self green-sun))
+                      (or (>= (-> self time-of-day) 21.75) (>= 10.25 (-> self time-of-day)))
+                      s5-0
+                      )
                  (if (zero? (-> self green-sun-count))
                      (spawn (-> self green-sun) gp-0)
                      )
                  )
-                ((> (-> self green-sun-count) 0)
+                ((and (> (-> self green-sun-count) 0) (nonzero? (-> self green-sun)))
                  (sparticle-launch-control-method-21 (-> self green-sun))
                  )
                 )
               (set! s5-0 (and (or (>= 7.0 (-> self time-of-day)) (>= (-> self time-of-day) 17.0)) s5-0))
               (cond
-                (s5-0
+                ((and s5-0 (nonzero? (-> self moon)))
                   (if (zero? (-> self moon-count))
                       (spawn (-> self moon) gp-0)
                       )
                   )
-                ((> (-> self moon-count) 0)
+                ((and (> (-> self moon-count) 0) (nonzero? (-> self moon)))
                  (sparticle-launch-control-method-21 (-> self moon))
                  )
                 )
@@ -158,55 +174,132 @@
     )
   )
 
-;; failed to figure out what this is:
-;; og:preserve-this commented: the tod process state has an anonymous :event
-;; behavior (L130) the decompiler cannot name; the per-frame mood pump
-;; (update-time-of-day) does not need the process. Land with the anon fix.
-; (defstate time-of-day-tick (time-of-day-proc)
-;   :event L130
-;   :code (behavior ()
-;     (until #f
-;       (if (!= (-> self time-ratio) 0.0)
-;           (set! (-> *time-of-day-context* mode) (time-of-day-palette-id unk3))
-;           )
-;       (when (!= (-> self time-ratio) (-> self dest-time-ratio))
-;         (seek! (-> self time-ratio) (-> self dest-time-ratio) (-> self dest-time-delta))
-;         (update-rates! (-> *display* bg-clock) (-> self time-ratio))
-;         )
-;       (update-counters)
-;       (suspend)
-;       )
-;     #f
-;     )
-;   :post time-of-day-update
-;   )
+;; og:preserve-this The :event handler is hand-written. Retail's is (anon-function 14
+;; time-of-day), which the decompiler renders only as the label L130 and cannot name, so
+;; there is no body to land. It is reconstructed from jak3's, which the disassembly
+;; supports: the same 'change/'ratio/'hour, 'save and 'restore cases, and the same three
+;; constants (432000, 1080000.0, 18000.0). Two deliberate divergences, both evidenced:
+;;   - no day-star. Jak X's sky is jak2-shaped and time-of-day-proc carries no day-star or
+;;     day-star-count field, where jak3's handler kills and zeroes both.
+;;   - no kill-particles. jak3 calls it four times per hour change; the jakx handler loads
+;;     exactly one function symbol, update-counters, and never kill-particles.
+;; Only the 'ratio path is exercised on the bring-up (start-time-of-day sends it). 'hour,
+;; 'save and 'restore are shaped after jak3 and are unverified until something sends them.
+(defstate time-of-day-tick (time-of-day-proc)
+  :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
+    (case message
+      (('change)
+       (case (-> block param 0)
+         (('ratio)
+          (let ((clock (-> *display* bg-clock))
+                (f0-0 (the-as float (-> block param 1)))
+                )
+            (set! (-> self time-ratio) f0-0)
+            (set! (-> self dest-time-ratio) f0-0)
+            (update-rates! clock f0-0)
+            )
+          )
+         (('hour)
+          (let ((f28-0 (the float (-> block param 1)))
+                (f30-0 (if (>= argc 3)
+                           (the float (-> block param 2))
+                           0.0
+                           )
+                       )
+                )
+            (update-counters)
+            (let ((v1-10 (-> *display* bg-clock frame-counter))
+                  (a0-7 #x69780)
+                  (a1-5 (/ (+ (the int (* 1080000.0 f28-0)) (the int (* 18000.0 f30-0))) 60))
+                  )
+              (set! (-> *display* bg-clock frame-counter) (+ (- v1-10 (the-as time-frame (mod v1-10 a0-7))) a0-7 a1-5))
+              )
+            )
+          (update-counters)
+          (set! (-> self sun-count) 0)
+          (set! (-> self green-sun-count) 0)
+          (set! (-> self moon-count) 0)
+          (-> self hours)
+          )
+         )
+       )
+      (('save)
+       (set! (-> self old-frame-save) (-> self old-frame))
+       (set! (-> self current-frame-save) (-> self current-frame))
+       (set! (-> self frames-save) (-> self frames))
+       (set! (-> self time-of-day-save) (-> self time-of-day))
+       )
+      (('restore)
+       (set! (-> self old-frame) (-> self old-frame-save))
+       (set! (-> self current-frame) (-> self current-frame-save))
+       (set! (-> self frames) (-> self frames-save))
+       (set! (-> self time-of-day) (-> self time-of-day-save))
+       (let ((v1-30 (-> *display* bg-clock frame-counter))
+             (a0-18 #x69780)
+             (a1-8 (/ (the int (* 1080000.0 (-> self time-of-day))) 60))
+             )
+         (set! (-> *display* bg-clock frame-counter) (+ (- v1-30 (the-as time-frame (mod v1-30 a0-18))) a0-18 a1-8))
+         )
+       (update-counters)
+       (set! (-> self sun-count) 0)
+       (set! (-> self green-sun-count) 0)
+       (set! (-> self moon-count) 0)
+       )
+      )
+    )
+  :code (behavior ()
+    (until #f
+      (if (!= (-> self time-ratio) 0.0)
+          (set! (-> *time-of-day-context* mode) (time-of-day-palette-id unk3))
+          )
+      (when (!= (-> self time-ratio) (-> self dest-time-ratio))
+        (seek! (-> self time-ratio) (-> self dest-time-ratio) (-> self dest-time-delta))
+        (update-rates! (-> *display* bg-clock) (-> self time-ratio))
+        )
+      (update-counters)
+      (suspend)
+      )
+    #f
+    )
+  :post time-of-day-update
+  )
 
 ;; definition for function init-time-of-day
-;; og:preserve-this commented: goes with the tick state above
-; (defbehavior init-time-of-day time-of-day-proc ()
-;   (stack-size-set! (-> self main-thread) 128)
-;   (set! (-> self hours) 0)
-;   (set! (-> self minutes) 0)
-;   (set! (-> self seconds) 0)
-;   (set! (-> self frames) (the-as uint 0))
-;   (set! (-> self time-of-day) 0.0)
-;   (cond
-;     (*time-of-day-fast*
-;       (set! (-> self time-ratio) 60.0)
-;       (set! (-> self dest-time-ratio) 60.0)
-;       )
-;     (else
-;       (set! (-> self time-ratio) 1.0)
-;       (set! (-> self dest-time-ratio) 1.0)
-;       )
-;     )
-;   (update-rates! (-> *display* bg-clock) (-> self time-ratio))
-;   (set! (-> self sun) (create-launch-control (-> *part-group-id-table* 3) self))
-;   (set! (-> self green-sun) (create-launch-control (-> *part-group-id-table* 4) self))
-;   (set! (-> self moon) (create-launch-control (-> *part-group-id-table* 5) self))
-;   (set! (-> self event-hook) (-> time-of-day-tick event))
-;   (go time-of-day-tick)
-;   )
+(defbehavior init-time-of-day time-of-day-proc ()
+  (stack-size-set! (-> self main-thread) 128)
+  (set! (-> self hours) 0)
+  (set! (-> self minutes) 0)
+  (set! (-> self seconds) 0)
+  (set! (-> self frames) (the-as uint 0))
+  (set! (-> self time-of-day) 0.0)
+  (cond
+    (*time-of-day-fast*
+      (set! (-> self time-ratio) 60.0)
+      (set! (-> self dest-time-ratio) 60.0)
+      )
+    (else
+      (set! (-> self time-ratio) 1.0)
+      (set! (-> self dest-time-ratio) 1.0)
+      )
+    )
+  (update-rates! (-> *display* bg-clock) (-> self time-ratio))
+  ;; og:preserve-this bring-up guard: these are part groups 3, 4 and 5 (sun, green sun,
+  ;; moon). No jakx part group below id 6 is defined yet, so the table entries are unset
+  ;; and create-launch-control would be handed a zero. The sun and moon still DRAW: those
+  ;; are the sky sprite passes, which are unrelated to these particle effects. Drop the
+  ;; guard when the sky part groups land.
+  (if (nonzero? (-> *part-group-id-table* 3))
+      (set! (-> self sun) (create-launch-control (-> *part-group-id-table* 3) self))
+      )
+  (if (nonzero? (-> *part-group-id-table* 4))
+      (set! (-> self green-sun) (create-launch-control (-> *part-group-id-table* 4) self))
+      )
+  (if (nonzero? (-> *part-group-id-table* 5))
+      (set! (-> self moon) (create-launch-control (-> *part-group-id-table* 5) self))
+      )
+  (set! (-> self event-hook) (-> time-of-day-tick event))
+  (go time-of-day-tick)
+  )
 
 ;; definition for function start-time-of-day
 (defun start-time-of-day ()
@@ -214,11 +307,9 @@
     (format 0 "PP=~D~%" pp)
     (format 0 "#f=~D~%" #f)
     (kill-by-name "time-of-day-proc" *active-pool*)
-    ;; og:preserve-this commented: tick process state is commented above
-    ;; (set! *time-of-day*
-    ;;       (process-spawn time-of-day-proc :init init-time-of-day :name "time-of-day-proc" :to *bg-pool*)
-    ;;       )
-    (set! *time-of-day* (the-as (pointer time-of-day-proc) #f))
+    (set! *time-of-day*
+          (process-spawn time-of-day-proc :init init-time-of-day :name "time-of-day-proc" :to *bg-pool*)
+          )
     *time-of-day*
     )
   )
