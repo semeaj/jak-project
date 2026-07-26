@@ -1,6 +1,6 @@
 {
   "foreground": [
-    ["L215", "shadow-settings", true], // *default-shadow-settings* static; jak3's same-named label was a bucket array
+    ["L215", "shadow-settings"], // *default-shadow-settings* static; jak3's same-named label was a bucket array
     ["L216", "vector"]
   ],
   "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
@@ -62,7 +62,10 @@
   ],
   "ambient-h": [["L1", "(inline-array talker-speech-class)", 233]],
   "pat-h": [["L1", "(inline-array pat-mode-info)", 4]],
-  "foreground-h": [["L4", "(pointer bucket-id-16)", 462]],
+  // L4 is the full *bucket-map*: 1140 raw words = 2280 entries (19 draw slots x
+  // 10 categories x 2 viewports x 6 modes). 462 was a jak3-count seed and is what
+  // silently truncated the landed goal_src array.
+  "foreground-h": [["L4", "(pointer bucket-id-16)", 2280]],
   "texture-anim-h": [["L1", "(pointer uint8)", 256]],
   "process-nettable-h": [["L13", "(pointer uint32)", 95]],
   "math": [

@@ -718,8 +718,24 @@
   (bucket611 611)
   (bucket612 612)
 
+  (bucket613 613) ;; *bucket-map* full decode 2026-07-26
+  (bucket614 614) ;; *bucket-map* full decode 2026-07-26
+  (bucket615 615) ;; *bucket-map* full decode 2026-07-26
+  (bucket616 616) ;; *bucket-map* full decode 2026-07-26
+  (bucket617 617) ;; *bucket-map* full decode 2026-07-26
+  (bucket618 618) ;; *bucket-map* full decode 2026-07-26
+  (bucket619 619) ;; *bucket-map* full decode 2026-07-26
+  (bucket620 620) ;; *bucket-map* full decode 2026-07-26
   (bucket621 621)
 
+  (bucket622 622) ;; *bucket-map* full decode 2026-07-26
+  (bucket623 623) ;; *bucket-map* full decode 2026-07-26
+  (bucket624 624) ;; *bucket-map* full decode 2026-07-26
+  (bucket625 625) ;; *bucket-map* full decode 2026-07-26
+  (bucket626 626) ;; *bucket-map* full decode 2026-07-26
+  (bucket627 627) ;; *bucket-map* full decode 2026-07-26
+  (bucket628 628) ;; *bucket-map* full decode 2026-07-26
+  (bucket629 629) ;; *bucket-map* full decode 2026-07-26
   (bucket630 630)
 
   (bucket633 633)
@@ -775,19 +791,37 @@
 
   (bucket708 708)
   (bucket709 709)
+  (bucket710 710) ;; *bucket-map* full decode 2026-07-26
+  (bucket711 711) ;; *bucket-map* full decode 2026-07-26
   (bucket712 712) ;; water/trans tfrag draw slot
   (bucket716 716) ;; water/trans tfrag draw slot
+  (bucket718 718) ;; *bucket-map* full decode 2026-07-26
+  (bucket719 719) ;; *bucket-map* full decode 2026-07-26
+  (bucket720 720) ;; *bucket-map* full decode 2026-07-26
   (bucket721 721) ;; water/trans tfrag draw slot
   (bucket725 725) ;; water/trans tfrag draw slot
 
+  (bucket727 727) ;; *bucket-map* full decode 2026-07-26
   (bucket728 728)
+  (bucket729 729) ;; *bucket-map* full decode 2026-07-26
+  (bucket730 730) ;; *bucket-map* full decode 2026-07-26
   (bucket731 731) ;; water/trans tfrag draw slot
   (bucket735 735) ;; water/trans tfrag draw slot
+  (bucket737 737) ;; *bucket-map* full decode 2026-07-26
+  (bucket738 738) ;; *bucket-map* full decode 2026-07-26
+  (bucket739 739) ;; *bucket-map* full decode 2026-07-26
   (bucket740 740) ;; water/trans tfrag draw slot
   (bucket744 744) ;; water/trans tfrag draw slot
 
+  (bucket746 746) ;; *bucket-map* full decode 2026-07-26
   (bucket747 747)
 
+  (bucket748 748) ;; *bucket-map* full decode 2026-07-26
+  (bucket749 749) ;; *bucket-map* full decode 2026-07-26
+  (bucket756 756) ;; *bucket-map* full decode 2026-07-26
+  (bucket757 757) ;; *bucket-map* full decode 2026-07-26
+  (bucket758 758) ;; *bucket-map* full decode 2026-07-26
+  (bucket765 765) ;; *bucket-map* full decode 2026-07-26
   (bucket767 767)
   (bucket768 768)
 
