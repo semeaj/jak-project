@@ -52,6 +52,78 @@
 (define-extern *texture-anim-mip-array* (pointer uint16)) ;; activated, texture-anim leg
 (define-extern *sky-texture-anim-array* texture-anim-array) ;; activated, texture-anim leg (defined in texture-anim-tables.o, links later)
 
+;; og:preserve-this
+;; The vocabulary the GOAL side uses to talk to the C++ texture animator. None of this is
+;; retail data: the PS2 generated its animated textures straight into VRAM, so the PC port
+;; needs an explicit hand-off instead.
+;;
+;; Codes 12-18 are jak3's values and MUST stay identical, because JakX shares jak3's decode
+;; path (TextureAnimator.cpp: `case GameVersion::Jak3: case GameVersion::JakX:` decodes with
+;; PcTextureAnimCodesJak3). Code 12 never reaches that switch at all: TextureUploadHandler
+;; consumes it to open the animator block.
+;;
+;; jak3's 19-21 (move-rg-to-ba, set-clut-alpha, copy-clut-alpha) are deliberately absent.
+;; They exist only in jak3's GOAL enum with no C++ counterpart, so emitting one would fall
+;; to the switch's `default: ASSERT_NOT_REACHED()`. The same is true of jak3's animation
+;; codes at 22+, which are jak3 content JakX does not have.
+;;
+;; clut-index-texture is new for JakX and sits in the free gap between jak3's 23 and 27.
+(defenum texture-anim-pc
+  (start-anim-array 12)
+  (finish-anim-array 13)
+  (erase-and-init 14)
+  (upload-clut-16-16 15) ;; fog clut upload
+  (upload-generic-vram 16) ;; fog texture upload
+  (set-shader 17)
+  (draw 18)
+  (clut-index-texture 24) ;; jakx-only: re-clut an extracted index texture, for the sky clouds
+  )
+
+;; og:preserve-this
+(deftype texture-anim-pc-upload (structure)
+  ((data       pointer)
+   (width      uint16)
+   (height     uint16)
+   (dest       uint32)
+   (format     gs-psm)
+   (force-to-gpu uint8)
+   (pad        uint8 2)
+   )
+  :size-assert 16
+  )
+
+;; og:preserve-this
+;; Payload of clut-index-texture. Mirrors JakXClutIndexInput in TextureAnimator.h; the two must
+;; stay in step. itex-idx selects among the index textures setup_texture_anims_jakx resolved.
+(deftype texture-anim-pc-clut-index (structure)
+  ((itex-idx  int32)
+   (dest-tbp  int32)
+   (clut-tbp  int32)
+   (pad       int32)
+   )
+  :size-assert 16
+  )
+
+;; og:preserve-this
+(defmacro pc-texture-anim-flag (kind buf &key (qwc 0))
+  `(dma-buffer-add-cnt-vif2
+     ,buf
+     ,qwc
+     (new 'static 'vif-tag :cmd (vif-cmd pc-port) :imm (texture-anim-pc ,kind))
+     (new 'static 'vif-tag)
+     )
+  )
+
+;; og:preserve-this
+(defmacro pc-texture-anim-flag-id (kind buf &key (qwc 0))
+  `(dma-buffer-add-cnt-vif2
+     ,buf
+     ,qwc
+     (new 'static 'vif-tag :cmd (vif-cmd pc-port) :imm ,kind)
+     (new 'static 'vif-tag)
+     )
+  )
+
 ;; DECOMP BEGINS
 
 ;; definition for symbol *texture-anim-work*, type texture-anim-work
@@ -1589,20 +1661,61 @@
 ;; ERROR: Failed store: (s.w! (+ v1-41 8) a0-27) at op 238
 ;; ERROR: Failed store: (s.w! (+ v1-41 12) 0) at op 239
 (defun update-texture-anim ((arg0 bucket-id) (arg1 texture-anim-array))
-  "og:preserve-this minimal jakx PC port: the retail body builds GS blend/upload
-DMA per anim, which the PC does not parse. Jak X's clouds are a pre-authored
-texture plus a dynamically generated clut (not jak3's noise octaves), so the
-jak3-style clouds-and-fog reroute does not map; the C++ side needs a jakx-shaped
-clut path before those passes light up. Until then: tick the sky array's anim
-clocks (the ocean-sky entry syncs the ocean from them) and skip everything else."
+  "og:preserve-this jakx PC port. The retail body builds GS blend/upload DMA per anim,
+which the PC does not parse, so instead this opens a texture-animator block on the
+bucket and lets the C++ side do the work. The per-entry generator dispatch is not
+wired yet; the framing and the clock are.
+
+Two guards, not one. The array test is the semantic one: the sky array is what this
+function knows how to drive. The bucket test is a routing safety net, because
+add-level-tpage-dma also reaches update-texture-anim on bucket630, which is a
+SkipRenderer on the PC and would swallow the DMA without a word. Today the sky array
+can only arrive on tex-lcom-sky-pre (the *texture-page-translate* item for bucket630
+carries tpage-category pris2, not sky), so the bucket test never fires; it is here so
+that if that ever changes the pass goes quiet rather than silently dropping DMA."
   (when (and (nonzero? arg1) arg1 (= arg1 *sky-texture-anim-array*))
-    (dotimes (i (-> arg1 length))
-      (let ((anim (-> arg1 array-data i)))
-        (when (!= (-> anim frame-mod) 0.0)
-          (+! (-> anim frame-time) (-> anim frame-delta))
-          (if (>= (-> anim frame-time) (-> anim frame-mod))
-              (set! (-> anim frame-time) (- (-> anim frame-time) (-> anim frame-mod)))
+    (when (= arg0 (bucket-id tex-lcom-sky-pre))
+      (with-dma-buffer-add-bucket ((dma-buf (-> *display* frames (-> *display* on-screen) global-buf))
+                                   arg0
+                                   )
+        (pc-texture-anim-flag start-anim-array dma-buf)
+        ;; Retail's per-anim generator dispatch. Entry 0 is the clouds clut, entries 1 and 2 are
+        ;; the two per-viewport fog ramps, and entry 3 (ocean-sky) carries func #f so it falls
+        ;; out here on its own, which is what we want: it is the ocean envmap pass, which jak3
+        ;; skips too.
+        ;;
+        ;; Retail also dispatches mip-func for ct32 textures with mips. Not ported: jakx's only
+        ;; mip funcs are PS2 GS paths (texture-anim-draw-mips / -draw-ocean-mips) with nothing
+        ;; for the animator to consume.
+        (dotimes (i (-> arg1 length))
+          (let ((anim (-> arg1 array-data i)))
+            (when (-> anim func)
+              ((-> anim func) dma-buf anim)
               )
+            )
+          )
+        (pc-texture-anim-flag finish-anim-array dma-buf)
+        )
+      )
+    ;; Retail's clock, from the disassembly: frame-delta is per SECOND, not per frame, and
+    ;; the modulo is a truncation so a large delta cannot outrun a single subtract. The
+    ;; frame-mod test is ours and must stay: retail divides by frame-mod unguarded, and
+    ;; three of the four jakx sky entries carry frame-mod 0.0 (only ocean-sky animates),
+    ;; which would put a NaN in frame-time on the first frame.
+    ;; All four entries have time-func #f, so retail's time-func dispatch is not ported.
+    (when (not (paused?))
+      (dotimes (i (-> arg1 length))
+        (let ((anim (-> arg1 array-data i)))
+          (when (!= (-> anim frame-mod) 0.0)
+            (let ((next (+ (-> anim frame-time) (* (-> anim frame-delta) (seconds-per-frame))))
+                  (m (-> anim frame-mod))
+                  )
+              (set! (-> anim frame-time) (- next (* (the float (the int (/ next m))) m)))
+              )
+            (if (< (-> anim frame-time) 0.0)
+                (+! (-> anim frame-time) (-> anim frame-mod))
+                )
+            )
           )
         )
       )
@@ -2440,11 +2553,41 @@ clocks (the ocean-sky entry syncs the ocean from them) and skip everything else.
 ;; definition for function texture-anim-cloud-clut-upload
 ;; WARN: Return type mismatch int vs none.
 (defun texture-anim-cloud-clut-upload ((arg0 dma-buffer) (arg1 texture-anim))
-  (when (-> arg1 tex)
-    (make-cloud-clut (the-as (pointer uint32) (-> arg1 tex pad 0)) (-> arg1 extra x) (-> arg1 extra y))
-    (upload-vram-data arg0 (the-as int (-> arg1 tex clutdest)) (the-as pointer (-> arg1 tex pad 0)) 16 16)
-    (set! (-> *texture-pool* ids (shr (-> arg1 tex clutdest) 6)) (the-as uint 0))
-    0
+  "og:preserve-this jakx PC port. The clut generation is retail and unchanged; only the delivery
+changes. upload-vram-data is a dead end here: it builds a GS packet the PC never parses, and is
+itself wrapped in a bring-up guard. Instead the generated clut is handed to the texture animator,
+which re-cluts the extracted 'clouds' index texture and publishes the result at the dest tbp the
+sky's adgif names.
+
+The pad-0 and clutdest tests are not paranoia. texture-anim-cloud-clut-init writes clutdest and
+pad 0 onto the record it gets from lookup-texture-by-name, but it never assigns (-> anim tex) --
+that comes from init-textures! via a different lookup, so the two can be different records. When
+they are, pad 0 is 0 and the retail body's make-cloud-clut would write 1 KiB over EE offset 0
+every frame."
+  (let ((tex (-> arg1 tex)))
+    (when (and tex (nonzero? (-> tex pad 0)) (nonzero? (-> tex clutdest)))
+      (make-cloud-clut (the-as (pointer uint32) (-> tex pad 0)) (-> arg1 extra x) (-> arg1 extra y))
+      (pc-texture-anim-flag upload-clut-16-16 arg0 :qwc 1)
+      (let ((upload-record (the texture-anim-pc-upload (-> arg0 base))))
+        (set! (-> upload-record data) (the-as pointer (-> tex pad 0)))
+        (set! (-> upload-record width) 16)
+        (set! (-> upload-record height) 16)
+        (set! (-> upload-record dest) (-> tex clutdest))
+        (set! (-> upload-record format) (gs-psm ct32))
+        (set! (-> upload-record force-to-gpu) 0)
+        )
+      (&+! (-> arg0 base) 16)
+      (pc-texture-anim-flag clut-index-texture arg0 :qwc 1)
+      (let ((clut-index-record (the texture-anim-pc-clut-index (-> arg0 base))))
+        (set! (-> clut-index-record itex-idx) 0)
+        (set! (-> clut-index-record dest-tbp) (the-as int (-> tex dest 0)))
+        (set! (-> clut-index-record clut-tbp) (the-as int (-> tex clutdest)))
+        (set! (-> clut-index-record pad) 0)
+        )
+      (&+! (-> arg0 base) 16)
+      (set! (-> *texture-pool* ids (shr (-> tex clutdest) 6)) (the-as uint 0))
+      0
+      )
     )
   (none)
   )

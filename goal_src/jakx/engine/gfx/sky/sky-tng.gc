@@ -24,10 +24,11 @@
 (def-mips2c set-sky-vf27 (function object none))
 (def-mips2c set-sky-vf23-value (function int none))
 
-;; og:preserve-this bring-up toggle: the clouds pass needs the per-frame
-;; generated clut (make-cloud-clut density ramp); the C++ animator has no jakx
-;; clut path yet, and the baked disc clut renders garbage. Flip when it lands.
-(define *sky-clouds-clut-ready* #f)
+;; og:preserve-this bring-up toggle, now satisfied: the clouds pass needs the
+;; per-frame generated clut (make-cloud-clut density ramp), and the C++ animator
+;; grew a jakx clut path (clut-index-texture, re-cluts the extracted 'clouds'
+;; index texture and publishes it at the dest tbp this pass samples).
+(define *sky-clouds-clut-ready* #t)
 
 ;; og:preserve-this PC helper ported from jak2 (jakx baselines are identical:
 ;; -267/267, -126/126, -357/357, -1207/1207, -232/232): rescale the sprite
