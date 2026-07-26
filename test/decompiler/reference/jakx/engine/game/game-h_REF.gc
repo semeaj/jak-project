@@ -26,7 +26,7 @@
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
     (process-drawable-method-48 () none)
-    (process-drawable-method-49 () none)
+    (process-drawable-method-49 (_type_) process)
     )
   (:states
     (process-drawable-art-error string)
@@ -462,7 +462,3 @@ to have a type with a large number of slots which can be turned into real method
 
 ;; failed to figure out what this is:
 0
-
-
-
-

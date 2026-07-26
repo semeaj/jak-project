@@ -92,9 +92,9 @@
    (force-sync            uint32)
    (mem-reserve-size      uint32)
    (dma-buffer-overflow   symbol)
-   (default-end-buffer    basic)
-   (init-buffer-zbuf-on   basic)
-   (init-buffer-zbuf-off  basic)
+   (default-end-buffer    dma-buffer)
+   (init-buffer-zbuf-on   dma-buffer)
+   (init-buffer-zbuf-off  dma-buffer)
    )
   (:methods
     (new (symbol type int int int int int) _type_)
@@ -176,7 +176,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-
