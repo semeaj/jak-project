@@ -399,7 +399,11 @@
     "(method 3 sky-vertex)",
     // timer
     "(method 9 clock)",
-    "(method 3 generic-tie-interp-point)"
+    "(method 3 generic-tie-interp-point)",
+    // bones. The reference records the decompiled skinning loop, which carries two
+    // .addiu pointer bumps that do not compile. jak3 skips this function for the same
+    // reason; goal_src comments them out and indexes the arrays instead.
+    "bones-mtx-calc-execute"
   ],
   "skip_compile_states": {}
 }
