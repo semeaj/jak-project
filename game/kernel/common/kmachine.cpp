@@ -1058,6 +1058,13 @@ time_t pc_get_unix_timestamp() {
   return std::time(nullptr);
 }
 
+// Reset the sky cloud noise/scroll phase so the cloud pattern is deterministic.
+// The phase otherwise accumulates per rendered frame from boot, which varies
+// per boot on PC and randomizes anything that depends on the cloud pattern.
+void pc_reset_sky_cloud_phase() {
+  Gfx::g_reset_sky_cloud_phase = true;
+}
+
 u64 pc_filepath_exists(u32 filepath) {
   auto filepath_str = std::string(Ptr<String>(filepath).c()->data());
   return bool_to_symbol(fs::exists(filepath_str));
@@ -1208,6 +1215,7 @@ void init_common_pc_port_functions(
   // Return the current OS as a symbol. Actually returns what it was compiled for!
   make_func_symbol_func("pc-get-os", (void*)pc_get_os);
   make_func_symbol_func("pc-get-unix-timestamp", (void*)pc_get_unix_timestamp);
+  make_func_symbol_func("pc-reset-sky-cloud-phase!", (void*)pc_reset_sky_cloud_phase);
   make_func_symbol_func("pc-treat-pad0-as-pad1", (void*)pc_treat_pad0_as_pad1);
   make_func_symbol_func("pc-is-imgui-visible?", (void*)pc_is_imgui_visible);
 

@@ -397,6 +397,24 @@
          (send-event (ppointer->process *time-of-day*) 'change 'ratio 0.0)
          (-> *game-info* demo-state)
          (send-event (ppointer->process *time-of-day*) 'change 'hour 18)
+         ;; og:preserve-this pc port: the cloud phase (noise evolution + uv scroll)
+         ;; accumulates per rendered frame from boot, so PC's variable boot/menu
+         ;; timing randomizes the title clouds, and the ratio 0.0 pin above then
+         ;; freezes them in place. A dense cloud patch parked over the sun makes
+         ;; the sun glow's depth probe fail, hiding the sun for the whole title
+         ;; visit. PS2 boots take constant time, so its title clouds (and sun) are
+         ;; always the same. Reset the phase here so the title is deterministic.
+         (#when PC_PORT
+           (set! (-> *sky-work* off-s) (the uint 0))
+           (set! (-> *sky-work* off-t) (the uint 0))
+           (dotimes (anim-idx (-> *sky-texture-anim-array* length))
+             (set! (-> *sky-texture-anim-array* array-data anim-idx frame-time) 0.0)
+             )
+           (dotimes (anim-idx (-> *sky-hires-texture-anim-array* length))
+             (set! (-> *sky-hires-texture-anim-array* array-data anim-idx frame-time) 0.0)
+             )
+           (pc-reset-sky-cloud-phase!)
+           )
          (let ((a1-12 (new 'stack-no-clear 'array 'symbol 10)))
            (set! (-> a1-12 9) #f)
            (set! (-> a1-12 8) #f)

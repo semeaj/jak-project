@@ -115,6 +115,11 @@ struct GfxGlobalSettings {
 namespace Gfx {
 
 extern GfxGlobalSettings g_global_settings;
+
+// Requests a reset of the sky cloud noise/scroll phase so the cloud pattern is
+// deterministic. Set from GOAL via pc-reset-sky-cloud-phase!, consumed by
+// TextureAnimator::run_clouds on the render thread.
+extern std::atomic<bool> g_reset_sky_cloud_phase;
 extern game_settings::DebugSettings g_debug_settings;
 
 const GfxRendererModule* GetCurrentRenderer();
