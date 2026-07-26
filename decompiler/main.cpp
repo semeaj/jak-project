@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
 
   std::string config_game_version = "";
   std::string config_override = "{}";
+  fs::path project_path_override;
 
   CLI::App app{"OpenGOAL Decompiler"};
   app.add_option("config-path", config_path,
@@ -40,11 +41,21 @@ int main(int argc, char** argv) {
       ->required();
   app.add_option("--config-override", config_override,
                  "JSON provided will be merged with the specified config, use to override options");
+  app.add_option("--proj-path", project_path_override,
+                 "Specify the location of the project root. Without this the root is derived from "
+                 "the executable path, which resolves to the main checkout when running from a git "
+                 "worktree");
   define_common_cli_arguments(app);
   app.validate_positionals();
   CLI11_PARSE(app, argc, argv);
 
-  if (!file_util::setup_project_path(std::nullopt)) {
+  if (!project_path_override.empty() && !fs::exists(project_path_override)) {
+    lg::error("Project path override '{}' does not exist", project_path_override.string());
+    return 1;
+  }
+  if (!file_util::setup_project_path(project_path_override.empty()
+                                         ? std::nullopt
+                                         : std::make_optional(project_path_override))) {
     lg::error("Unable to setup project path");
     return 1;
   }
