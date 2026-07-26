@@ -1202,6 +1202,29 @@ void types2_for_add(types2::Type& type_out,
     }
   }
 
+  // JakX: get addr of field using (obj + a*C2) + C1. Jak X's compiler adds the scaled index to
+  // the object before the constant field offset (earlier games fold the constant into the load's
+  // displacement instead), so by the time the constant shows up the register already holds
+  // object-plus-product.
+  if (env.version == GameVersion::JakX && arg1.is_int() &&
+      arg0_type.kind == TP_Type::Kind::OBJECT_PLUS_PRODUCT_WITH_CONSTANT) {
+    FieldReverseLookupInput rd_in;
+    rd_in.deref = std::nullopt;
+    rd_in.stride = arg0_type.get_multiplier();
+    rd_in.offset = arg1.get_int();
+    rd_in.base_type = arg0_type.get_obj_plus_const_mult_typespec();
+    auto out = env.dts->ts.reverse_field_multi_lookup(rd_in);
+    if (out.success) {
+      if (out.results.size() == 1) {
+        type_out.type = TP_Type::make_from_ts(coerce_to_reg_type(out.results.front().result_type));
+        return;
+      } else {
+        types2_from_ambiguous_deref(output_instr, type_out, out.results, extras.tags_locked);
+        return;
+      }
+    }
+  }
+
   if (common_int2_case(type_out, dts, arg0_type, arg1_type)) {
     return;
   }
@@ -2175,6 +2198,17 @@ bool load_var_op_determine_type(types2::Type& type_out,
         default:
           ASSERT(false);
       }
+    }
+
+    // JakX: symbol references are tagged +1, so a signed word load at -1 from a symbol is a
+    // read of the symbol's value.
+    if (env.version == GameVersion::JakX && op.kind() == LoadVarOp::Kind::SIGNED &&
+        op.size() == 4 && ro.offset == -1 &&
+        (tc(dts, TypeSpec("symbol"), input_type) ||
+         (env.allow_sloppy_pair_typing() && (input_type.typespec() == TypeSpec("object") ||
+                                             input_type.typespec() == TypeSpec("pair"))))) {
+      type_out.type = TP_Type::make_from_ts(TypeSpec("object"));
+      return true;
     }
 
     // rd failed, try as pair.

@@ -1855,8 +1855,11 @@ std::unique_ptr<AtomicOp> convert_5(const Instruction& i0,
       break;
     case GameVersion::Jak2:
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       process_offset = 48;
+      break;
+    case GameVersion::JakX:
+      // Jak X moved the process main-thread pointer to raw offset 56.
+      process_offset = 56;
       break;
     default:
       ASSERT(false);

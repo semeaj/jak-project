@@ -29,6 +29,7 @@ bool deref_matches(const DerefInfo& expected,
     return expected.load_size == actual.size;
   } else if (is_basic) {
     // this is kinda weird, but it seems like GOAL uses lw and lwu for loading basics.
+    // Jak X's compiler does the same for symbol fields, so those take this path too.
     return expected.load_size == actual.size;
   } else {
     return expected.load_size == actual.size && expected.sign_extend == actual.sign_extend;
@@ -135,7 +136,8 @@ void try_reverse_lookup_array_like(const FieldReverseLookupInput& input,
       boxed_array ? ts.make_pointer_typespec(input.base_type.get_single_arg()) : input.base_type;
   auto di = ts.get_deref_info(array_data_type);
   bool is_integer = ts.tc(TypeSpec("integer"), input.base_type.get_single_arg());
-  bool is_basic = ts.tc(TypeSpec("basic"), input.base_type.get_single_arg());
+  bool is_basic = ts.tc(TypeSpec("basic"), input.base_type.get_single_arg()) ||
+                  ts.tc(TypeSpec("symbol"), input.base_type.get_single_arg());
   ASSERT(di.mem_deref);  // it's accessing a pointer.
   auto elt_type = di.result_type;
 
@@ -378,7 +380,8 @@ void try_reverse_lookup_other(const FieldReverseLookupInput& input,
             TypeSpec loc_type = ts.make_pointer_typespec(field_deref.type);
             auto di = ts.get_deref_info(loc_type);
             bool is_integer = ts.tc(TypeSpec("integer"), field_deref.type);
-            bool is_basic = ts.tc(TypeSpec("basic"), field_deref.type);
+            bool is_basic = ts.tc(TypeSpec("basic"), field_deref.type) ||
+                            ts.tc(TypeSpec("symbol"), field_deref.type);
             if (!deref_matches(di, input.deref.value(), is_integer, is_basic)) {
               continue;  // try another field!
             }
