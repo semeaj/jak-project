@@ -13,6 +13,7 @@ uniform float alpha_mult;
 uniform float alpha_sub;
 uniform float ta0;
 uniform int scissor_enable;
+uniform int premult_alpha;
 uniform bool greater;
 // game width, game height, viewport width, viewport height
 uniform vec4 game_sizes;
@@ -102,5 +103,7 @@ void main() {
   if (tex_info.w == 1) {
     color.xyz = mix(color.xyz, fog_color.rgb, clamp(fog_color.a * fog, 0, 1));
   }
-
+  if (premult_alpha == 1) {
+    color.rgb *= color.a;
+  }
 }
