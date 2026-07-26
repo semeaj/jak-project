@@ -1017,5 +1017,41 @@
     [[163, 166], "t0", "(pointer uint32)"],
     [[169, 175], "a3", "(pointer float)"],
     [[177, 180], "v1", "(pointer uint32)"]
+  ],
+
+  // bones. These type the PS2 scratchpad at #x70000000 and the DMAC register bank at
+  // #x1000e000, neither of which the decompiler can infer from a bare lui. bones-init,
+  // bones-set-sqwc and bones-reset-sqwc are op-for-op identical to jak2 and jak3, so
+  // their entries are those verbatim; only the register allocation differs, and a cast
+  // names the register on the way IN to the op, which is the constant, not the result.
+  "bones-init": [
+    [1, "v1", "bone-memory"],
+    [6, "a1", "bone-memory"],
+    [10, "a1", "bone-memory"],
+    [14, "a1", "bone-memory"],
+    [18, "a1", "bone-memory"],
+    [22, "a1", "bone-memory"],
+    [26, "a1", "bone-memory"],
+    [44, "a0", "dma-packet"],
+    [45, "a0", "(pointer uint64)"]
+  ],
+  "bones-set-sqwc": [[2, "v1", "dma-bank-control"]],
+  "bones-reset-sqwc": [[2, "v1", "dma-bank-control"]],
+  // bones-mtx-calc-execute carries the same scratchpad layout block, but its op numbers
+  // run 14 lower than jak3's: jakx has no EE performance-counter code ahead of it. The
+  // offset is not uniform across the whole function, so these were read off the jakx
+  // disassembly rather than shifted.
+  "bones-mtx-calc-execute": [
+    [[117, 140], "a0", "pris-mtx"],
+    [[117, 140], "a1", "pris-mtx"],
+    [53, "v1", "bone-memory"],
+    [58, "a1", "bone-memory"],
+    [62, "a1", "bone-memory"],
+    [66, "a1", "bone-memory"],
+    [70, "a1", "bone-memory"],
+    [74, "a1", "bone-memory"],
+    [78, "a1", "bone-memory"],
+    [82, "a0", "dma-bank-control"],
+    [146, "a0", "dma-bank-control"]
   ]
 }
