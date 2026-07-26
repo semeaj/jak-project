@@ -779,8 +779,9 @@ void add_shrub(const tfrag3::Level& level,
                                                        draw_to_start, draw_to_count);
   int colors[kMaxColor];
   for (int i = 0; i < kMaxColor; i++) {
-    colors[i] = make_color_buffer_accessor(shrub.unpacked.vertices, model, shrub,
-                                           i == 0 ? pick_lit_time_of_day(shrub.time_of_day_colors) : i);
+    colors[i] =
+        make_color_buffer_accessor(shrub.unpacked.vertices, model, shrub,
+                                   i == 0 ? pick_lit_time_of_day(shrub.time_of_day_colors) : i);
   }
 
   // for (auto& draw : shrub.static_draws) {

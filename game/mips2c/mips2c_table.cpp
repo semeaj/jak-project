@@ -699,8 +699,7 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jakx::render_sky_tri::link, jakx::method_16_sky_work::link, jakx::method_17_sky_work::link,
        jakx::method_32_sky_work::link, jakx::method_33_sky_work::link,
        jakx::method_28_sky_work::link, jakx::method_29_sky_work::link,
-       jakx::method_30_sky_work::link, jakx::set_sky_vf27::link,
-       jakx::set_sky_vf23_value::link}}}};
+       jakx::method_30_sky_work::link, jakx::set_sky_vf27::link, jakx::set_sky_vf23_value::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});

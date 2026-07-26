@@ -497,10 +497,9 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
     for (int slot = 0; slot < 12; slot++) {
       const int lev = slot / 2;
       const int view = slot % 2;
-      init_bucket_renderer<TFragment>(fmt::format("tfrag-l{}-v{}-tfrag", lev, view),
-                                      BucketCategory::TFRAG, kTfragBuckets[slot],
-                                      std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, lev,
-                                      anim_slot_array());
+      init_bucket_renderer<TFragment>(
+          fmt::format("tfrag-l{}-v{}-tfrag", lev, view), BucketCategory::TFRAG, kTfragBuckets[slot],
+          std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, lev, anim_slot_array());
       init_bucket_renderer<TFragment>(fmt::format("tfrag-t-l{}-v{}-alpha", lev, view),
                                       BucketCategory::TFRAG, kTfragTransBuckets[slot],
                                       std::vector{tfrag3::TFragmentTreeKind::TRANS}, false, lev,
