@@ -23,7 +23,19 @@ on:
   push:
     branches:
       - develop
-  pull_request:
+
+  # pull_request_target, not pull_request, and the reason is structural. Branches here are
+  # cut from master so their upstream diff stays clean, and master deliberately does not
+  # carry this file. A pull_request event resolves the workflow from the HEAD ref, finds
+  # nothing, and the pull request silently gets no CI at all. pull_request_target resolves
+  # it from the BASE ref, which is develop, which does have it.
+  #
+  # The tradeoff is real: pull_request_target runs with the base repository's context, and
+  # the checkout below deliberately takes the pull request's head so that the code under
+  # test is the code being proposed. That means untrusted code would run with that context.
+  # Acceptable here because this repository has exactly one collaborator and accepts no
+  # external contributions. Revisit if that ever changes.
+  pull_request_target:
 
 jobs:
   lint:
@@ -32,6 +44,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # On pull_request_target the default checkout is the BASE. Take the head so the
+          # run tests the proposed change; fall back to github.sha for push events.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       # Pinned to 18 on purpose. Later clang-format releases disagree with this codebase
       # (braced-init-list bin packing, among others) and will fail a clean tree, so a
@@ -81,6 +97,10 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
+        with:
+          # On pull_request_target the default checkout is the BASE. Take the head so the
+          # run tests the proposed change; fall back to github.sha for push events.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Install dependencies
         run: |
