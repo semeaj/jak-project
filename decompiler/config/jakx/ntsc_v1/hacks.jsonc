@@ -104,6 +104,8 @@
     "~338h~5d~388h~5d~448h~5,,2f": 3
   },
   "blocks_ending_in_asm_branch": {
+    // foreground: jak3's blocks as the seed; iterate against the jakx CFG
+    "foreground-draw": [0, 1, 126],
     "(method 9 curve-color-fast)": [0, 1],
     "evaluate-color-curve-fast": [0, 1],
     "sqlpipe-query": [21],
@@ -192,6 +194,9 @@
     // foreground
     "foreground-check-longest-edge-asm",
     "foreground-merc",
+    // jak3 parity: hand-scheduled, shipped as mips2c there too
+    "foreground-generic-merc",
+    "foreground-draw-hud",
     // merc-blend-shape
     "blerc-a-fragment",
     "blerc-execute",

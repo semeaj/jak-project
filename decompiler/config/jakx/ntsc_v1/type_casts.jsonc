@@ -1024,6 +1024,100 @@
   // bones-set-sqwc and bones-reset-sqwc are op-for-op identical to jak2 and jak3, so
   // their entries are those verbatim; only the register allocation differs, and a cast
   // names the register on the way IN to the op, which is the constant, not the result.
+  // foreground: jak3's blocks verbatim as the seed; iterate op shifts off the jakx disasm
+  "foreground-draw": [
+    [[1, 64], "at", "foreground-work"],
+    [13, "t0", "foreground-work"],
+    [27, "t1", "foreground-work"],
+    [32, "a2", "foreground-work"],
+    [37, "a1", "foreground-work"],
+    [70, "a0", "foreground-work"],
+    [114, "v1", "foreground-work"],
+    [116, "v1", "foreground-work"],
+    [118, "v1", "foreground-work"],
+    [142, "v1", "foreground-work"],
+    [187, "a0", "foreground-work"],
+    [236, "a0", "foreground-work"],
+    [249, "a0", "foreground-work"],
+    [272, "a0", "foreground-work"],
+    [389, "v1", "foreground-work"],
+    [397, "a0", "foreground-work"],
+    [437, "a0", "foreground-work"],
+    [452, "a0", "foreground-work"],
+    [465, "v1", "foreground-work"],
+    [488, "v1", "foreground-work"],
+    [495, "v1", "foreground-work"],
+    [520, "v1", "foreground-work"],
+    [538, "v1", "foreground-work"],
+    [544, "v1", "foreground-work"],
+    [573, "a0", "foreground-work"],
+    [603, "v1", "foreground-work"],
+    [614, "v1", "foreground-work"],
+    [622, "v1", "foreground-work"],
+    [632, "v1", "foreground-work"],
+    [332, "a3", "(pointer uint8)"],
+    [339, "v1", "(pointer uint8)"],
+    [357, "t0", "(pointer uint8)"],
+    [364, "v1", "(pointer uint8)"],
+    [669, "s5", "int"],
+    [675, "a0", "foreground-work"],
+    [[38, 61], "a2", "bone-calculation"],
+    [[185, 189], "v1", "mei-texture-scroll"],
+    [[268, 297], "v1", "mei-envmap-tint"],
+    [[300, 339], "v1", "(pointer uint8)"],
+    [[340, 364], "v1", "(pointer uint8)"],
+    [[365, 372], "v1", "(pointer uint8)"]
+  ],
+  "foreground-ripple": [
+    [2, "v1", "foreground-work"],
+    [25, "v1", "foreground-work"],
+    [[27, 32], "a0", "foreground-work"]
+  ],
+  "foreground-shadow": [
+    [2, "a3", "foreground-work"],
+    [[13, 19], "t1", "vector"],
+    [47, "v1", "pointer"],
+    [48, "t3", "(pointer uint32)"],
+    [50, "v1", "pointer"],
+    [51, "t3", "(pointer uint32)"],
+    [65, "t4", "(pointer uint32)"],
+    [67, "t6", "(pointer uint32)"],
+    [69, "t4", "(pointer uint32)"],
+    [71, "t4", "(pointer uint32)"],
+    [[44, 121], "t2", "shadow-dma-packet"],
+    [[82, 87], "t7", "vector"]
+  ],
+  "foreground-wrapup": [
+    [[1, 90], "gp", "foreground-work"],
+    [[25, 31], "a0", "dma-packet"],
+    [[55, 60], "a0", "dma-packet"]
+  ],
+  "foreground-add-mtx-calc": [[1, "v1", "foreground-work"]],
+  "texscroll-execute": [
+    [19, "t1", "pointer"],
+    [15, "a2", "merc-fragment-control"],
+    [[20, 24], "t1", "merc-fragment"],
+    [40, "a2", "merc-fragment-control"],
+    [45, "a2", "merc-fragment-control"],
+    [48, "a2", "merc-fragment-control"],
+    [51, "a2", "int"],
+    [[10, 31], "a1", "mei-texture-scroll"],
+    [39, "t1", "(pointer int8)"]
+  ],
+  "texscroll-make-request": [[[5, 40], "a1", "mei-texture-scroll"]],
+  "foreground-init": [
+    [[0, 99], "gp", "foreground-work"],
+    [[21, 23], "a0", "(pointer uint64)"]
+  ],
+  "foreground-generic-merc-add-fragments": [
+    [[5, 54], "a3", "merc-fragment-control"],
+    [[5, 57], "v1", "merc-fragment"],
+    [28, "t4", "foreground-work"],
+    [[16, 19], "a1", "dma-packet"],
+    [21, "t3", "(pointer int32)"],
+    [[38, 41], "a1", "dma-packet"],
+    [[49, 52], "a1", "dma-packet"]
+  ],
   "merc-edge-stats": [[31, "v1", "merc-ctrl"]],
   "merc-vu1-initialize-chain": [
     [[13, 19], "gp", "(pointer vif-tag)"],

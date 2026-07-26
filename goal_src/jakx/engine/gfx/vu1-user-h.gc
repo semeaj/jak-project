@@ -802,10 +802,14 @@
   (bucket777 777)
 
   (bucket780 780)
+  (bucket781 781) ;; mercneric-chain target (foreground-init)
+  (bucket782 782) ;; mercneric-chain target (foreground-init)
+  (bucket783 783) ;; mercneric-chain target (foreground-init)
   (bucket784 784) ;; blit motion-blur splice bucket
 
   (bucket785 785)
   (bucket786 786)
+  (bucket787 787) ;; mercneric-chain target (foreground-init)
 
   (bucket788 788)
   (bucket789 789)

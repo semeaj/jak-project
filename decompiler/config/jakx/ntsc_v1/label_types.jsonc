@@ -1,4 +1,8 @@
 {
+  "foreground": [
+    ["L215", "shadow-settings", true], // *default-shadow-settings* static; jak3's same-named label was a bucket array
+    ["L216", "vector"]
+  ],
   "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
   "tfrag-methods": [["L92", "(inline-array tfrag-init-data)", 12], ["L99", "(pointer bucket-id)", 12], ["L96", "(pointer bucket-id)", 12], ["L94", "(pointer bucket-id)", 12], ["L98", "(pointer bucket-id)", 12], ["L95", "(pointer bucket-id)", 12], ["L93", "(pointer bucket-id)", 12]],
   // tie leg: 13 category bucket arrays (6 draw-levels x 2 viewports each), decoded
