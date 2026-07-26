@@ -16,10 +16,13 @@
 ;; og:preserve-this runtime-link externs: homes (sky/fog code) are not landed;
 ;; every call carries a nonzero? guard
 (define-extern set-fog-height! (function float none))
-;; og:preserve-this bring-up instance: *fog-texture-work*'s home (the fog texture
-;; anim code) is not landed; the pump writes fog params through it every frame.
-;; Replace with the real definition when that file lands.
-(define *fog-texture-work* (new 'global 'fog-texture-work))
+;; og:preserve-this The bring-up instance that used to live here is gone. Its real home
+;; landed with the texture-anim leg (texture-anim-funcs.gc), and because time-of-day.o
+;; loads AFTER texture-anim-funcs.o (game.gd 262 vs 224) this define was silently winning
+;; and replacing the real object with one whose fog-height is 0. That matters: the fog
+;; ramp generator scales its whole above-horizon half by fog-height, so a zero collapses
+;; it to a flat alpha-near. The pump below writes its fog params through the symbol, so
+;; it does not care which object it gets.
 (define-extern set-cloud-minmax! (function float float none))
 (define-extern light-group-madd! (function light-group (pointer light-group) light-group float none))
 

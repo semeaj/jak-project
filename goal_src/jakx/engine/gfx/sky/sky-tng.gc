@@ -926,14 +926,11 @@
                                  )
                                (set-sky-vf27 (&-> this giftag-base quad))
                                ((method-of-type sky-work draw-base) (the-as sky-work s3-0) s2-0 sv-16)
-                               (when (and (nonzero? *sky-texture-anim-array*)
-                                          (nonzero? real-fog-texture-anim-func)
-                                          )
-                                 ;; og:preserve-this bring-up guard: the anim array now lands, but
-                                 ;; the per-frame fog generator (real-fog-texture-anim-func) is not
-                                 ;; yet PC-ported, so the fog texture record exists with no content
-                                 ;; and the fog quad (tme on) would sample the last-bound texture
-                                 ;; fullscreen; the second check self-heals when the fog leg lands
+                               (when (nonzero? *sky-texture-anim-array*)
+                                 ;; og:preserve-this The fog generator's link check is gone now that
+                                 ;; its PC port is landed. The array check stays: the fog quad draws
+                                 ;; with tme on, so without a generated fog texture it would sample
+                                 ;; whatever was last bound, fullscreen.
                                  ((method-of-type sky-work draw-fog) (the-as sky-work s3-0) s2-0 sv-16) ;; unbound: none-typed spill slot
                                  )
                                )
