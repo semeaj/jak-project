@@ -36978,7 +36978,7 @@
 ;; (define-extern generic-merc-death function)
 ;; (define-extern generic-merc-execute-asm function)
 ;; (define-extern generic-merc-do-chain function) ;; (function mercneric-chain dma-buffer pointer)
-;; (define-extern generic-merc-execute-all function) ;; (function dma-buffer none)
+(define-extern generic-merc-execute-all (function dma-buffer none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; generic-tie                    ;;
@@ -37070,7 +37070,7 @@
 ;; (define-extern debug-draw-settings function) ;; (function shadow-settings symbol)
 ;; (define-extern shadow-execute function) ;; (function shadow-dma-packet pointer pointer)
 ;; (define-extern shadow-vu0-upload function) ;; (function none)
-;; (define-extern shadow-execute-all function) ;; (function dma-buffer none)
+(define-extern shadow-execute-all (function dma-buffer none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; shadow-vu1                     ;;
@@ -37718,7 +37718,7 @@
 ;; (define-extern *prim-work* object) ;; prim-work
 ;; (define-extern *level-texture-page-translate* array)
 ;; (define-extern *foreground-to-level-translate* array)
-;; (define-extern prim-engine-execute function) ;; (function none)
+(define-extern prim-engine-execute (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; trajectory                     ;;
@@ -40917,7 +40917,7 @@
 ;; (define-extern lightning-start function) ;; (function float float (pointer process))
 ;; (define-extern *lightning-globals* object) ;; lightning-globals
 ;; (define-extern *lightning* object) ;; symbol
-;; (define-extern lightning-draw-all function) ;; (function none)
+(define-extern lightning-draw-all (function none))
 (define-extern unlink-lightning-spec-by-heap (function kheap none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

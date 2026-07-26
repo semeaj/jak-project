@@ -1478,53 +1478,31 @@
 ;;   )
 
 ;; definition for function foreground-execute-cpu-vu0-engines
-;; ERROR: failed type prop at 7: Unknown symbol: bones-init
-;; NOTE: decomp still fails; commented out until fixed
-;; (defun foreground-execute-cpu-vu0-engines ()
-;;   (local-vars
-;;     (v0-0 none)
-;;     (v0-1 none)
-;;     (v0-2 none)
-;;     (v0-3 none)
-;;     (v0-4 none)
-;;     (v0-5 none)
-;;     (v1-0 display)
-;;     (v1-1 int)
-;;     (v1-2 int)
-;;     (v1-3 int)
-;;     (v1-4 display-frame)
-;;     (a0-0 display)
-;;     (t9-0 none)
-;;     (t9-1 none)
-;;     (t9-2 none)
-;;     (t9-3 none)
-;;     (t9-4 none)
-;;     (t9-5 none)
-;;     (gp-0 dma-buffer)
-;;     )
-;;   (set! v1-0 *display*)
-;;   (set! v1-1 (-> v1-0 on-screen))
-;;   (set! v1-2 (sll v1-1 2))
-;;   (set! a0-0 *display*)
-;;   (set! v1-3 (+ v1-2 a0-0))
-;;   (set! v1-4 (dynamic-array-field-access v1-3 frames PLACEHOLDER))
-;;   (set! gp-0 (-> v1-4 global-buf))
-;;   (set! t9-0 (the-as none bones-init))
-;;   (set! a0-1 (the-as none gp-0))
-;;   (call!)
-;;   (set! t9-1 (the-as none bones-mtx-calc-execute))
-;;   (call!)
-;;   (set! t9-2 (the-as none generic-merc-execute-all))
-;;   (set! a0-2 (the-as none gp-0))
-;;   (call!)
-;;   (set! t9-3 (the-as none shadow-execute-all))
-;;   (call!)
-;;   (set! t9-4 (the-as none lightning-draw-all))
-;;   (call!)
-;;   (set! t9-5 (the-as none prim-engine-execute))
-;;   (call!)
-;;   (ret-none)
-;;   )
+(defun foreground-execute-cpu-vu0-engines ()
+  "Run foreground drawing code on EE/VU0 (bones, generic merc, part of shadow, lightning, prim)"
+  (let ((gp-0 (-> *display* frames (-> *display* on-screen) global-buf)))
+    (bones-init gp-0)
+    (bones-mtx-calc-execute)
+    ;; og:preserve-this bring-up guards: generic-merc, shadow-cpu, lightning and prim are
+    ;; not landed, so their symbols link 0 and an unguarded call jumps to 0. Retail calls
+    ;; all four unconditionally; each guard retires with its leg.
+    (let ((a0-2 gp-0))
+      (if (nonzero? generic-merc-execute-all)
+          (generic-merc-execute-all a0-2)
+          )
+      (if (nonzero? shadow-execute-all)
+          (shadow-execute-all a0-2)
+          )
+      )
+    )
+  (if (nonzero? lightning-draw-all)
+      (lightning-draw-all)
+      )
+  (if (nonzero? prim-engine-execute)
+      (prim-engine-execute)
+      )
+  (none)
+  )
 
 ;; definition for function real-main-draw-hook
 ;; ERROR: failed type prop at 0: Unknown symbol: lobby-dma-reserve-hook
@@ -4176,6 +4154,11 @@
   (init-background)
   (execute-connections *background-draw-engine* #f)
   (finish-background)
+  ;; og:preserve-this foreground leg: the EE/VU0 engine pass (bones + guarded stubs for
+  ;; generic-merc/shadow/lightning/prim). Retail runs it after the foreground engine and
+  ;; before sprites; with no merc landed the bone-calculation list is empty, so today
+  ;; this proves the per-frame path and gives the actors leg its driver.
+  (foreground-execute-cpu-vu0-engines)
   0
   (none)
   )
