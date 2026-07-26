@@ -1,0 +1,35 @@
+# Scheduled reconciliation of state/ labels against upstream pull request reality.
+#
+# The state/ labels are the authority on where each fix stands (CLAUDE.md, "Keeping them
+# honest"), and their documented failure mode is going stale silently when an upstream
+# pull request merges. This job closes the noticing gap: it compares upstream PR states
+# against the labels daily and posts one comment on any forge item whose label no longer
+# matches reality. It never changes a label itself; the human stays the authority, the
+# robot is just the tripwire.
+#
+# Runs from develop (the default branch, which is what schedules execute from). Upstream
+# reads are unauthenticated; one page a day is far inside the anonymous rate limit.
+
+name: Reconcile upstream
+
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+jobs:
+  reconcile:
+    name: Compare state labels to upstream
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run reconciliation
+        env:
+          FORGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORGE_API: ${{ github.api_url }}
+          FORGE_REPO: ${{ github.repository }}
+          UPSTREAM: open-goal/jak-project
+          AUTHOR: semeaj
+        run: python3 .forgejo/scripts/reconcile_upstream.py
