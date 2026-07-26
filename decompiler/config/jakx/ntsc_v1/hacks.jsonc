@@ -184,6 +184,11 @@
     // collide-func
     "moving-sphere-triangle-intersect",
     "collide-do-primitives",
+    // bones. Hand-scheduled PS2 assembly: six bare backward gotos, two back edges into a
+    // single loop head, and real work in five branch delay slots. The CFG cannot be
+    // resolved and no GOAL syntax expresses it. Config only, with no C++ implementation,
+    // matching jak3, which carries the same entry and ships no bones.cpp.
+    "bones-mtx-calc",
     // foreground
     "foreground-check-longest-edge-asm",
     "foreground-merc",

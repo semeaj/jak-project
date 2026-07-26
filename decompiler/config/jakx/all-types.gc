@@ -36826,18 +36826,21 @@
 ;; bones                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *bone-calculation-list* object) ;; bone-calculation-list
-;; (define-extern bone-list-init function) ;; (function none)
-;; (define-extern bones-vu0-block object) ;; vu-function
-;; (define-extern bones-set-sqwc function) ;; (function none)
-;; (define-extern bones-reset-sqwc function) ;; (function none)
-;; (define-extern bones-init function) ;; (function dma-buffer none)
-;; (define-extern bones-mtx-calc function) ;; (function (inline-array pris-mtx) (inline-array joint) (inline-array bone) uint object none)
-;; (define-extern bones-mtx-calc-execute function) ;; (function none)
-;; (define-extern dump-qword function) ;; (function qword none)
-;; (define-extern dump-mem function) ;; (function pointer int none)
-;; (define-extern bones-debug function) ;; (function none)
-;; (define-extern dump-bone-mem function) ;; (function none)
+(define-extern *bone-calculation-list* bone-calculation-list)
+(define-extern bone-list-init (function none))
+(define-extern bones-vu0-block vu-function)
+(define-extern bones-set-sqwc (function none))
+(define-extern bones-reset-sqwc (function none))
+(define-extern bones-init (function dma-buffer none))
+;; The trailing object is the project-wide PC-port channel for handing the camera matrix
+;; to a replacement implementation, matching jak1/jak2/jak3. The PS2 code in all four
+;; games passes only four GPR arguments and takes the camera in vf25-vf31.
+(define-extern bones-mtx-calc (function (inline-array pris-mtx) (inline-array joint) (inline-array bone) uint object none))
+(define-extern bones-mtx-calc-execute (function none))
+(define-extern dump-qword (function qword none))
+(define-extern dump-mem (function pointer int none))
+(define-extern bones-debug (function none))
+(define-extern dump-bone-mem (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; debug-foreground               ;;
