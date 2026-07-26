@@ -35,13 +35,29 @@ jobs:
 
       # Pinned to 18 on purpose. Later clang-format releases disagree with this codebase
       # (braced-init-list bin packing, among others) and will fail a clean tree, so a
-      # newer one on PATH produces false failures and, worse, reformats code that CI
-      # then rejects.
+      # newer one produces false failures and, worse, reformats code that CI then rejects.
+      #
+      # Installed from PyPI rather than apt. Upstream's job does `apt install
+      # clang-format-18`, which only works because GitHub's hosted ubuntu-22.04 image
+      # ships the LLVM apt sources pre-configured. Jammy's own repos stop at 14, so on a
+      # stock 22.04 container that install fails with "Unable to locate package". The
+      # wheel delivers the identical binary with no apt source wrangling.
       - name: Install clang-format 18
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format-18
-          clang-format-18 --version
+          python3 -m pip install --quiet --user clang-format==18.1.8
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # Assert the version rather than trust it: the whole point of pinning is defeated
+      # if some other clang-format wins on PATH.
+      - name: Verify clang-format version
+        run: |
+          set -e
+          got="$("$HOME/.local/bin/clang-format" --version)"
+          echo "$got"
+          case "$got" in
+            *"version 18."*) ;;
+            *) echo "FATAL: expected clang-format 18.x, got: $got" >&2; exit 1 ;;
+          esac
 
       - name: Check formatting
         run: |
@@ -49,7 +65,7 @@ jobs:
           ./third-party/run-clang-format/run-clang-format.py \
             -r common decompiler game goalc test tools lsp \
             --color always \
-            --clang-format-executable "$(which clang-format-18)"
+            --clang-format-executable "$HOME/.local/bin/clang-format"
 
       - name: Required checks
         run: |
