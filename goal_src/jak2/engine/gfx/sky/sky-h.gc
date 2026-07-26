@@ -187,10 +187,6 @@
    (buf               dma-buffer)
    (draw-vortex       basic)
    (stars             vector           512 :inline)
-   ;; og:preserve-this added for high-fps cloud scroll: fractional accumulators so the
-   ;; per-frame integer scroll step doesn't truncate to zero above 120fps.
-   (off-s-frac        float)
-   (off-t-frac        float)
    )
   (:methods
     (init-sun-data! (_type_ int float float float) none)
