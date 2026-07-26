@@ -158,6 +158,8 @@ to a pair of external-art-buffers."
   )
 
 
+(define-extern *art-control* external-art-control)
+
 (defmethod new external-art-control ((allocation symbol) (type-to-make type))
   (let ((gp-0 (object-new allocation type-to-make (the-as int (-> type-to-make size)))))
     (dotimes (s4-0 2)

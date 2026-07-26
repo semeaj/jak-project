@@ -295,7 +295,15 @@ pixel is performed."
    )
   )
 
-;; type gs-rgbaq is defined here, but it is unknown to the decompiler
+;; definition of type gs-rgbaq
+(deftype gs-rgbaq (uint64)
+  ((r uint8 :offset   0 :size   8)
+   (g uint8 :offset   8 :size   8)
+   (b uint8 :offset  16 :size   8)
+   (a uint8 :offset  24 :size   8)
+   (q float :offset  32 :size  32)
+   )
+  )
 
 ;; type gs-xyz is defined here, but it is unknown to the decompiler
 
@@ -1004,7 +1012,3 @@ MIPMAP. MIPTBP1 sets levels 1 to 3, MIPTBP2 sets levels 4 to 6."
 
 ;; failed to figure out what this is:
 0
-
-
-
-

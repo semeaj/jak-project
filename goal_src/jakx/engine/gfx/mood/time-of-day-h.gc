@@ -149,3 +149,6 @@ blend between them."
 
 
 (define *time-of-day-context* (new 'static 'time-of-day-context))
+
+;; The noon pin that used to sit here is gone: the tod tick process is landed, so the
+;; clock advances and time-of-day-update drives this field every frame.

@@ -41,3 +41,122 @@
 
 ;; DECOMP BEGINS
 
+
+;; DECOMP BEGINS
+
+;; og:preserve-this partial landing: the two engine walkers run every frame from
+;; display-loop-main. Hand-written from process-drawable_ir2.asm (the handle-deref
+;; pattern degrades their decomp to raw ops); the shape matches jak3 exactly, with
+;; jakx reading node-list/draw/skel at 192/196/200. The rest of process-drawable.o
+;; stays pending.
+
+(defun execute-math-engine ()
+  ;; og:preserve-this the do-joint-math body (joint.o home) is not landed yet, so the
+  ;; draw-control method slot links as 0. *matrix-engine* stays empty until
+  ;; process-drawables register, which cannot happen before joint.o lands, so the
+  ;; dispatch is unreachable until then.
+  (let ((gp-0 *matrix-engine*))
+    (let ((s5-0 (-> gp-0 length)))
+      (dotimes (s4-0 s5-0)
+        (let ((v1-3 (handle->process (-> gp-0 s4-0))))
+          (if v1-3
+              (do-joint-math
+                (-> (the-as process-drawable v1-3) draw)
+                (-> (the-as process-drawable v1-3) node-list)
+                (-> (the-as process-drawable v1-3) skel)
+                )
+              )
+          )
+        )
+      )
+    (set! (-> gp-0 length) 0)
+    )
+  0
+  0
+  )
+
+;; og:preserve-this bring-up stub: the real body walks each registered process's
+;; draw cloth-instances calling update! (cloth-system method 9), but cloth-system is
+;; only declare-typed until cloth-h lands. *cloth-engine* stays empty headless.
+(defun execute-cloth-engine ()
+  (set! (-> *cloth-engine* length) 0)
+  0
+  0
+  )
+
+(defstate empty-state (process)
+  :code nothing
+  )
+
+;; og:preserve-this landed as a plain defun (retail keeps this in the debug segment
+;; and falls back to nothing in release); add-debug-text-3d lives in unlanded
+;; debug.gc, so its call carries a runtime-link guard. jakx deltas vs jak3: debug
+;; text bucket 785 (jak3 577) and no ~2j prefix in the format string.
+(defun process-drawable-error-print ((arg0 process-drawable) (arg1 string))
+  (when (and *display-entity-errors* (not *display-capture-mode*) (nonzero? add-debug-text-3d))
+    (let ((s4-0 (cond
+                  ((nonzero? (-> arg0 root))
+                   (-> arg0 root trans)
+                   )
+                  ((-> arg0 entity)
+                   (-> arg0 entity extra trans)
+                   )
+                  (else
+                    (the-as vector #f)
+                    )
+                  )
+                )
+          )
+      (when s4-0
+        (let ((s3-0 add-debug-text-3d)
+              (s2-0 #t)
+              (s1-0 785)
+              )
+          (format (clear *temp-string*) "~s error for ~s" arg1 (-> arg0 name))
+          (s3-0 s2-0 (the-as bucket-id s1-0) *temp-string* s4-0 (font-color red) (the-as vector2h #f))
+          )
+        )
+      )
+    )
+  0
+  (none)
+  )
+
+(defstate process-drawable-art-error (process-drawable)
+  :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
+    (case message
+      (('nav-mesh-kill)
+       (deactivate self)
+       #t
+       )
+      )
+    )
+  :enter (behavior ((arg0 string))
+    (if (and (-> self prev-state) (nonzero? (-> self prev-state)))
+        (format 0 "process ~A in process-drawable-art-error from state ~S~%" (-> self name) (-> self prev-state name))
+        )
+    (if (-> self entity)
+        (logior! (-> self entity extra perm status) (entity-perm-status error))
+        )
+    (let ((v1-12 (as-type (-> self root) collide-shape)))
+      (when v1-12
+        (let ((a0-6 (-> v1-12 root-prim)))
+          (set! (-> a0-6 prim-core collide-as) (collide-spec))
+          (set! (-> a0-6 prim-core collide-with) (collide-spec))
+          )
+        (set! (-> v1-12 backup-collide-as) (collide-spec))
+        (set! (-> v1-12 backup-collide-with) (collide-spec))
+        0
+        )
+      )
+    )
+  :code (behavior ((arg0 string))
+    (let ((sv-8 arg0))
+      (until #f
+        (process-drawable-error-print self sv-8)
+        (suspend)
+        )
+      )
+    #f
+    )
+  )

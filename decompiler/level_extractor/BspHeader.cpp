@@ -1845,7 +1845,9 @@ void DrawableTreeArray::read_from_file(TypedRef ref,
     Ref object_ref = deref_label(array_slot_ref);
     object_ref.byte_offset -= 4;
 
-    trees.push_back(make_drawable_tree(typed_ref_from_basic(object_ref, dts), dts, version));
+    auto tree_ref = typed_ref_from_basic(object_ref, dts);
+    lg::info("  drawable-tree {}/{}: {}", idx + 1, length, tree_ref.type->get_name());
+    trees.push_back(make_drawable_tree(tree_ref, dts, version));
   }
 }
 

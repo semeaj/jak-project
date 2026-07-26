@@ -7,3 +7,10 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: real body recomputes *game-info* feature/item/vehicle
+;; masks and refreshes minimap icons; blocked on *minimap* (task-control.o is a decomp
+;; failure). Callers discard the result.
+(defun update-task-masks ((arg0 symbol))
+  0
+  )
+

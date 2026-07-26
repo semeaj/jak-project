@@ -7,3 +7,11 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: real body scans *view-count* views for the first live
+;; target's trans, else falls back to (camera-pos) which lives in the still-blocked
+;; cam-interface object. Callers feed the result straight into vector-vector-distance,
+;; so it must be a valid vector, never #f; level picking degrades to distance-from-origin.
+(defun target-get-any-pos ()
+  (new 'static 'vector :x 0.0 :y 0.0 :z 0.0 :w 1.0)
+  )
+

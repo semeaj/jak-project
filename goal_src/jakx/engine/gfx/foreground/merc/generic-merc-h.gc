@@ -7,6 +7,8 @@
 
 ;; DECOMP BEGINS
 
+(define-extern generic-merc-execute-all (function dma-buffer none))
+
 (deftype merc-matrix (structure)
   ((quad    uint128  8)
    (vector  vector   8 :inline :overlay-at (-> quad 0))

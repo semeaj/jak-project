@@ -7,3 +7,19 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this partial landing: the jakx video.o functions fail type analysis, but
+;; the getters are trivially the jak3 bodies (setting-control reads); the setters (which
+;; poke GS hardware regs) stay unlanded until needed.
+(defun get-video-mode ()
+  (-> *setting-control* user-current video-mode)
+  )
+
+(defun get-aspect-ratio ()
+  (-> *video-params* aspect-ratio)
+  )
+
+(defun set-graphics-mode ()
+  ;; og:preserve-this bring-up no-op: jak3's PC port also drops the GS mode poke
+  (none)
+  )
+

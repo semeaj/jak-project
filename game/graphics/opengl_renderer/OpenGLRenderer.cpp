@@ -157,8 +157,10 @@ OpenGLRenderer::OpenGLRenderer(std::shared_ptr<TexturePool> texture_pool,
       init_bucket_renderers_jak2();
       break;
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       init_bucket_renderers_jak3();
+      break;
+    case GameVersion::JakX:
+      init_bucket_renderers_jakx();
       break;
     default:
       ASSERT(false);
@@ -453,6 +455,109 @@ void OpenGLRenderer::init_bucket_renderers_jak3() {
     }
     m_jak3_eye_renderer->init_shaders(m_render_state.shaders);
     m_jak3_eye_renderer->init_textures(*m_render_state.texture_pool, GameVersion::Jak3);
+  }
+}
+
+void OpenGLRenderer::init_bucket_renderers_jakx() {
+  using namespace jakx;
+  // Bring-up profile: the debug/text buckets get DirectRenderers (stdcon), and the
+  // per-level tfrag group gets the world renderers (texture upload, tfrag, tie, etie)
+  // following the jak3 pattern. Everything unmapped stays a SkipRenderer, which walks
+  // the bucket's DMA without drawing.
+  m_bucket_renderers.resize((int)BucketId::MAX_BUCKETS);
+  m_bucket_categories.resize((int)BucketId::MAX_BUCKETS, BucketCategory::OTHER);
+  {
+    auto p = scoped_prof("render-inits");
+
+    init_bucket_renderer<VisDataHandler>("vis", BucketCategory::OTHER, BucketId::BUCKET_2);
+
+    // Sky (jak3 pattern; bucket ground truth from sky-tng's dma-bucket-insert-tag calls
+    // and the *texture-page-translate* first entry): the cloud/fog textures arrive as
+    // TextureAnimator PC DMA in bucket 4, the sky dome draws as direct GIF packets in
+    // bucket 5. TextureAnimator already routes JakX through the jak3 clouds paths.
+    init_bucket_renderer<TextureUploadHandler>("tex-lcom-sky-pre", BucketCategory::TEX,
+                                               BucketId::TEX_LCOM_SKY_PRE, m_texture_animator);
+    init_bucket_renderer<DirectRenderer>("sky", BucketCategory::OTHER, BucketId::SKY, 1024 * 8);
+
+    // Ground truth from the game's *tfrag-init-table* and the draw-drawable-tree-tfrag*
+    // bucket arrays (tfrag-methods.o): Jak X multiplexes 12 draw slots = 6 draw-levels x
+    // 2 viewports (index = draw-index * 2 + current-viewport-index), with alternating
+    // group sizes, so the jak3-style uniform-stride enum names don't apply. Register the
+    // tfrag renderers at the real slots; both viewport slots of a pair share a level id.
+    static constexpr int kTfragBuckets[12] = {8, 19, 31, 42, 54, 65, 77, 88, 100, 111, 123, 134};
+    static constexpr int kTfragTransBuckets[12] = {260, 270, 281, 291, 302, 312,
+                                                   323, 333, 344, 354, 365, 375};
+    static constexpr int kTfragWaterBuckets[12] = {636, 645, 655, 664, 674, 683,
+                                                   693, 702, 712, 721, 731, 740};
+    // Tie ground truth from instance-tie-patch-buckets' category bucket arrays
+    // (tie-methods.o), same 12-slot multiplex. The live GOAL block feeds the TIE
+    // bucket (tie-init-engine DMA + pc camera data + proto vis mask + envmap
+    // color); the other categories draw from the parent renderer's data.
+    static constexpr int kTieBuckets[12] = {9, 20, 32, 43, 55, 66, 78, 89, 101, 112, 124, 135};
+    static constexpr int kEtieBuckets[12] = {10, 21, 33, 44, 56, 67, 79, 90, 102, 113, 125, 136};
+    static constexpr int kTieTransBuckets[12] = {261, 271, 282, 292, 303, 313,
+                                                 324, 334, 345, 355, 366, 376};
+    static constexpr int kEtieTransBuckets[12] = {262, 272, 283, 293, 304, 314,
+                                                  325, 335, 346, 356, 367, 377};
+    static constexpr int kTieWaterBuckets[12] = {637, 646, 656, 665, 675, 684,
+                                                 694, 703, 713, 722, 732, 741};
+    static constexpr int kEtieWaterBuckets[12] = {638, 647, 657, 666, 676, 685,
+                                                  695, 704, 714, 723, 733, 742};
+    // Shrub ground truth from draw-prototype-inline-array-shrub's category
+    // arrays (shrubbery.o, block 3 = the main shrubbery category); the shrub
+    // region starts at 145 with stride 19 per draw-level (tex + 2 views x 9).
+    static constexpr int kShrubBuckets[12] = {146, 155, 165, 174, 184, 193,
+                                              203, 212, 222, 231, 241, 250};
+    for (int slot = 0; slot < 12; slot++) {
+      const int lev = slot / 2;
+      const int view = slot % 2;
+      init_bucket_renderer<TFragment>(
+          fmt::format("tfrag-l{}-v{}-tfrag", lev, view), BucketCategory::TFRAG, kTfragBuckets[slot],
+          std::vector{tfrag3::TFragmentTreeKind::NORMAL}, false, lev, anim_slot_array());
+      init_bucket_renderer<TFragment>(fmt::format("tfrag-t-l{}-v{}-alpha", lev, view),
+                                      BucketCategory::TFRAG, kTfragTransBuckets[slot],
+                                      std::vector{tfrag3::TFragmentTreeKind::TRANS}, false, lev,
+                                      anim_slot_array());
+      init_bucket_renderer<TFragment>(fmt::format("tfrag-w-l{}-v{}-water", lev, view),
+                                      BucketCategory::TFRAG, kTfragWaterBuckets[slot],
+                                      std::vector{tfrag3::TFragmentTreeKind::WATER}, false, lev,
+                                      anim_slot_array());
+      Tie3* tie = init_bucket_renderer<Tie3>(fmt::format("tie-l{}-v{}-tfrag", lev, view),
+                                             BucketCategory::TIE, kTieBuckets[slot], lev,
+                                             anim_slot_array());
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-tfrag", lev, view),
+                                                BucketCategory::TIE, kEtieBuckets[slot], tie,
+                                                tfrag3::TieCategory::NORMAL_ENVMAP);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("tie-t-l{}-v{}-alpha", lev, view),
+                                                BucketCategory::TIE, kTieTransBuckets[slot], tie,
+                                                tfrag3::TieCategory::TRANS);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-alpha", lev, view),
+                                                BucketCategory::TIE, kEtieTransBuckets[slot], tie,
+                                                tfrag3::TieCategory::TRANS_ENVMAP);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("tie-w-l{}-v{}-water", lev, view),
+                                                BucketCategory::TIE, kTieWaterBuckets[slot], tie,
+                                                tfrag3::TieCategory::WATER);
+      init_bucket_renderer<Tie3AnotherCategory>(fmt::format("etie-l{}-v{}-water", lev, view),
+                                                BucketCategory::TIE, kEtieWaterBuckets[slot], tie,
+                                                tfrag3::TieCategory::WATER_ENVMAP);
+      init_bucket_renderer<Shrub>(fmt::format("shrub-l{}-v{}-shrub", lev, view),
+                                  BucketCategory::SHRUB, kShrubBuckets[slot]);
+    }
+
+    init_bucket_renderer<DirectRenderer>("debug", BucketCategory::OTHER, BucketId::DEBUG, 0x20000);
+    init_bucket_renderer<DirectRenderer>("debug-no-zbuf2", BucketCategory::OTHER,
+                                         BucketId::DEBUG_NO_ZBUF2, 0x8000);
+    init_bucket_renderer<DirectRenderer>("debug-menu", BucketCategory::OTHER, BucketId::DEBUG_MENU,
+                                         0x8000);
+
+    for (size_t i = 0; i < m_bucket_renderers.size(); i++) {
+      if (!m_bucket_renderers[i]) {
+        init_bucket_renderer<SkipRenderer>(fmt::format("bucket-{}", i), BucketCategory::OTHER, i);
+      }
+
+      m_bucket_renderers[i]->init_shaders(m_render_state.shaders);
+      m_bucket_renderers[i]->init_textures(*m_render_state.texture_pool, GameVersion::Jak3);
+    }
   }
 }
 
@@ -1276,6 +1381,21 @@ void OpenGLRenderer::setup_frame(const RenderOptions& settings) {
     m_render_state.stencil_dirty = false;
   }
   // jak 2 does the clear in BlitDisplays.cpp
+  if (m_version == GameVersion::JakX) {
+    // Jak X's bring-up profile has no BlitDisplays, whose render() is what binds and
+    // clears the game FBO for jak 2/3 (and leaves it bound for the bucket renderers).
+    // Without this, DirectRenderer draws into whatever framebuffer was left bound and
+    // do_pcrtc_effects then stamps the never-written FBO over the window.
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_state.render_fbo->fbo_id);
+    glViewport(0, 0, m_fbo_state.render_fbo->width, m_fbo_state.render_fbo->height);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(0.0);
+    glClearStencil(0);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glDisable(GL_BLEND);
+    m_render_state.stencil_dirty = false;
+  }
 
   // setup the draw region to letterbox later
   m_render_state.draw_region_w = settings.draw_region_width;
@@ -1433,7 +1553,22 @@ void OpenGLRenderer::dispatch_buckets_jak3(DmaFollower dma,
 
     // lg::info("Render: {} end", g_current_renderer);
     //  should have ended at the start of the next chain
-    ASSERT(dma.current_tag_offset() == m_render_state.next_bucket);
+    if (m_version == GameVersion::JakX &&
+        (dma.ended() || dma.current_tag_offset() != m_render_state.next_bucket)) {
+      // Jak X bring-up: some buckets still carry malformed chains (e.g. the hud tpage
+      // upload ends with a terminator instead of linking to the next bucket). The
+      // bucket array is contiguous, so resync the follower to the next slot instead
+      // of dying, and keep going so the later buckets still render.
+      static int s_resyncs = 0;
+      if (s_resyncs < 8) {
+        lg::warn("bucket {} chain misbehaved (ended {} at {}), resyncing to {}", bucket_id,
+                 dma.ended(), dma.current_tag_offset(), m_render_state.next_bucket);
+        s_resyncs++;
+      }
+      dma = DmaFollower(dma.base(), m_render_state.next_bucket);
+    } else {
+      ASSERT(dma.current_tag_offset() == m_render_state.next_bucket);
+    }
     m_render_state.next_bucket += 16;
     vif_interrupt_callback(bucket_id + 1);
     m_category_times[(int)m_bucket_categories[bucket_id]] += bucket_prof.get_elapsed_time();
@@ -1445,7 +1580,7 @@ void OpenGLRenderer::dispatch_buckets_jak3(DmaFollower dma,
       m_collide_renderer.render(&m_render_state, p);
     }
 
-    if (bucket_id == (int)jak3::BucketId::TEX_HUD_HUD_ALPHA) {
+    if (m_blit_displays && bucket_id == (int)jak3::BucketId::TEX_HUD_HUD_ALPHA) {
       auto p = prof.make_scoped_child("color-filter");
       m_blit_displays->apply_color_filter(&m_render_state, p);
     }

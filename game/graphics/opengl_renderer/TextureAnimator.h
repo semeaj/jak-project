@@ -95,6 +95,24 @@ class ClutBlender {
   std::vector<u32> m_temp_rgba;
 };
 
+/*!
+ * A Jak X animated texture: pre-authored index data from the extracted level, re-clut every
+ * frame from a CLUT the GOAL side generates and uploads.
+ *
+ * Structurally this is a ClutBlender whose two baked CLUTs are replaced by one runtime CLUT,
+ * with one real difference: ClutBlender indexes its CLUT directly, because extracted
+ * IndexTexture colour tables are stored already unscrambled. The CLUT here arrives raw from
+ * GOAL, so it has to go through TextureAnimator::m_index_to_clut_addr instead.
+ */
+struct JakXClutIndexTexture {
+  const tfrag3::IndexTexture* src = nullptr;
+  GLuint texture = 0;
+  std::vector<u32> temp_rgba;
+  std::array<u32, 256> last_clut{};
+  bool last_clut_valid = false;
+  GpuTexture* pool_gpu_tex = nullptr;
+};
+
 struct Psm32ToPsm8Scrambler {
   Psm32ToPsm8Scrambler(int w, int h, int write_tex_width, int read_tex_width);
   std::vector<int> destinations_per_byte;
@@ -264,6 +282,17 @@ struct SlimeInput {
   int32_t scroll_dest;
 };
 
+/*!
+ * Payload of the Jak X clut-index-texture opcode: one quadword naming which extracted index
+ * texture to re-clut, which CLUT to read, and where to publish the result.
+ */
+struct JakXClutIndexInput {
+  int32_t itex_idx;
+  int32_t dest_tbp;
+  int32_t clut_tbp;
+  int32_t pad;
+};
+
 using Vector16ub = math::Vector<u8, 16>;
 
 struct NoiseTexturePair {
@@ -296,11 +325,13 @@ class TextureAnimator {
   void setup_texture_anims_common();
   void setup_texture_anims_jak2();
   void setup_texture_anims_jak3();
+  void setup_texture_anims_jakx();
 
   void setup_sky();
   void handle_upload_clut_16_16(const DmaTransfer& tf, const u8* ee_mem);
   void handle_generic_upload(const DmaTransfer& tf, const u8* ee_mem);
   void handle_clouds_and_fog(const DmaTransfer& tf, TexturePool* texture_pool, bool hires);
+  void handle_jakx_clut_index_texture(const DmaTransfer& tf, TexturePool* texture_pool);
   void handle_slime(const DmaTransfer& tf, TexturePool* texture_pool);
   void handle_erase_dest(DmaFollower& dma);
   void handle_set_shader(DmaFollower& dma);
@@ -346,6 +377,7 @@ class TextureAnimator {
 
   VramEntry* m_tex_looking_for_clut = nullptr;
   const tfrag3::Level* m_common_level = nullptr;
+  std::vector<JakXClutIndexTexture> m_jakx_clut_index_textures;
   std::unordered_map<u32, VramEntry> m_textures;
   std::unordered_map<u64, PcTextureId> m_ids_by_vram;
 

@@ -12,6 +12,7 @@
 #include "game/overlord/jak3/ssound.h"
 #include "game/overlord/jak3/vag.h"
 #include "game/overlord/jak3/vblank_handler.h"
+#include "game/runtime.h"
 #include "game/sce/iop.h"
 #include "game/sound/sndshim.h"
 
@@ -76,17 +77,80 @@ u32 Thread_Loader() {
   return 0;
 }
 
+// Jak X renumbered the sound-command enum (nearly sequential 0-22, cancel-dgo 20,
+// stereo-mode 21) and shrank the RPC element stride to 48 bytes; this shared jak3
+// overlord implementation switches on the jak3 values, so translate at the boundary.
+// Values recovered from the decompiled jakx gsound.gc/load-dgo.gc RPC senders.
+SoundCommand TranslateJakXSoundCommand(SoundCommand in) {
+  if (g_game_version != GameVersion::JakX) {
+    return in;
+  }
+  switch ((u16)in) {
+    case 0:
+      return SoundCommand::LOAD_BANK;
+    case 1:
+      return SoundCommand::UNLOAD_BANK;
+    case 2:
+      return SoundCommand::LOAD_MUSIC;
+    case 3:
+      return SoundCommand::UNLOAD_MUSIC;
+    case 4:
+      return SoundCommand::PLAY;
+    case 5:
+      return SoundCommand::PAUSE_SOUND;
+    case 6:
+      return SoundCommand::STOP_SOUND;
+    case 7:
+      return SoundCommand::CONTINUE_SOUND;
+    case 8:
+      return SoundCommand::SET_PARAM;
+    case 9:
+      return SoundCommand::SET_MASTER_VOLUME;
+    case 10:
+      return SoundCommand::PAUSE_GROUP;
+    case 11:
+      return SoundCommand::STOP_GROUP;
+    case 12:
+      return SoundCommand::CONTINUE_GROUP;
+    case 13:
+      return SoundCommand::GET_IRX_VERSION;
+    case 14:
+      return SoundCommand::SET_LANGUAGE;
+    case 15:
+      return SoundCommand::SET_REVERB;
+    case 17:
+      return SoundCommand::LIST_SOUNDS;
+    case 18:
+      return SoundCommand::SET_FPS;
+    case 20:
+      return SoundCommand::CANCEL_DGO;
+    case 21:
+      return SoundCommand::SET_STEREO_MODE;
+    case 22:
+      return SoundCommand::SET_EAR_TRANS;
+    default:
+      return in;
+  }
+}
+
+// Jak X sends 48-byte RPC elements (jak1/2/3 use 0x50).
+constexpr int kJakXCommandStride = 48;
+
 void* RPC_Player(unsigned int, void* msg, int size) {
   if (!g_bSoundEnable) {
     return nullptr;
   }
 
+  const int stride =
+      (g_game_version == GameVersion::JakX) ? kJakXCommandStride : kPlayerCommandStride;
   // const auto* cmd = (RPC_Player_Cmd*)msg;
-  ovrld_log(LogCategory::PLAYER_RPC, "Got Player RPC with {} cmds", size / kPlayerCommandStride);
-  const u8* m_ptr = (const u8*)msg;
+  ovrld_log(LogCategory::PLAYER_RPC, "Got Player RPC with {} cmds", size / stride);
+  u8* m_ptr = (u8*)msg;
   const u8* end = m_ptr + size;
 
-  for (; m_ptr < end; m_ptr += kPlayerCommandStride) {
+  for (; m_ptr < end; m_ptr += stride) {
+    auto* base_cmd = (Rpc_Player_Base_Cmd*)m_ptr;
+    base_cmd->command = TranslateJakXSoundCommand(base_cmd->command);
     switch (((const Rpc_Player_Base_Cmd*)m_ptr)->command) {
       case SoundCommand::PLAY: {
         const auto* cmd = (const Rpc_Player_Play_Cmd*)m_ptr;
@@ -457,13 +521,16 @@ void* RPC_Loader(unsigned int, void* msg, int size) {
     return nullptr;
   }
 
+  const int stride =
+      (g_game_version == GameVersion::JakX) ? kJakXCommandStride : kLoaderCommandStride;
   // const auto* cmd = (RPC_Player_Cmd*)msg;
-  ovrld_log(LogCategory::PLAYER_RPC, "[RPC Loader] Got Loader RPC with {} cmds",
-            size / kLoaderCommandStride);
+  ovrld_log(LogCategory::PLAYER_RPC, "[RPC Loader] Got Loader RPC with {} cmds", size / stride);
   u8* m_ptr = (u8*)msg;
   const u8* end = m_ptr + size;
 
-  for (; m_ptr < end; m_ptr += kLoaderCommandStride) {
+  for (; m_ptr < end; m_ptr += stride) {
+    auto* base_cmd = (Rpc_Player_Base_Cmd*)m_ptr;
+    base_cmd->command = TranslateJakXSoundCommand(base_cmd->command);
     switch (((const Rpc_Player_Base_Cmd*)m_ptr)->command) {
       case SoundCommand::LOAD_BANK: {
         auto* cmd = (const Rpc_Loader_Load_Bank_Cmd*)m_ptr;

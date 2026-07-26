@@ -5,5 +5,12 @@
 ;; name in dgo: etie-vu1
 ;; dgos: ENGINE, GAME
 
-;; DECOMP BEGINS
+;; og:preserve-this stub (jak3 parity: jak3 leaves this file unlanded too).
+;; The C++ Tie3 renderer parses only the TIE bucket's init DMA
+;; (tie-init-engine, landed in tie.gc); the envmap categories draw from the
+;; parent renderer's data, so the etie engines are never called on the PC
+;; port's live path. The decomp is clean if this is ever needed
+;; (etie-init-consts carries a gpr->fpr float-pun that needs the-as float
+;; hand-conversion when landing).
 
+;; DECOMP BEGINS

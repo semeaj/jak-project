@@ -6,7 +6,8 @@
 #include "game/common/overlord_common.h"
 
 constexpr PerGameVersion<int> STR_RPC_ID(0xdeb5, 0xfab4, 0xfab4, 0xfab4);
-constexpr int STR_RPC_CHANNEL = 4;
+// Jak X shifts all EE RPC ports up by one (see player_rpc_types.h).
+constexpr PerGameVersion<int> STR_RPC_CHANNEL(4, 4, 4, 5);
 
 /*
 (deftype load-chunk-msg (structure)

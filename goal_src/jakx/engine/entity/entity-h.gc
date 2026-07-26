@@ -146,11 +146,15 @@ that gets accessed by the accompanying process."
 
 (deftype entity-actor (entity)
   "Child class of [[entity]] used to spawn [[process-drawable]] actors."
-  ((etype      type        :offset  56)
-   (task       game-task)
-   (kill-mask  task-mask   :overlay-at unknown)
-   (vis-id     int16)
-   (quat       quaternion  :inline)
+  ;; jakx: every entity-actor field sits one slot later than jak3 (+4) because jakx's
+  ;; entity grew the unknown name-cache slot at 52. kill-mask shifts with the rest to 56;
+  ;; overlaying it at unknown (52) would corrupt the entity-by-name cache. Order and
+  ;; offsets must match all-types exactly: JakXTypeConsistency compares field by field.
+  ((kill-mask  task-mask   :offset  56)
+   (etype      type        :offset  60)
+   (task       game-task   :offset  64)
+   (vis-id     int16       :offset  66)
+   (quat       quaternion  :inline :offset  80)
    )
   (:methods
     (next-actor (_type_) entity-actor)

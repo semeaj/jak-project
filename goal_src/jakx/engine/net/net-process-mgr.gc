@@ -7,3 +7,10 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: real body adjusts locally-owned net entities after
+;; level activation, gated on net-world state that is inactive in single-player. Callers
+;; discard the result.
+(defun tweak-local-net-entities ()
+  0
+  )
+

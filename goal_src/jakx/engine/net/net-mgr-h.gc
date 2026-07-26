@@ -7,3 +7,9 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up: pause-callback anon functions in main.o read *net-mgr*
+;; repeatedly; an undefined symbol reads 0 = truthy = deref crash. #f until net-mgr lands.
+;; Typed as net-mgr (declared forward; the deftype is in cam-states.gc) so this define
+;; agrees with all-types, which JakXTypeConsistency compiles alongside this file.
+(declare-type net-mgr process)
+(define *net-mgr* (the-as net-mgr #f))

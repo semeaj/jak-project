@@ -5,6 +5,2181 @@
 ;; name in dgo: gsound
 ;; dgos: ENGINE, GAME
 
+;; static sound table, lives in a data object not yet ported
+(define *sound-info* (new 'static 'boxed-array :type sound-info)) ;; og:preserve-this bring-up: empty until the real static table lands; loops over length 0 are no-ops
+
+;; forward declarations for defuns referenced before their definitions in this file
+(define-extern sound-name->string (function sound-name string))
+(define-extern string->sound-name (function string sound-name))
+(define-extern sound-name= (function sound-name sound-name symbol))
+(define-extern new-sound-id (function sound-id))
+(define-extern get-sound-buffer-entry (function pointer))
+(define-extern free-last-sound-buffer-entry (function none))
+(define-extern doppler-pitch-shift (function vector vector float))
+(define-extern sound-bank-load (function sound-name int int sound-id))
+(define-extern sound-bank-unload (function sound-name int))
+(define-extern sound-stop (function sound-id int))
+(define-extern sound-set-volume (function uint float int))
+(define-extern find-sound-instance function)
+(define-extern find-sound-handle function)
+(define-extern get-sound-handle function)
+(define-extern release-sound-handle function)
+(define-extern remove-sound-instance-by-index function)
+(define-extern remove-sound-instance-by-sound-id function)
+(define-extern sound-instance-play function)
+(define-extern sound-instance-update function)
+(define-extern calculate-pan-angle function)
+(define-extern calculate-falloff-volume function)
+(define-extern update-pan-angle function)
+(define-extern update-volume-with-falloff function)
+(define-extern update-pitch-with-doppler function)
+(define-extern update-tracking-position function)
+
 ;; DECOMP BEGINS
 
-(define-extern get-sound-buffer-entry (function pointer))
+
+;; definition for function sound-mp-fix-trans
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition of type engine-sound-pers
+(deftype engine-sound-pers (engine-pers)
+  ()
+  )
+
+;; definition for method 3 of type engine-sound-pers
+(defmethod inspect ((this engine-sound-pers))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tname: ~A~%" (-> this name))
+  (format #t "~1Tlength: ~D~%" (-> this length))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Telement-type: ~A~%" (-> this element-type))
+  (format #t "~1Texecute-time: ~D~%" (-> this execute-time))
+  (format #t "~1Talive-list: #<connection-pers @ #x~X>~%" (-> this alive-list))
+  (format #t "~1Tdead-list: #<connection-pers @ #x~X>~%" (-> this dead-list))
+  (format #t "~1Tdata[0] @ #x~X~%" (-> this data))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 10 of type engine-sound-pers
+;; ERROR: failed type prop at 3: Called a function, but we do not know its type
+;; NOTE: decomp still fails; commented out until fixed
+;; (defmethod kill-callback ((a0-0 engine-sound-pers) (a1-0 connection-pers))
+;;   "Called when a connection is removed."
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 none)
+;;     (v1-0 sound-rpc-set-param)
+;;     (v1-1 none)
+;;     (v1-2 none)
+;;     (a0-1 int)
+;;     (a0-2 none)
+;;     (a0-3 none)
+;;     (a0-4 none)
+;;     (a0-5 none)
+;;     (a0-6 none)
+;;     (a0-7 none)
+;;     (a0-8 none)
+;;     (a1-1 symbol)
+;;     (t9-0 function)
+;;     )
+;;   (cond
+;;     ((begin
+;;        (set! t9-0 find-sound-instance)
+;;        (set! a0-1 (-> a1-0 param-int64 0))
+;;        (set! a1-1 #t)
+;;        (set! v0-0 (the-as none (call!)))
+;;        (set! v1-0 (the-as sound-rpc-set-param v0-0))
+;;        v1-0
+;;        )
+;;      (set! a0-2 (the-as none -4))
+;;      (set! (-> v1-0 command) (the-as uint a0-2))
+;;      (set! a0-3 (the-as none 120))
+;;      (s.w! (+ v1-0 12) a0-3)
+;;      (set! a0-4 (the-as none 2))
+;;      (s.w! (+ v1-0 16) a0-4)
+;;      (set! a0-5 (the-as none (l.hu (+ v1-0 48))))
+;;      (set! a0-6 (the-as none (logior a0-5 128)))
+;;      (s.h! (+ v1-0 48) a0-6)
+;;      (set! a0-7 (the-as none (l.bu v1-0)))
+;;      (set! a0-8 (the-as none (logior a0-7 4)))
+;;      (s.b! v1-0 a0-8)
+;;      (set! v1-1 (the-as none (l.wu (+ v1-0 80))))
+;;      )
+;;     (else
+;;       (set! v1-2 (the-as none 0))
+;;       )
+;;     )
+;;   (set! v0-1 (the-as none 0))
+;;   (ret-none)
+;;   )
+
+;; failed to figure out what this is:
+(kmemopen global "sound-loop-engine")
+
+;; definition for symbol *sound-loop-engine*, type engine-sound-pers
+(define *sound-loop-engine* (new 'global 'engine-sound-pers '*sound-loop-engine* 32 connection-pers))
+
+;; failed to figure out what this is:
+(kmemclose)
+
+;; failed to figure out what this is:
+(kmemopen global "sound-rpc")
+
+;; definition for symbol *sound-player-rpc*, type rpc-buffer-pair
+(define *sound-player-rpc* (new 'global 'rpc-buffer-pair (the-as uint 48) (the-as uint 128) 1))
+
+;; definition for symbol *sound-loader-rpc*, type rpc-buffer-pair
+(define *sound-loader-rpc* (new 'global 'rpc-buffer-pair (the-as uint 48) (the-as uint 1) 2))
+
+;; failed to figure out what this is:
+(kmemclose)
+
+;; definition for function sound-name=
+(defun sound-name= ((arg0 sound-name) (arg1 sound-name))
+  (and (= (the-as uint arg0) (the-as uint arg1)) (= (-> arg0 hi) (-> arg1 hi)))
+  )
+
+;; definition for function str-is-playing?
+(defun str-is-playing? ()
+  (countdown (v1-0 4)
+    (if (and (>= (the-as uint (-> *sound-iop-info* stream-id v1-0)) 0)
+             (logtest? (-> *sound-iop-info* stream-status v1-0) (stream-status ss4))
+             )
+        (return #t)
+        )
+    )
+  #f
+  )
+
+;; definition for function str-id-is-playing?
+(defun str-id-is-playing? ((arg0 sound-id))
+  (countdown (v1-0 4)
+    (if (and (= arg0 (-> *sound-iop-info* stream-id v1-0))
+             (logtest? (-> *sound-iop-info* stream-status v1-0) (stream-status ss1 ss6))
+             )
+        (return #t)
+        )
+    )
+  #f
+  )
+
+;; definition for function current-str-pos
+(defun current-str-pos ((arg0 sound-id))
+  (if (>= (-> *setting-control* user-current movie-skip-frame) 0.0)
+      (return (the int (* 34.133335 (-> *setting-control* user-current movie-skip-frame))))
+      )
+  (dotimes (v1-5 4)
+    (if (= arg0 (-> *sound-iop-info* stream-id v1-5))
+        (return (the-as int (-> *sound-iop-info* stream-position v1-5)))
+        )
+    )
+  -1
+  )
+
+;; definition for function current-str-status
+;; WARN: Return type mismatch int vs stream-status.
+(defun current-str-status ((arg0 sound-id))
+  (dotimes (v1-0 4)
+    (if (= arg0 (-> *sound-iop-info* stream-id v1-0))
+        (return (the-as stream-status (-> *sound-iop-info* stream-status v1-0)))
+        )
+    )
+  (the-as stream-status 0)
+  )
+
+;; definition for symbol *dnas-is-running*, type symbol
+(define *dnas-is-running* #f)
+
+;; definition for function is-cd-in?
+(defun is-cd-in? ()
+  (or (zero? (-> *sound-iop-info* nocd)) *dnas-is-running*)
+  )
+
+;; definition for function new-sound-id
+(defun new-sound-id ()
+  (set! *current-sound-id* (+ *current-sound-id* 1))
+  (if (< (the-as int *current-sound-id*) #x10000)
+      (set! *current-sound-id* (the-as sound-id #x10000))
+      )
+  *current-sound-id*
+  )
+
+;; definition for function check-irx-version
+(defun check-irx-version ()
+  (let ((gp-0 (the-as sound-rpc-get-irx-version (add-element *sound-loader-rpc*))))
+    (set! (-> gp-0 command) (the-as uint 13))
+    (set! (-> gp-0 ee-addr) (&-> *sound-iop-info* freemem))
+    (call *sound-loader-rpc* (the-as uint 0) (the-as pointer gp-0) (the-as uint 48))
+    (sync *sound-loader-rpc* #f)
+    (format 0 "IRX version ~D.~D~%" (-> gp-0 major) (-> gp-0 minor))
+    (when (or (!= (-> gp-0 major) 4) (nonzero? (-> gp-0 minor)))
+      (format 0 "ERROR: IRX is the wrong version - need ~D.~D~%" 4 0)
+      (format 0 "~%~%Please do (:mch) then mkee on linux-dog~%~%~%")
+      (crash!)
+      0
+      )
+    )
+  0
+  )
+
+;; definition for function sound-bank-load
+;; INFO: Used lq/sq
+(defun sound-bank-load ((arg0 sound-name) (arg1 int) (arg2 int))
+  (let ((gp-0 (new-sound-id)))
+    (let ((v1-1 (the-as sound-rpc-load-bank (add-element *sound-loader-rpc*))))
+      (set! (-> v1-1 command) (the-as uint 0))
+      (set! (-> v1-1 bank-name) arg0)
+      (set! (-> v1-1 mode) (the-as uint arg1))
+      (set! (-> v1-1 priority) (the-as uint arg2))
+      )
+    (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+    gp-0
+    )
+  )
+
+;; definition for function sound-bank-unload
+(defun sound-bank-unload ((arg0 sound-name))
+  (let ((v1-1 (the-as sound-rpc-unload-bank (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 1))
+    (set! (-> v1-1 mode) (the-as uint arg0))
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  0
+  )
+
+;; definition for function sound-music-load
+;; INFO: Used lq/sq
+(defun sound-music-load ((arg0 sound-name))
+  (let ((v1-1 (the-as sound-rpc-load-music (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 2))
+    (set! (-> v1-1 bank-name) arg0)
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  0
+  )
+
+;; definition for function sound-music-unload
+(defun sound-music-unload ()
+  (let ((v1-1 (the-as sound-rpc-unload-music (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 3))
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  0
+  )
+
+;; definition for function set-language
+(defun set-language ((arg0 language-enum))
+  (let ((v1-1 (the-as sound-rpc-set-language (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 14))
+    (set! (-> v1-1 lang) (the-as uint arg0))
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  0
+  )
+
+;; definition for function sound-set-stereo-mode
+;; WARN: Return type mismatch int vs none.
+(defun sound-set-stereo-mode ((arg0 int))
+  (let ((v1-1 (the-as sound-rpc-set-stereo-mode (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 21))
+    (set! (-> v1-1 mode) arg0)
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  0
+  (none)
+  )
+
+;; definition for function list-sounds
+;; WARN: Return type mismatch int vs none.
+(defun list-sounds ()
+  (let ((v1-1 (the-as sound-rpc-list-sounds (add-element *sound-loader-rpc*))))
+    (set! (-> v1-1 command) (the-as uint 17))
+    )
+  (call *sound-loader-rpc* (the-as uint 0) (the-as pointer 0) (the-as uint 0))
+  (syncv 0)
+  0
+  (none)
+  )
+
+;; definition for function sound-command->string
+(defun sound-command->string ((arg0 uint))
+  (let ((v1-0 arg0))
+    (cond
+      ((= v1-0 16)
+       "shutdown"
+       )
+      ((= v1-0 14)
+       "set-language"
+       )
+      ((= v1-0 13)
+       "get-irx-version"
+       )
+      ((= v1-0 11)
+       "stop-group"
+       )
+      ((= v1-0 8)
+       "set-param"
+       )
+      ((= v1-0 4)
+       "play"
+       )
+      ((= v1-0 12)
+       "continue-group"
+       )
+      ((= v1-0 21)
+       "set-stereo-mode"
+       )
+      ((= v1-0 2)
+       "load-music"
+       )
+      ((= v1-0 7)
+       "continue-sound"
+       )
+      ((= v1-0 3)
+       "unload-music"
+       )
+      ((= v1-0 15)
+       "set-reverb"
+       )
+      ((= v1-0 22)
+       "set-globals"
+       )
+      ((= v1-0 20)
+       "cancel-dgo"
+       )
+      ((= v1-0 6)
+       "stop-sound"
+       )
+      ((= v1-0 5)
+       "pause-sound"
+       )
+      ((zero? v1-0)
+       "load-bank"
+       )
+      ((= v1-0 18)
+       "set-fps"
+       )
+      ((= v1-0 1)
+       "unload-bank"
+       )
+      ((= v1-0 17)
+       "list-sounds"
+       )
+      ((= v1-0 9)
+       "set-master-volume"
+       )
+      ((= v1-0 19)
+       "iop-mem"
+       )
+      ((= v1-0 10)
+       "pause-group"
+       )
+      (else
+        "*unknown*"
+        )
+      )
+    )
+  )
+
+;; definition for function sound-buffer-dump
+(defun sound-buffer-dump ()
+  (let ((gp-0 (-> *sound-player-rpc* current elt-used))
+        (s5-0 (-> *sound-player-rpc* current elt-size))
+        )
+    (dotimes (s4-0 (the-as int gp-0))
+      (let* ((s3-0 (the-as sound-rpc-play (&+ (-> *sound-player-rpc* current base) (* s5-0 (the-as uint s4-0)))))
+             (a3-0 (sound-command->string (-> s3-0 command)))
+             )
+        (case (-> s3-0 command)
+          ((4)
+           (format #t "~D ~A ~G~%" s4-0 a3-0 (&-> s3-0 name))
+           )
+          (else
+            (format #t "~D ~A~%" s4-0 a3-0)
+            )
+          )
+        )
+      )
+    )
+  0
+  )
+
+;; definition for symbol *debug-sound-info-item*, type basic
+(define *debug-sound-info-item* (the-as basic #f))
+
+;; definition for function sound-instance-play
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function sound-instance-update
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function sound-info-by-name
+;; INFO: Used lq/sq
+(defun sound-info-by-name ((arg0 string))
+  (when (and (nonzero? arg0) arg0)
+    (dotimes (s5-0 (-> *sound-info* length))
+      (let ((s4-0 (-> *sound-info* s5-0)))
+        (when (sound-name= (the-as sound-name (-> s4-0 name)) (the-as sound-name arg0))
+          (if (zero? s5-0)
+              (return (the-as sound-info #f))
+              )
+          (return s4-0)
+          )
+        )
+      )
+    (format 0 "ERROR: couldn't find SOUND '~S' in *sound-info*~%" (sound-name->string (the-as sound-name arg0)))
+    )
+  (the-as sound-info #f)
+  )
+
+;; definition for symbol *sound-handles*, type (array array)
+;; og:preserve-this hand-rewritten from the degraded top-level: the original is a
+;; static 2-slot (array array) (label L383); slot 0 holds 128 game sound-handles
+;; (svc 0), slot 1 holds 12 service handles (svc 1), each handle stamped with its index.
+(define *sound-handles* (the-as (array array) (new 'static 'boxed-array :type array :length 2 :allocated-length 2)))
+
+(set! (-> *sound-handles* 0) (the-as array (new 'global 'boxed-array sound-handle 128)))
+(set! (-> *sound-handles* 0 length) 0)
+(let ((s0 (the-as (array sound-handle) (-> *sound-handles* 0))))
+  (dotimes (gp-0 128)
+    (let ((h (new 'global 'sound-handle)))
+      (set! (-> s0 gp-0) h)
+      (set! (-> h index) gp-0)
+      (set! (-> h svc) 0)
+      )
+    )
+  )
+
+(set! (-> *sound-handles* 1) (the-as array (new 'global 'boxed-array sound-handle 12)))
+(set! (-> *sound-handles* 1 length) 0)
+(let ((s1 (the-as (array sound-handle) (-> *sound-handles* 1))))
+  (dotimes (gp-1 12)
+    (let ((h (new 'global 'sound-handle)))
+      (set! (-> s1 gp-1) h)
+      (set! (-> h index) gp-1)
+      (set! (-> h svc) 1)
+      )
+    )
+  )
+
+;; definition for function find-sound-handle
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function release-sound-handle
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function get-sound-handle
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for symbol *sound-instances*, type (array sound-instance)
+(define *sound-instances* (new 'global 'boxed-array sound-instance 128))
+
+;; failed to figure out what this is:
+(set! (-> *sound-instances* length) 0)
+
+;; failed to figure out what this is:
+(dotimes (gp-2 128)
+  (set! (-> *sound-instances* gp-2) (new 'global 'sound-instance))
+  )
+
+;; definition for function find-sound-instance
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function remove-sound-instance-by-index
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function remove-sound-instance-by-sound-id
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function make-sound-instance
+;; ERROR: failed type prop at 12: Called a function, but we do not know its type
+;; WARN: Return type mismatch none vs sound-instance.
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun make-sound-instance ((a0-0 object) (a1-0 int) (a2-0 symbol))
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v0-4 none)
+;;     (v0-5 none)
+;;     (v0-6 none)
+;;     (v1-5 none)
+;;     (v1-6 none)
+;;     (v1-7 none)
+;;     (v1-8 none)
+;;     (v1-9 none)
+;;     (v1-10 none)
+;;     (v1-11 none)
+;;     (v1-12 none)
+;;     (v1-13 none)
+;;     (v1-14 none)
+;;     (v1-15 none)
+;;     (v1-20 none)
+;;     (v1-21 none)
+;;     (v1-22 none)
+;;     (v1-23 none)
+;;     (a0-3 none)
+;;     (a0-4 none)
+;;     (a0-5 none)
+;;     (a0-6 none)
+;;     (a1-1 symbol)
+;;     (a1-2 none)
+;;     (a1-3 none)
+;;     (a1-4 none)
+;;     (s2-0 symbol)
+;;     (s3-0 symbol)
+;;     (s4-0 int)
+;;     (t9-0 function)
+;;     (t9-1 none)
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     (t9-4 none)
+;;     (t9-5 none)
+;;     (f0-0 none)
+;;     (f30-0 int)
+;;     )
+;;   (if (begin a0-0)
+;;       (return
+;;         (begin
+;;           (when (begin
+;;                   (when (begin (set! s3-0 #f) (set! s2-0 #f) (set! s4-0 0) (set! f30-0 0) (nonzero? a1-0))
+;;                     (when (begin
+;;                             (set! t9-0 find-sound-instance)
+;;                             (set! a0-1 a1-0)
+;;                             (set! a1-1 #t)
+;;                             (set! v0-0 (the-as none (call!)))
+;;                             (set! s3-0 (the-as symbol v0-0))
+;;                             s3-0
+;;                             )
+;;                       (set! s2-0 (the-as symbol (l.wu (+ s3-0 76))))
+;;                       (set! s4-0 (the-as int (l.d (+ s3-0 64))))
+;;                       (set! f30-0 (the-as int (l.f (+ s3-0 84))))
+;;                       (set! v1-3 (the-as none (fpr->gpr f30-0)))
+;;                       )
+;;                     )
+;;                   (not s3-0)
+;;                   )
+;;             (cond
+;;               ((begin (set! v1-5 (the-as none *sound-instances*)) (set! v1-6 (the-as none (l.w v1-5))) (<.si v1-6 128))
+;;                (cond
+;;                  ((begin
+;;                     (set! t9-1 (the-as none get-sound-handle))
+;;                     (set! a0-2 (the-as none a2-0))
+;;                     (set! v0-1 (the-as none (call!)))
+;;                     (set! s2-0 (the-as symbol v0-1))
+;;                     s2-0
+;;                     )
+;;                   (set! v1-7 (the-as none *sound-instances*))
+;;                   (set! v1-8 (the-as none (l.w v1-7)))
+;;                   (set! v1-9 (the-as none (sll v1-8 2)))
+;;                   (set! a0-3 (the-as none *sound-instances*))
+;;                   (set! v1-10 (the-as none (+ v1-9 a0-3)))
+;;                   (set! s3-0 (the-as symbol (l.wu (+ v1-10 12))))
+;;                   (set! v1-11 (the-as none *sound-instances*))
+;;                   (set! v1-12 (the-as none (l.w v1-11)))
+;;                   (set! v1-13 (the-as none (+ v1-12 1)))
+;;                   (set! a0-4 (the-as none *sound-instances*))
+;;                   (s.w! a0-4 v1-13)
+;;                   (set! v1-14 (the-as none (l.wu (+ a0-0 4))))
+;;                   (set! v1-15 (the-as none (+ v1-14 1)))
+;;                   (s.w! (+ a0-0 4) v1-15)
+;;                   )
+;;                  (else
+;;                    (return (begin
+;;                              (set! t9-2 (the-as none format))
+;;                              (set! a0-5 (the-as none 0))
+;;                              (set! a1-2 (the-as none L381))
+;;                              (call!)
+;;                              (set! v0-3 (the-as none #f))
+;;                              )
+;;                            )
+;;                    )
+;;                  )
+;;                )
+;;               (else
+;;                 (return (begin
+;;                           (set! t9-3 (the-as none format))
+;;                           (set! a0-6 (the-as none 0))
+;;                           (set! a1-3 (the-as none L380))
+;;                           (call!)
+;;                           (set! v0-3 (the-as none #f))
+;;                           )
+;;                         )
+;;                 )
+;;               )
+;;             )
+;;           (when (begin
+;;                   (set! t9-4 (the-as none mem-clear!))
+;;                   (set! a0-7 (the-as none s3-0))
+;;                   (set! a1-4 (the-as none 92))
+;;                   (call!)
+;;                   (s.w! (+ s3-0 76) s2-0)
+;;                   (s.d! (+ s3-0 64) s4-0)
+;;                   (s.f! (+ s3-0 84) f30-0)
+;;                   (s.w! (+ s3-0 20) a0-0)
+;;                   (zero? a1-0)
+;;                   )
+;;             (set! t9-5 (the-as none new-sound-id))
+;;             (set! v0-6 (the-as none (call!)))
+;;             (set! a1-0 (the-as int v0-6))
+;;             (set! v1-19 (the-as none a1-0))
+;;             )
+;;           (s.w! (+ s3-0 80) a1-0)
+;;           (set! v1-20 (the-as none 1024))
+;;           (s.h! (+ s3-0 2) v1-20)
+;;           (set! v1-21 (the-as none #x3f800000))
+;;           (set! f0-0 (the-as none (gpr->fpr v1-21)))
+;;           (s.f! (+ s3-0 88) f0-0)
+;;           (set! v1-22 (the-as none (l.hu (+ s3-0 48))))
+;;           (set! v1-23 (the-as none (logior v1-22 64)))
+;;           (s.h! (+ s3-0 48) v1-23)
+;;           (set! v0-3 (the-as none s3-0))
+;;           )
+;;         )
+;;       )
+;;   (set! v0-3 (the-as none #f))
+;;   (ret-value v0-3)
+;;   )
+
+;; definition for function update-pitch-with-doppler
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function update-tracking-position
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function calculate-pan-angle
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function update-pan-angle
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function calculate-falloff-volume
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function update-volume-with-falloff
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for symbol *sound-priority-level*, type int
+(define *sound-priority-level* 0)
+
+;; definition for symbol *sound-duck-amount*, type float
+(define *sound-duck-amount* 0.0)
+
+;; definition for symbol *sound-priority-duck*, type float
+(define *sound-priority-duck* 0.25)
+
+;; definition for symbol *music-ducked-last-frame?*, type symbol
+(define *music-ducked-last-frame?* #f)
+
+;; definition for symbol *slow-mo-last-frame?*, type symbol
+(define *slow-mo-last-frame?* #f)
+
+;; definition for function set-sound-priority-duck-amount
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function unset-sound-priority-duck-amount
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function build-sound-list
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for symbol *sound-player-enable*, type symbol
+(define *sound-player-enable* #t)
+
+;; definition for function swap-sound-buffers
+;; ERROR: failed type prop at 39: Unknown symbol: *progress-process*
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun swap-sound-buffers ()
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 symbol)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v0-4 none)
+;;     (v0-5 int)
+;;     (v1-0 type)
+;;     (v1-1 display)
+;;     (v1-2 clock)
+;;     (v1-4 type)
+;;     (v1-5 symbol)
+;;     (v1-7 none)
+;;     (v1-9 none)
+;;     (v1-10 setting-control)
+;;     (v1-11 symbol)
+;;     (v1-14 sound-iop-info)
+;;     (v1-15 uint)
+;;     (v1-17 none)
+;;     (v1-20 none)
+;;     (v1-21 none)
+;;     (v1-23 none)
+;;     (a0-0 engine-sound-pers)
+;;     (a0-1 rpc-buffer-pair)
+;;     (a0-2 none)
+;;     (a1-0 time-frame)
+;;     (a1-1 none)
+;;     (a2-0 none)
+;;     (a3-0 none)
+;;     (t9-0 (function engine-sound-pers time-frame none))
+;;     (t9-1 (function rpc-buffer-pair symbol))
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     (t9-4 none)
+;;     )
+;;   (cond
+;;     ((begin
+;;        (cond
+;;          ((begin
+;;             (set! a0-0 *sound-loop-engine*)
+;;             (set! v1-0 (-> a0-0 type))
+;;             (set! t9-0 (method-of-type v1-0 run-pending-updates!))
+;;             (set! v1-1 *display*)
+;;             (set! v1-2 (-> v1-1 base-clock))
+;;             (set! a1-0 (-> v1-2 frame-counter))
+;;             (call! a0-0 a1-0)
+;;             (set! v1-3 v0-0)
+;;             (set! a0-1 *sound-player-rpc*)
+;;             (set! v1-4 (-> a0-1 type))
+;;             (set! t9-1 (method-of-type v1-4 check-busy))
+;;             (set! v0-1 (call! a0-1))
+;;             (set! v1-5 v0-1)
+;;             v1-5
+;;             )
+;;           (set! *sound-player-enable* #f)
+;;           )
+;;          (else
+;;            (set! t9-2 (the-as none sound-set-globals))
+;;            (call!)
+;;            (set! t9-3 (the-as none build-sound-list))
+;;            (call!)
+;;            (set! a0-2 (the-as none *sound-player-rpc*))
+;;            (set! v1-7 (the-as none (l.wu (+ a0-2 -4))))
+;;            (set! t9-4 (the-as none (l.wu (+ v1-7 52))))
+;;            (set! a1-1 (the-as none 0))
+;;            (set! a2-0 (the-as none 0))
+;;            (set! a3-0 (the-as none 0))
+;;            (call!)
+;;            (set! v1-8 (the-as none v0-4))
+;;            (set! v1-9 (the-as none #t))
+;;            (set! *sound-player-enable* (the-as symbol v1-9))
+;;            )
+;;          )
+;;        (set! v1-10 *setting-control*)
+;;        (set! v1-11 (-> v1-10 user-current allow-error))
+;;        (not v1-11)
+;;        )
+;;      )
+;;     ((begin (set! v1-14 *sound-iop-info*) (set! v1-15 (-> v1-14 nocd)) (nonzero? v1-15))
+;;      (when (begin (set! v1-17 (the-as none *progress-process*)) (not v1-17))
+;;        )
+;;      )
+;;     ((begin
+;;        (set! v1-20 (the-as none *sound-iop-info*))
+;;        (set! v1-21 (the-as none (l.wu (+ v1-20 12))))
+;;        (nonzero? v1-21)
+;;        )
+;;      (when (begin (set! v1-23 (the-as none *progress-process*)) (not v1-23))
+;;        )
+;;      )
+;;     )
+;;   (set! v0-5 0)
+;;   (ret-value v0-5)
+;;   )
+
+;; definition for function get-sound-buffer-entry
+(defun get-sound-buffer-entry ()
+  (add-element *sound-player-rpc*)
+  )
+
+;; definition for function free-last-sound-buffer-entry
+;; WARN: Return type mismatch int vs none.
+(defun free-last-sound-buffer-entry ()
+  (decrement-elt-used *sound-player-rpc*)
+  0
+  (none)
+  )
+
+;; definition for function sound-basic-cb
+;; WARN: Return type mismatch int vs none.
+(defun sound-basic-cb ((arg0 int) (arg1 (pointer int32)))
+  (set! (-> arg1 0) arg0)
+  0
+  (none)
+  )
+
+;; definition for function sound-trans-copy
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function string->sound-name
+;; INFO: Used lq/sq
+(defun string->sound-name ((arg0 string))
+  (let ((v1-0 (new 'stack-no-clear 'array 'sound-name 1)))
+    (set! (-> v1-0 0) (the-as sound-name 0))
+    (let ((a1-0 (the-as (pointer uint8) v1-0))
+          (a2-0 (-> arg0 data))
+          )
+      (while (and (nonzero? (-> a2-0 0)) (< (&- a2-0 (the-as uint (-> arg0 data))) 15))
+        (set! (-> a1-0 0) (-> a2-0 0))
+        (set! a1-0 (&-> a1-0 1))
+        (set! a2-0 (&-> a2-0 1))
+        )
+      )
+    (-> v1-0 0)
+    )
+  )
+
+;; definition for function sound-name->string
+;; INFO: Used lq/sq
+(defun sound-name->string ((arg0 sound-name))
+  (let ((v1-0 (new 'static 'boxed-array :type string "0123456789abcdef")))
+    (let ((a1-0 (the-as (pointer uinteger) (new 'stack-no-clear 'array 'uint8 16))))
+      (set! (-> (the-as (pointer sound-name) a1-0) 0) arg0)
+      (let ((a0-2 (-> v1-0 0 data)))
+        (while (and (nonzero? (-> (the-as (pointer uint8) a1-0) 0)) (< (&- a0-2 (the-as uint (-> v1-0 0 data))) 15))
+          (set! (-> a0-2 0) (-> (the-as (pointer uint8) a1-0) 0))
+          (set! a0-2 (&-> a0-2 1))
+          (set! a1-0 (&-> (the-as (pointer uint8) a1-0) 1))
+          )
+        (while (< (&- a0-2 (the-as uint (-> v1-0 0 data))) 16)
+          (set! (-> a0-2 0) (the-as uint 0))
+          (set! a0-2 (&-> a0-2 1))
+          )
+        )
+      )
+    (-> v1-0 0)
+    )
+  )
+
+;; definition for function sound-set-volume
+(defun sound-set-volume ((arg0 uint) (arg1 float))
+  (let ((v1-0 (the-as sound-rpc-set-master-volume (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 9))
+    (set! (-> v1-0 group) arg0)
+    (set! (-> v1-0 volume) (the int (* 1024.0 arg1)))
+    )
+  0
+  )
+
+;; definition for function sound-set-reverb
+(defun sound-set-reverb ((arg0 int) (arg1 float) (arg2 float) (arg3 uint))
+  (let ((v1-0 (the-as sound-rpc-set-reverb (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 15))
+    (set! (-> v1-0 core) arg3)
+    (set! (-> v1-0 reverb) arg0)
+    (set! (-> v1-0 left) (the-as uint (the int (* 32767.0 arg1))))
+    (set! (-> v1-0 right) (the-as uint (the int (* 32767.0 arg2))))
+    )
+  0
+  )
+
+;; definition for function sound-set-globals
+;; ERROR: failed type prop at 17: Unknown symbol: *target-time-speed*
+;; WARN: Return type mismatch none vs int.
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun sound-set-globals ()
+;;   (local-vars
+;;     (v0-0 pointer)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v1-0 int)
+;;     (v1-1 game-info)
+;;     (v1-2 uint)
+;;     (v1-3 uint)
+;;     (v1-4 int)
+;;     (v1-5 viewport-array)
+;;     (v1-6 uint)
+;;     (v1-8 none)
+;;     (v1-9 none)
+;;     (v1-11 none)
+;;     (v1-13 none)
+;;     (v1-14 none)
+;;     (v1-15 none)
+;;     (v1-17 none)
+;;     (a0-0 none)
+;;     (a0-1 none)
+;;     (a1-0 none)
+;;     (a1-1 none)
+;;     (a2-0 none)
+;;     (a2-1 none)
+;;     (a3-0 none)
+;;     (t0-0 none)
+;;     (t1-0 none)
+;;     (t9-0 (function pointer))
+;;     (t9-1 none)
+;;     (t9-2 none)
+;;     (gp-0 pointer)
+;;     (f0-0 none)
+;;     (f1-0 none)
+;;     )
+;;   (with-pp
+;;     (when (begin
+;;             (if (begin
+;;                   (set! t9-0 get-sound-buffer-entry)
+;;                   (set! v0-0 (call!))
+;;                   (set! gp-0 v0-0)
+;;                   (set! v1-0 22)
+;;                   (s.h! (+ gp-0 2) v1-0)
+;;                   (set! v1-1 *game-info*)
+;;                   (set! v1-2 (-> v1-1 secrets))
+;;                   (set! v1-3 (logand v1-2 #x4000))
+;;                   (nonzero? v1-3)
+;;                   )
+;;                 (set! v1-4 1)
+;;                 (set! v1-4 (the-as int 0))
+;;                 )
+;;             (s.b! (+ gp-0 4) v1-4)
+;;             (s.h! (+ gp-0 6) 0)
+;;             (set! v1-5 *viewport-array*)
+;;             (set! v1-6 (-> v1-5 mode))
+;;             (zero? v1-6)
+;;             )
+;;       (cond
+;;         ((begin
+;;            (set! v1-8 (the-as none *target-time-speed*))
+;;            (set! f0-0 (the-as none (gpr->fpr v1-8)))
+;;            (set! v1-9 (the-as none #x3f800000))
+;;            (set! f1-0 (the-as none (gpr->fpr v1-9)))
+;;            (<.s f0-0 f1-0)
+;;            )
+;;          (set! a0-0 (the-as none *setting-control*))
+;;          (set! v1-11 (the-as none (l.wu (+ a0-0 -4))))
+;;          (set! t9-1 (the-as none (l.wu (+ v1-11 76))))
+;;          (set! a1-0 (the-as none s6-0))
+;;          (set! a2-0 (the-as none 'music-volume))
+;;          (set! a3-0 (the-as none 'abs))
+;;          (set! t0-0 (the-as none #x3c23d70a))
+;;          (set! t1-0 (the-as none 0))
+;;          (call!)
+;;          (set! v1-12 (the-as none v0-1))
+;;          (set! v1-13 (the-as none -15240))
+;;          (s.h! (+ gp-0 6) v1-13)
+;;          (set! v1-14 (the-as none #t))
+;;          (set! *slow-mo-last-frame?* (the-as symbol v1-14))
+;;          )
+;;         ((begin (set! v1-15 (the-as none *slow-mo-last-frame?*)) v1-15)
+;;          (set! a0-1 (the-as none *setting-control*))
+;;          (set! v1-17 (the-as none (l.wu (+ a0-1 -4))))
+;;          (set! t9-2 (the-as none (l.wu (+ v1-17 80))))
+;;          (set! a1-1 (the-as none s6-0))
+;;          (set! a2-1 (the-as none 'music-volume))
+;;          (call!)
+;;          (set! v1-18 (the-as none v0-2))
+;;          (set! *slow-mo-last-frame?* #f)
+;;          )
+;;         )
+;;       )
+;;     (set! v0-3 (the-as none 0))
+;;     (ret-value v0-3)
+;;     )
+;;   )
+
+;; definition for function sound-pause
+(defun sound-pause ((arg0 sound-id))
+  (when (nonzero? arg0)
+    (let ((v1-1 (the-as sound-rpc-pause-sound (get-sound-buffer-entry))))
+      (set! (-> v1-1 command) (the-as uint 5))
+      (set! (-> v1-1 id) arg0)
+      )
+    )
+  0
+  )
+
+;; definition for function sound-stop
+;; ERROR: failed type prop at 13: Called a function, but we do not know its type
+;; WARN: Return type mismatch none vs int.
+;; ERROR: Function may read a register that is not set: a1
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun sound-stop ((a0-0 sound-id))
+;;   (local-vars
+;;     (v0-0 pointer)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v1-1 object)
+;;     (a0-1 int)
+;;     (a1-0 none)
+;;     (t9-0 (function pointer))
+;;     (t9-1 function)
+;;     )
+;;   (when (begin (nonzero? a0-0))
+;;     (when (begin
+;;             (set! t9-0 get-sound-buffer-entry)
+;;             (set! v0-0 (call!))
+;;             (set! v1-1 v0-0)
+;;             (set! a0-1 6)
+;;             (set! (-> v1-1 command) (the-as uint a0-1))
+;;             (s.w! (+ v1-1 4) a0-0)
+;;             (set! v1-2 a0-0)
+;;             a1-0
+;;             )
+;;       (set! t9-1 remove-sound-instance-by-sound-id)
+;;       (set! a0-2 a0-0)
+;;       (call!)
+;;       (set! v1-4 (the-as none v0-1))
+;;       )
+;;     )
+;;   (set! v0-2 (the-as none 0))
+;;   (ret-value v0-2)
+;;   )
+
+;; definition for function sound-continue
+(defun sound-continue ((arg0 sound-id))
+  (when (nonzero? arg0)
+    (let ((v1-1 (the-as sound-rpc-continue-sound (get-sound-buffer-entry))))
+      (set! (-> v1-1 command) (the-as uint 7))
+      (set! (-> v1-1 id) arg0)
+      )
+    )
+  0
+  )
+
+;; definition for function sound-group-pause
+(defun sound-group-pause ((arg0 uint))
+  (let ((v1-0 (the-as sound-rpc-pause-group (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 10))
+    (set! (-> v1-0 group) arg0)
+    )
+  0
+  )
+
+;; definition for function sound-group-stop
+(defun sound-group-stop ((arg0 uint))
+  (let ((v1-0 (the-as sound-rpc-stop-group (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 11))
+    (set! (-> v1-0 group) arg0)
+    )
+  0
+  )
+
+;; definition for function sound-group-continue
+(defun sound-group-continue ((arg0 uint))
+  (let ((v1-0 (the-as sound-rpc-continue-group (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 12))
+    (set! (-> v1-0 group) arg0)
+    )
+  0
+  )
+
+;; definition for function sound-set-fps
+(defun sound-set-fps ((arg0 int))
+  (let ((v1-0 (the-as sound-rpc-set-fps (get-sound-buffer-entry))))
+    (set! (-> v1-0 command) (the-as uint 18))
+    (set! (-> v1-0 fps) (the-as uint arg0))
+    )
+  0
+  )
+
+;; definition for function sound-volume-off
+;; og:preserve-this hand-fixed dropped-arg emission: the original decomp (m15's sig was
+;; still a placeholder) left the call arguments as bare statements
+(defun sound-volume-off ()
+  (with-pp
+    (setting-control-method-15 *setting-control* pp 'music-volume 'abs 0 0)
+    (setting-control-method-15 *setting-control* pp 'sfx-volume 'abs 0 0)
+    (setting-control-method-15 *setting-control* pp 'ambient-volume 'abs 0 0)
+    0
+    )
+  )
+
+;; definition for method 9 of type ambient-sound
+;; ERROR: failed type prop at 31: Unknown symbol: *debug-effect-control*
+;; WARN: Return type mismatch none vs int.
+;; NOTE: decomp still fails; commented out until fixed
+;; (defmethod update! ((a0-0 ambient-sound))
+;;   (local-vars
+;;     (v0-0 int)
+;;     (v0-1 sound-id)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v0-4 none)
+;;     (v0-5 none)
+;;     (v0-6 none)
+;;     (v1-0 symbol)
+;;     (v1-1 clock)
+;;     (v1-2 time-frame)
+;;     (v1-3 time-frame)
+;;     (v1-5 none)
+;;     (v1-6 none)
+;;     (v1-7 none)
+;;     (v1-9 none)
+;;     (v1-10 none)
+;;     (v1-11 none)
+;;     (v1-12 none)
+;;     (v1-13 none)
+;;     (v1-14 none)
+;;     (v1-16 none)
+;;     (v1-18 none)
+;;     (v1-19 none)
+;;     (v1-20 none)
+;;     (v1-21 none)
+;;     (v1-22 none)
+;;     (v1-23 none)
+;;     (v1-24 none)
+;;     (a0-1 uint)
+;;     (a0-2 symbol)
+;;     (a0-3 clock)
+;;     (a0-4 time-frame)
+;;     (a0-6 uint)
+;;     (a0-7 uint)
+;;     (a0-9 uint)
+;;     (a0-10 none)
+;;     (a0-11 none)
+;;     (a0-12 none)
+;;     (a0-13 none)
+;;     (a1-0 symbol)
+;;     (a1-1 uint)
+;;     (a1-2 symbol)
+;;     (a1-3 none)
+;;     (a1-4 none)
+;;     (a1-5 none)
+;;     (a2-0 none)
+;;     (a2-3 none)
+;;     (a3-0 none)
+;;     (t0-0 none)
+;;     (s4-0 none)
+;;     (s5-0 time-frame)
+;;     (s5-1 sound-spec)
+;;     (t9-0 (function int int))
+;;     (t9-1 (function sound-id))
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     (t9-4 none)
+;;     (t9-5 none)
+;;     (f0-0 none)
+;;     (f0-1 none)
+;;     (f0-2 none)
+;;     (f0-3 none)
+;;     (f1-0 none)
+;;     (f1-1 none)
+;;     (f1-2 none)
+;;     (f1-3 none)
+;;     )
+;;   (with-pp
+;;     (when (begin
+;;             (when (begin
+;;                     (and (begin (set! v1-0 #f) (set! a0-1 (-> a0-0 time-base)) (set! a1-0 (>0.si a0-1)) a1-0)
+;;                          (begin
+;;                            (set! a0-3 (-> s6-0 clock))
+;;                            (set! a0-4 (-> a0-3 frame-counter))
+;;                            (set! a1-1 (-> a0-0 play-time))
+;;                            (set! a0-2 (>=.si a0-4 a1-1))
+;;                            )
+;;                          )
+;;                     a0-2
+;;                     )
+;;               (set! v1-1 (-> s6-0 clock))
+;;               (set! v1-2 (-> v1-1 frame-counter))
+;;               (set! a0-6 (-> a0-0 time-base))
+;;               (set! s5-0 (+ v1-2 a0-6))
+;;               (set! t9-0 rand-vu-int-count)
+;;               (set! a0-7 (-> a0-0 time-random))
+;;               (set! v0-0 (call! a0-7))
+;;               (set! v1-3 (+ s5-0 v0-0))
+;;               (set! (-> a0-0 play-time) (the-as uint v1-3))
+;;               (set! t9-1 new-sound-id)
+;;               (set! v0-1 (call!))
+;;               (set! (-> a0-0 playing-id) v0-1)
+;;               (set! v1-0 #t)
+;;               (set! a0-8 v1-0)
+;;               )
+;;             (or (begin (set! a0-9 (-> a0-0 time-base)) (set! a1-2 (<0.si a0-9)) a1-2) (empty))
+;;             v1-0
+;;             )
+;;       (when (begin
+;;               (and (begin (set! s5-1 (-> a0-0 spec)) (set! v1-5 (the-as none *debug-effect-control*)) v1-5)
+;;                    (begin (set! v1-7 (the-as none (l.d (+ a0-0 84)))) (set! v1-6 (the-as none (>=0.si v1-7))))
+;;                    )
+;;               v1-6
+;;               )
+;;         (set! t9-2 (the-as none format))
+;;         (set! a0-10 (the-as none #t))
+;;         (set! a1-3 (the-as none L365))
+;;         (set! v1-9 (the-as none (l.wu (+ s6-0 8))))
+;;         (set! a2-0 (the-as none (l.d (+ v1-9 20))))
+;;         (set! a3-0 (the-as none (l.wu s6-0)))
+;;         (set! v1-10 (the-as none (l.wu (+ s5-1 20))))
+;;         (set! t0-0 (the-as none (+ v1-10 16)))
+;;         (call!)
+;;         (set! t9-3 (the-as none format))
+;;         (set! a0-11 (the-as none #t))
+;;         (set! a1-4 (the-as none L364))
+;;         (set! v1-11 (the-as none #x3dc80000))
+;;         (set! f0-0 (the-as none (gpr->fpr v1-11)))
+;;         (set! v1-12 (the-as none (l.h (+ s5-1 2))))
+;;         (set! f1-0 (the-as none (gpr->fpr v1-12)))
+;;         (set! f1-1 (the-as none (i2f f1-0)))
+;;         (set! f0-1 (the-as none (*.s f0-0 f1-1)))
+;;         (set! a2-1 (the-as none (fpr->gpr f0-1)))
+;;         (set! v1-13 (the-as none #x3a2c02b0))
+;;         (set! f0-2 (the-as none (gpr->fpr v1-13)))
+;;         (set! v1-14 (the-as none (l.h (+ s5-1 4))))
+;;         (set! f1-2 (the-as none (gpr->fpr v1-14)))
+;;         (set! f1-3 (the-as none (i2f f1-2)))
+;;         (set! f0-3 (the-as none (*.s f0-2 f1-3)))
+;;         (set! a3-1 (the-as none (fpr->gpr f0-3)))
+;;         (call!)
+;;         (set! v1-15 (the-as none v0-3))
+;;         )
+;;       (when (begin (set! v1-16 (the-as none (l.wu (+ s5-1 20)))) v1-16)
+;;         (cond
+;;           ((begin
+;;              (set! t9-4 (the-as none make-sound-instance))
+;;              (set! v1-18 (the-as none (l.wu (+ s5-1 20))))
+;;              (set! v1-19 (the-as none (l.wu (+ v1-18 8))))
+;;              (set! v1-20 (the-as none (sll v1-19 2)))
+;;              (set! a0-12 (the-as none *sound-info*))
+;;              (set! v1-21 (the-as none (+ v1-20 a0-12)))
+;;              (set! a0-13 (the-as none (l.wu (+ v1-21 12))))
+;;              (set! a1-5 (the-as none (l.wu a0-0)))
+;;              (set! v0-4 (the-as none (call!)))
+;;              (set! s4-0 (the-as none v0-4))
+;;              s4-0
+;;              )
+;;            (set! t9-5 (the-as none quad-copy!))
+;;            (set! a0-14 (the-as none s4-0))
+;;            (set! a2-3 (the-as none 4))
+;;            (set! a1-6 (the-as none s5-1))
+;;            (call!)
+;;            (set! v1-22 (the-as none (l.hu (+ s4-0 48))))
+;;            (set! v1-23 (the-as none (logior v1-22 64)))
+;;            (s.h! (+ s4-0 48) v1-23)
+;;            (set! v1-24 (the-as none (l.wu (+ s4-0 80))))
+;;            )
+;;           (else
+;;             (set! v1-24 (the-as none 0))
+;;             )
+;;           )
+;;         (s.w! a0-0 v1-24)
+;;         )
+;;       )
+;;     (set! v0-6 (the-as none 0))
+;;     (ret-value v0-6)
+;;     )
+;;   )
+
+;; definition for method 16 of type ambient-sound
+(defmethod stop! ((this ambient-sound))
+  (let ((t9-0 sound-stop)
+        (a0-1 (-> this playing-id))
+        )
+    #t
+    (t9-0 a0-1)
+    )
+  0
+  )
+
+;; definition for method 11 of type ambient-sound
+;; INFO: Used lq/sq
+(defmethod update-trans! ((this ambient-sound) (arg0 vector))
+  (set! (-> this spec trans quad) (-> arg0 quad))
+  0
+  )
+
+;; definition for method 12 of type ambient-sound
+(defmethod update-vol! ((this ambient-sound) (arg0 float))
+  (set! (-> this spec volume) (the int (* 1024.0 arg0)))
+  0
+  )
+
+;; definition for method 13 of type ambient-sound
+;; WARN: Return type mismatch int vs none.
+(defmethod update-pitch-mod! ((this ambient-sound) (arg0 float))
+  (logior! (-> this spec mask) 1)
+  (set! (-> this spec pitch-mod) (the int (* 1524.0 arg0)))
+  0
+  (none)
+  )
+
+;; definition for method 14 of type ambient-sound
+;; WARN: Return type mismatch int vs none.
+(defmethod set-falloff-far! ((this ambient-sound) (arg0 float))
+  (logior! (-> this spec flags) 4)
+  (set! (-> this spec fo-max) arg0)
+  0
+  (none)
+  )
+
+;; definition for method 15 of type ambient-sound
+;; WARN: Return type mismatch int vs none.
+(defmethod set-falloff-mode! ((this ambient-sound) (arg0 int))
+  (logior! (-> this spec flags) 8)
+  ;; og:preserve-this: (gpr->fpr arg0) artifact replaced; the-as reinterprets the bits
+  (set! (-> this spec fo-power) (the-as float arg0))
+  0
+  (none)
+  )
+
+;; definition for method 10 of type ambient-sound
+(defmethod change-sound! ((this ambient-sound) (arg0 sound-name))
+  (let ((s5-0 (sound-info-by-name (the-as string arg0))))
+    (when s5-0
+      (when (!= (-> this spec info) s5-0)
+        (stop! this)
+        (set! (-> this playing-id) (new-sound-id))
+        (set! (-> this spec info) s5-0)
+        )
+      )
+    )
+  0
+  )
+
+;; definition for function show-iop-info
+(defun show-iop-info ((arg0 dma-buffer))
+  (dotimes (s5-0 24)
+    (draw-string-xy
+      (if (zero? (-> *sound-iop-info* chinfo s5-0))
+          "."
+          "X"
+          )
+      arg0
+      (+ (* s5-0 16) 16)
+      48
+      (font-color default)
+      (font-flags shadow)
+      )
+    )
+  (dotimes (s5-1 24)
+    (draw-string-xy
+      (if (zero? (-> *sound-iop-info* chinfo (+ s5-1 24)))
+          "."
+          "X"
+          )
+      arg0
+      (+ (* s5-1 16) 16)
+      64
+      (font-color default)
+      (font-flags shadow)
+      )
+    )
+  (let ((s5-2 draw-string-xy))
+    (format
+      (clear *temp-string*)
+      "banks: ~15S ~15S ~15S"
+      (-> *level* sound-bank 0 name)
+      (-> *level* sound-bank 2 name)
+      (-> *level* sound-bank 4 name)
+      )
+    (s5-2 *temp-string* arg0 16 88 (font-color default) (font-flags shadow))
+    )
+  (let ((s5-3 draw-string-xy))
+    (format
+      (clear *temp-string*)
+      "       ~15S ~15S ~15S"
+      (-> *level* sound-bank 1 name)
+      (-> *level* sound-bank 3 name)
+      (-> *level* sound-bank 5 name)
+      )
+    (s5-3 *temp-string* arg0 16 104 (font-color default) (font-flags shadow))
+    )
+  (let ((s5-4 draw-string-xy))
+    (format
+      (clear *temp-string*)
+      "music: ~15S ~10S"
+      (-> *setting-control* user-current music)
+      (-> *setting-control* user-current mode-sound-bank)
+      )
+    (s5-4 *temp-string* arg0 16 118 (font-color default) (font-flags shadow))
+    )
+  0
+  )
+
+;; definition for function show-iop-memory
+(defun show-iop-memory ((arg0 dma-buffer))
+  (let ((s5-0 draw-string-xy))
+    (format (clear *temp-string*) "total: ~8D bytes" (-> *sound-iop-info* freemem2))
+    (s5-0 *temp-string* arg0 32 144 (font-color default) (font-flags shadow))
+    )
+  (let ((s5-1 draw-string-xy))
+    (format (clear *temp-string*) "max: ~8D bytes" (-> *sound-iop-info* freemem))
+    (s5-1 *temp-string* arg0 32 160 (font-color default) (font-flags shadow))
+    )
+  0
+  )
+
+;; definition for function ear-trans
+;; ERROR: failed type prop at 5: Called a function, but we do not know its type
+;; WARN: Return type mismatch none vs vector.
+;; ERROR: Function may read a register that is not set: a1
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun ear-trans ((a0-0 int))
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v1-0 int)
+;;     (v1-1 none)
+;;     (a1-0 none)
+;;     (t9-0 function)
+;;     (t9-1 none)
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     )
+;;   (cond
+;;     ((begin (set! v1-0 1) (= a0-0 v1-0))
+;;      (set! t9-0 get-player-pos)
+;;      (set! a0-1 a1-0)
+;;      (set! v0-0 (the-as none (call!)))
+;;      )
+;;     (else
+;;       (or (begin (set! t9-1 (the-as none movie?)) (set! v0-1 (the-as none (call!))) v0-1)
+;;           (set! v1-1 (the-as none *external-cam-mode*))
+;;           )
+;;       (cond
+;;         (v1-1
+;;           (set! t9-2 (the-as none math-camera-pos))
+;;           (set! v0-0 (the-as none (call!)))
+;;           )
+;;         (else
+;;           (set! t9-3 (the-as none view-get-math-camera))
+;;           (set! a0-2 (the-as none a1-0))
+;;           (set! v0-2 (the-as none (call!)))
+;;           (set! v0-0 (the-as none (+ v0-2 924)))
+;;           )
+;;         )
+;;       )
+;;     )
+;;   (ret-value v0-0)
+;;   )
+
+;; definition (debug) for function make-sqrt-table
+;; WARN: Return type mismatch int vs none.
+(defun-debug make-sqrt-table ()
+  (format #t "static int sqrt_table[256] =~%{~%")
+  (dotimes (gp-0 256)
+    (let* ((f0-2 (sqrtf (* 16777216.0 (the float gp-0))))
+           (a2-0 (the int (+ 0.5 f0-2)))
+           )
+      (format #t "~D,~%" a2-0)
+      )
+    )
+  (format #t "};~%")
+  0
+  (none)
+  )
+
+;; failed to figure out what this is:
+(check-irx-version)
+
+;; failed to figure out what this is:
+(sound-bank-load (static-sound-name "common") 2 10)
+
+;; failed to figure out what this is:
+(dotimes (gp-3 1)
+  (let* ((v1-105 gp-3)
+         (s5-0 (cond
+                 ((zero? v1-105)
+                  'empty0
+                  )
+                 ((= v1-105 1)
+                  'empty1
+                  )
+                 ((= v1-105 2)
+                  'empty2
+                  )
+                 ((= v1-105 3)
+                  'empty3
+                  )
+                 )
+               )
+         )
+    (sound-bank-unload (the-as sound-name 4))
+    (set! (-> *level* sound-bank (* gp-3 2) name) s5-0)
+    )
+  (set! (-> *level* sound-bank (* gp-3 2) mode) (sound-bank-mode full))
+  )
+
+;; definition for function doppler-pitch-shift
+;; INFO: Used lq/sq
+(defun doppler-pitch-shift ((arg0 vector) (arg1 vector))
+  (let ((gp-0 (new 'stack-no-clear 'inline-array 'vector 2)))
+    (set! (-> gp-0 0 quad) (-> arg0 quad))
+    (set! (-> gp-0 1 quad) (-> arg1 quad))
+    (vector-normalize! (-> gp-0 0) 1.0)
+    (let ((f0-1 (/ 2048000.0 (fmax 0.1 (+ 2048000.0 (vector-dot (-> gp-0 0) (-> gp-0 1)))))))
+      (fmax -0.7 (fmin 0.7 (log2f f0-1)))
+      )
+    )
+  )
+
+;; og:preserve-this: the original stashes the current bank names in an anonymous
+;; static (array symbol) (label L356); given a name here so it compiles.
+(define *sound-bank-reload-names*
+  (the-as (array symbol) (new 'static 'boxed-array :type symbol :length 7 :allocated-length 7))
+  )
+
+;; definition for function sound-bank-reload
+;; WARN: Return type mismatch int vs none.
+(defun sound-bank-reload ()
+  (process-spawn-function
+    process
+    (lambda ()
+      (let ((gp-0 *sound-bank-reload-names*))
+        (dotimes (v1-0 7)
+          (set! (-> gp-0 v1-0) (-> *level* sound-bank v1-0 name))
+          )
+        (let ((a1-3 (new 'stack-no-clear 'array 'symbol 4)))
+          (set! (-> a1-3 0) 'empty0)
+          (want-sound-banks *load-state* a1-3)
+          )
+        (suspend-for (seconds 1)
+          )
+        (let ((a1-4 (new 'stack-no-clear 'array 'symbol 4)))
+          (set! (-> a1-4 0) (-> gp-0 0))
+          (want-sound-banks *load-state* a1-4)
+          )
+        )
+      (none)
+      )
+    :to *display-pool*
+    )
+  0
+  (none)
+  )
+
+;; definition for function sound-bank-reload-common
+;; WARN: Return type mismatch int vs none.
+(defun sound-bank-reload-common ()
+  (process-spawn-function
+    process
+    (lambda ()
+      (format #t "unload sound bank~%")
+      (sound-bank-unload (the-as sound-name 2))
+      (sound-bank-load (static-sound-name "common") 2 10)
+      )
+    :to *display-pool*
+    )
+  0
+  (none)
+  )
+
+;; definition for symbol *jukebox-onoff*, type symbol
+(define *jukebox-onoff* #f)
+
+;; definition for symbol *last-music-position*, type uint
+(define *last-music-position* (the-as uint 0))
+
+;; definition for function jukebox-onoff
+;; WARN: Return type mismatch int vs symbol.
+(defun jukebox-onoff ((arg0 symbol))
+  (when (not arg0)
+    (set! *last-music-position* (the-as uint -1))
+    ;; og:preserve-this hand-fixed dropped-arg emission (args verified from gsound_ir2)
+    (setting-control-method-15 *setting-control* *dproc* 'music #f 0 0)
+    )
+  (if arg0
+      (set! *jukebox-time* (the-as int (-> *display* game-clock frame-counter)))
+      )
+  (set! *jukebox-onoff* arg0)
+  (the-as symbol 0)
+  )
+
+;; definition for function update-jukebox-music
+;; ERROR: failed type prop at 4: Could not figure out load: (set! v1 (l.wu (+ v1 764)))
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun update-jukebox-music ()
+;;   (local-vars
+;;     (v0-0 none)
+;;     (v0-1 none)
+;;     (v0-2 none)
+;;     (v0-3 none)
+;;     (v0-4 none)
+;;     (v0-5 none)
+;;     (v0-6 none)
+;;     (v0-7 none)
+;;     (v0-8 none)
+;;     (v0-9 none)
+;;     (v0-10 none)
+;;     (v0-11 none)
+;;     (v0-12 none)
+;;     (v0-13 none)
+;;     (v0-14 none)
+;;     (v0-15 none)
+;;     (v0-16 none)
+;;     (v0-17 none)
+;;     (v0-18 none)
+;;     (v0-19 none)
+;;     (v0-20 none)
+;;     (v0-21 none)
+;;     (v0-22 none)
+;;     (v1-0 symbol)
+;;     (v1-1 none)
+;;     (v1-2 setting-control)
+;;     (v1-3 none)
+;;     (v1-4 none)
+;;     (v1-6 none)
+;;     (v1-7 none)
+;;     (v1-8 none)
+;;     (v1-9 none)
+;;     (v1-10 none)
+;;     (v1-11 none)
+;;     (v1-12 none)
+;;     (v1-13 none)
+;;     (v1-14 none)
+;;     (v1-15 none)
+;;     (v1-16 none)
+;;     (v1-17 none)
+;;     (v1-18 none)
+;;     (v1-19 none)
+;;     (v1-20 none)
+;;     (v1-21 none)
+;;     (v1-22 none)
+;;     (v1-23 none)
+;;     (v1-24 none)
+;;     (v1-26 none)
+;;     (v1-28 none)
+;;     (v1-30 none)
+;;     (v1-32 none)
+;;     (v1-34 none)
+;;     (v1-36 none)
+;;     (v1-38 none)
+;;     (v1-40 none)
+;;     (v1-42 none)
+;;     (v1-44 none)
+;;     (v1-46 none)
+;;     (v1-48 none)
+;;     (v1-50 none)
+;;     (v1-52 none)
+;;     (v1-54 none)
+;;     (v1-56 none)
+;;     (v1-58 none)
+;;     (v1-60 none)
+;;     (v1-62 none)
+;;     (v1-65 none)
+;;     (v1-67 none)
+;;     (v1-68 none)
+;;     (v1-69 none)
+;;     (v1-70 none)
+;;     (v1-71 none)
+;;     (v1-72 none)
+;;     (a0-0 none)
+;;     (a0-1 none)
+;;     (a0-2 none)
+;;     (a0-3 none)
+;;     (a0-4 none)
+;;     (a0-5 none)
+;;     (a0-6 none)
+;;     (a0-8 none)
+;;     (a0-9 none)
+;;     (a0-11 none)
+;;     (a0-12 none)
+;;     (a0-14 none)
+;;     (a0-15 none)
+;;     (a0-17 none)
+;;     (a0-18 none)
+;;     (a0-20 none)
+;;     (a0-21 none)
+;;     (a0-23 none)
+;;     (a0-24 none)
+;;     (a0-26 none)
+;;     (a0-27 none)
+;;     (a0-29 none)
+;;     (a0-30 none)
+;;     (a0-32 none)
+;;     (a0-33 none)
+;;     (a0-35 none)
+;;     (a0-36 none)
+;;     (a0-38 none)
+;;     (a0-39 none)
+;;     (a0-41 none)
+;;     (a0-42 none)
+;;     (a0-44 none)
+;;     (a0-45 none)
+;;     (a0-47 none)
+;;     (a0-48 none)
+;;     (a0-50 none)
+;;     (a0-51 none)
+;;     (a0-53 none)
+;;     (a0-54 none)
+;;     (a0-56 none)
+;;     (a0-57 none)
+;;     (a0-59 none)
+;;     (a0-60 none)
+;;     (a0-62 none)
+;;     (a0-63 none)
+;;     (a0-65 none)
+;;     (a0-66 none)
+;;     (a0-67 none)
+;;     (a0-68 none)
+;;     (a1-0 none)
+;;     (a1-1 none)
+;;     (a1-2 none)
+;;     (a1-3 none)
+;;     (a1-4 none)
+;;     (a1-5 none)
+;;     (a1-6 none)
+;;     (a1-7 none)
+;;     (a1-8 none)
+;;     (a1-9 none)
+;;     (a1-10 none)
+;;     (a1-11 none)
+;;     (a1-12 none)
+;;     (a1-13 none)
+;;     (a1-14 none)
+;;     (a1-15 none)
+;;     (a1-16 none)
+;;     (a1-17 none)
+;;     (a1-18 none)
+;;     (a1-19 none)
+;;     (a1-20 none)
+;;     (a2-0 none)
+;;     (a2-1 none)
+;;     (a2-2 none)
+;;     (a2-3 none)
+;;     (a2-4 none)
+;;     (a2-5 none)
+;;     (a2-6 none)
+;;     (a2-7 none)
+;;     (a2-8 none)
+;;     (a2-9 none)
+;;     (a2-10 none)
+;;     (a2-11 none)
+;;     (a2-12 none)
+;;     (a2-13 none)
+;;     (a2-14 none)
+;;     (a2-15 none)
+;;     (a2-16 none)
+;;     (a2-17 none)
+;;     (a2-18 none)
+;;     (a2-19 none)
+;;     (a2-20 none)
+;;     (a3-0 none)
+;;     (a3-1 none)
+;;     (a3-2 none)
+;;     (a3-3 none)
+;;     (a3-4 none)
+;;     (a3-5 none)
+;;     (a3-6 none)
+;;     (a3-7 none)
+;;     (a3-8 none)
+;;     (a3-9 none)
+;;     (a3-10 none)
+;;     (a3-11 none)
+;;     (a3-12 none)
+;;     (a3-13 none)
+;;     (a3-14 none)
+;;     (a3-15 none)
+;;     (a3-16 none)
+;;     (a3-17 none)
+;;     (a3-18 none)
+;;     (a3-19 none)
+;;     (a3-20 none)
+;;     (t0-0 none)
+;;     (t0-1 none)
+;;     (t0-2 none)
+;;     (t0-3 none)
+;;     (t0-4 none)
+;;     (t0-5 none)
+;;     (t0-6 none)
+;;     (t0-7 none)
+;;     (t0-8 none)
+;;     (t0-9 none)
+;;     (t0-10 none)
+;;     (t0-11 none)
+;;     (t0-12 none)
+;;     (t0-13 none)
+;;     (t0-14 none)
+;;     (t0-15 none)
+;;     (t0-16 none)
+;;     (t0-17 none)
+;;     (t0-18 none)
+;;     (t0-19 none)
+;;     (t0-20 none)
+;;     (t1-0 none)
+;;     (t1-1 none)
+;;     (t1-2 none)
+;;     (t1-3 none)
+;;     (t1-4 none)
+;;     (t1-5 none)
+;;     (t1-6 none)
+;;     (t1-7 none)
+;;     (t1-8 none)
+;;     (t1-9 none)
+;;     (t1-10 none)
+;;     (t1-11 none)
+;;     (t1-12 none)
+;;     (t1-13 none)
+;;     (t1-14 none)
+;;     (t1-15 none)
+;;     (t1-16 none)
+;;     (t1-17 none)
+;;     (t1-18 none)
+;;     (t1-19 none)
+;;     (t1-20 none)
+;;     (t9-0 none)
+;;     (t9-1 none)
+;;     (t9-2 none)
+;;     (t9-3 none)
+;;     (t9-4 none)
+;;     (t9-5 none)
+;;     (t9-6 none)
+;;     (t9-7 none)
+;;     (t9-8 none)
+;;     (t9-9 none)
+;;     (t9-10 none)
+;;     (t9-11 none)
+;;     (t9-12 none)
+;;     (t9-13 none)
+;;     (t9-14 none)
+;;     (t9-15 none)
+;;     (t9-16 none)
+;;     (t9-17 none)
+;;     (t9-18 none)
+;;     (t9-19 none)
+;;     (t9-20 none)
+;;     (t9-21 none)
+;;     (f0-0 none)
+;;     (f0-1 none)
+;;     (f1-0 none)
+;;     (f1-1 none)
+;;     (f1-2 none)
+;;     )
+;;   (with-pp
+;;     (cond
+;;       ((begin
+;;          (and (begin (set! v1-0 *jukebox-onoff*) v1-0) (begin
+;;                                                          (set! v1-2 *setting-control*)
+;;                                                          (set! v1-3 (the-as none (l.wu (+ v1-2 764))))
+;;                                                          (set! v1-1 (the-as none (not v1-3)))
+;;                                                          )
+;;               )
+;;          v1-1
+;;          )
+;;        (when (begin
+;;                (set! v1-4 (the-as none *jukebox-time*))
+;;                (set! a0-0 (the-as none *display*))
+;;                (set! a0-1 (the-as none (l.wu (+ a0-0 40))))
+;;                (set! a0-2 (the-as none (l.d (+ a0-1 20))))
+;;                (<.si v1-4 a0-2)
+;;                )
+;;          (cond
+;;            ((begin
+;;               (or (begin
+;;                     (set! v1-6 (the-as none *display*))
+;;                     (set! v1-7 (the-as none (l.wu (+ v1-6 40))))
+;;                     (set! v1-8 (the-as none (l.d (+ v1-7 20))))
+;;                     (set! v1-9 (the-as none (+ v1-8 1500)))
+;;                     (set! *jukebox-time* (the-as int v1-9))
+;;                     (set! v1-10 (the-as none *sound-iop-info*))
+;;                     (set! v1-11 (the-as none (l.bu (+ v1-10 272))))
+;;                     (zero? v1-11)
+;;                     )
+;;                   (and (begin (set! t9-0 (the-as none paused?)) (set! v0-0 (the-as none (call!))) (not v0-0))
+;;                        (begin (set! v1-13 (the-as none *music-lock*)) (not v1-13))
+;;                        (or (begin
+;;                              (set! v1-14 (the-as none *sound-iop-info*))
+;;                              (set! v1-15 (the-as none (l.wu (+ v1-14 264))))
+;;                              (set! a0-3 (the-as none *last-music-position*))
+;;                              (set! a0-4 (the-as none (= v1-15 a0-3)))
+;;                              a0-4
+;;                              )
+;;                            (begin
+;;                              (set! v1-16 (the-as none #x3a800000))
+;;                              (set! f0-0 (the-as none (gpr->fpr v1-16)))
+;;                              (set! v1-17 (the-as none *sound-iop-info*))
+;;                              (set! v1-18 (the-as none (l.wu (+ v1-17 264))))
+;;                              (set! a0-5 (the-as none *last-music-position*))
+;;                              (set! v1-19 (the-as none (- v1-18 a0-5)))
+;;                              (set! f1-0 (the-as none (gpr->fpr v1-19)))
+;;                              (set! f1-1 (the-as none (i2f f1-0)))
+;;                              (set! f0-1 (the-as none (*.s f0-0 f1-1)))
+;;                              (set! v1-20 (the-as none #x41a00000))
+;;                              (set! f1-2 (the-as none (gpr->fpr v1-20)))
+;;                              (set! v1-12 (the-as none (>=.s f0-1 f1-2)))
+;;                              )
+;;                            )
+;;                        )
+;;                   )
+;;               v1-12
+;;               )
+;;             (cond
+;;               ((begin
+;;                  (set! v1-21 (the-as none *game-info*))
+;;                  (set! v1-22 (the-as none (l.bu (+ v1-21 1480))))
+;;                  (set! a0-6 (the-as none 21))
+;;                  (set! v1-23 (the-as none (mod.ui v1-22 a0-6)))
+;;                  (zero? v1-23)
+;;                  )
+;;                (set! a0-8 (the-as none *setting-control*))
+;;                (set! v1-24 (the-as none (l.wu (+ a0-8 -4))))
+;;                (set! t9-1 (the-as none (l.wu (+ v1-24 76))))
+;;                (set! a1-0 (the-as none s6-0))
+;;                (set! a2-0 (the-as none 'music))
+;;                (set! a3-0 (the-as none 'angle))
+;;                (set! t0-0 (the-as none 0))
+;;                (set! t1-0 (the-as none 0))
+;;                (call!)
+;;                (set! v1-25 (the-as none v0-1))
+;;                )
+;;               ((begin (set! a0-9 (the-as none 1)) (= v1-23 a0-9))
+;;                (set! a0-11 (the-as none *setting-control*))
+;;                (set! v1-26 (the-as none (l.wu (+ a0-11 -4))))
+;;                (set! t9-2 (the-as none (l.wu (+ v1-26 76))))
+;;                (set! a1-1 (the-as none s6-0))
+;;                (set! a2-1 (the-as none 'music))
+;;                (set! a3-1 (the-as none 'ass))
+;;                (set! t0-1 (the-as none 0))
+;;                (set! t1-1 (the-as none 0))
+;;                (call!)
+;;                (set! v1-27 (the-as none v0-2))
+;;                )
+;;               ((begin (set! a0-12 (the-as none 2)) (= v1-23 a0-12))
+;;                (set! a0-14 (the-as none *setting-control*))
+;;                (set! v1-28 (the-as none (l.wu (+ a0-14 -4))))
+;;                (set! t9-3 (the-as none (l.wu (+ v1-28 76))))
+;;                (set! a1-2 (the-as none s6-0))
+;;                (set! a2-2 (the-as none 'music))
+;;                (set! a3-2 (the-as none 'bird))
+;;                (set! t0-2 (the-as none 0))
+;;                (set! t1-2 (the-as none 0))
+;;                (call!)
+;;                (set! v1-29 (the-as none v0-3))
+;;                )
+;;               ((begin (set! a0-15 (the-as none 3)) (= v1-23 a0-15))
+;;                (set! a0-17 (the-as none *setting-control*))
+;;                (set! v1-30 (the-as none (l.wu (+ a0-17 -4))))
+;;                (set! t9-4 (the-as none (l.wu (+ v1-30 76))))
+;;                (set! a1-3 (the-as none s6-0))
+;;                (set! a2-3 (the-as none 'music))
+;;                (set! a3-3 (the-as none 'boris))
+;;                (set! t0-3 (the-as none 0))
+;;                (set! t1-3 (the-as none 0))
+;;                (call!)
+;;                (set! v1-31 (the-as none v0-4))
+;;                )
+;;               ((begin (set! a0-18 (the-as none 4)) (= v1-23 a0-18))
+;;                (set! a0-20 (the-as none *setting-control*))
+;;                (set! v1-32 (the-as none (l.wu (+ a0-20 -4))))
+;;                (set! t9-5 (the-as none (l.wu (+ v1-32 76))))
+;;                (set! a1-4 (the-as none s6-0))
+;;                (set! a2-4 (the-as none 'music))
+;;                (set! a3-4 (the-as none 'crisis))
+;;                (set! t0-4 (the-as none 0))
+;;                (set! t1-4 (the-as none 0))
+;;                (call!)
+;;                (set! v1-33 (the-as none v0-5))
+;;                )
+;;               ((begin (set! a0-21 (the-as none 5)) (= v1-23 a0-21))
+;;                (set! a0-23 (the-as none *setting-control*))
+;;                (set! v1-34 (the-as none (l.wu (+ a0-23 -4))))
+;;                (set! t9-6 (the-as none (l.wu (+ v1-34 76))))
+;;                (set! a1-5 (the-as none s6-0))
+;;                (set! a2-5 (the-as none 'music))
+;;                (set! a3-5 (the-as none 'fracture))
+;;                (set! t0-5 (the-as none 0))
+;;                (set! t1-5 (the-as none 0))
+;;                (call!)
+;;                (set! v1-35 (the-as none v0-6))
+;;                )
+;;               ((begin (set! a0-24 (the-as none 6)) (= v1-23 a0-24))
+;;                (set! a0-26 (the-as none *setting-control*))
+;;                (set! v1-36 (the-as none (l.wu (+ a0-26 -4))))
+;;                (set! t9-7 (the-as none (l.wu (+ v1-36 76))))
+;;                (set! a1-6 (the-as none s6-0))
+;;                (set! a2-6 (the-as none 'music))
+;;                (set! a3-6 (the-as none 'frozen))
+;;                (set! t0-6 (the-as none 0))
+;;                (set! t1-6 (the-as none 0))
+;;                (call!)
+;;                (set! v1-37 (the-as none v0-7))
+;;                )
+;;               ((begin (set! a0-27 (the-as none 7)) (= v1-23 a0-27))
+;;                (set! a0-29 (the-as none *setting-control*))
+;;                (set! v1-38 (the-as none (l.wu (+ a0-29 -4))))
+;;                (set! t9-8 (the-as none (l.wu (+ v1-38 76))))
+;;                (set! a1-7 (the-as none s6-0))
+;;                (set! a2-7 (the-as none 'music))
+;;                (set! a3-7 (the-as none 'bondo))
+;;                (set! t0-7 (the-as none 0))
+;;                (set! t1-7 (the-as none 0))
+;;                (call!)
+;;                (set! v1-39 (the-as none v0-8))
+;;                )
+;;               ((begin (set! a0-30 (the-as none 8)) (= v1-23 a0-30))
+;;                (set! a0-32 (the-as none *setting-control*))
+;;                (set! v1-40 (the-as none (l.wu (+ a0-32 -4))))
+;;                (set! t9-9 (the-as none (l.wu (+ v1-40 76))))
+;;                (set! a1-8 (the-as none s6-0))
+;;                (set! a2-8 (the-as none 'music))
+;;                (set! a3-8 (the-as none 'harsh))
+;;                (set! t0-8 (the-as none 0))
+;;                (set! t1-8 (the-as none 0))
+;;                (call!)
+;;                (set! v1-41 (the-as none v0-9))
+;;                )
+;;               ((begin (set! a0-33 (the-as none 9)) (= v1-23 a0-33))
+;;                (set! a0-35 (the-as none *setting-control*))
+;;                (set! v1-42 (the-as none (l.wu (+ a0-35 -4))))
+;;                (set! t9-10 (the-as none (l.wu (+ v1-42 76))))
+;;                (set! a1-9 (the-as none s6-0))
+;;                (set! a2-9 (the-as none 'music))
+;;                (set! a3-9 (the-as none 'heli))
+;;                (set! t0-9 (the-as none 0))
+;;                (set! t1-9 (the-as none 0))
+;;                (call!)
+;;                (set! v1-43 (the-as none v0-10))
+;;                )
+;;               ((begin (set! a0-36 (the-as none 10)) (= v1-23 a0-36))
+;;                (set! a0-38 (the-as none *setting-control*))
+;;                (set! v1-44 (the-as none (l.wu (+ a0-38 -4))))
+;;                (set! t9-11 (the-as none (l.wu (+ v1-44 76))))
+;;                (set! a1-10 (the-as none s6-0))
+;;                (set! a2-10 (the-as none 'music))
+;;                (set! a3-10 (the-as none 'run))
+;;                (set! t0-10 (the-as none 0))
+;;                (set! t1-10 (the-as none 0))
+;;                (call!)
+;;                (set! v1-45 (the-as none v0-11))
+;;                )
+;;               ((begin (set! a0-39 (the-as none 11)) (= v1-23 a0-39))
+;;                (set! a0-41 (the-as none *setting-control*))
+;;                (set! v1-46 (the-as none (l.wu (+ a0-41 -4))))
+;;                (set! t9-12 (the-as none (l.wu (+ v1-46 76))))
+;;                (set! a1-11 (the-as none s6-0))
+;;                (set! a2-11 (the-as none 'music))
+;;                (set! a3-11 (the-as none 'secondi))
+;;                (set! t0-11 (the-as none 0))
+;;                (set! t1-11 (the-as none 0))
+;;                (call!)
+;;                (set! v1-47 (the-as none v0-12))
+;;                )
+;;               ((begin (set! a0-42 (the-as none 12)) (= v1-23 a0-42))
+;;                (set! a0-44 (the-as none *setting-control*))
+;;                (set! v1-48 (the-as none (l.wu (+ a0-44 -4))))
+;;                (set! t9-13 (the-as none (l.wu (+ v1-48 76))))
+;;                (set! a1-12 (the-as none s6-0))
+;;                (set! a2-12 (the-as none 'music))
+;;                (set! a3-12 (the-as none 'silver))
+;;                (set! t0-12 (the-as none 0))
+;;                (set! t1-12 (the-as none 0))
+;;                (call!)
+;;                (set! v1-49 (the-as none v0-13))
+;;                )
+;;               ((begin (set! a0-45 (the-as none 13)) (= v1-23 a0-45))
+;;                (set! a0-47 (the-as none *setting-control*))
+;;                (set! v1-50 (the-as none (l.wu (+ a0-47 -4))))
+;;                (set! t9-14 (the-as none (l.wu (+ v1-50 76))))
+;;                (set! a1-13 (the-as none s6-0))
+;;                (set! a2-13 (the-as none 'music))
+;;                (set! a3-13 (the-as none 'tempest))
+;;                (set! t0-13 (the-as none 0))
+;;                (set! t1-13 (the-as none 0))
+;;                (call!)
+;;                (set! v1-51 (the-as none v0-14))
+;;                )
+;;               ((begin (set! a0-48 (the-as none 14)) (= v1-23 a0-48))
+;;                (set! a0-50 (the-as none *setting-control*))
+;;                (set! v1-52 (the-as none (l.wu (+ a0-50 -4))))
+;;                (set! t9-15 (the-as none (l.wu (+ v1-52 76))))
+;;                (set! a1-14 (the-as none s6-0))
+;;                (set! a2-14 (the-as none 'music))
+;;                (set! a3-14 (the-as none 'theater))
+;;                (set! t0-14 (the-as none 0))
+;;                (set! t1-14 (the-as none 0))
+;;                (call!)
+;;                (set! v1-53 (the-as none v0-15))
+;;                )
+;;               ((begin (set! a0-51 (the-as none 15)) (= v1-23 a0-51))
+;;                (set! a0-53 (the-as none *setting-control*))
+;;                (set! v1-54 (the-as none (l.wu (+ a0-53 -4))))
+;;                (set! t9-16 (the-as none (l.wu (+ v1-54 76))))
+;;                (set! a1-15 (the-as none s6-0))
+;;                (set! a2-15 (the-as none 'music))
+;;                (set! a3-15 (the-as none 'touch))
+;;                (set! t0-15 (the-as none 0))
+;;                (set! t1-15 (the-as none 0))
+;;                (call!)
+;;                (set! v1-55 (the-as none v0-16))
+;;                )
+;;               ((begin (set! a0-54 (the-as none 16)) (= v1-23 a0-54))
+;;                (set! a0-56 (the-as none *setting-control*))
+;;                (set! v1-56 (the-as none (l.wu (+ a0-56 -4))))
+;;                (set! t9-17 (the-as none (l.wu (+ v1-56 76))))
+;;                (set! a1-16 (the-as none s6-0))
+;;                (set! a2-16 (the-as none 'music))
+;;                (set! a3-16 (the-as none 'trintite))
+;;                (set! t0-16 (the-as none 0))
+;;                (set! t1-16 (the-as none 0))
+;;                (call!)
+;;                (set! v1-57 (the-as none v0-17))
+;;                )
+;;               ((begin (set! a0-57 (the-as none 17)) (= v1-23 a0-57))
+;;                (set! a0-59 (the-as none *setting-control*))
+;;                (set! v1-58 (the-as none (l.wu (+ a0-59 -4))))
+;;                (set! t9-18 (the-as none (l.wu (+ v1-58 76))))
+;;                (set! a1-17 (the-as none s6-0))
+;;                (set! a2-17 (the-as none 'music))
+;;                (set! a3-17 (the-as none 'bondo))
+;;                (set! t0-17 (the-as none 0))
+;;                (set! t1-17 (the-as none 0))
+;;                (call!)
+;;                (set! v1-59 (the-as none v0-18))
+;;                )
+;;               ((begin (set! a0-60 (the-as none 18)) (= v1-23 a0-60))
+;;                (set! a0-62 (the-as none *setting-control*))
+;;                (set! v1-60 (the-as none (l.wu (+ a0-62 -4))))
+;;                (set! t9-19 (the-as none (l.wu (+ v1-60 76))))
+;;                (set! a1-18 (the-as none s6-0))
+;;                (set! a2-18 (the-as none 'music))
+;;                (set! a3-18 (the-as none 'aftertch))
+;;                (set! t0-18 (the-as none 0))
+;;                (set! t1-18 (the-as none 0))
+;;                (call!)
+;;                (set! v1-61 (the-as none v0-19))
+;;                )
+;;               ((begin (set! a0-63 (the-as none 19)) (= v1-23 a0-63))
+;;                (set! a0-65 (the-as none *setting-control*))
+;;                (set! v1-62 (the-as none (l.wu (+ a0-65 -4))))
+;;                (set! t9-20 (the-as none (l.wu (+ v1-62 76))))
+;;                (set! a1-19 (the-as none s6-0))
+;;                (set! a2-19 (the-as none 'music))
+;;                (set! a3-19 (the-as none 'flat))
+;;                (set! t0-19 (the-as none 0))
+;;                (set! t1-19 (the-as none 0))
+;;                (call!)
+;;                (set! v1-63 (the-as none v0-20))
+;;                )
+;;               ((begin (set! a0-66 (the-as none 20)) (= v1-23 a0-66))
+;;                (set! a0-67 (the-as none *setting-control*))
+;;                (set! v1-65 (the-as none (l.wu (+ a0-67 -4))))
+;;                (set! t9-21 (the-as none (l.wu (+ v1-65 76))))
+;;                (set! a1-20 (the-as none s6-0))
+;;                (set! a2-20 (the-as none 'music))
+;;                (set! a3-20 (the-as none 'reborn))
+;;                (set! t0-20 (the-as none 0))
+;;                (set! t1-20 (the-as none 0))
+;;                (call!)
+;;                (set! v1-66 (the-as none v0-21))
+;;                )
+;;               )
+;;             (set! v1-67 (the-as none *game-info*))
+;;             (set! v1-68 (the-as none (l.bu (+ v1-67 1480))))
+;;             (set! v1-69 (the-as none (+ v1-68 1)))
+;;             (set! a0-68 (the-as none *game-info*))
+;;             (s.b! (+ a0-68 1480) v1-69)
+;;             (set! v1-70 (the-as none -1))
+;;             (set! *last-music-position* (the-as uint v1-70))
+;;             )
+;;            (else
+;;              (set! v1-71 (the-as none *sound-iop-info*))
+;;              (set! v1-72 (the-as none (l.wu (+ v1-71 264))))
+;;              (set! *last-music-position* (the-as uint v1-72))
+;;              )
+;;            )
+;;          )
+;;        )
+;;       (else
+;;         )
+;;       )
+;;     (set! v0-22 (the-as none 0))
+;;     (ret-none)
+;;     )
+;;   )
+
+
+
+

@@ -38,9 +38,10 @@
    (shadow-dma-tex0      uint64)
    (shadow-dma           basic)
    (warp-shader          adgif-shader  :inline)
-   (blur-forward-dma     basic)
-   (blur-reverse-dma     basic)
-   (blur-finish-dma      basic)
+   ;; og:preserve-this retyped basic->dma-buffer (the blit path reads their data field)
+   (blur-forward-dma     dma-buffer)
+   (blur-reverse-dma     dma-buffer)
+   (blur-finish-dma      dma-buffer)
    (blur-sx              int32)
    (blur-sy              int32)
    (blur-hx              int32)
@@ -89,12 +90,17 @@
   ((mode                    uint32)
    (num-viewports           uint32)
    (current-viewport-index  uint32)
+   ;; og:preserve-this: the asm layout puts data at +16 from an untagged base, but the
+   ;; bring-up allocates with the tagged heap new, so auto-layout (+12) keeps the inline
+   ;; viewports 16-aligned in memory. Quadword writes into viewports must respect this
+   ;; (see update-view-planes' scalar fog-corner stores).
    (data                    viewport  3 :inline)
    (default                 viewport  :inline :overlay-at (-> data 2))
    )
   (:methods
+    (new (symbol type) _type_)
     (viewport-array-method-9 (_type_ viewport) none)
     (get-viewport (_type_ uint) viewport)
-    (viewport-array-method-11 (_type_) none)
+    (viewport-array-method-11 (_type_) viewport) ;; returns the current viewport (reads prove it)
     )
   )

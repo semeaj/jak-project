@@ -1,4 +1,60 @@
 {
+  // level / load-state / level-info family, ported from jak3 (op indices verified or adjusted per jakx asm)
+  "lookup-level-info": [
+    [11, "v1", "basic"],
+    [21, "a1", "symbol"],
+    [[22, 34], "a1", "level-load-info"]
+  ],
+  "(method 29 level-group)": [[[2, 53], "v1", "pair"]],
+  "level-find-borrow-slot": [[[204, 211], "a2", "level"]],
+  "(method 9 level-load-info)": [
+    [3, "a2", "pair"],
+    [5, "a2", "pair"],
+    [7, "t0", "symbol"],
+    [9, "t0", "symbol"],
+    [25, "v1", "pair"],
+    [24, "v1", "pair"]
+  ],
+  "(method 25 level)": [
+    [125, "s1", "(function level object)"],
+    [180, "s0", "(function level symbol object)"]
+  ],
+  "(method 9 level)": [
+    [30, "s5", "(function level object)"],
+    [[144, 167], "v1", "task-mask"]
+  ],
+  "(method 10 level)": [
+    [[137, 151], "s5", "(function level object)"],
+    [[229, 233], "a0", "texture-anim-array"],
+    [[387, 396], "a1", "type"]
+  ],
+  "(method 18 level)": [[[13, 171], "s5", "level-memory-mode"]],
+
+  "level-update-after-load": [
+    [[45, 108], "s2", "drawable-tree-tfrag"],
+    [[199, 231], "s0", "drawable-tree-instance-tie"],
+    [208, "a0", "drawable-inline-array"],
+    [271, "a0", "(pointer uint16)"],
+    [[278, 380], "s0", "proxy-prototype-array-tie"]
+  ],
+  "(method 19 level)": [
+    [[58, 110], "v1", "texture-page"],
+    [[187, 191], "a0", "texture-anim-array"]
+  ],
+  "(method 19 level-group)": [
+    [237, "s2", "continue-point"],
+    [191, "s0", "continue-point"],
+    [196, "s2", "continue-point"],
+    [207, "s0", "continue-point"],
+    [213, "s0", "continue-point"],
+    [222, "s0", "continue-point"]
+  ],
+  "update-sound-banks": [[131, "a0", "pair"]],
+  "(method 10 load-state)": [
+    [461, "v1", "level"],
+    [468, "v1", "level"]
+  ],
+
   "entity-actor-count": [["_stack_", 16, "res-tag"]],
   "entity-actor-lookup": [["_stack_", 16, "res-tag"]],
   "build-masks": [
@@ -15,6 +71,140 @@
     [123, "a1", "drawable-tree-instance-shrub"],
     [[129, 133], "a2", "(inline-array prototype-bucket-shrub)"]
   ],
+  "reset-follow": [[[10, 19], "a0", "process-focusable"]],
+  "reset-target-tracking": [[[8, 167], "gp", "process-focusable"], [[11, 20], "a0", "process-focusable"], [[40, 45], "a0", "process-focusable"], [[51, 56], "a0", "process-focusable"]],
+  "master-track-target": [[[55, 504], "gp", "process-focusable"], [[61, 66], "a0", "process-focusable"], [[129, 134], "a0", "process-focusable"], [[139, 146], "a0", "process-focusable"]],
+  "(event cam-master-active)": [[[87, 89], "a0", "vector"], [87, "gp", "vector"], [[183, 185], "a0", "vector"], [183, "s5", "vector"], [[289, 292], "v1", "camera-slave"], [[356, 358], "a0", "camera-slave"], [[487, 489], "v1", "camera-slave"], [[560, 562], "v1", "camera-slave"], [[592, 594], "v1", "camera-slave"], [[664, 666], "a0", "vector"], [846, "gp", "vector"], [861, "v1", "float"]],
+  "(method 17 camera-master)": [[[13, 17], "a2", "process-drawable"], [[14, 17], "v1", "collide-shape"]],
+  // background: the shared-tfrag tree id reads as lhu (int16 field), and the
+  // texture-mask entries read as raw quads past the 16-byte element
+  "(top-level-login tfrag)": [[[50, 51], "v1", "(inline-array vector4w)"], [[52, 53], "v1", "(inline-array vector4w)"], [[54, 55], "v1", "(inline-array vector4w)"]],
+  "tfrag-scissor-end-buffer": [[[25, 27], "a2", "(inline-array vector4w)"], [[33, 34], "a0", "(inline-array vector4w)"], [[35, 36], "a0", "(inline-array vector4w)"], [[37, 42], "a0", "(inline-array vector4w)"], [[43, 44], "a0", "(inline-array vector4w)"], [[45, 46], "a0", "(inline-array vector4w)"], [[47, 49], "a0", "(inline-array vector4w)"]],
+  "tfrag-scissor-init-buffer": [[[95, 96], "v1", "(inline-array vector4w)"], [[97, 98], "v1", "(inline-array vector4w)"]],
+  "tfrag-init-buffer": [[[95, 96], "v1", "(inline-array vector4w)"], [[97, 98], "v1", "(inline-array vector4w)"]],
+  "add-tfrag-mtx-1": [[[10, 11], "a0", "(inline-array vector4w)"], [[15, 16], "a0", "(inline-array vector4w)"]],
+  "add-tfrag-mtx-0": [[[10, 11], "a0", "(inline-array vector4w)"], [[15, 16], "a0", "(inline-array vector4w)"]],
+  "tfrag-scissor-vu1-init-buf": [[[52, 54], "v1", "(inline-array vector4w)"], [[84, 86], "v1", "(inline-array vector4w)"], [[89, 90], "v1", "(inline-array vector4w)"]],
+  "tfrag-vu1-init-buf": [[[52, 54], "v1", "(inline-array vector4w)"], [[84, 86], "v1", "(inline-array vector4w)"], [[89, 90], "v1", "(inline-array vector4w)"]],
+  "tfrag-print-stats": [[[16, 17], "v1", "(pointer int32)"]],
+  "draw-drawable-tree-tfrag": [[[17, 18], "v1", "(pointer int16)"], [[19, 20], "a0", "(pointer int16)"]],
+  "draw-drawable-tree-tfrag-trans": [[[18, 19], "v1", "(pointer int16)"], [[20, 21], "a0", "(pointer int16)"]],
+  "draw-drawable-tree-tfrag-water": [[[18, 19], "v1", "(pointer int16)"], [[20, 21], "a0", "(pointer int16)"]],
+  "finish-tfrag": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-shared"]],
+  "finish-tfrag-trans": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-trans-shared"]],
+  "finish-tfrag-water": [[[159, 160], "s2", "(pointer uint16)"], [[163, 164], "s2", "drawable-tree-tfrag-water-shared"]],
+  "finish-texture": [[[74, 86], "a0", "(pointer uint128)"], [[74, 80], "t0", "(pointer uint128)"]],
+  "finish-texture-mask": [[[43, 44], "t3", "int"]],
+  // blit-displays: dma template quad stores through (-> buf base); casts sit on
+  // the exact failing store ops (auto-derived from the Failed store error list)
+  "(method 25 blit-displays-work)": [[[76, 77], "t0", "(inline-array vector4w)"], [[94, 97], "t5", "(inline-array vector4w)"], [[99, 102], "t3", "(inline-array vector4w)"], [[104, 107], "t3", "(inline-array vector4w)"], [[109, 111], "t0", "(inline-array vector4w)"], [[112, 113], "t0", "(inline-array vector4w)"], [[126, 128], "a0", "(inline-array vector4w)"]],
+  "(method 24 blit-displays-work)": [[[92, 93], "a1", "(inline-array vector4w)"], [[119, 123], "t1", "(inline-array vector4w)"], [[110, 113], "t3", "(inline-array vector4w)"], [[115, 118], "t1", "(inline-array vector4w)"], [[125, 127], "a2", "(inline-array vector4w)"], [[128, 129], "a2", "(inline-array vector4w)"], [[316, 318], "v1", "(inline-array vector4w)"]],
+  "clear-zbuf": [[[52, 53], "t0", "(inline-array vector4w)"], [[64, 67], "t2", "(inline-array vector4w)"], [[73, 76], "t1", "(inline-array vector4w)"]],
+  "(method 16 blit-displays-work)": [[[161, 162], "v1", "(inline-array vector4w)"], [[173, 176], "a3", "(inline-array vector4w)"], [[178, 181], "a0", "(inline-array vector4w)"]],
+  "(method 13 blit-displays-work)": [[[92, 93], "v1", "(inline-array vector4w)"], [[106, 109], "a3", "(inline-array vector4w)"], [[111, 114], "a3", "(inline-array vector4w)"], [[118, 121], "a2", "(inline-array vector4w)"], [[123, 126], "a0", "(inline-array vector4w)"]],
+  "(method 22 blit-displays-work)": [[[131, 132], "a2", "(inline-array vector4w)"], [[146, 149], "a3", "(inline-array vector4w)"], [[157, 160], "a3", "(inline-array vector4w)"], [[170, 173], "a3", "(inline-array vector4w)"], [[183, 186], "a2", "(inline-array vector4w)"], [[198, 201], "a2", "(inline-array vector4w)"], [[205, 208], "a2", "(inline-array vector4w)"], [[212, 215], "a2", "(inline-array vector4w)"], [[219, 222], "a0", "(inline-array vector4w)"], [[141, 142], "t0", "(pointer int32)"], [[145, 146], "t0", "(pointer int32)"], [[156, 157], "t0", "(pointer int32)"], [[164, 165], "t0", "(pointer int32)"], [[169, 170], "t0", "(pointer int32)"], [[182, 183], "a3", "(pointer int32)"], [[186, 187], "a3", "(pointer int32)"]],
+  "(method 17 blit-displays-work)": [[[43, 45], "v1", "(inline-array vector4w)"], [[107, 109], "v1", "(inline-array vector4w)"], [[211, 213], "v1", "(inline-array vector4w)"], [[481, 482], "a0", "(inline-array vector4w)"], [[494, 497], "a3", "(inline-array vector4w)"], [[500, 503], "t0", "(inline-array vector4w)"], [[506, 509], "t0", "(inline-array vector4w)"], [[513, 516], "a1", "(inline-array vector4w)"], [[558, 559], "v1", "(inline-array vector4w)"], [[573, 576], "a2", "(inline-array vector4w)"], [[579, 582], "a3", "(inline-array vector4w)"], [[585, 588], "a2", "(inline-array vector4w)"], [[591, 594], "a2", "(inline-array vector4w)"]],
+  "(method 26 blit-displays-work)": [[[42, 43], "a3", "(inline-array vector4w)"], [[44, 45], "a3", "(inline-array vector4w)"], [[60, 61], "a3", "(inline-array vector4w)"], [[62, 63], "a3", "(inline-array vector4w)"], [[108, 109], "v1", "(inline-array vector4w)"], [[110, 111], "v1", "(inline-array vector4w)"], [[202, 204], "a2", "(inline-array vector4w)"], [[240, 242], "a0", "(inline-array vector4w)"], [[245, 246], "a0", "(inline-array vector4w)"]],
+  "(method 23 blit-displays-work)": [[[7, 8], "v1", "(inline-array vector4w)"], [[68, 69], "v1", "(inline-array vector4w)"], [[70, 71], "v1", "(inline-array vector4w)"], [[73, 76], "t0", "(inline-array vector4w)"], [[78, 81], "t0", "(inline-array vector4w)"], [[85, 88], "a0", "(inline-array vector4w)"], [[90, 93], "v1", "(inline-array vector4w)"]],
+  "(method 21 blit-displays-work)": [[[64, 65], "a3", "(inline-array vector4w)"], [[98, 99], "t1", "(inline-array vector4w)"], [[109, 110], "a3", "(inline-array vector4w)"], [[92, 95], "t4", "(inline-array vector4w)"], [[99, 101], "t1", "(inline-array vector4w)"], [[103, 106], "t1", "(inline-array vector4w)"], [[110, 111], "a3", "(inline-array vector4w)"], [[112, 113], "a3", "(inline-array vector4w)"]],
+  "draw-raw-image": [[[110, 111], "v1", "(inline-array vector4w)"], [[113, 114], "v1", "(inline-array vector4w)"], [[116, 119], "a0", "(inline-array vector4w)"], [[140, 143], "a0", "(inline-array vector4w)"], [[153, 156], "a0", "(inline-array vector4w)"], [[175, 178], "v1", "(inline-array vector4w)"], [[199, 201], "v1", "(inline-array vector4w)"]],
+  "draw-color-bars": [[[13, 14], "v1", "(inline-array vector4w)"], [[30, 31], "v1", "(inline-array vector4w)"], [[32, 33], "v1", "(inline-array vector4w)"], [[36, 39], "a1", "(inline-array vector4w)"], [[43, 46], "a0", "(inline-array vector4w)"], [[50, 53], "a0", "(inline-array vector4w)"], [[57, 60], "v1", "(inline-array vector4w)"]],
+  "(method 15 blit-displays-work)": [[[64, 65], "v1", "(inline-array vector4w)"], [[86, 89], "t1", "(inline-array vector4w)"], [[91, 94], "a2", "(inline-array vector4w)"], [[97, 100], "a2", "(inline-array vector4w)"], [[102, 104], "a0", "(inline-array vector4w)"], [[105, 106], "a0", "(inline-array vector4w)"]],
+  "(method 14 blit-displays-work)": [[[63, 64], "v1", "(inline-array vector4w)"], [[85, 88], "t1", "(inline-array vector4w)"], [[90, 93], "a2", "(inline-array vector4w)"], [[96, 99], "a2", "(inline-array vector4w)"], [[101, 103], "a0", "(inline-array vector4w)"], [[104, 105], "a0", "(inline-array vector4w)"]],
+  "(method 12 blit-displays-work)": [[[44, 45], "v1", "(inline-array vector4w)"], [[57, 60], "t0", "(inline-array vector4w)"], [[62, 65], "a3", "(inline-array vector4w)"], [[68, 71], "a3", "(inline-array vector4w)"], [[73, 75], "a0", "(inline-array vector4w)"], [[76, 77], "a0", "(inline-array vector4w)"]],
+  "(method 10 blit-displays-work)": [[[7, 8], "v1", "(inline-array vector4w)"], [[9, 10], "v1", "(inline-array vector4w)"], [[14, 17], "a0", "(inline-array vector4w)"], [[19, 20], "a0", "(inline-array vector4w)"], [[21, 23], "a0", "(inline-array vector4w)"], [[29, 32], "a0", "(inline-array vector4w)"], [[35, 36], "v1", "(inline-array vector4w)"], [[37, 38], "v1", "(inline-array vector4w)"], [[39, 40], "v1", "(inline-array vector4w)"]],
+  "(method 9 blit-displays-work)": [[[4, 5], "v1", "(inline-array vector4w)"], [[9, 10], "a0", "(inline-array vector4w)"], [[11, 12], "a0", "(inline-array vector4w)"], [[13, 14], "a0", "(inline-array vector4w)"], [[18, 21], "a0", "(inline-array vector4w)"], [[23, 24], "a0", "(inline-array vector4w)"], [[25, 27], "a0", "(inline-array vector4w)"], [[33, 36], "a0", "(inline-array vector4w)"], [[40, 41], "v1", "(inline-array vector4w)"], [[42, 43], "v1", "(inline-array vector4w)"], [[44, 45], "v1", "(inline-array vector4w)"]],
+  // cam-states-dbg: the (-> *cpad-list* cpads idx) element loads; cast the loaded
+  // element to cpad-info at each consuming op (casting the load op itself would
+  // clobber the strided address)
+  "cam-free-floating-input": [
+    [44, "v1", "cpad-info"],
+    [57, "v1", "cpad-info"],
+    [69, "v1", "cpad-info"],
+    [93, "v1", "cpad-info"],
+    [105, "v1", "cpad-info"],
+    [130, "v1", "cpad-info"],
+    [139, "v1", "cpad-info"],
+    [160, "v1", "cpad-info"],
+    [169, "v1", "cpad-info"],
+    [191, "v1", "cpad-info"],
+    [203, "v1", "cpad-info"],
+    [215, "v1", "cpad-info"],
+    [227, "v1", "cpad-info"],
+    [241, "a0", "cpad-info"],
+    [249, "v1", "cpad-info"]
+  ],
+  "target-camera-test-los": [[[23, 35], "v1", "collide-query"], [38, "a1", "collide-query"], [[40, 47], "v1", "collide-query"], [[52, 65], "v1", "collide-query"], [68, "a1", "collide-query"]],
+  "target-camera-heuristic-fov": [[[21, 25], "v1", "vector"]],
+  "(method 12 crash-camera)": [[[22, 29], "v1", "process-drawable"], [[184, 186], "s4", "(pointer uint128)"]],
+  "(exit cam-vehicle-shot)": [[[44, 47], "v1", "vehicle"]],
+  "(enter cam-spline)": [[[65, 67], "a0", "vector"]],
+  "(enter cam-vehicle)": [[[56, 59], "a0", "(pointer uint128)"], [[34, 36], "s5", "vector"], [[50, 52], "s5", "vector"], [24, "s5", "(pointer uint128)"]],
+  "(method 14 crash-camera)": [[[23, 28], "v1", "process-drawable"], [[35, 38], "v1", "(pointer uint128)"]],
+  "(method 13 crash-camera)": [[[33, 40], "v1", "process-drawable"], [[45, 48], "v1", "(pointer uint128)"], [[10, 16], "a3", "(pointer uint128)"], [[6, 20], "v1", "matrix"]],
+  "choose-victor-prefix-camera": [[[111, 112], "v1", "float"]],
+  "choose-crash-camera": [[[162, 163], "v1", "float"]],
+  "cam-akira-mode-enter": [[[117, 122], "v1", "vehicle"]],
+  "cam-vehicle-update": [[[518, 524], "s0", "process-drawable"], [367, "f0", "float"], [[322, 336], "v1", "collide-query"], [[392, 406], "v1", "collide-query"]],
+  "(code cam-vehicle-crash)": [[[16, 22], "v1", "process-drawable"], [26, "v0", "camera-master"], [[27, 29], "v1", "(pointer uint128)"], [29, "s5", "(pointer uint128)"]],
+  "(trans cam-vehicle-shot)": [[162, "gp", "vehicle"]],
+  "(code cam-training)": [[[12, 22], "a2", "matrix"], [6, "s5", "(pointer uint128)"]],
+  "(code cam-vehicle-shot)": [[[33, 36], "v1", "process-drawable"], [[37, 39], "v1", "(pointer uint128)"]],
+  "(method 10 crash-camera)": [[[19, 25], "v1", "process-drawable"], [30, "v0", "camera-master"], [[30, 32], "v1", "(pointer uint128)"], [32, "s2", "(pointer uint128)"], [81, "f0", "float"]],
+  "(method 11 crash-camera)": [[[27, 33], "v1", "process-drawable"], [[44, 48], "s5", "matrix"], [97, "f30", "float"]],
+  "(method 11 victor-prefix-camera)": [[[27, 33], "v1", "process-drawable"], [[44, 48], "s5", "matrix"], [89, "f30", "float"]],
+  "choose-target-camera": [[11, "s3", "vector"]],
+  "(event cam-combiner-active)": [
+    [103, "gp", "camera-slave"],
+    [105, "gp", "camera-slave"],
+    [189, "gp", "camera-slave"],
+    [191, "gp", "camera-slave"],
+    [206, "gp", "camera-slave"],
+    [210, "gp", "camera-slave"],
+    [214, "gp", "camera-slave"],
+    [230, "gp", "camera-slave"],
+    [234, "gp", "camera-slave"]
+  ],
+  "cam-slave-get-vector-with-offset": [
+    [59, "v0", "vector"],
+    [24, "v0", "vector"],
+    [69, "s3", "vector"],
+    [[60, 76], "s3", "vector"]
+  ],
+  "cam-calc-follow!": [
+    ["_stack_", 288, "float"],
+    ["_stack_", 304, "float"]
+  ],
+  "(method 9 cam-index)": [[[92, 103], "v0", "vector"], [94, "a0", "vector"], [[100, 103], "a1", "vector"]],
+  "cam-slave-get-interp-time": [[29, "f0", "float"]],
+  "cam-standard-event-handler": [
+    [13, "gp", "(state camera-slave)"],
+    [19, "gp", "(state camera-slave)"],
+    [22, "gp", "(state camera-slave)"]
+  ],
+  "init-init-buffer": [[[76, 78], "a0", "(pointer uint32)"]],
+  "init-end-buffer": [[[78, 80], "a0", "(pointer uint32)"]],
+  "update-math-camera": [[[475, 485], "a0", "(pointer uint32)"]],
+  "update-camera": [
+    [[37, 99], "v0", "process-drawable"],
+    [[449, 460], "v0", "camera-master"],
+    [302, "v1", "vector"]
+  ],
+  "update-visible": [
+    [356, "v1", "bsp-node"],
+    [367, "v1", "bsp-node"],
+    [378, "v1", "bsp-node"],
+    [389, "v1", "bsp-node"],
+    [400, "v1", "bsp-node"],
+    [424, "v1", "bsp-node"],
+    [435, "v1", "bsp-node"],
+    [446, "v1", "bsp-node"],
+    [457, "v1", "bsp-node"],
+    [411, "v1", "bsp-node"],
+    [479, "v1", "bsp-node"],
+    [468, "v1", "bsp-node"]
+  ],
+  "external-cam-reset!": [[36, "v1", "vector"]],
   "cam-layout-function-call": [
     [15, "gp", "(function string int basic object)"]
   ],
@@ -507,5 +697,361 @@
   ],
   "(method 0 path-control)": [["_stack_", 16, "res-tag"]],
   "(method 0 curve-control)": [["_stack_", 16, "res-tag"]],
-  "(method 10 manipulator)": [[53, "v1", "float"]]
+  "(method 10 manipulator)": [[53, "v1", "float"]],
+  // texture (ported from jak3 ntsc_v1; op indices seeded from jak3, corrected against jakx ir2)
+  "dma-buffer-add-ref-texture": [
+    [[47, 54], "a3", "dma-packet"],
+    [[56, 69], "a3", "gs-gif-tag"],
+    [[71, 87], "a2", "dma-packet"]
+  ],
+  "texture-page-default-allocate": [[51, "a3", "(pointer int32)"]],
+  "texture-page-font-allocate": [[33, "a3", "(pointer int32)"]],
+  "upload-vram-pages": [[[187, 193], "v1", "dma-packet"]],
+  "upload-vram-pages-pris": [[[181, 187], "v1", "dma-packet"]],
+  "(method 13 texture-page)": [[45, "a0", "(pointer uint64)"]],
+  "(method 11 texture-pool)": [[217, "a0", "(pointer uint64)"]],
+  "texture-page-login": [[33, "v0", "texture-page"]],
+  "texture-page-dir-inspect": [[[137, 138], "v1", "adgif-shader"]],
+  // gsound (ported from jak3 ntsc_v1; op indices seeded from jak3, corrected against jakx ir2)
+  "sound-buffer-dump": [[[13, 39], "s3", "sound-rpc-play"]],
+  "(method 10 engine-sound-pers)": [[[2, 17], "v1", "sound-rpc-set-param"]],
+  "check-irx-version": [[[3, 51], "gp", "sound-rpc-get-irx-version"]],
+  "sound-bank-load": [[[11, 16], "v1", "sound-rpc-load-bank"]],
+  "sound-bank-unload": [[[6, 11], "v1", "sound-rpc-unload-bank"]],
+  "sound-music-load": [[[6, 11], "v1", "sound-rpc-load-music"]],
+  "sound-music-unload": [[[3, 8], "v1", "sound-rpc-unload-music"]],
+  "set-language": [[[6, 9], "v1", "sound-rpc-set-language"]],
+  "sound-set-stereo-mode": [[[4, 9], "v1", "sound-rpc-set-stereo-mode"]],
+  "list-sounds": [[[3, 7], "v1", "sound-rpc-list-sounds"]],
+  "string->sound-name": [[[2, 18], "a1", "(pointer uint8)"]],
+  "sound-set-volume": [[[3, 16], "v1", "sound-rpc-set-master-volume"]],
+  "sound-set-reverb": [[[5, 25], "v1", "sound-rpc-set-reverb"]],
+  "sound-name->string": [[2, "a1", "(pointer sound-name)"]],
+  "sound-pause": [[[3, 8], "v1", "sound-rpc-pause-sound"]],
+  "sound-stop": [[[3, 8], "v1", "sound-rpc-stop-sound"]],
+  "sound-continue": [[[3, 8], "v1", "sound-rpc-continue-sound"]],
+  "sound-group-pause": [[[3, 7], "v1", "sound-rpc-pause-group"]],
+  "sound-group-stop": [[[3, 7], "v1", "sound-rpc-stop-group"]],
+  "sound-group-continue": [[[3, 7], "v1", "sound-rpc-continue-group"]],
+  "sound-set-fps": [[[3, 10], "v1", "sound-rpc-set-fps"]],
+  "ear-trans": [[32, "s5", "process-focusable"]],
+  // entity-more-perm: narrow entity -> entity-actor after the type? guard so the etype
+  // load and process-type method dispatch resolve (ranges seeded, corrected against ir2)
+  "(method 13 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]],
+  "(method 14 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]],
+  // drawable frame core: vif-bank hardware pokes (jak3-identical) and the
+  // setting-control nested-inline load the folder cannot resolve (user-current+748)
+  "display-frame-start": [
+    [4, "v1", "vif-bank"],
+    [9, "a0", "vif-bank"],
+    [332, "v1", "(pointer uint32)"]
+  ],
+  "display-loop-main": [
+    [2, "v1", "(pointer uint32)"],
+    [1055, "v1", "(pointer uint32)"],
+    [1120, "v1", "(pointer uint32)"],
+    [[408, 410], "a0", "(pointer display-frame)"],
+    [1138, "v1", "(pointer float)"],
+    [[574, 582], "t9", "(function none)"],
+    [[573, 582], "s5", "pair"]
+  ],
+  "pause-allowed?": [
+    [27, "v1", "(pointer uint32)"],
+    [[35, 36], "a0", "(pointer process)"],
+    [37, "a0", "process"]
+  ],
+  "toggle-pause": [
+    [43, "v1", "(pointer uint32)"],
+    [88, "v1", "(pointer uint32)"],
+    [126, "v1", "(pointer uint32)"]
+  ],
+  "letterbox": [
+    [53, "v1", "(pointer uint64)"],
+    [[54, 57], "v1", "(pointer uint32)"]
+  ],
+  "add-blackout": [[[32, 33], "a0", "(pointer uint64)"]],
+  "set-master-mode": [
+    [83, "v1", "(pointer uint8)"],
+    [[153, 154], "a0", "(pointer process)"],
+    [155, "a0", "process"]
+  ],
+  "display-sync": [
+    [2, "v1", "(pointer uint32)"],
+    [70, "v1", "(pointer uint32)"],
+    [97, "v1", "(pointer uint32)"],
+    [183, "v1", "(pointer uint32)"]
+  ],
+  "display-frame-finish": [
+    [[527, 533], "t1", "uint"],
+    [[570, 576], "t1", "uint"],
+    [[613, 619], "t1", "uint"],
+    [[656, 662], "t1", "uint"],
+    [[481, 487], "t3", "uint"],
+    [[482, 488], "t1", "(pointer uint64)"],
+    [[489, 492], "t1", "(pointer uint32)"],
+    [[493, 496], "t1", "(pointer uint64)"],
+    [[497, 501], "t1", "(pointer uint32)"],
+    [[736, 739], "t1", "(pointer uint64)"],
+    [[740, 744], "t1", "(pointer uint32)"],
+    [[745, 751], "t1", "(pointer uint64)"],
+    [[752, 753], "t1", "(pointer uint32)"],
+    [502, "a3", "(pointer uint32)"],
+    [534, "a3", "(pointer uint64)"],
+    [[535, 538], "a3", "(pointer uint32)"],
+    [577, "a3", "(pointer uint64)"],
+    [[578, 581], "a3", "(pointer uint32)"],
+    [620, "a3", "(pointer uint64)"],
+    [[621, 624], "a3", "(pointer uint32)"],
+    [663, "a3", "(pointer uint64)"],
+    [[664, 667], "a3", "(pointer uint32)"],
+    [545, "a2", "(pointer uint64)"],
+    [[546, 549], "a2", "(pointer uint32)"],
+    [588, "a2", "(pointer uint64)"],
+    [[589, 592], "a2", "(pointer uint32)"],
+    [631, "a2", "(pointer uint64)"],
+    [[632, 635], "a2", "(pointer uint32)"],
+    [674, "a2", "(pointer uint64)"],
+    [[675, 678], "a2", "(pointer uint32)"]
+  ],
+  // settings: connection walks (jak3-parity op indices)
+  "(method 9 user-setting-data)": [
+    [[76, 80], "v1", "connection"],
+    [[22, 66], "s3", "connection"]
+  ],
+  "(method 9 cam-setting-data)": [
+    [[76, 80], "v1", "connection"],
+    [[22, 66], "s3", "connection"]
+  ],
+  "(method 12 setting-control)": [
+    [[30, 45], "s4", "connection"]
+  ],
+  "(method 16 setting-control)": [
+    [[1, 12], "a1", "process"],
+    [[13, 30], "s4", "connection"]
+  ],
+  "(method 20 setting-control)": [[[3, 17], "v1", "connection"]],
+  "(method 24 setting-control)": [
+    [[273, 282], "v1", "handle"],
+    [287, "v1", "process-drawable"],
+    [763, "v0", "process-focusable"],
+    [[738, 1040], "s3", "cam-setting-data"],
+    [994, "s2", "process-focusable"],
+    [[647, 649], "v1", "(pointer uint32)"]
+  ],
+  "(method 10 cam-setting-data)": [
+    [[32, 42], "v1", "handle"],
+    [[477, 486], "v1", "handle"],
+    [[498, 507], "v1", "handle"],
+    [[53, 56], "a0", "vector"],
+    [[438, 440], "a0", "vector"],
+    [[447, 449], "a0", "vector"],
+    [[456, 458], "a0", "vector"],
+    [[467, 469], "a0", "vector"]
+  ],
+  "(method 10 user-setting-data)": [
+    [[184, 199], "v1", "(array uint8)"],
+    [[499, 505], "a1", "handle"],
+    [510, "v1", "handle"]
+  ],
+  "(method 15 setting-control)": [
+    [3, "v1", "connection"],
+    [6, "v1", "connection"]
+  ],
+  // mood leg: the per-level mood funcs read their states blob through the
+  // mood-context state field (uint32 array at 1840); cast to the states type
+  // over the pointer's live range, jak3's recipe
+  "copy-mood-exterior": [
+    [[16, 20], "a1", "mood-context"],
+    [30, "a0", "(inline-array vector)"],
+    [33, "a0", "(inline-array vector)"],
+    [31, "v1", "(inline-array vector)"],
+    [32, "v1", "(inline-array vector)"],
+    [[17, 19], "v1", "(inline-array vector)"]
+  ],
+  "copy-mood-exterior-ambi": [
+    [[12, 17], "a2", "mood-context"],
+    [[13, 16], "v1", "mood-context"]
+  ],
+  "update-mood-garage-brdroom": [[[52, 128], "s5", "garage-states"]],
+  "update-garage-brdroom-lights": [
+    [[2, 3], "a1", "garage-states"],
+    [[28, 106], "a0", "garage-states"]
+  ],
+  "update-mood-hiphog": [[[20, 21], "v1", "hiphog-states"]],
+  "update-mood-rustyh": [[[18, 27], "v1", "rustyh-states"]],
+  "update-rustyh-lights": [[[22, 101], "a0", "rustyh-states"]],
+  "update-mood-default-interior": [[[14, 16], "v1", "(pointer float)"]],
+  "update-mood-default-interior-ambient": [[[14, 16], "v1", "(pointer float)"]],
+  // tie leg: the 13 patch blocks each splice the category dma chain through a
+  // next-pointer loaded from *prototype-tie-work*; cast it for the l.d/s.d pair
+  // (jak3 uses the same 13-cast shape, one per block)
+  "instance-tie-patch-buckets": [
+    [[54, 62], "v1", "(pointer uint64)"],
+    [[165, 173], "v1", "(pointer uint64)"],
+    [[275, 283], "v1", "(pointer uint64)"],
+    [[385, 393], "v1", "(pointer uint64)"],
+    [[496, 504], "v1", "(pointer uint64)"],
+    [[608, 616], "v1", "(pointer uint64)"],
+    [[720, 728], "v1", "(pointer uint64)"],
+    [[831, 839], "v1", "(pointer uint64)"],
+    [[942, 950], "v1", "(pointer uint64)"],
+    [[1054, 1062], "v1", "(pointer uint64)"],
+    [[1166, 1174], "v1", "(pointer uint64)"],
+    [[1277, 1285], "v1", "(pointer uint64)"],
+    [[1388, 1396], "v1", "(pointer uint64)"],
+    [1407, "v1", "(pointer uint32)"],
+    [1408, "v1", "(pointer uint32)"]
+  ],
+  // jak3-parity casts, op numbers match
+  "draw-drawable-tree-instance-tie": [
+    [[23, 37], "v1", "drawable-inline-array-node"],
+    [25, "a0", "drawable-inline-array-node"],
+    [102, "s1", "drawable-inline-array-instance-tie"],
+    [[111, 113], "a0", "int"],
+    [120, "s2", "drawable-inline-array-instance-tie"],
+    [132, "v1", "int"],
+    [132, "a0", "int"]
+  ],
+  // shrub leg: init/upload dma templates (jak3-pattern casts, jakx-derived op ranges)
+  "shrub-upload-view-data": [[[7, 16], "a0", "dma-packet"]],
+  "shrub-do-init-frame": [
+    [[15, 21], "a0", "dma-packet"],
+    [[24, 29], "a0", "dma-packet"],
+    [[31, 55], "v1", "(pointer uint32)"]
+  ],
+  "shrub-init-frame": [
+    [[8, 12], "a0", "dma-packet"],
+    [[18, 21], "a0", "gs-gif-tag"],
+    [24, "v1", "(pointer gs-test)"],
+    [26, "v1", "(pointer gs-reg64)"]
+  ],
+  "shrub-upload-model": [
+    [[17, 26], "a3", "dma-packet"],
+    [[33, 41], "a0", "dma-packet"],
+    [[47, 55], "a0", "dma-packet"]
+  ],
+  "draw-drawable-tree-instance-shrub": [[71, "v1", "drawable-inline-array-instance-shrub"]],
+  "(method 8 drawable-tree-instance-shrub)": [[51, "v1", "drawable-inline-array-instance-shrub"]],
+  "(method 13 drawable-tree-instance-shrub)": [[19, "a1", "drawable-inline-array-instance-shrub"]],
+  "tie-init-engine": [
+    [[41, 50], "a0", "dma-packet"],
+    [[64, 70], "a0", "dma-packet"],
+    [[73, 79], "a0", "dma-packet"],
+    [[83, 99], "a0", "(pointer uint32)"],
+    [[108, 114], "a1", "dma-packet"],
+    [[119, 123], "a1", "(pointer uint64)"],
+    [[126, 138], "a0", "(pointer uint64)"]
+  ],
+  "etie-init-engine": [
+    [[82, 91], "a0", "dma-packet"],
+    [[103, 109], "a0", "dma-packet"],
+    [[112, 118], "a0", "dma-packet"],
+    [[122, 138], "a0", "(pointer uint32)"]
+  ],
+  "etie-end-buffer": [
+    [[48, 53], "a1", "dma-packet"],
+    [[57, 69], "a0", "(pointer uint32)"]
+  ],
+  "tie-end-buffer": [
+    [[21, 27], "a1", "dma-packet"],
+    [[32, 36], "a1", "(pointer uint64)"],
+    [[40, 44], "a1", "(pointer uint64)"],
+    [[48, 53], "a1", "dma-packet"],
+    [[57, 69], "a0", "(pointer uint32)"]
+  ],
+  "(method 9 tie-fragment)": [
+    [[1, 70], "s5", "adgif-shader"]
+  ],
+  "(method 13 drawable-tree-instance-tie)": [
+    [[51, 70], "t1", "tie-fragment"],
+    [[102, 120], "a3", "tie-fragment"],
+    [[160, 178], "t1", "tie-fragment"],
+    [[211, 229], "a3", "tie-fragment"],
+    [[266, 286], "t1", "tie-fragment"],
+    [[320, 340], "a1", "tie-fragment"],
+    [[381, 400], "t1", "tie-fragment"],
+    [[432, 450], "a3", "tie-fragment"],
+    [[487, 507], "t1", "tie-fragment"],
+    [[541, 561], "a1", "tie-fragment"],
+    [[598, 616], "t1", "tie-fragment"],
+    [[649, 667], "a3", "tie-fragment"],
+    [[703, 723], "t1", "tie-fragment"],
+    [[756, 776], "a1", "tie-fragment"]
+  ],
+  // texture-anim leg: init-textures! resolves the func-id symbol overlays
+  "(method 9 texture-anim)": [
+    [5, "v1", "symbol"],
+    [11, "v1", "symbol"],
+    [17, "v1", "symbol"],
+    [23, "v1", "symbol"],
+    ["_stack_", 16, "texture-page"]
+  ],
+  // sky leg: the draw method runs on the fake-scratchpad copy of *sky-work*;
+  // the draw-* methods write dma-packet headers and float/int template runs
+  // through (-> buf base) pointers
+  "(method 13 sky-work)": [
+    [[160, 163], "a2", "dma-packet"],
+    [[173, 174], "a2", "(pointer uint64)"],
+    [[180, 189], "a1", "(pointer uint64)"],
+    [[242, 245], "a2", "dma-packet"],
+    [[255, 256], "a2", "(pointer uint64)"],
+    [[262, 271], "a1", "(pointer uint64)"],
+    [[280, 310], "s3", "sky-work"],
+    [488, "a1", "(inline-array vector4w)"],
+    [[501, 504], "t2", "(pointer uint32)"],
+    [[506, 509], "a1", "(pointer uint32)"]
+  ],
+  "sky-make-sun-data": [[[7, 120], "s3", "sky-sun-data"]],
+  "(method 23 sky-work)": [[[287, 293], "s3", "dma-packet"]],
+  "(method 27 sky-work)": [[[146, 152], "s3", "dma-packet"]],
+  "(method 34 sky-work)": [[[79, 85], "s5", "dma-packet"]],
+  "(method 35 sky-work)": [[[66, 72], "s5", "dma-packet"]],
+  "(method 36 sky-work)": [
+    [114, "v1", "(inline-array vector4w)"],
+    [[119, 124], "t1", "(pointer uint32)"],
+    [[127, 133], "t1", "(pointer float)"],
+    [[135, 138], "t1", "(pointer uint32)"],
+    [[141, 147], "t1", "(pointer float)"],
+    [[149, 152], "t1", "(pointer uint32)"],
+    [[155, 161], "t0", "(pointer float)"],
+    [[163, 166], "t0", "(pointer uint32)"],
+    [[169, 175], "a3", "(pointer float)"],
+    [[177, 180], "v1", "(pointer uint32)"]
+  ],
+
+  // bones. These type the PS2 scratchpad at #x70000000 and the DMAC register bank at
+  // #x1000e000, neither of which the decompiler can infer from a bare lui. bones-init,
+  // bones-set-sqwc and bones-reset-sqwc are op-for-op identical to jak2 and jak3, so
+  // their entries are those verbatim; only the register allocation differs, and a cast
+  // names the register on the way IN to the op, which is the constant, not the result.
+  "bones-init": [
+    [1, "v1", "bone-memory"],
+    [6, "a1", "bone-memory"],
+    [10, "a1", "bone-memory"],
+    [14, "a1", "bone-memory"],
+    [18, "a1", "bone-memory"],
+    [22, "a1", "bone-memory"],
+    [26, "a1", "bone-memory"],
+    [44, "a0", "dma-packet"],
+    [45, "a0", "(pointer uint64)"]
+  ],
+  "bones-set-sqwc": [[2, "v1", "dma-bank-control"]],
+  "bones-reset-sqwc": [[2, "v1", "dma-bank-control"]],
+  // bones-mtx-calc-execute carries the same scratchpad layout block, but its op numbers
+  // run 14 lower than jak3's: jakx has no EE performance-counter code ahead of it. The
+  // offset is not uniform across the whole function, so these were read off the jakx
+  // disassembly rather than shifted.
+  "bones-mtx-calc-execute": [
+    [[117, 140], "a0", "pris-mtx"],
+    [[117, 140], "a1", "pris-mtx"],
+    [53, "v1", "bone-memory"],
+    [58, "a1", "bone-memory"],
+    [62, "a1", "bone-memory"],
+    [66, "a1", "bone-memory"],
+    [70, "a1", "bone-memory"],
+    [74, "a1", "bone-memory"],
+    [78, "a1", "bone-memory"],
+    [82, "a0", "dma-bank-control"],
+    [146, "a0", "dma-bank-control"]
+  ]
 }

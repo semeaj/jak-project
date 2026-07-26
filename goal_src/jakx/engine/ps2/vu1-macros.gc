@@ -6,3 +6,77 @@
 ;; dgos: ENGINE, GAME
 
 ;; DECOMP BEGINS
+
+;; og:preserve-this ported from jak3: the VCLIP substitute used by the
+;; transform-point functions in math-camera.gc
+(defmacro vu-clip (vfr cf)
+  "Returns the result of VCLIP.
+   NOTE: this implementation is pretty inefficient.
+   If this ends up used a lot, it's probably worth rewriting.
+   "
+  `(let ((vec (new 'stack 'vector))
+         (flag ,cf)
+         )
+     (.svf vec ,vfr)
+     (let* ((w-plus (fabs (-> vec w)))
+            (w-minus (- 0.0 w-plus))
+            )
+       ;; CF = CF << 6
+       (set! flag (logand #xffffff (shl flag 6)))
+
+       (when (> (-> vec x) w-plus)
+         (logior! flag 1)
+         )
+       (when (< (-> vec x) w-minus)
+         (logior! flag 2)
+         )
+       (when (> (-> vec y) w-plus)
+         (logior! flag 4)
+         )
+       (when (< (-> vec y) w-minus)
+         (logior! flag 8)
+         )
+       (when (> (-> vec z) w-plus)
+         (logior! flag 16)
+         )
+       (when (< (-> vec z) w-minus)
+         (logior! flag 32)
+         )
+       )
+     flag
+     )
+  )
+
+;; og:preserve-this ported from jak3: 28.4 fixed-point convert used by transform-point-qword!
+(defmacro vftoi4.xyzw (dst src)
+  "convert to 28.4 integer. This does the multiply while the number is still
+   a float. This will have issues for very large floats, but it seems like this
+   is how PCSX2 does it as well, so maybe it's right?
+   NOTE: this is the only version of the instruction used in Jak 1, so we
+   don't need to worry about masks."
+
+  `(begin
+    (rlet ((temp :class vf))
+      (set! temp 16.0)
+      (.mul.x.vf temp ,src temp)
+      (.ftoi.vf ,dst temp)
+      )
+    )
+  )
+
+;; og:preserve-this ported from jak3: 20.12 fixed-point convert used by update-mood-itimes
+(defmacro vftoi12.xyzw (dst src)
+  "convert to 20.12 integer. This does the multiply while the number is still
+   a float. This will have issues for very large floats, but it seems like this
+   is how PCSX2 does it as well, so maybe it's right?
+   NOTE: this is the only version of the instruction used in Jak 1, so we
+   don't need to worry about masks."
+
+  `(begin
+    (rlet ((temp :class vf))
+      (set! temp 4096.0)
+      (.mul.x.vf temp ,src temp)
+      (.ftoi.vf ,dst temp)
+      )
+    )
+  )

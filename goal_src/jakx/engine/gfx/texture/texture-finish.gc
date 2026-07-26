@@ -7,3 +7,12 @@
 
 ;; DECOMP BEGINS
 
+(setup-font-texture *texture-pool*)
+
+;; og:preserve-this: retail inits every texture-anim array here; the bring-up
+;; inits only the sky array (the others are never update'd yet and the car
+;; array's funcs are commented)
+(init! *sky-texture-anim-array*)
+
+;; closes the kmemopen 'tpages' section texture-upload.gc opens (jak3 parity)
+(kmemclose)

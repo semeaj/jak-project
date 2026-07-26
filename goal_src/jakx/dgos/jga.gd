@@ -1,5 +1,6 @@
+;; og:preserve-this bring-up: remaining .o entries converted to .go raw copies (brdroom recipe)
 ("JGA.DGO"
- ("tpage-649.o"
+ ("tpage-649.go"
   "tpage-962.go"
   "tpage-650.go"
   "tpage-652.go"
@@ -10,5 +11,5 @@
   "jungle-clay-jar-a-ag.go"
   "jungle-tree-root-large-b-ag.go"
   "jungle-tree-root-large-a-ag.go"
-  "junglea-vis.o"
+  "junglea-vis.go"
  ))

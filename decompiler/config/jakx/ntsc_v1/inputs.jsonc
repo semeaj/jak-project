@@ -382,7 +382,21 @@
     "DGO/XIMLEV.DGO"
   ],
 
-  "levels_to_extract": [],
+  "levels_to_extract": [
+    // bring-up: smallest real world-geometry level (board room)
+    "BRDROOM.DGO",
+    // the garage hub, second world-geometry level
+    "GARAGE.DGO",
+    // junglea, first exterior track section
+    "JGA.DGO"
+  ],
+
+  // Textures whose index data must survive extraction so the runtime can re-apply a
+  // per-frame CLUT to them. The PC has no CLUT indirection at draw time, so the sky
+  // cloud texture is resolved to RGBA by the texture animator instead.
+  "animated_textures": [
+    "clouds"
+  ],
 
   // some objects are part of STR files (streaming data).
   "str_file_names": [],

@@ -605,14 +605,21 @@ TextureAnimator::TextureAnimator(ShaderLibrary& shaders,
   m_output_debug_flags.resize(animated_texture_slots(m_version).size());
 
   // animation-specific stuff
-  setup_texture_anims_common();
   switch (m_version) {
     case GameVersion::Jak2:
+      setup_texture_anims_common();
       setup_texture_anims_jak2();
       break;
     case GameVersion::Jak3:
-    case GameVersion::JakX:
+      setup_texture_anims_common();
       setup_texture_anims_jak3();
+      break;
+    case GameVersion::JakX:
+      // No setup_texture_anims_common() here: the jak 2/3 definitions look up textures by
+      // names that do not exist in Jak X's common tpage, and those lookups are fatal. The
+      // output slots stay bound to the dummy texture; Jak X's sky reaches the screen through
+      // the pool VRAM slot instead.
+      setup_texture_anims_jakx();
       break;
     default:
       ASSERT_NOT_REACHED();
@@ -902,6 +909,9 @@ FixedAnimInfoJak2 anim_code_to_info(PcTextureAnimCodesJak2 code, const TextureAn
 }
 
 enum class PcTextureAnimCodesJak3 : u16 {
+  // Jak X shares this decode table. This code is emitted only by Jak X, and sits in the gap
+  // between DARKJAK_HIGHRES and SKULL_GEM so it cannot collide with a Jak 3 animation.
+  JAKX_CLUT_INDEX_TEXTURE = 24,
   FINISH_ARRAY = 13,
   ERASE_DEST_TEXTURE = 14,
   UPLOAD_CLUT_16_16 = 15,
@@ -1325,6 +1335,10 @@ void TextureAnimator::handle_texture_anim_data(DmaFollower& dma,
               auto p = scoped_prof("clut-16-16");
               handle_upload_clut_16_16(tf, ee_mem);
             } break;
+            case PcTextureAnimCodesJak3::JAKX_CLUT_INDEX_TEXTURE: {
+              auto p = scoped_prof("jakx-clut-index-texture");
+              handle_jakx_clut_index_texture(tf, texture_pool);
+            } break;
             case PcTextureAnimCodesJak3::ERASE_DEST_TEXTURE: {
               auto p = scoped_prof("erase");
               handle_erase_dest(dma);
@@ -1678,6 +1692,65 @@ void TextureAnimator::handle_clouds_and_fog(const DmaTransfer& tf,
     in.debug_name = hires ? "clouds-hires" : "clouds";
     in.id = get_id_for_tbp(texture_pool, input.cloud_dest, 777);
     gpu_tex = texture_pool->give_texture_and_load_to_vram(in, input.cloud_dest);
+  }
+}
+
+/*!
+ * Re-clut a Jak X index texture from a CLUT that GOAL generated and uploaded earlier in this
+ * same animator block, then publish the result at the TBP the sky's adgif will name.
+ */
+void TextureAnimator::handle_jakx_clut_index_texture(const DmaTransfer& tf,
+                                                     TexturePool* texture_pool) {
+  ASSERT(tf.size_bytes >= sizeof(JakXClutIndexInput));
+  JakXClutIndexInput input;
+  memcpy(&input, tf.data, sizeof(input));
+
+  // Setup skips names it could not resolve, so an out-of-range index means the extract did not
+  // carry this texture. Already warned about once at init; stay quiet per frame.
+  if (input.itex_idx < 0 || (size_t)input.itex_idx >= m_jakx_clut_index_textures.size()) {
+    return;
+  }
+  auto& rec = m_jakx_clut_index_textures[input.itex_idx];
+
+  // Read the CLUT directly rather than through get_clut_16_16_psm32, which asserts on an
+  // unknown or wrong-kind entry. On the frame the pass first goes live the upload may not have
+  // landed yet, and that should be a skipped frame, not a crash.
+  const auto& clut_lookup = m_textures.find(input.clut_tbp);
+  if (clut_lookup == m_textures.end() ||
+      clut_lookup->second.kind != VramEntry::Kind::CLUT16_16_IN_PSM32) {
+    return;
+  }
+  const u32* clut = (const u32*)clut_lookup->second.data.data();
+
+  // set-cloud-minmax! rewrites this CLUT every frame from the current mood, but the values only
+  // actually move with the time of day, so a compare keeps the 128x128 conversion off most
+  // frames.
+  const bool dirty =
+      !rec.last_clut_valid || memcmp(rec.last_clut.data(), clut, sizeof(rec.last_clut)) != 0;
+
+  if (dirty) {
+    memcpy(rec.last_clut.data(), clut, sizeof(rec.last_clut));
+    rec.last_clut_valid = true;
+    // Unlike ClutBlender, the CLUT here is raw GOAL data in GS write order, so the index has to
+    // go through m_index_to_clut_addr. Extracted IndexTexture colour tables are unscrambled at
+    // extract time and would not.
+    for (size_t i = 0; i < rec.temp_rgba.size(); i++) {
+      rec.temp_rgba[i] = clut[m_index_to_clut_addr[rec.src->index_data[i]]];
+    }
+    opengl_upload_texture(rec.texture, rec.temp_rgba.data(), rec.src->w, rec.src->h);
+  }
+
+  if (rec.pool_gpu_tex) {
+    texture_pool->move_existing_to_vram(rec.pool_gpu_tex, input.dest_tbp);
+  } else {
+    TextureInput in;
+    in.gpu_texture = rec.texture;
+    in.w = rec.src->w;
+    in.h = rec.src->h;
+    in.debug_page_name = "PC-ANIM";
+    in.debug_name = rec.src->name;
+    in.id = get_id_for_tbp(texture_pool, input.dest_tbp, 780);
+    rec.pool_gpu_tex = texture_pool->give_texture_and_load_to_vram(in, input.dest_tbp);
   }
 }
 

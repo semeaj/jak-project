@@ -33,9 +33,9 @@
    (shadow-dma-tex0      uint64)
    (shadow-dma           basic)
    (warp-shader          adgif-shader  :inline)
-   (blur-forward-dma     basic)
-   (blur-reverse-dma     basic)
-   (blur-finish-dma      basic)
+   (blur-forward-dma     dma-buffer)
+   (blur-reverse-dma     dma-buffer)
+   (blur-finish-dma      dma-buffer)
    (blur-sx              int32)
    (blur-sy              int32)
    (blur-hx              int32)
@@ -163,9 +163,10 @@
    (default                 viewport  :inline :overlay-at (-> data 2))
    )
   (:methods
+    (new (symbol type) _type_)
     (viewport-array-method-9 (_type_ viewport) none)
     (get-viewport (_type_ uint) viewport)
-    (viewport-array-method-11 (_type_) none)
+    (viewport-array-method-11 (_type_) viewport)
     )
   )
 
@@ -187,7 +188,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-

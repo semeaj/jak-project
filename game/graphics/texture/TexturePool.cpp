@@ -262,6 +262,13 @@ void TexturePool::handle_upload_now(const u8* tpage,
             m_name_to_id[name] = current_id;
           }
 
+          if (tex.dest[mip_idx] >= m_textures.size()) {
+            lg::error(
+                "TexturePool upload-now: dest {} out of range (tex {} mip {} num_mips {} psm {} w "
+                "{} h {})",
+                tex.dest[mip_idx], tex_idx, mip_idx, tex.num_mips, tex.psm, tex.w, tex.h);
+            continue;
+          }
           auto& slot = m_textures[tex.dest[mip_idx]];
 
           if (slot.source) {

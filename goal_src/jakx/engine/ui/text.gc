@@ -7,3 +7,8 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stub: called per frame with -1; real body loads level text.
+(defun load-level-text-files ((arg0 int))
+  0
+  (none)
+  )

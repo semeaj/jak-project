@@ -8,6 +8,7 @@
 #include "game/kernel/jak1/kscheme.h"
 #include "game/kernel/jak2/kscheme.h"
 #include "game/kernel/jak3/kscheme.h"
+#include "game/kernel/jakx/kscheme.h"
 #include "game/runtime.h"
 
 extern "C" {
@@ -396,6 +397,33 @@ namespace shadow_execute { extern void link(); }
 namespace method_21_cloth_system { extern void link(); }
 
 }
+namespace jakx {
+namespace live_func_curve { extern void link(); }
+namespace birth_func_curve { extern void link(); }
+namespace set_sky_vf27 { extern void link(); }
+namespace set_sky_vf23_value { extern void link(); }
+namespace set_tex_offset { extern void link(); }
+namespace draw_large_polygon { extern void link(); }
+namespace render_sky_quad { extern void link(); }
+namespace render_sky_tri { extern void link(); }
+namespace method_16_sky_work { extern void link(); }
+namespace method_17_sky_work { extern void link(); }
+namespace method_28_sky_work { extern void link(); }
+namespace method_29_sky_work { extern void link(); }
+namespace method_30_sky_work { extern void link(); }
+namespace method_32_sky_work { extern void link(); }
+namespace method_33_sky_work { extern void link(); }
+namespace sparticle_motion_blur { extern void link(); }
+namespace sp_launch_particles_var { extern void link(); }
+namespace particle_adgif { extern void link(); }
+namespace sp_init_fields { extern void link(); }
+namespace sp_process_block_2d { extern void link(); }
+namespace sp_process_block_3d { extern void link(); }
+namespace get_string_length_asm { extern void link(); }
+namespace draw_string3d_asm { extern void link(); }
+namespace draw_string_asm_packed { extern void link(); }
+namespace draw_string_init_justify { extern void link(); }
+}
 // clang-format on
 
 LinkedFunctionTable gLinkedFunctionTable;
@@ -658,7 +686,20 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jak3::shadow_add_single_tris::link, jak3::shadow_add_double_tris::link}},
      {"cloth", {jak3::method_21_cloth_system::link}}},
     /////////// JAK X
-    {}};
+    {{"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}},
+     {"sparticle-launcher",
+      {jakx::sparticle_motion_blur::link, jakx::sp_launch_particles_var::link,
+       jakx::particle_adgif::link, jakx::sp_init_fields::link}},
+     {"sparticle", {jakx::sp_process_block_2d::link, jakx::sp_process_block_3d::link}},
+     {"font",
+      {jakx::get_string_length_asm::link, jakx::draw_string3d_asm::link,
+       jakx::draw_string_asm_packed::link, jakx::draw_string_init_justify::link}},
+     {"sky-tng",
+      {jakx::set_tex_offset::link, jakx::draw_large_polygon::link, jakx::render_sky_quad::link,
+       jakx::render_sky_tri::link, jakx::method_16_sky_work::link, jakx::method_17_sky_work::link,
+       jakx::method_32_sky_work::link, jakx::method_33_sky_work::link,
+       jakx::method_28_sky_work::link, jakx::method_29_sky_work::link,
+       jakx::method_30_sky_work::link, jakx::set_sky_vf27::link, jakx::set_sky_vf23_value::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});
@@ -684,6 +725,11 @@ void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 s
       jump_to_asm = Ptr<u8>(::jak3::alloc_heap_object(
           s7.offset + jak3_symbols::FIX_SYM_GLOBAL_HEAP,
           ::jak3::u32_in_fixed_sym(jak3_symbols::FIX_SYM_FUNCTION_TYPE), 0x40, UNKNOWN_PP));
+      break;
+    case GameVersion::JakX:
+      jump_to_asm = Ptr<u8>(::jakx::alloc_heap_object(
+          s7.offset + jakx_symbols::FIX_SYM_GLOBAL_HEAP,
+          ::jakx::u32_in_fixed_sym(jakx_symbols::FIX_SYM_FUNCTION_TYPE), 0x40, UNKNOWN_PP));
       break;
     default:
       ASSERT(false);

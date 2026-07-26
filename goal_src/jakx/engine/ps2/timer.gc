@@ -13,6 +13,14 @@
 ;; DECOMP BEGINS
 
 (defun timer-count ((arg0 timer-bank))
+  ;; og:preserve-this PC port, matching jak3: the PS2 timer register does not exist;
+  ;; derive TIMER1 from the host clock.
+  (#when PC_PORT
+    (when (= arg0 TIMER1_BANK)
+      (return (- (get-bus-clock/256) *timer-reset-value*))
+      )
+    (format 0 "Unknown timer #x~X requested.~%" arg0)
+    )
   (.sync.l)
   (let ((v0-0 (-> arg0 count)))
     (.sync.l)

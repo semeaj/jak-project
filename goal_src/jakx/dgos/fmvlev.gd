@@ -1,4 +1,4 @@
 ("FMVLEV.DGO"
- ("tpage-3872.o"
-  "fmvlev.o"
+ ("tpage-3872.go"
+  "fmvlev.go"
  ))

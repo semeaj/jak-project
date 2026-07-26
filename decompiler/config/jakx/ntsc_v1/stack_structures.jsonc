@@ -1,4 +1,69 @@
 {
+  "update-mood-exterior": [
+    [16, "mood-color"],
+    [32, "mood-color"],
+    [48, "vector"]
+  ],
+  "show-level": [[16, ["array", "symbol", 18]]],
+  "(method 25 level)": [[16, "event-message-block"]],
+  "(method 10 cam-setting-data)": [[16, "event-message-block"]],
+  "update-camera": [[16, ["inline-array", "vector", 7]]],
+  "camera-teleport-to-location": [[16, "transformq"]],
+  "camera-teleport-to-entity": [[16, "transformq"]],
+  "(method 18 tracking-spline)": [[16, "tracking-spline-sampler"]],
+  "(method 20 tracking-spline)": [[32, "vector"]],
+  "cam-helper-temp": [[16, ["inline-array", "vector", 3]]],
+  "(code cam-combiner-active)": [[16, "vector"]],
+  "(code cam-point-watch)": [[16, "vector"]],
+  "(method 22 blit-displays-work)": [[16, "blur-coords"]],
+  "cam-mouse-input": [
+    [16, "vector"],
+    [32, "vector"],
+    [48, "vector"],
+    [64, "vector"],
+    [80, "quaternion"],
+    [96, "quaternion"],
+    [112, "matrix"]
+  ],
+  "(event cam-master-active)": [[16, "event-message-block"], [96, "vector"], [112, "vector"]],
+  "target-camera-heuristic-fov": [[16, "vector"]],
+  "target-camera-heuristic-look-at!": [[16, ["inline-array", "vector", 9]], [160, "vector"], [176, "vector"]],
+  "target-camera-test-los": [[16, "collide-query"]],
+  "choose-target-camera": [[16, "vector"], [32, "vector"]],
+  "(method 9 target-camera)": [[16, "matrix"], [80, "vector"]],
+  "(method 18 crash-camera)": [[16, "vector"]],
+  "cam-akira-mode-enter": [[16, "event-message-block"], [96, "event-message-block"]],
+  "(method 13 crash-camera)": [[16, "matrix"]],
+  "(method 12 crash-camera)": [[16, "vector"], [64, "vector"]],
+  "cam-vehicle-update": [[16, "vector"], [32, "vector"], [48, "matrix"], [112, "vector"], [128, "vector"], [144, "vector"], [160, "vector"], [176, "vector"], [192, "collide-query"], [736, "collide-query"], [1376, "vector"]],
+  "(code cam-training)": [[16, "vector"], [32, "matrix"], [96, "vector"]],
+  "(code cam-vehicle-crash)": [[16, "vector"]],
+  "(code cam-vehicle-shot)": [[16, "vector"]],
+  "(enter cam-vehicle)": [[16, "vector"]],
+  "(exit cam-vehicle-shot)": [[16, "event-message-block"], [96, "event-message-block"]],
+  "(trans cam-vehicle-shot)": [[16, "event-message-block"]],
+  "(method 10 crash-camera)": [[16, "collide-query"]],
+  "(method 11 crash-camera)": [[16, "vector"]],
+  "(method 11 victor-prefix-camera)": [[16, "vector"]],
+  "(method 10 target-camera)": [[128, "vector"]],
+  "master-track-target": [[16, "vector"]],
+  "slave-set-rotation!": [
+    [96, "vector"],
+    [112, "matrix"],
+    [176, "vector"]
+  ],
+  "init-for-transform": [
+    [80, "matrix"],
+    [192, "vector"]
+  ],
+  "update-view-planes": [
+    [208, "vector"],
+    [224, "vector"]
+  ],
+  "play": [
+    [16, "event-message-block"],
+    [96, ["array", "symbol", 18]]
+  ],
   "quaternion-smooth-seek!": [[16, ["inline-array", "quaternion", 2]]],
   "rotate-vector-to-vector": [[16, "quaternion"]],
   "nearest-dist2-between-moving-points": [[16, ["inline-array", "vector", 2]]],
@@ -94,5 +159,12 @@
   ],
   "ptest": [[16, "vector"]],
   "check-drop-level-rain": [[16, "vector"]],
-  "spt-func-rocket": [[16, "vector"]]
+  "spt-func-rocket": [[16, "vector"]],
+  "string->sound-name": [[16, ["array", "sound-name", 1]]],
+  "sound-name->string": [[16, ["array", "uint8", 16]]],
+  "doppler-pitch-shift": [[16, ["inline-array", "vector", 2]]],
+  "(anon-function 5 gsound)": [
+    [16, ["array", "symbol", 4]],
+    [32, ["array", "symbol", 4]]
+  ]
 }

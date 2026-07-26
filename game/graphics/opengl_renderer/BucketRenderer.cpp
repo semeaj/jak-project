@@ -65,7 +65,7 @@ SkipRenderer::SkipRenderer(const std::string& name, int my_id) : BucketRenderer(
 void SkipRenderer::render(DmaFollower& dma,
                           SharedRenderState* render_state,
                           ScopedProfilerNode& /*prof*/) {
-  while (dma.current_tag_offset() != render_state->next_bucket) {
+  while (dma.current_tag_offset() != render_state->next_bucket && !dma.ended()) {
     dma.read_and_advance();
   }
 }

@@ -445,7 +445,7 @@
   (let ((t9-0 (method-of-type process inspect)))
     (t9-0 this)
     )
-  (format #t "~2Ttrans: ~`vector`P~%" (-> this stack))
+  (format #t "~2Ttrans: ~`vector`P~%" (-> this trans))
   (format #t "~2Tinv-camera-rot: ~`matrix`P~%" (-> this inv-camera-rot))
   (format #t "~2Tfov: ~f~%" (-> this fov))
   (format #t "~2Tinterp-val: ~f~%" (-> this interp-val))
@@ -510,7 +510,7 @@
    (spline-follow-dist             float)
    (enter-has-run                  symbol)
    (blend-from-type                camera-blend-from-type)
-   (blend-to-type                  camera-blend-to-type)
+   (blend-to-type                  int64)
    (have-phony-joystick            basic)
    (phony-joystick-x               float)
    (phony-joystick-y               float)
@@ -537,7 +537,7 @@
   (let ((t9-0 (method-of-type process inspect)))
     (t9-0 this)
     )
-  (format #t "~2Ttrans: ~`vector`P~%" (-> this stack))
+  (format #t "~2Ttrans: ~`vector`P~%" (-> this trans))
   (format #t "~2Tfov: ~f~%" (-> this fov))
   (format #t "~2Tfov0: ~f~%" (-> this fov0))
   (format #t "~2Tfov1: ~f~%" (-> this fov1))
@@ -646,9 +646,9 @@
    (interest-dist        float)
    )
   (:methods
-    (camera-master-method-15 () none)
-    (camera-master-method-16 () none)
-    (camera-master-method-17 () none)
+    (camera-master-method-15 (_type_ vector) vector)
+    (camera-master-method-16 (_type_ vector) vector)
+    (camera-master-method-17 (_type_ symbol) int)
     )
   (:states
     cam-master-active
@@ -710,7 +710,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-

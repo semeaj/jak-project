@@ -7,3 +7,29 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this partial landing: unlink-lightning-spec-by-heap (called by unload!
+;; on non-fresh slots) decompiles clean in lightning_ir2.asm. The (when ...) guard is
+;; a bring-up addition: *lightning-spec-id-table* is created by lightning.o's still
+;; blocked top-level, so it can be unset here; drop the guard when the top-level lands.
+(defun unlink-lightning-spec-by-heap ((arg0 kheap))
+  (when *lightning-spec-id-table*
+    (let* ((v1-0 *lightning-spec-id-table*)
+           (a2-0 (-> v1-0 length))
+           (a1-0 (-> arg0 base))
+           (a0-1 (-> arg0 top-base))
+           )
+      (while (nonzero? a2-0)
+        (+! a2-0 -1)
+        (let ((a3-2 (-> v1-0 a2-0)))
+          (when (and (>= (the-as int a3-2) (the-as int a1-0)) (< (the-as int a3-2) (the-as int a0-1)))
+            (set! (-> v1-0 a2-0) (the-as lightning-spec 0))
+            0
+            )
+          )
+        )
+      )
+    )
+  0
+  (none)
+  )
+

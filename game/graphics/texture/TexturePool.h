@@ -351,7 +351,7 @@ class TexturePool {
   void draw_debug_window();
   void relocate(u32 destination, u32 source, u32 format);
   void draw_debug_for_tex(const std::string& name, GpuTexture* tex, u32 slot);
-  const std::array<TextureVRAMReference, 1024 * 1024 * 4 / 256>& all_textures() const {
+  const std::array<TextureVRAMReference, 1024 * 1024 * 8 / 256>& all_textures() const {
     return m_textures;
   }
   void move_existing_to_vram(GpuTexture* tex, u32 slot_addr);
@@ -371,7 +371,9 @@ class TexturePool {
   GpuTexture* get_gpu_texture_for_slot(PcTextureId id, u32 slot);
 
   char m_regex_input[256] = "";
-  std::array<TextureVRAMReference, 1024 * 1024 * 4 / 256> m_textures;
+  // Jak X's tpage dest values exceed the 4 MB PS2 VRAM block range (up to ~17500);
+  // they act as abstract slot ids on the PC port, so size the table generously.
+  std::array<TextureVRAMReference, 1024 * 1024 * 8 / 256> m_textures;
   std::atomic<u64> m_frame_stamp{0};
   struct Mt4hhTexture {
     TextureVRAMReference ref;

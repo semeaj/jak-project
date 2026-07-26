@@ -7,4 +7,256 @@
 
 ;; DECOMP BEGINS
 
-(define-extern view-get-active-math-camera (function math-camera))
+
+;; definition for function view-push-context
+;; WARN: Return type mismatch int vs none.
+;; ERROR: Failed store: (s.w! (+ v1-7 12) arg0) at op 11
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun view-push-context ((arg0 int))
+;;   (when (>= (the-as int *view-context-stack-ptr*) 8)
+;;     (break!)
+;;     0
+;;     )
+;;   (set! *view-context-stack-ptr* (&+ *view-context-stack-ptr* 1))
+;;   (let ((v1-7 (+ (* *view-context-stack-ptr* 4) (the-as uint *view-context-stack*))))
+;;     (s.w! (+ v1-7 12) arg0)
+;;     )
+;;   0
+;;   (none)
+;;   )
+
+;; definition for function view-pop-context
+;; WARN: Return type mismatch int vs none.
+(defun view-pop-context ()
+  (when (< *view-context-stack-ptr* 0)
+    (break!)
+    0
+    )
+  (set! *view-context-stack-ptr* (- *view-context-stack-ptr* 1))
+  0
+  (none)
+  )
+
+;; definition for function view-get-active-target
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-target
+;; WARN: Return type mismatch basic vs process.
+(defun view-get-target ((arg0 int))
+  (the-as process (-> *views* arg0 target))
+  )
+
+;; definition for function view-set-active-target
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-active-camera
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-camera
+;; WARN: Return type mismatch basic vs process.
+(defun view-get-camera ((arg0 int))
+  (the-as process (-> *views* arg0 camera))
+  )
+
+;; definition for function view-set-active-camera
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-active-camera-combiner
+;; (landed in the hand section at the end of the file; needs view-get-active)
+
+;; definition for function view-get-camera-combiner
+(defun view-get-camera-combiner ((arg0 int))
+  ;; og:preserve-this basic return: camera-combiner's deftype compiles later (camera-h.gc)
+  (-> *views* arg0 camera-combiner)
+  )
+
+;; definition for function view-set-active-camera-combiner
+;; (landed in the hand section at the end of the file; needs view-get-active)
+
+;; definition for function view-get-active-math-camera
+;; ERROR: failed type prop at 1: Called a function, but we do not know its type
+;; WARN: Return type mismatch none vs math-camera.
+;; NOTE: decomp still fails; commented out until fixed (hand version at end of file)
+;; (defun view-get-active-math-camera ()
+;;   (local-vars (v0-0 none) (v0-1 none) (t9-0 function))
+;;   (set! t9-0 view-get-active)
+;;   (set! v0-0 (the-as none (call!)))
+;;   (set! v0-1 (the-as none (l.wu (+ v0-0 16))))
+;;   (ret-value v0-1)
+;;   )
+
+;; definition for function view-get-math-camera
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-set-active-math-camera
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-real-active
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-active
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-index
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-get-active-index
+;; ERROR: failed type prop at 28: Could not figure out load: (set! v0 (l.b v1))
+;; NOTE: decomp still fails; commented out until fixed
+;; (defun view-get-active-index ()
+;;   (local-vars
+;;     (v0-0 int)
+;;     (v1-0 basic)
+;;     (v1-1 object)
+;;     (v1-2 (pointer int32))
+;;     (v1-3 (pointer int32))
+;;     (v1-4 uint)
+;;     (v1-5 int)
+;;     (v1-6 int)
+;;     (v1-7 int)
+;;     (v1-8 int)
+;;     (v1-9 symbol)
+;;     (v1-11 int)
+;;     (v1-12 symbol)
+;;     (v1-13 int)
+;;     (v1-14 int)
+;;     (a0-0 (array int32))
+;;     (a0-1 (array view))
+;;     (a0-2 (array view))
+;;     )
+;;   (with-pp
+;;     (cond
+;;       ((begin (and s6-0 (set! v1-0 (-> s6-0 view))) v1-0)
+;;        (set! v1-1 (-> s6-0 view))
+;;        )
+;;       (else
+;;         (cond
+;;           ((begin (set! v1-2 *view-context-stack-ptr*) (>=0.si v1-2))
+;;            (set! v1-3 *view-context-stack-ptr*)
+;;            (set! v1-4 (sll v1-3 2))
+;;            (set! a0-0 *view-context-stack*)
+;;            (set! v1-5 (+ v1-4 a0-0))
+;;            (set! v1-6 (l.w (+ v1-5 12)))
+;;            (set! v1-7 (sll v1-6 2))
+;;            (set! a0-1 *views*)
+;;            (set! v1-8 (+ v1-7 a0-1))
+;;            (set! v1-1 (dynamic-array-field-access v1-8 PLACEHOLDER))
+;;            )
+;;           (else
+;;             (when (begin (set! v1-9 *view-assert*) v1-9)
+;;               (break!)
+;;               (set! v1-11 0)
+;;               )
+;;             (set! v1-12 *view-default*)
+;;             (set! v1-13 (sll v1-12 2))
+;;             (set! a0-2 *views*)
+;;             (set! v1-14 (+ v1-13 a0-2))
+;;             (set! v1-1 (l.wu (+ v1-14 12)))
+;;             )
+;;           )
+;;         )
+;;       )
+;;     (if v1-1
+;;         (set! v0-0 (l.b v1-1))
+;;         (set! v0-0 -1)
+;;         )
+;;     (ret-value v0-0)
+;;     )
+;;   )
+
+;; definition for function view-get-real-active-index
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; definition for function view-print
+;; ERROR: function has no type analysis. Cannot decompile.
+
+;; og:preserve-this hand-written from view_ir2.asm: the tiny view accessors fail the
+;; decompiler's type analysis (int8 loads through untyped stack slots) but their
+;; semantics are trivial. The pp view branch guards nonzero? too (zeroed process
+;; fields read 0, which is truthy; low-memory derefs fault on PC).
+
+(defun view-push-context ((arg0 int))
+  (when (>= *view-context-stack-ptr* 8)
+    (break!)
+    0
+    )
+  (set! *view-context-stack-ptr* (+ *view-context-stack-ptr* 1))
+  (set! (-> *view-context-stack* *view-context-stack-ptr*) arg0)
+  0
+  (none)
+  )
+
+(defun view-get-active ()
+  (with-pp
+    (cond
+      ((and pp (nonzero? (-> pp view)) (-> pp view))
+       (-> pp view)
+       )
+      ((>= *view-context-stack-ptr* 0)
+       (-> *views* (-> *view-context-stack* *view-context-stack-ptr*))
+       )
+      (else
+        (when *view-assert*
+          (break!)
+          0
+          )
+        (-> *views* (the-as int *view-default*))
+        )
+      )
+    )
+  )
+
+(defun view-get-active-index ()
+  (let ((v (view-get-active)))
+    (if v
+        (-> v index)
+        -1
+        )
+    )
+  )
+
+(defun view-get-active-camera ()
+  (the-as process (-> (view-get-active) camera))
+  )
+
+(defun view-get-active-target ()
+  (the-as process (-> (view-get-active) target))
+  )
+
+(defun view-get-math-camera ((arg0 int))
+  (the-as math-camera (-> *views* arg0 math-camera))
+  )
+
+(defun view-get-active-math-camera ()
+  (the-as math-camera (-> (view-get-active) math-camera))
+  )
+
+(defun view-get-active-camera-combiner ()
+  ;; og:preserve-this basic return: camera-combiner's deftype compiles later (camera-h.gc)
+  (-> (view-get-active) camera-combiner)
+  )
+
+(defun view-set-active-camera-combiner ((arg0 basic))
+  (set! (-> (view-get-active) camera-combiner) arg0)
+  arg0
+  )
+
+(defun view-set-active-camera ((arg0 basic))
+  (set! (-> (view-get-active) camera) arg0)
+  arg0
+  )
+
+;; failed to figure out what this is:
+(dotimes (gp-0 2)
+  (format 0 "allocating view ~D~%" gp-0)
+  (set! (-> *views* gp-0) (new 'global 'view))
+  (set! (-> *views* gp-0 camera) #f)
+  (set! (-> *views* gp-0 camera-combiner) #f)
+  (set! (-> *views* gp-0 target) #f)
+  (set! (-> *views* gp-0 math-camera) (new 'global 'math-camera))
+  (set! (-> *views* gp-0 index) gp-0)
+  )
+
+
+
+

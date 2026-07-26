@@ -7,3 +7,11 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up stubs: jakx-only HUD string pool, not needed headless.
+(defun hud-string-init ()
+  0
+  )
+
+(defun hud-string-draw-all ((arg0 dma-buffer))
+  0
+  )

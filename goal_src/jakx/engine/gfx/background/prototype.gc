@@ -7,3 +7,69 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this partial landing: methods 9 and 13 (needed by the level load chain's
+;; unload!) decompile clean and are landed below; the rest of prototype.o stays pending.
+
+(defmethod prototype-node-group-method-9 ((this prototype-node-group))
+  (set! (-> this next-prototype) -1)
+  (set! (-> this next-free) 0)
+  (dotimes (v1-1 512)
+    (let ((a1-2 (-> this data v1-1)))
+      (set! (-> a1-2 prototype) #f)
+      (set! (-> a1-2 id) v1-1)
+      (set! (-> a1-2 next-prototype) (if (= v1-1 511)
+                                         -1
+                                         (+ v1-1 1)
+                                         )
+            )
+      (set! (-> a1-2 next-child) -1)
+      (set! (-> a1-2 prev-child) -1)
+      )
+    )
+  (dotimes (v1-4 19)
+    (set! (-> this next-child-prototype v1-4) -1)
+    )
+  0
+  (none)
+  )
+
+(defmethod prototype-node-group-method-13 ((this prototype-node-group) (arg0 level))
+  (let ((v1-0 (-> arg0 index)))
+    (let ((a2-0 (-> this next-child-prototype v1-0)))
+      (while (!= a2-0 -1)
+        (let ((a1-5 (-> this data a2-0)))
+          (let ((a2-1 (-> a1-5 prev-child))
+                (a3-0 (-> a1-5 next-child))
+                )
+            (if (!= a2-1 -1)
+                (set! (-> this data a2-1 next-child) a3-0)
+                )
+            (if (!= a3-0 -1)
+                (set! (-> this data a3-0 prev-child) a2-1)
+                )
+            )
+          (set! (-> a1-5 next-child) -1)
+          (set! (-> a1-5 prev-child) -1)
+          (set! (-> a1-5 prototype) #f)
+          (set! a2-0 (-> a1-5 next-prototype))
+          (set! (-> a1-5 next-prototype) (-> this next-free))
+          (set! (-> this next-free) (-> a1-5 id))
+          )
+        )
+      )
+    (set! (-> this next-child-prototype v1-0) -1)
+    )
+  0
+  (none)
+  )
+
+;; og:preserve-this: prototype.o's original top-level initializes the shared-ties
+;; free list at link time (the fragment fails to decompile, but the call is explicit
+;; in prototype_disasm.gc). Bring-up addition: the original level-h.o static *level*
+;; carries a prototype-node-group in shared-ties; our hand-written *level* static does
+;; not, so allocate one here before initializing it.
+(when (zero? (-> *level* shared-ties))
+  (set! (-> *level* shared-ties) (new 'global 'prototype-node-group))
+  )
+(prototype-node-group-method-9 (-> *level* shared-ties))
+

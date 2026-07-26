@@ -169,12 +169,17 @@
    )
   (:methods
     (speech-control-method-9 () none)
-    (speech-control-method-10 () none)
+    (speech-control-method-10 (_type_) none) ;; per-frame update, called by sc m24
     (speech-control-method-11 () none)
     (speech-control-method-12 () none)
     (speech-control-method-13 () none)
     (speech-control-method-14 () none)
-    (speech-control-method-15 () none)
+    (speech-control-method-15 (_type_ kheap) none) ;; jakx adds a kheap arg vs jak3
     (speech-control-method-16 () none)
     )
   )
+
+;; og:preserve-this bring-up: #f until speech.gc (which creates *speech-control*) is
+;; decompiled. A bare define-extern leaves the symbol value 0, which is truthy in GOAL,
+;; so level.o's deactivate would dispatch speech-control-method-15 on object 0 and crash.
+(define *speech-control* (the-as speech-control #f))

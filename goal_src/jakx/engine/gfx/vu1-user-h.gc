@@ -725,42 +725,66 @@
   (bucket633 633)
   (bucket634 634)
   (bucket635 635)
+  (bucket636 636) ;; water/trans tfrag draw slot
+  (bucket640 640) ;; water/trans tfrag draw slot
 
   (bucket642 642)
   (bucket643 643)
   (bucket644 644)
+  (bucket645 645) ;; water/trans tfrag draw slot
+  (bucket649 649) ;; water/trans tfrag draw slot
 
   (bucket651 651)
   (bucket652 652)
   (bucket653 653)
   (bucket654 654)
+  (bucket655 655) ;; water/trans tfrag draw slot
+  (bucket659 659) ;; water/trans tfrag draw slot
 
   (bucket661 661)
   (bucket662 662)
   (bucket663 663)
+  (bucket664 664) ;; water/trans tfrag draw slot
+  (bucket668 668) ;; water/trans tfrag draw slot
 
   (bucket670 670)
   (bucket671 671)
   (bucket672 672)
   (bucket673 673)
+  (bucket674 674) ;; water/trans tfrag draw slot
+  (bucket678 678) ;; water/trans tfrag draw slot
 
   (bucket680 680)
   (bucket681 681)
   (bucket682 682)
+  (bucket683 683) ;; water/trans tfrag draw slot
+  (bucket687 687) ;; water/trans tfrag draw slot
 
   (bucket689 689)
   (bucket690 690)
   (bucket691 691)
   (bucket692 692)
+  (bucket693 693) ;; water/trans tfrag draw slot
+  (bucket697 697) ;; water/trans tfrag draw slot
 
   (bucket699 699)
   (bucket700 700)
   (bucket701 701)
+  (bucket702 702) ;; water/trans tfrag draw slot
+  (bucket706 706) ;; water/trans tfrag draw slot
 
   (bucket708 708)
   (bucket709 709)
+  (bucket712 712) ;; water/trans tfrag draw slot
+  (bucket716 716) ;; water/trans tfrag draw slot
+  (bucket721 721) ;; water/trans tfrag draw slot
+  (bucket725 725) ;; water/trans tfrag draw slot
 
   (bucket728 728)
+  (bucket731 731) ;; water/trans tfrag draw slot
+  (bucket735 735) ;; water/trans tfrag draw slot
+  (bucket740 740) ;; water/trans tfrag draw slot
+  (bucket744 744) ;; water/trans tfrag draw slot
 
   (bucket747 747)
 
@@ -774,17 +798,88 @@
   (bucket774 774)
   (bucket775 775)
   (bucket776 776)
+  (bucket766 766) ;; used by blit setup-zoom-blur-2d
   (bucket777 777)
 
   (bucket780 780)
+  (bucket784 784) ;; blit motion-blur splice bucket
 
   (bucket785 785)
   (bucket786 786)
 
   (bucket788 788)
-
+  (bucket789 789)
+  (bucket790 790)
+  (bucket791 791)
+  (bucket792 792)
+  (bucket793 793)
   (bucket794 794)
-  )
+  (bucket795 795)
+
+  ;; tie leg: category buckets for the 6 draw-level x 2 viewport multiplex
+  (tie-scissor-water-m0 639)
+  (tie-scissor-water-m1 648)
+  (tie-scissor-water-m2 658)
+  (tie-scissor-water-m3 667)
+  (tie-scissor-water-m4 677)
+  (tie-scissor-water-m5 686)
+  (tie-scissor-water-m6 696)
+  (tie-scissor-water-m7 705)
+  (tie-scissor-water-m8 715)
+  (tie-scissor-water-m9 724)
+  (tie-scissor-water-m10 734)
+  (tie-scissor-water-m11 743)
+  (tie-water-m0 637)
+  (tie-water-m1 646)
+  (tie-water-m2 656)
+  (tie-water-m3 665)
+  (tie-water-m4 675)
+  (tie-water-m5 684)
+  (tie-water-m6 694)
+  (tie-water-m7 703)
+  (tie-water-m8 713)
+  (tie-water-m9 722)
+  (tie-water-m10 732)
+  (tie-water-m11 741)
+  (etie-water-m0 638)
+  (etie-water-m1 647)
+  (etie-water-m2 657)
+  (etie-water-m3 666)
+  (etie-water-m4 676)
+  (etie-water-m5 685)
+  (etie-water-m6 695)
+  (etie-water-m7 704)
+  (etie-water-m8 714)
+  (etie-water-m9 723)
+  (etie-water-m10 733)
+  (etie-water-m11 742)
+  (etie-scissor-water-m0 641)
+  (etie-scissor-water-m1 650)
+  (etie-scissor-water-m2 660)
+  (etie-scissor-water-m3 669)
+  (etie-scissor-water-m4 679)
+  (etie-scissor-water-m5 688)
+  (etie-scissor-water-m6 698)
+  (etie-scissor-water-m7 707)
+  (etie-scissor-water-m8 717)
+  (etie-scissor-water-m9 726)
+  (etie-scissor-water-m10 736)
+  (etie-scissor-water-m11 745)
+
+  ;; shrub leg: main shrubbery category buckets (aliases; values also carry stale jak3-copied names)
+  (shrub-m0 146)
+  (shrub-m1 155)
+  (shrub-m2 165)
+  (shrub-m3 174)
+  (shrub-m4 184)
+  (shrub-m5 193)
+  (shrub-m6 203)
+  (shrub-m7 212)
+  (shrub-m8 222)
+  (shrub-m9 231)
+  (shrub-m10 241)
+  (shrub-m11 250)
+)
 ;; ---bucket-id
 
 ;; +++bucket-id-16

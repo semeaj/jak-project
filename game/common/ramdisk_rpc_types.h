@@ -9,7 +9,8 @@
 #include "common/versions/versions.h"
 
 constexpr PerGameVersion<int> RAMDISK_RPC_ID(0xdeb3, 0xfab2, 0xfab2, 0xfab2);
-constexpr int RAMDISK_RPC_CHANNEL = 2;
+// Jak X shifts all EE RPC ports up by one (see player_rpc_types.h).
+constexpr PerGameVersion<int> RAMDISK_RPC_CHANNEL(2, 2, 2, 3);
 constexpr int RAMDISK_GET_DATA_FNO = 0;
 constexpr int RAMDISK_RESET_AND_LOAD_FNO = 1;
 constexpr int RAMDISK_BYPASS_LOAD_FILE = 4;

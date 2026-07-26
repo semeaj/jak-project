@@ -86,8 +86,8 @@
    (level-flag  int32)
    )
   (:methods
-    (sparticle-launcher-method-9 () none)
-    (sparticle-launcher-method-10 () none)
+    (get-field-spec-by-id (_type_ sp-field-id) sp-field-init-spec)
+    (setup-special-textures (_type_ string) none)
     )
   )
 
@@ -253,14 +253,14 @@ particle system itself. This type just holds the launching-related state."
    (data                 sparticle-launch-state     :inline :dynamic)
    )
   (:methods
-    (sparticle-launch-control-method-14 () none)
-    (sparticle-launch-control-method-15 () none)
-    (sparticle-launch-control-method-16 () none)
-    (sparticle-launch-control-method-17 () none)
-    (sparticle-launch-control-method-18 () none)
-    (sparticle-launch-control-method-19 () none)
-    (sparticle-launch-control-method-20 () none)
-    (sparticle-launch-control-method-21 () none)
+    (initialize (_type_ sparticle-launch-group process-drawable) none)
+    (is-visible? (_type_ vector) symbol)
+    (spawn (_type_ vector) object)
+    (spawn-from-mat (_type_ matrix) none)
+    (spawn-from-cspace (_type_ cspace) none)
+    (kill-particles (_type_) none)
+    (set-local-space-info (_type_ particle-local-space-info) none)
+    (sparticle-launch-control-method-21 (_type_) none)
     )
   )
 
@@ -406,7 +406,3 @@ particle system itself. This type just holds the launching-related state."
 
 ;; failed to figure out what this is:
 0
-
-
-
-

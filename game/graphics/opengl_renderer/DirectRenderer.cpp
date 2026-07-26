@@ -96,7 +96,7 @@ void DirectRenderer::render(DmaFollower& dma,
   reset_state();
 
   // just dump the DMA data into the other the render function
-  while (dma.current_tag_offset() != render_state->next_bucket) {
+  while (dma.current_tag_offset() != render_state->next_bucket && !dma.ended()) {
     auto data = dma.read_and_advance();
     if (data.size_bytes && m_enabled) {
       render_vif(data.vif0(), data.vif1(), data.data, data.size_bytes, render_state, prof);
@@ -1055,12 +1055,20 @@ void DirectRenderer::handle_xyz2_packed(const u8* data,
   u64 upper;
   memcpy(&upper, data + 8, 8);
   u32 z = upper;
+  // The zbuf is PSMZ24, which saturates on the GS. Jak X's font packets use the
+  // "huge z = always on top" idiom (z well past 24 bits); without saturating here
+  // the normalized depth exceeds the clip volume and every glyph is discarded.
+  // Gated to Jak X: earlier games discarded such fragments here and their
+  // rendering is validated against that behavior.
+  if (render_state->version == GameVersion::JakX && z > 0xffffff) {
+    z = 0xffffff;
+  }
 
   bool adc = upper & (1ull << 47);
   handle_xyzf2_common(x << 16, y << 16, z, 0, render_state, prof, !adc);
 }
 
-PerGameVersion<u32> normal_zbp = {448, 304, 304, 304};
+PerGameVersion<u32> normal_zbp = {448, 304, 304, 302};
 void DirectRenderer::handle_zbuf1(u64 val,
                                   SharedRenderState* render_state,
                                   ScopedProfilerNode& prof) {

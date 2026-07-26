@@ -105,6 +105,6 @@
    )
   (:methods
     (new (symbol type) _type_)
-    (math-camera-method-9 () none)
+    (math-camera-method-9 (_type_ float float float float) none) ;; screen-param setup, args proven by register reads
     )
   )

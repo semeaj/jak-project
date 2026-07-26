@@ -1,4 +1,61 @@
 {
+  "cam-states": [["L689", "uint64", true], ["L690", "uint64", true], ["L691", "uint64", true], ["L688", "uint64", true]],
+  "tfrag-methods": [["L92", "(inline-array tfrag-init-data)", 12], ["L99", "(pointer bucket-id)", 12], ["L96", "(pointer bucket-id)", 12], ["L94", "(pointer bucket-id)", 12], ["L98", "(pointer bucket-id)", 12], ["L95", "(pointer bucket-id)", 12], ["L93", "(pointer bucket-id)", 12]],
+  // tie leg: 13 category bucket arrays (6 draw-levels x 2 viewports each), decoded
+  // from the patch-block order against jak3's category sequence
+  "tie-methods": [
+    ["L317", "(pointer bucket-id)", 12],
+    ["L318", "(pointer bucket-id)", 12],
+    ["L319", "(pointer bucket-id)", 12],
+    ["L320", "(pointer bucket-id)", 12],
+    ["L321", "(pointer bucket-id)", 12],
+    ["L322", "(pointer bucket-id)", 12],
+    ["L323", "(pointer bucket-id)", 12],
+    ["L324", "(pointer bucket-id)", 12],
+    ["L325", "(pointer bucket-id)", 12],
+    ["L326", "(pointer bucket-id)", 12],
+    ["L327", "(pointer bucket-id)", 12],
+    ["L329", "(pointer bucket-id)", 12],
+    ["L331", "(pointer bucket-id)", 12]
+  ],
+  // mood leg: the top-level type registrations load their flag qwords from labels
+  "mood-funcs": [
+    ["L52", "uint64", true],
+    ["L53", "uint64", true]
+  ],
+  "mood-funcs2": [["L47", "uint64", true]],
+  "shrubbery": [["L138", "uint64", true]],
+  // sky leg: the four inline sky-vertex arrays (same label numbers as jak3 by
+  // coincidence; sizes verified against the ir2 data segment)
+  // texture-anim leg: the type-new packed (size, method-count) qword
+  "texture-anim-tables": [["L150", "uint64", true], ["L151", "uint64", true], ["L152", "uint64", true], ["L163", "uint64", true]],
+  // texture-anim leg: the pages table (32 uint8) and mip array (72 uint16),
+  // sized from the ir2 data blocks (jak3's are 16 and 48)
+  "texture-anim": [["L200", "(pointer uint8)", 32], ["L199", "(pointer uint16)", 72]],
+  "sky-data": [
+    ["L26", "(inline-array sky-vertex)", 12],
+    ["L25", "(inline-array sky-vertex)", 12],
+    ["L23", "(inline-array sky-vertex)", 648],
+    ["L21", "(inline-array sky-vertex)", 144]
+  ],
+  "sky-tng": [
+    ["L127", "vector"],
+    ["L128", "vector"],
+    ["L129", "vector"],
+    ["L130", "uint64", true],
+    ["L131", "uint64", true],
+    ["L132", "uint64", true],
+    ["L133", "uint64", true],
+    ["L134", "uint64", true]
+  ],
+  "cam-states-dbg": [
+    ["L59", "vector"],
+    ["L60", "vector"]
+  ],
+  "level": [
+    ["L981", "uint64", true],
+    ["L983", "uint64", true]
+  ],
   "ambient-h": [["L1", "(inline-array talker-speech-class)", 233]],
   "pat-h": [["L1", "(inline-array pat-mode-info)", 4]],
   "foreground-h": [["L4", "(pointer bucket-id-16)", 462]],
@@ -42,5 +99,15 @@
     ["L4", "(pointer uint8)", 160],
     ["L3", "(pointer int8)", 4]
   ],
-  "kras-part": [["L137", "(pointer rgba)", 8]]
+  "kras-part": [["L137", "(pointer rgba)", 8]],
+  "gsound": [
+    ["L356", "(array symbol)", true],
+    ["L383", "(array array)", true]
+  ],
+  "pad": [["L116", "(pointer uint8)", 256]],
+  "main": [
+    ["L564", "uint128", true],
+    ["L572", "(pointer uint64)", 2]
+  ],
+  "font": [["L474", "(pointer uint64)", 1]]
 }

@@ -181,10 +181,10 @@
 ;; (cgo-file "dkx.gd" common-dep)
 ;; (cgo-file "hvd.gd" common-dep)
 ;; (cgo-file "snw.gd" common-dep)
-;; (cgo-file "brdroom.gd" common-dep)
+(cgo-file "brdroom.gd" common-dep) ;; second bring-up level: smallest real world-geometry DGO
 ;; (cgo-file "icc.gd" common-dep)
 ;; (cgo-file "sewers.gd" common-dep)
-;; (cgo-file "garage.gd" common-dep)
+(cgo-file "garage.gd" common-dep) ;; third bring-up level: the garage hub
 ;; (cgo-file "ashvl2.gd" common-dep)
 ;; (cgo-file "jkclev.gd" common-dep)
 ;; (cgo-file "jakvl.gd" common-dep)
@@ -260,7 +260,7 @@
 ;; (cgo-file "icd.gd" common-dep)
 ;; (cgo-file "keicred.gd" common-dep)
 ;; (cgo-file "hvc.gd" common-dep)
-;; (cgo-file "fmvlev.gd" common-dep)
+(cgo-file "fmvlev.gd" common-dep) ;; first level DGO enabled for bring-up (entries converted to .go raw copies)
 ;; (cgo-file "hsy.gd" common-dep)
 ;; (cgo-file "peclev.gd" common-dep)
 ;; (cgo-file "foxl.gd" common-dep)
@@ -312,7 +312,7 @@
 ;; (cgo-file "hvjgtt.gd" common-dep)
 ;; (cgo-file "thavl2.gd" common-dep)
 ;; (cgo-file "colx.gd" common-dep)
-;; (cgo-file "jga.gd" common-dep)
+(cgo-file "jga.gd" common-dep) ;; fourth bring-up level: junglea, first exterior track section
 ;; (cgo-file "cya.gd" common-dep)
 ;; (cgo-file "hvb.gd" common-dep)
 ;; (cgo-file "sptrtt.gd" common-dep)

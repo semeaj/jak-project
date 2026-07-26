@@ -497,6 +497,26 @@ coordinate system."
    )
   )
 
+;; og:preserve-this: ported from jak3 gs.gc for the display.gc 2D draw hand-ports
+(deftype gs-rgbaq (uint64)
+  "The GS's RGBAQ register sets the RGBA value of the vertex and the Q value of the normalized
+texture coordinates."
+  ((r uint8 :offset   0 :size   8)
+   (g uint8 :offset   8 :size   8)
+   (b uint8 :offset  16 :size   8)
+   (a uint8 :offset  24 :size   8)
+   (q float :offset  32 :size  32)
+   )
+  )
+
+(deftype gs-xyzf (uint64)
+  ((x uint16 :offset   0 :size  16)
+   (y uint16 :offset  16 :size  16)
+   (z uint32 :offset  32 :size  24)
+   (f uint8  :offset  56 :size   8)
+   )
+  )
+
 (deftype gs-prmode-cont (uint64)
   "The GS's PRMODECONT register sets whether to use primitive attributes (IIP, TME, FGE, ABE,
 AA1, FST, CTXT, FIX) specified by the PRMODE register or the PRIM register."

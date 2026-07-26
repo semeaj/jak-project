@@ -5,5 +5,259 @@
 ;; name in dgo: texture-anim-funcs
 ;; dgos: ENGINE, GAME
 
+;; og:preserve-this landing notes: the fog texture INIT functions land live
+;; (they build the fog tex/clut records init! needs); the per-frame fog
+;; generator (real-fog-texture-anim-func) stays commented until its PC port
+;; (jak3 ports it to emit pc upload records); its wrapper carries a
+;; runtime-link guard.
+
+;; forward extern: the commented per-frame fog generator the wrapper guards on
+(define-extern real-fog-texture-anim-func (function dma-buffer texture-anim int))
+
 ;; DECOMP BEGINS
+
+;; definition for symbol *fog-texture-tbp*, type int
+(define *fog-texture-tbp* 0)
+
+;; definition for function fog-texture-anim-init
+;; INFO: Used lq/sq
+(defun fog-texture-anim-init ((arg0 texture-anim))
+  (let ((gp-0 (new 'loading-level 'fog8x256))
+        (s3-0 (new 'loading-level 'clut16x16))
+        )
+    (when (and gp-0 s3-0)
+      (set! *fog-texture-tbp* (allocate-blocks (-> *level* level-default texture-page-dir 9 page) 32))
+      (let ((s5-0 (new 'loading-level 'texture)))
+        (set! (-> arg0 tex) s5-0)
+        (set! (-> s5-0 pad 0) (the-as uint gp-0))
+        (set! (-> s5-0 pad 1) (the-as uint s3-0))
+        (set! (-> s5-0 w) 256)
+        (set! (-> s5-0 h) 1)
+        (set! (-> s5-0 num-mips) (the-as uint 1))
+        (set! (-> s5-0 psm) (gs-psm mt8))
+        (set! (-> s5-0 clutpsm) (the-as uint 0))
+        (set! (-> s5-0 dest 0) (the-as uint *fog-texture-tbp*))
+        (set! (-> s5-0 clutdest) (the-as uint (allocate-blocks (-> *level* level-default texture-page-dir 9 page) 4)))
+        (set! (-> s5-0 width 0) (the-as uint 4))
+        (set! (-> s5-0 masks data 0 mask quad) (the-as uint128 0))
+        (set! (-> s5-0 masks data 1 mask quad) (the-as uint128 0))
+        (set! (-> s5-0 masks data 2 mask quad) (the-as uint128 0))
+        )
+      0
+      (dotimes (v1-18 256)
+        (nop!)
+        (nop!)
+        (nop!)
+        (nop!)
+        (set! (-> gp-0 image v1-18) (the-as uint v1-18))
+        )
+      )
+    )
+  0
+  )
+
+;; definition for function fog-texture-anim-init2
+;; INFO: Used lq/sq
+(defun fog-texture-anim-init2 ((arg0 texture-anim))
+  (let ((s4-0 (new 'loading-level 'clut16x16)))
+    (when s4-0
+      (let ((gp-0 (new 'loading-level 'texture)))
+        (set! (-> arg0 tex) gp-0)
+        (set! (-> gp-0 pad 1) (the-as uint s4-0))
+        (set! (-> gp-0 w) 256)
+        (set! (-> gp-0 h) 1)
+        (set! (-> gp-0 num-mips) (the-as uint 1))
+        (set! (-> gp-0 psm) (gs-psm mt8))
+        (set! (-> gp-0 clutpsm) (the-as uint 0))
+        (set! (-> gp-0 dest 0) (the-as uint *fog-texture-tbp*))
+        (set! (-> gp-0 clutdest) (the-as uint (allocate-blocks (-> *level* level-default texture-page-dir 9 page) 4)))
+        (set! (-> gp-0 width 0) (the-as uint 4))
+        (set! (-> gp-0 masks data 0 mask quad) (the-as uint128 0))
+        (set! (-> gp-0 masks data 1 mask quad) (the-as uint128 0))
+        (set! (-> gp-0 masks data 2 mask quad) (the-as uint128 0))
+        )
+      0
+      )
+    )
+  0
+  )
+
+;; definition for symbol *fog-texture-work*, type fog-texture-work
+(define *fog-texture-work* (new 'static 'fog-texture-work :fog-height 122880.0))
+
+;; og:preserve-this jakx PC port of the fog ramp generator. The maths below is retail's,
+;; transcribed from the commented disassembly this replaces; only the delivery is new (the
+;; animator upload records, as in jak3's port). The retail tail built a GS bitbltbuf upload
+;; the PC never parses.
+;;
+;; This is NOT jak3's function with the names changed. Three things differ:
+;;   - Jak X drives it PER VIEWPORT. extra x carries a viewport INDEX (entry 1 has no
+;;     :extra at all so it reads 0, entry 2 carries 1.0), the body is gated on
+;;     num-viewports, and the fog corners and math-camera come off that viewport. jak3
+;;     keeps its corners in *fog-texture-work* and reads the global *math-camera*.
+;;   - The above-horizon scale is (-> *fog-texture-work* fog-height). jak3 reads that from
+;;     the anim's extra z, which Jak X's table does not carry, so a literal port would
+;;     multiply the entire above-horizon half of the ramp by zero.
+;;   - Only entry 1 owns the 256x1 index ramp; entry 2 shares its dest tbp and brings only
+;;     a clut, so the image upload is guarded on pad 0.
+;;
+;; Splitscreen note: both entries publish to the same dest tbp, because on PS2 the two
+;; viewports sampled one index ramp through different cluts. The PC resolves the clut on
+;; the animator side and DirectRenderer looks textures up by tbp alone, so a second
+;; viewport would overwrite the first. It cannot arise yet: with one viewport, entry 2's
+;; index fails the num-viewports gate and never runs.
+(defun real-fog-texture-anim-func ((arg0 dma-buffer) (arg1 texture-anim))
+  (local-vars (v1-11 float))
+  (rlet ((vf1 :class vf)
+         (vf2 :class vf)
+         )
+    (let ((view-idx (the int (-> arg1 extra x))))
+      (when (< view-idx (the-as int (-> *viewport-array* num-viewports)))
+        (let ((vp (-> *viewport-array* data view-idx))
+              (work *fog-texture-work*)
+              (tex (-> arg1 tex))
+              )
+          (when (and tex (nonzero? (-> tex pad 1)) (nonzero? (-> tex clutdest)))
+            (let ((cur (new 'stack-no-clear 'vector))
+                  (step (new 'stack-no-clear 'vector))
+                  (mn (new 'stack-no-clear 'vector))
+                  (mx (new 'stack-no-clear 'vector))
+                  (clut (the-as (pointer uint32) (-> tex pad 1)))
+                  )
+              ;; every entry starts as the mood's fog colour; only the alpha byte varies
+              (let ((c (-> work color)))
+                (dotimes (i 256)
+                  (set! (-> clut i) (the-as uint c))
+                  )
+                )
+              ;; The corner maths runs entirely on stack vectors, and the viewport is only
+              ;; ever touched component-wise. The bring-up allocates viewports from the
+              ;; tagged heap, which leaves these inline vectors 4-aligned (see viewport-h),
+              ;; so any quadword access to them faults. cam-update stores fog-corner
+              ;; scalar-wise for exactly this reason; retail did its corner maths in place.
+              (set! (-> mx x) (* 0.5 (+ (-> vp fog-corner 0 x) (-> vp fog-corner 1 x))))
+              (set! (-> mx y) (* 0.5 (+ (-> vp fog-corner 0 y) (-> vp fog-corner 1 y))))
+              (set! (-> mx z) (* 0.5 (+ (-> vp fog-corner 0 z) (-> vp fog-corner 1 z))))
+              (set! (-> mx w) 0.5)
+              (set! (-> mn x) (* 0.5 (+ (-> vp fog-corner 2 x) (-> vp fog-corner 3 x))))
+              (set! (-> mn y) (* 0.5 (+ (-> vp fog-corner 2 y) (-> vp fog-corner 3 y))))
+              (set! (-> mn z) (* 0.5 (+ (-> vp fog-corner 2 z) (-> vp fog-corner 3 z))))
+              (set! (-> mn w) 0.5)
+              (when (< (-> mx y) (-> mn y))
+                (.lvf vf1 (&-> mn quad))
+                (.lvf vf2 (&-> mx quad))
+                (.svf (&-> mx quad) vf1)
+                (.svf (&-> mn quad) vf2)
+                (.mov v1-11 vf2)
+                )
+              ;; the y span is the extent over all four corners, not just the midpoints
+              (let* ((f0-3 (-> vp fog-corner 0 y))
+                     (f2-0 (-> vp fog-corner 1 y))
+                     (f1-1 (fmin f0-3 f2-0))
+                     (f2-1 (fmax f0-3 f2-0))
+                     (f3-0 (-> vp fog-corner 2 y))
+                     (f0-4 (-> vp fog-corner 3 y))
+                     )
+                (set! (-> mn y) (fmin (fmin f1-1 f3-0) f0-4))
+                (set! (-> mx y) (fmax (fmax f2-1 f3-0) f0-4))
+                )
+              ;; draw-fog reads these two back off the viewport to shade the fog quad
+              (set! (-> vp min-fog-corner y) (-> mn y))
+              (set! (-> vp max-fog-corner y) (-> mx y))
+              (set! (-> cur quad) (-> mn quad))
+              (vector-! step mx mn)
+              (vector-float/! step step 256.0)
+              (let ((f0-9 (fmax 4096.0 (-> vp math-camera trans y)))
+                    (f1-5 (-> work fog-height))
+                    (f2-3 (-> work alpha-near))
+                    (f3-1 (-> work alpha-far))
+                    (f4-0 (-> work alpha-delta))
+                    (f5-0 (-> work fog-near))
+                    (f6-0 (-> work fog-far))
+                    (f7-0 (-> work fog-delta))
+                    )
+                (dotimes (i 256)
+                  (let* ((f8-0 (-> cur y))
+                         (f8-1 (cond
+                                 ((= f8-0 0.0)
+                                  f3-1
+                                  )
+                                 ((< f8-0 0.0)
+                                  (let ((f9-4 (fmin f6-0 (/ (* f0-9 (vector-length cur)) (- f8-0)))))
+                                    (+ f2-3 (* f4-0 (/ (fmax 0.0 (- f9-4 f5-0)) f7-0)))
+                                    )
+                                  )
+                                 (else
+                                   (let ((f9-8 (fmin f6-0 (/ (* f1-5 (vector-length cur)) f8-0))))
+                                     (+ f2-3 (* f4-0 (/ (fmax 0.0 (- f9-8 f5-0)) f7-0)))
+                                     )
+                                   )
+                                 )
+                               )
+                         )
+                    (set! (-> clut (-> *clut-translate* i))
+                          (logior (logand (-> clut (-> *clut-translate* i)) (the-as uint #xffffffff00ffffff))
+                                  (shr (shl (the int (* 128.0 f8-1)) 56) 32)
+                                  )
+                          )
+                    )
+                  (vector+! cur cur step)
+                  )
+                )
+              )
+            (let ((v1-20 *display*)
+                  (a0-26 144)
+                  )
+              (+! (-> v1-20 mem-reserve-size) a0-26)
+              (when (not (-> v1-20 dma-buffer-overflow))
+                (let ((a2-3 (-> v1-20 frames (-> v1-20 on-screen) global-buf)))
+                  (if (< (-> a2-3 real-buffer-end) (the-as int (&+ (-> a2-3 base) a0-26)))
+                      (set! (-> v1-20 dma-buffer-overflow) #t)
+                      )
+                  )
+                (when (not (-> v1-20 dma-buffer-overflow))
+                  ;; Image before clut: the animator's generic upload arms the
+                  ;; looking-for-clut link that the clut upload then consumes.
+                  (when (nonzero? (-> tex pad 0))
+                    (pc-texture-anim-flag upload-generic-vram arg0 :qwc 1)
+                    (let ((upload-record (the texture-anim-pc-upload (-> arg0 base))))
+                      (set! (-> upload-record data) (the-as pointer (-> tex pad 0)))
+                      (set! (-> upload-record width) (-> tex w))
+                      (set! (-> upload-record height) (-> tex h))
+                      (set! (-> upload-record dest) (-> tex dest 0))
+                      (set! (-> upload-record format) (-> tex psm))
+                      (set! (-> upload-record force-to-gpu) 1)
+                      )
+                    (&+! (-> arg0 base) 16)
+                    )
+                  (pc-texture-anim-flag upload-clut-16-16 arg0 :qwc 1)
+                  (let ((upload-record (the texture-anim-pc-upload (-> arg0 base))))
+                    (set! (-> upload-record data) (the-as pointer (-> tex pad 1)))
+                    (set! (-> upload-record width) 16)
+                    (set! (-> upload-record height) 16)
+                    (set! (-> upload-record dest) (-> tex clutdest))
+                    (set! (-> upload-record format) (gs-psm ct32))
+                    (set! (-> upload-record force-to-gpu) 0)
+                    )
+                  (&+! (-> arg0 base) 16)
+                  (set! (-> *texture-pool* ids (shr (-> tex clutdest) 6)) (the-as uint 0))
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  0
+  )
+
+;; definition for function fog-texture-anim-func
+(defun fog-texture-anim-func ((arg0 dma-buffer) (arg1 texture-anim))
+  ;; The bring-up runtime-link guard is gone: real-fog-texture-anim-func is landed above.
+  (real-fog-texture-anim-func arg0 arg1)
+  )
+
+
+
 

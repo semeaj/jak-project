@@ -45,6 +45,7 @@ class DmaFollower {
  public:
   DmaFollower() { m_ended = true; }
   DmaFollower(const void* data, u32 start_offset) : m_base(data), m_tag_offset(start_offset) {}
+  const void* base() const { return m_base; }
   template <typename T>
   T read_val(u32 offset) const {
     T result;

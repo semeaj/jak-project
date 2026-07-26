@@ -14,7 +14,8 @@
 #include "game/kernel/common/kprint.h"
 #include "game/sce/sif_ee.h"
 
-ee::sceSifClientData cd[6];  //! client data for each IOP Remove Procedure Call.
+// 7 slots: Jak X shifts its EE RPC ports up by one, occupying channels 1-6.
+ee::sceSifClientData cd[7];  //! client data for each IOP Remove Procedure Call.
 u32 sShowStallMsg;           //! setting to show a "stalled on iop" message
 u16 x[8];                    //! stupid temporary for storing a message
 u32 sMsgNum;                 //! Toggle for double buffered message sending.
@@ -130,12 +131,12 @@ u32 RpcBind(s32 channel, s32 id) {
  * Setup all RPCs
  */
 u32 InitRPC() {
-  if (!RpcBind(PLAYER_RPC_CHANNEL, PLAYER_RPC_ID[g_game_version]) &&
-      !RpcBind(LOADER_RPC_CHANNEL, LOADER_RPC_ID[g_game_version]) &&
-      !RpcBind(RAMDISK_RPC_CHANNEL, RAMDISK_RPC_ID[g_game_version]) &&
-      !RpcBind(DGO_RPC_CHANNEL, DGO_RPC_ID[g_game_version]) &&
-      !RpcBind(STR_RPC_CHANNEL, STR_RPC_ID[g_game_version]) &&
-      !RpcBind(PLAY_RPC_CHANNEL, PLAY_RPC_ID[g_game_version])) {
+  if (!RpcBind(PLAYER_RPC_CHANNEL[g_game_version], PLAYER_RPC_ID[g_game_version]) &&
+      !RpcBind(LOADER_RPC_CHANNEL[g_game_version], LOADER_RPC_ID[g_game_version]) &&
+      !RpcBind(RAMDISK_RPC_CHANNEL[g_game_version], RAMDISK_RPC_ID[g_game_version]) &&
+      !RpcBind(DGO_RPC_CHANNEL[g_game_version], DGO_RPC_ID[g_game_version]) &&
+      !RpcBind(STR_RPC_CHANNEL[g_game_version], STR_RPC_ID[g_game_version]) &&
+      !RpcBind(PLAY_RPC_CHANNEL[g_game_version], PLAY_RPC_ID[g_game_version])) {
     return 0;
   }
   lg::print("Entering endless loop ... please wait\n");

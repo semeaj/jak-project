@@ -7,4 +7,9 @@
 
 ;; DECOMP BEGINS
 
-(define-extern dynamic-patch-hook (function dgo-header kheap uint none))
+;; og:preserve-this bring-up stub: the real body (blocked on knet-get-dynamic-patches)
+;; applies network-delivered content patches to freshly loaded DGO objects. With no
+;; net session there are no patches, so a no-op is behaviorally correct offline.
+(defun dynamic-patch-hook ((arg0 dgo-header) (arg1 kheap) (arg2 uint))
+  (none)
+  )

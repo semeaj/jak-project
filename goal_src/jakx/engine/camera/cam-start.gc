@@ -7,3 +7,214 @@
 
 ;; DECOMP BEGINS
 
+(defun cam-stop ()
+  (kill-by-name "camera-master" *active-pool*)
+  (kill-by-name "camera-slave" *active-pool*)
+  (kill-by-name "camera-combiner" *active-pool*)
+  (view-set-active-camera (the-as basic #f))
+  (view-set-active-camera-combiner (the-as basic #f))
+  #f
+  )
+
+(defun cam-start ((arg0 symbol))
+  (cam-stop)
+  (view-set-active-camera-combiner (the-as basic (ppointer->process (process-spawn
+                                                                      camera-combiner
+                                                                      :init cam-combiner-init
+                                                                      :name "camera-combiner"
+                                                                      :from *camera-dead-pool*
+                                                                      :to *camera-pool*
+                                                                      )
+                                                                    )
+                                           )
+                                   )
+  (view-set-active-camera (the-as basic (ppointer->process (process-spawn
+                                                             camera-master
+                                                             :init cam-master-init
+                                                             :name "camera-master"
+                                                             :from *camera-master-dead-pool*
+                                                             :to *camera-pool*
+                                                             )
+                                                           )
+                                  )
+                          )
+  0
+  (none)
+  )
+
+;; og:preserve-this bring-up camera warp: nothing sends the camera-combiner
+;; 'start-tracking through a real game flow yet (no target/entity chain), so after
+;; the ring's boot settle the combiner trans freezes at the origin and cam-update
+;; copies it over the math-camera every frame, frustum-culling the whole level away
+;; (brdroom sits ~400 m out). A one-shot warp at play time gets undone by the ring's
+;; settle (the master's early 'set-slave / 'start-tracking pulls the combiner back
+;; toward the origin-parked slave), so play arms a warp that display-loop-main
+;; re-applies every frame for ~10 s (combiner + current slave + view-0 math-camera),
+;; then releases. Retire with the real camera start chain.
+(define *jakx-cam-warp-level* (the level #f))
+(define *jakx-cam-warp-frames* 0)
+
+(defun jakx-cam-warp-to-level ((lev level))
+  "og:preserve-this bring-up helper: arm the per-frame camera warp for the level
+(see the comment above). Prefers the level bsphere; falls back to the extracted
+brdroom glb bounds center when the bsphere is unset (brdroom's is)."
+  (let ((bs (-> lev bsp bsphere)))
+    (format 0 "cam-warp: armed for ~A bsphere <~m ~m ~m r ~m>~%"
+            (-> lev name) (-> bs x) (-> bs y) (-> bs z) (-> bs w))
+    )
+  (set! *jakx-cam-warp-level* lev)
+  (set! *jakx-cam-warp-frames* 600)
+  0
+  (none)
+  )
+
+(defun jakx-cam-warp-tick ()
+  "og:preserve-this bring-up helper: while armed, pin the camera ring onto the
+warp target each frame so the ring's boot settle cannot drag it back to the
+origin; release after the counter runs out."
+  (when (and *jakx-cam-warp-level* (> *jakx-cam-warp-frames* 0))
+    (set! *jakx-cam-warp-frames* (- *jakx-cam-warp-frames* 1))
+    (let ((bs (-> *jakx-cam-warp-level* bsp bsphere))
+          (warp (new 'stack-no-clear 'vector))
+          )
+      ;; drawable-tree bspheres carry the real level bounds even when the bsp
+      ;; header bsphere is zeroed (garage, brdroom, junglea all zero it). But a
+      ;; track's bounds CENTER is empty air (junglea: zero verts within 100m of
+      ;; it), so descend the first tree's BVH to its first leaf cluster: that
+      ;; bsphere sits ON geometry for interiors and exteriors alike. Note the
+      ;; continue-point trans is NOT a usable fallback: garage's continue sits
+      ;; ~1km from the geometry.
+      (let ((tree-bs (the-as vector #f))
+            (leaf-lift 0.0)
+            )
+        (let ((trees (-> *jakx-cam-warp-level* bsp drawable-trees)))
+          (when (nonzero? (the-as int trees))
+            (dotimes (i (-> trees length))
+              (let ((tree (-> trees trees i)))
+                (when (and (not tree-bs) (< 0.0 (-> tree bsphere w)) (> (-> tree length) 0))
+                  ;; start from the MIDDLE root child, then first-child descent:
+                  ;; the first leaf of a track BVH tends to be interior detail
+                  ;; (junglea: a stone tunnel wall at point-blank range), while
+                  ;; a mid-list branch lands in more representative geometry.
+                  ;; The stride-32 pick only applies to draw-node arrays.
+                  (let* ((dia (the-as drawable-inline-array (-> tree data 0)))
+                         (dr (the-as drawable (&+ (the-as pointer dia) 32)))
+                         )
+                    (when (and (= (-> dr type) draw-node) (> (the int (-> dia length)) 1))
+                      (set! dr (the-as drawable
+                                       (&+ (the-as pointer dia)
+                                           (+ 32 (* 32 (/ (+ -1 (the int (-> dia length))) 2)))
+                                           )
+                               )
+                            )
+                      )
+                    (dotimes (d 8)
+                      (when (and dr (= (-> dr type) draw-node))
+                        (set! dr (-> (the-as draw-node dr) child))
+                        )
+                      )
+                    (cond
+                      ((and dr (< 0.0 (-> dr bsphere w)))
+                       (set! tree-bs (-> dr bsphere))
+                       ;; hover half the cluster radius above its center so the
+                       ;; camera is not embedded in the surface (higher lifts
+                       ;; can clear the local geometry entirely into empty sky)
+                       (set! leaf-lift (* 0.5 (-> dr bsphere w)))
+                       )
+                      (else
+                        (set! tree-bs (-> tree bsphere))
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        (cond
+          ((< 0.0 (-> bs w))
+           (set! (-> warp x) (-> bs x))
+           (set! (-> warp y) (-> bs y))
+           (set! (-> warp z) (-> bs z))
+           )
+          (tree-bs
+            (set! (-> warp x) (-> tree-bs x))
+            (set! (-> warp y) (+ (-> tree-bs y) leaf-lift))
+            (set! (-> warp z) (-> tree-bs z))
+            )
+          (else
+            ;; extracted brdroom glb bounds center, the original bring-up target
+            (set! (-> warp x) -1457697.0)
+            (set! (-> warp y) 435999.0)
+            (set! (-> warp z) -602753.0)
+            )
+          )
+        )
+      (let ((cc (the-as camera-combiner (view-get-active-camera-combiner))))
+        (when (and (nonzero? cc) cc)
+          (set! (-> cc trans x) (-> warp x))
+          (set! (-> cc trans y) (-> warp y))
+          (set! (-> cc trans z) (-> warp z))
+          )
+        )
+      (let ((cam (the-as camera-master (view-get-active-camera))))
+        (when (and (nonzero? cam) cam (nonzero? (-> cam slave)))
+          (let ((slave (-> cam slave 0)))
+            (when (nonzero? (the-as int slave))
+              (set! (-> slave trans x) (-> warp x))
+              (set! (-> slave trans y) (-> warp y))
+              (set! (-> slave trans z) (-> warp z))
+              )
+            )
+          )
+        )
+      (let ((mc (view-get-math-camera 0)))
+        (when (nonzero? (the-as int mc))
+          (set! (-> mc trans x) (-> warp x))
+          (set! (-> mc trans y) (-> warp y))
+          (set! (-> mc trans z) (-> warp z))
+          )
+        )
+      ;; at the end of the pin window the ring has settled ('set-slave storms are
+      ;; boot-time only), so retire the combiner: killing it and clearing the view
+      ;; slots drops update-camera into its no-combiner pad fallback
+      ;; (move-camera-from-pad), the verified-good path that flies the math-camera
+      ;; directly off the pad and never resets it. The combiner branch is not
+      ;; usable yet: it blends through an uninitialized stack matrix on this
+      ;; bring-up, so it never produces a valid view even with a correct trans.
+      (when (zero? *jakx-cam-warp-frames*)
+        (kill-by-name "camera-combiner" *active-pool*)
+        (dotimes (i 2)
+          (view-push-context i)
+          (view-set-active-camera-combiner (the-as basic #f))
+          (view-pop-context)
+          )
+        (format 0 "cam-warp: released at <~m ~m ~m>, combiner retired~%"
+                (-> warp x) (-> warp y) (-> warp z))
+        (set! *jakx-cam-warp-level* (the level #f))
+        )
+      )
+    )
+  0
+  (none)
+  )
+
+;; og:preserve-this bring-up gate: the retail top-level runs cam-start once per view
+;; (view-push-context i / cam-start / view-pop-context, i = 0..1). Defaults ON since
+;; the state machinery landed (gstate enter-state) and the ring runs clean: master +
+;; both slaves (cam-free-floating / cam-fixed) + combiner all reach :code and survive
+;; a full 40 s headless boot (~2550 frames). Set #f to boot with the ring dormant.
+(define *jakx-cam-start* #t)
+
+(defun jakx-cam-start-now ()
+  (dotimes (i 2)
+    (view-push-context i)
+    (cam-start #f)
+    (view-pop-context)
+    )
+  0
+  )
+
+(if *jakx-cam-start*
+    (jakx-cam-start-now)
+    )

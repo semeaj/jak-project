@@ -1,5 +1,49 @@
 #include "game/graphics/opengl_renderer/TextureAnimator.h"
 
+/*!
+ * Jak X's animated textures. Today that is only the sky clouds: a pre-authored index texture
+ * that the PS2 re-clut'd in VRAM every frame. The PC has no CLUT indirection at draw time, so
+ * the index data is carried through extraction (the "animated_textures" list in the jakx
+ * decompiler inputs) and re-clut'd on the animator side instead.
+ *
+ * The lookup is deliberately tolerant where itex_by_name would call lg::die. A missing entry
+ * here means a decompiler config that was never re-extracted, and that should cost a dark sky
+ * rather than a failed boot: the clouds pass is gated GOAL-side regardless.
+ */
+void TextureAnimator::setup_texture_anims_jakx() {
+  static const char* kJakXClutIndexTextureNames[] = {"clouds"};
+
+  if (!m_common_level) {
+    lg::warn("[texture anim] JakX: no common level, skipping animated texture setup");
+    return;
+  }
+
+  for (const char* name : kJakXClutIndexTextureNames) {
+    const tfrag3::IndexTexture* src = nullptr;
+    for (const auto& t : m_common_level->index_textures) {
+      if (t.name == name) {
+        src = &t;
+        break;
+      }
+    }
+    if (!src) {
+      lg::warn(
+          "[texture anim] JakX index texture '{}' is not in the common level, so its animation "
+          "stays dark. Is \"animated_textures\" set in "
+          "decompiler/config/jakx/ntsc_v1/inputs.jsonc, "
+          "and has a full extract been run since?",
+          name);
+      continue;
+    }
+    auto& rec = m_jakx_clut_index_textures.emplace_back();
+    rec.src = src;
+    rec.texture = m_opengl_texture_pool.allocate(src->w, src->h);
+    rec.temp_rgba.resize((size_t)src->w * src->h);
+    lg::info("[texture anim] JakX index texture '{}' ready at slot {}, {}x{}", name,
+             m_jakx_clut_index_textures.size() - 1, src->w, src->h);
+  }
+}
+
 void TextureAnimator::setup_texture_anims_jak3() {
   m_darkjak_clut_blender_idx = create_clut_blender_group(
       {
