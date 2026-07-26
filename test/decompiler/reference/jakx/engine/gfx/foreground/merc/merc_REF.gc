@@ -1,25 +1,10 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: merc.gc
-;; name in dgo: merc
-;; dgos: ENGINE, GAME
-
-;; DECOMP BEGINS
-
+;; definition for symbol *texture-login-data*, type texture-login-data
 (define *texture-login-data* (new 'static 'texture-login-data))
 
-;; og:preserve-this bring-up gate: the VU1 init chains this file emits are only safe once
-;; the C++ side registers renderers on the merc buckets (Merc2, actors leg rung 6); until
-;; then the DMA follower asserts on the unparsed chain (tag.addr == 0). Same pattern as
-;; *sky-clouds-clut-ready*. Flip when the renderer lands.
-(define *merc-vu1-init-ready* #f)
-
-;; og:preserve-this bring-up externs: the eye system (eye.gc) is not landed; these two
-;; link 0 at runtime and their call sites below are guarded. Retire with the eye leg.
-(define-extern find-free-eye-index (function int string int int))
-(define-extern free-eye-index (function int int))
-
+;; definition for method 9 of type art-joint-geo
 (defmethod login ((this art-joint-geo))
   (let ((s5-0 *texture-login-data*))
     (set! (-> s5-0 default-texture-index)
@@ -29,6 +14,8 @@
   this
   )
 
+;; definition for function texture-usage-init
+;; INFO: Used lq/sq
 (defun texture-usage-init ((arg0 merc-ctrl))
   (let ((gp-0 *texture-login-data*))
     (if (zero? (-> arg0 header texture-usage-group))
@@ -48,6 +35,8 @@
   #f
   )
 
+;; definition for function texture-usage-update
+;; INFO: Used lq/sq
 (defun texture-usage-update ((arg0 texture))
   (local-vars (a3-3 uint128))
   (let* ((v1-0 *texture-login-data*)
@@ -73,10 +62,14 @@
   #f
   )
 
+;; definition for method 5 of type merc-fragment
+;; WARN: Return type mismatch uint vs int.
 (defmethod asize-of ((this merc-fragment))
   (the-as int (* (-> this header mm-quadword-size) 16))
   )
 
+;; definition for method 9 of type merc-fragment
+;; INFO: Used lq/sq
 (defmethod login-adgifs ((this merc-fragment))
   (local-vars (v0-3 symbol))
   (let* ((s5-0 (merc-fragment-fp-data this))
@@ -152,10 +145,13 @@
   this
   )
 
+;; definition for method 5 of type merc-fragment-control
+;; WARN: Return type mismatch uint vs int.
 (defmethod asize-of ((this merc-fragment-control))
   (the-as int (+ (* (-> this mat-xfer-count) 2) 4))
   )
 
+;; definition for method 3 of type merc-fragment-control
 (defmethod inspect ((this merc-fragment-control))
   (format #t "[~8x] ~A~%" this 'merc-fragment-control)
   (format #t "~Tunsigned-four-count: ~D~%" (-> this unsigned-four-count))
@@ -170,6 +166,8 @@
   this
   )
 
+;; definition for method 9 of type merc-effect
+;; WARN: Return type mismatch merc-effect vs none.
 (defmethod login-adgifs ((this merc-effect))
   (let* ((v1-0 *texture-login-data*)
          (a0-1 (-> v1-0 default-texture-index))
@@ -205,8 +203,7 @@
                      )
                  )
            )
-      ;; og:preserve-this bring-up guard: eye.gc not landed, find-free-eye-index links 0
-      (if (and s5-0 (nonzero? find-free-eye-index))
+      (if s5-0
           (set! (-> s5-0 eye-ctrl-index) (find-free-eye-index
                                            (the-as int (-> (the-as merc-eye-ctrl v1-3) left-iris-shader quad 0 data 0))
                                            (the-as string (-> s5-0 eye-slot))
@@ -232,6 +229,23 @@
   (none)
   )
 
+;; definition for method 3 of type merc-ctrl
+(defmethod inspect ((this merc-ctrl))
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~Tname: ~A~%" (-> this name))
+  (format #t "~Tnum-joints: ~D~%" (-> this length))
+  (format #t "~Textra: ~A~%" (-> this extra))
+  (format #t "~Tmaster-art-group-name: ~A~%" (-> this master-art-group-name))
+  (format #t "~Tmaster-art-group-index: ~D~%" (-> this master-art-group-index))
+  (format #t "~Tseg-table: ~A~%" (-> this seg-table))
+  (inspect (-> this header))
+  (dotimes (s5-0 (the-as int (-> this header effect-count)))
+    (inspect (-> this effect s5-0))
+    )
+  this
+  )
+
+;; definition for method 8 of type merc-ctrl
 (defmethod mem-usage ((this merc-ctrl) (usage memory-usage-block) (flags int))
   (if (-> this extra)
       (mem-usage (-> this extra) usage flags)
@@ -299,21 +313,7 @@
   this
   )
 
-(defmethod inspect ((this merc-ctrl))
-  (format #t "[~8x] ~A~%" this (-> this type))
-  (format #t "~Tname: ~A~%" (-> this name))
-  (format #t "~Tnum-joints: ~D~%" (-> this length))
-  (format #t "~Textra: ~A~%" (-> this extra))
-  (format #t "~Tmaster-art-group-name: ~A~%" (-> this master-art-group-name))
-  (format #t "~Tmaster-art-group-index: ~D~%" (-> this master-art-group-index))
-  (format #t "~Tseg-table: ~A~%" (-> this seg-table))
-  (inspect (-> this header))
-  (dotimes (s5-0 (the-as int (-> this header effect-count)))
-    (inspect (-> this effect s5-0))
-    )
-  this
-  )
-
+;; definition for method 9 of type merc-ctrl
 (defmethod login ((this merc-ctrl))
   (set! (-> *kernel-context* login-object) this)
   (texture-usage-init this)
@@ -335,6 +335,7 @@
   this
   )
 
+;; definition for method 10 of type merc-ctrl
 (defmethod art-method-10 ((this merc-ctrl))
   (let* ((v1-0 (-> this header))
          (v1-1 (if (nonzero? (-> v1-0 eye-ctrl))
@@ -344,14 +345,14 @@
                )
          )
     (if v1-1
-        (if (nonzero? free-eye-index) ;; og:preserve-this bring-up guard: eye.gc not landed
-            (free-eye-index (-> v1-1 eye-ctrl-index))
-            )
+        (free-eye-index (-> v1-1 eye-ctrl-index))
         )
     )
   this
   )
 
+;; definition (debug) for function merc-stats-display
+;; WARN: Return type mismatch symbol vs none.
 (defun-debug merc-stats-display ((arg0 merc-ctrl))
   (format #t "~30s:" (-> arg0 name))
   (let ((s5-0 (-> arg0 header st-int-scale))
@@ -395,6 +396,8 @@
   (none)
   )
 
+;; definition (debug) for function merc-stats
+;; WARN: Return type mismatch int vs none.
 (defun-debug merc-stats ()
   (dotimes (gp-0 19)
     (let ((s5-0 (-> *level* level gp-0 art-group)))
@@ -417,6 +420,8 @@
   (none)
   )
 
+;; definition (debug) for function merc-edge-stats
+;; WARN: Return type mismatch int vs none.
 (defun-debug merc-edge-stats ()
   (dotimes (gp-0 19)
     (let ((s5-0 (-> *level* level gp-0 art-group)))
@@ -439,6 +444,8 @@
   (none)
   )
 
+;; definition for function merc-vu1-add-vu-function
+;; WARN: Return type mismatch dma-packet vs dma-gif-packet.
 (defun merc-vu1-add-vu-function ((arg0 dma-packet) (arg1 vu-function) (arg2 int))
   (let ((v1-0 (the-as object (+ (the-as uint arg1) 16)))
         (a3-0 (-> arg1 qlength))
@@ -459,6 +466,8 @@
   (the-as dma-gif-packet arg0)
   )
 
+;; definition for function merc-vu1-initialize-chain
+;; INFO: Used lq/sq
 (defun merc-vu1-initialize-chain ((arg0 dma-gif-packet) (arg1 int))
   (let ((gp-0 (the-as object (merc-vu1-add-vu-function (-> arg0 dma-vif) merc-vu1-block 1))))
     (set! (-> (the-as dma-gif-packet gp-0) dma-vif dma) (new 'static 'dma-tag :qwc #xa :id (dma-tag-id cnt)))
@@ -547,6 +556,7 @@
     )
   )
 
+;; definition for function merc-vu1-init-buffer
 (defun merc-vu1-init-buffer ((arg0 bucket-id) (arg1 int) (arg2 symbol) (arg3 uint))
   (let ((v1-0 *display*)
         (a2-6 (+ (* (+ (/ (-> merc-vu1-block qlength) 127) 1) 16) 272))
@@ -595,6 +605,8 @@
   0
   )
 
+;; definition for function merc-vu1-init-buffers
+;; WARN: Return type mismatch int vs none.
 (defun merc-vu1-init-buffers ()
   (when (logtest? (-> *display* vu1-enable-user) 8192)
     (let ((gp-0 *viewport-array*))

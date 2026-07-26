@@ -36780,23 +36780,23 @@
 
 ;; merc-ctrl is already defined!
 
-;; (define-extern *texture-login-data* object) ;; texture-login-data
-;; (define-extern texture-usage-init function) ;; (function merc-ctrl symbol)
-;; (define-extern texture-usage-update function) ;; (function texture symbol)
-;; (define-extern merc-stats-display function) ;; (function merc-ctrl none)
-;; (define-extern merc-stats function) ;; (function none)
-;; (define-extern merc-edge-stats function) ;; (function none)
-;; (define-extern merc-vu1-add-vu-function function) ;; (function dma-packet vu-function int dma-gif-packet)
-;; (define-extern merc-vu1-initialize-chain function) ;; (function dma-gif-packet int dma-packet)
-;; (define-extern merc-vu1-init-buffer function) ;; (function bucket-id int symbol int)
+(define-extern *texture-login-data* texture-login-data)
+(define-extern texture-usage-init (function merc-ctrl symbol))
+(define-extern texture-usage-update (function texture symbol))
+(define-extern merc-stats-display (function merc-ctrl none))
+(define-extern merc-stats (function none))
+(define-extern merc-edge-stats (function none))
+(define-extern merc-vu1-add-vu-function (function dma-packet vu-function int dma-gif-packet))
+(define-extern merc-vu1-initialize-chain (function dma-gif-packet int dma-packet))
+(define-extern merc-vu1-init-buffer (function bucket-id int symbol uint int)) ;; jakx adds a 4th arg (self-chains with a flags word; op 94 passes #x51001)
 (define-extern merc-vu1-init-buffers (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; emerc                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern emerc-vu1-initialize-chain function) ;; (function dma-gif-packet dma-packet)
-;; (define-extern emerc-vu1-init-buffer function) ;; (function bucket-id gs-test int none)
+(define-extern emerc-vu1-initialize-chain (function dma-gif-packet dma-packet))
+(define-extern emerc-vu1-init-buffer (function bucket-id gs-test int none))
 (define-extern emerc-vu1-init-buffers (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -43017,8 +43017,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern *eye-work* object) ;; eye-work
-;; (define-extern find-free-eye-index function) ;; (function int string int int)
-;; (define-extern free-eye-index function) ;; (function int int)
+(define-extern find-free-eye-index (function int string int int))
+(define-extern free-eye-index (function int int))
 ;; (define-extern render-eyes-32 function) ;; (function dma-buffer eye-control int pointer)
 ;; (define-extern render-eyes-64 function) ;; (function dma-buffer eye-control int pointer)
 (define-extern dirty-eyes (function none)) ;; refine after unlock

@@ -3519,8 +3519,13 @@
            (s5-0 (-> s4-0 calc-buf))
            )
       (-> s4-0 global-buf base)
-      (if (nonzero? merc-vu1-init-buffers) (merc-vu1-init-buffers)) ;; og:preserve-this runtime-link guard
-      (if (nonzero? emerc-vu1-init-buffers) (emerc-vu1-init-buffers)) ;; og:preserve-this runtime-link guard
+      ;; og:preserve-this gated on *merc-vu1-init-ready*, not just linkage: the functions
+      ;; landed before the C++ merc renderers, and emitting their init chains into
+      ;; renderer-less buckets asserts the DMA follower. Rung 6 flips the flag.
+      (when (and (nonzero? *merc-vu1-init-ready*) *merc-vu1-init-ready*)
+        (if (nonzero? merc-vu1-init-buffers) (merc-vu1-init-buffers))
+        (if (nonzero? emerc-vu1-init-buffers) (emerc-vu1-init-buffers))
+        )
       (if (nonzero? generic-vu1-init-buffers) (generic-vu1-init-buffers)) ;; og:preserve-this runtime-link guard
       (when *debug-segment*
         'texture

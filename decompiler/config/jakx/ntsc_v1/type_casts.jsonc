@@ -1024,6 +1024,29 @@
   // bones-set-sqwc and bones-reset-sqwc are op-for-op identical to jak2 and jak3, so
   // their entries are those verbatim; only the register allocation differs, and a cast
   // names the register on the way IN to the op, which is the constant, not the result.
+  "merc-edge-stats": [[31, "v1", "merc-ctrl"]],
+  "merc-vu1-initialize-chain": [
+    [[13, 19], "gp", "(pointer vif-tag)"],
+    [[19, 116], "s5", "merc-vu1-low-mem"],
+    [119, "s5", "pointer"],
+    [[120, 134], "s5", "(pointer float)"],
+    [134, "gp", "(inline-array dma-packet)"]
+  ],
+  "merc-vu1-init-buffer": [[[97, 106], "v1", "dma-packet"]],
+  "texture-usage-init": [[27, "a1", "vector"]],
+  "(method 9 merc-effect)": [
+    [38, "v1", "merc-eye-ctrl"],
+    [62, "s4", "pointer"],
+    [63, "s5", "pointer"]
+  ],
+  "(method 9 merc-fragment)": [[[13, 265], "s1", "adgif-shader"]],
+  // merc. jak3's block verbatim; jakx's failing op (103) matches jak3's op numbers
+  "(method 8 merc-ctrl)": [
+    [46, "s2", "pointer"],
+    [[22, 45], "s2", "merc-fragment-control"],
+    [[89, 93], "a1", "merc-blend-ctrl"],
+    [103, "a1", "pointer"]
+  ],
   "bones-init": [
     [1, "v1", "bone-memory"],
     [6, "a1", "bone-memory"],
