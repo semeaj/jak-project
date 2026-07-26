@@ -98,6 +98,7 @@
    (default                 viewport  :inline :overlay-at (-> data 2))
    )
   (:methods
+    (new (symbol type) _type_)
     (viewport-array-method-9 (_type_ viewport) none)
     (get-viewport (_type_ uint) viewport)
     (viewport-array-method-11 (_type_) viewport) ;; returns the current viewport (reads prove it)

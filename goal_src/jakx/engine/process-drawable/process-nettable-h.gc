@@ -190,8 +190,8 @@
     (process-nettable-method-29 () none)
     (process-nettable-method-30 () none)
     (process-nettable-method-31 () none)
-    (process-nettable-method-32 () none)
-    (process-nettable-method-33 () none)
+    (process-nettable-method-32 (_type_ entity-actor) none) ;; class-method style: entity-more-perm m13 dispatches it with #f as this
+    (process-nettable-method-33 (_type_ entity-actor) none) ;; class-method style: entity-more-perm m14 dispatches it with #f as this
     (process-nettable-method-34 (_type_ int rgba) none)
     (process-nettable-method-35 (_type_ int) none)
     (process-nettable-method-36 (_type_) none)

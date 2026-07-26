@@ -10,11 +10,11 @@
 (define-extern *in-game-menu-process* (pointer process)) ;; auto-added forward ref
 
 (define-extern in-game-menu-startup (function none)) ;; pause path, home not landed
-(define-extern menu-respond-to-pause (function none)) ;; pause path, home not landed
+(define-extern menu-respond-to-pause (function symbol)) ;; pause path, home not landed; jak3's defun ends in #f
 (declare-type net-mgr basic)
 (declare-type camera-start process)
 (define-extern entity-by-type (function type entity-actor)) ;; home entity.o, not landed; (on #f) path only
-(define-extern camera-teleport-to-entity (function entity-actor symbol)) ;; home cam code, not landed; (on #f) path only
+(define-extern camera-teleport-to-entity (function entity-actor symbol :behavior process)) ;; home cam code, not landed; (on #f) path only; :behavior matches jak3 and all-types
 
 (define-extern *master-exit* symbol) ;; auto-added forward ref
 
@@ -28,15 +28,15 @@
 (define-extern jakx-cam-warp-tick (function none)) ;; og:preserve-this bring-up, home cam-start.gc
 (define-extern execute-cam-post-hook-engine (function int))
 (define-extern temp-render-chat-messages (function int))
-(define-extern load-level-text-files (function int int))
+(define-extern load-level-text-files (function int none))
 (define-extern update-jukebox-music (function none))
 (define-extern auto-save-check (function int))
 (define-extern swap-sound-buffers (function int))
-(define-extern blerc-execute (function int))
-(define-extern blerc-init (function int))
-(define-extern texscroll-execute (function int))
-(define-extern ripple-execute (function int))
-(define-extern region-execute (function int))
+(define-extern blerc-execute (function none))
+(define-extern blerc-init (function none))
+(define-extern texscroll-execute (function none))
+(define-extern ripple-execute (function none))
+(define-extern region-execute (function none))
 (define-extern str-play-kick (function none))
 (define-extern process-particles (function none))
 (define-extern execute-particle-local-space-engine (function int none))

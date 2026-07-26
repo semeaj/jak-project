@@ -105,8 +105,8 @@
 (define-extern cpad-open (function cpad-info int cpad-info))
 (define-extern cpad-get-data (function cpad-info cpad-info))
 (define-extern scf-get-volume "Defined in the kernel" (function int))
-(define-extern scf-get-language "Defined in the kernel" (function int))
-(define-extern scf-get-aspect "Defined in the kernel" (function int))
+(define-extern scf-get-language "Defined in the kernel" (function language-enum))
+(define-extern scf-get-aspect "Defined in the kernel" (function uint))
 (define-extern crate type) ;; settings walks crate processes
 (define-extern *boot-video-mode* int)
 (define-extern scf-get-territory (function int)) ;; not actually a scf function...
@@ -5066,7 +5066,7 @@
   :size-assert         #x98
   :flag-assert         #xa00000098
   (:methods
-    (new (symbol type) _type_) ;; 0 ;; (new (symbol type int) _type_)
+    (new (symbol type int) _type_) ;; 0
     (cpad-info-method-9 () none) ;; 9 ;; (adjust-to-screen-flip (_type_) int)
     )
   )
@@ -5078,6 +5078,9 @@
   :method-count-assert 9
   :size-assert         #x10
   :flag-assert         #x900000010
+  (:methods
+    (new (symbol type) _type_) ;; 0
+    )
   )
 
 ;; +++pad:mouse-buttons
@@ -5116,6 +5119,9 @@
   :method-count-assert 9
   :size-assert         #x70
   :flag-assert         #x900000070
+  (:methods
+    (new (symbol type) _type_) ;; 0
+    )
   )
 
 (deftype keybd-info (basic)
@@ -5127,6 +5133,9 @@
   :method-count-assert 9
   :size-assert         #x11c
   :flag-assert         #x90000011c
+  (:methods
+    (new (symbol type) _type_) ;; 0
+    )
   )
 
 ;; (define-extern *cheat-mode* object) ;; symbol
@@ -16027,6 +16036,7 @@
   :size-assert         #x820
   :flag-assert         #xc00000820
   (:methods
+    (new (symbol type) _type_) ;; 0
     (viewport-array-method-9 (_type_ viewport) none) ;; 9
     (get-viewport (_type_ uint) viewport) ;; 10
     (viewport-array-method-11 (_type_) viewport) ;; 11 ;; returns the current viewport
@@ -16268,12 +16278,14 @@
 (declare-type camera-combiner process)
 (declare-type camera-master process)
 (declare-type camera-slave process)
-(define-extern view-get-active-camera (function camera-master))
+(define-extern view-get-active-camera (function process)) ;; really camera-master, but that type parses later; cast at use sites
 (define-extern view-get-camera (function int process)) ;; jakx-new, returns process for send-event
 ;; (define-extern view-set-active-camera function)
-(define-extern view-get-active-camera-combiner (function camera-combiner)) ;; (-> (view-get-active) camera-combiner)
-(define-extern view-get-camera-combiner (function int camera-combiner))
-(define-extern view-set-active-camera-combiner (function camera-combiner camera-combiner))
+(define-extern view-get-active-camera-combiner (function basic)) ;; (-> (view-get-active) camera-combiner), basic because camera-combiner parses later
+;; returns basic, not camera-combiner: the view field itself is basic (above, and in
+;; goal_src view-h.gc) because camera-combiner's deftype compiles later, in camera-h.gc
+(define-extern view-get-camera-combiner (function int basic))
+(define-extern view-set-active-camera-combiner (function basic basic)) ;; basic for the same reason as the getter above
 (define-extern view-get-active-math-camera (function math-camera))
 (define-extern view-get-math-camera (function int math-camera))
 ;; (define-extern view-set-active-math-camera function)
@@ -37250,7 +37262,7 @@
 (define-extern *font-curve-ghosting-2* array)
 ;; (define-extern evaluate-font-curve function)
 ;; (define-extern in-out-curve function)
-(define-extern char-effect-compute-colors (function basic int int font-context none))
+(define-extern char-effect-compute-colors (function font-char-effect int int font-context none))
 ;; (define-extern char-effect-compute2 function)
 (define-extern *loading-pad-leftx* int)
 (define-extern *loading-pad-lefty* int)
@@ -38178,7 +38190,7 @@
 (define-extern clear-mood-context (function mood-context symbol))
 (define-extern update-mood-interior (function mood-context symbol float))
 (define-extern update-mood-interior-ambient (function mood-context symbol float vector))
-(define-extern update-mood-flames (function mood-context int int int float float float float :behavior time-of-day-proc))
+(define-extern update-mood-flames (function mood-context int int int float float float none)) ;; jakx 7-arg call site (mood-funcs.gc), not jak3's 8-arg shape
 (define-extern *flash0* (array float))
 (define-extern *flash1* (array float))
 (define-extern *flash2* (array float))
@@ -38289,7 +38301,7 @@
 (define-extern update-mood-hiphog (function mood-context float int none :behavior time-of-day-proc))
 (define-extern update-garage-brdroom-lights (function mood-context none))
 (define-extern update-mood-garage-brdroom (function mood-context float int none :behavior time-of-day-proc))
-(define-extern set-garage-switched! (function symbol none))
+(define-extern set-garage-switched! (function float none)) ;; float arg, stores its bits into mood state (see mood-funcs2.gc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jungle-shared                  ;;

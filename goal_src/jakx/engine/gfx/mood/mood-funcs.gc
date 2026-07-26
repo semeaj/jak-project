@@ -15,7 +15,7 @@
 
 ;; og:preserve-this runtime-link extern: copy-mood-exterior is commented in
 ;; mood.gc (decomp error); guarded at the call
-(define-extern copy-mood-exterior (function mood-context none))
+(define-extern copy-mood-exterior (function mood-context symbol)) ;; the defun in mood.gc ends in #f, matching jak3
 
 ;; definition of type default-states
 (deftype default-states (structure)

@@ -8,11 +8,14 @@
 ;; DECOMP BEGINS
 
 ;; og:preserve-this bring-up stubs: merc face animation (blerc) is mips2c-heavy and
-;; not ported; the frame loop calls these unconditionally.
+;; not ported; the frame loop calls these unconditionally. Returns (none) to agree with
+;; all-types and jak3, which JakXTypeConsistency enforces.
 (defun blerc-init ()
   0
+  (none)
   )
 
 (defun blerc-execute ()
   0
+  (none)
   )

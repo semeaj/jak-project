@@ -118,7 +118,7 @@
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
     (process-drawable-method-48 () none)
-    (process-drawable-method-49 () none)
+    (process-drawable-method-49 (_type_) process) ;; returns the associated vehicle process (cam-vehicle-update checks its next-state)
     )
   (:states
     (process-drawable-art-error string)

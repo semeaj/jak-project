@@ -306,6 +306,9 @@
   ((num-cpads  int32)
    (cpads      cpad-info  2)
    )
+  (:methods
+    (new (symbol type) _type_)
+    )
   )
 
 ;; definition for method 3 of type cpad-list
@@ -1138,6 +1141,9 @@
    (speedx              float          :overlay-at (-> pos 0 data 3))
    (speedy              float          :offset 108)
    )
+  (:methods
+    (new (symbol type) _type_)
+    )
   )
 
 ;; definition for method 3 of type mouse-info
@@ -1267,6 +1273,9 @@
    (kdata   uint8  16)
    (keys    uint8  256)
    )
+  (:methods
+    (new (symbol type) _type_)
+    )
   )
 
 ;; definition for method 3 of type keybd-info

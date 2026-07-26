@@ -10,4 +10,5 @@
 ;; og:preserve-this bring-up stub: called unconditionally per frame by display-loop-main.
 (defun region-execute ()
   0
+  (none)
   )

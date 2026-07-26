@@ -29,23 +29,142 @@
    (connected-bitfield int32  :offset 16)
    (time               int32  :offset 20)
    (first-time-host    basic  :offset 24)
+   (locked             basic  :offset 28)
+   (kicked             basic  :offset 32)
+   (sm-eligible        basic  :offset 36)
    )
   :pack-me
   )
 
+(deftype net-mgr-lobby-state (structure)
+  ((connect-handle         basic   :offset 0)
+   (connect-handle-mgcl    basic   :offset 4)
+   (connect-handle-muis    basic   :offset 8)
+   (my-account-id          int32   :offset 12)
+   (channel-id             int32   :offset 16)
+   (in-special-channel     basic   :offset 20)
+   (last-normal-channel-id int32   :offset 24)
+   (created-game-id        int32   :offset 28)
+   (joined-game-id         int32   :offset 32)
+   (channel-list-valid     basic   :offset 36)
+   (last-medius-error      int32   :offset 40)
+   (last-mgcl-error        int32   :offset 44)
+   (last-dme-error         int32   :offset 48)
+   (callback-occurred      basic   :offset 52)
+   (callback-status        int32   :offset 56)
+   (callback-userdata      basic   :offset 60)
+   (timeout                basic   :offset 64)
+   (got-error              basic   :offset 68)
+   (last-report-time       int32   :offset 72)
+   (game-on-me             uint64  :offset 80)
+   (game-on-me-error-delay int32   :offset 88)
+   )
+  :pack-me
+  )
+
+;; full shape from all-types (fields through skip-policy at 292, methods 15-59), so this
+;; agrees with the decompiler's type database; JakXTypeConsistency compares them.
 (deftype net-mgr (process)
   ((game-type      uint8                       :offset 144)
    (last-game-type uint8                       :offset 145)
    (notify         basic                       :offset 148)
    (game-state     net-mgr-game-state  :inline :offset 152)
+   (lobby-state    net-mgr-lobby-state :inline :offset 192)
+   (scert-initted  basic                       :offset 284)
+   (auto-register  basic                       :offset 288)
+   (skip-policy    basic                       :offset 292)
    )
+  (:methods
+    (net-mgr-method-15 () none)
+    (net-mgr-method-16 () none)
+    (net-mgr-method-17 () none)
+    (net-mgr-method-18 () none)
+    (net-mgr-method-19 () none)
+    (net-mgr-method-20 () none)
+    (net-mgr-method-21 () none)
+    (net-mgr-method-22 () none)
+    (net-mgr-method-23 () none)
+    (net-mgr-method-24 () none)
+    (net-mgr-method-25 () none)
+    (net-mgr-method-26 () none)
+    (net-mgr-method-27 () none)
+    (net-mgr-method-28 () none)
+    (net-mgr-method-29 () none)
+    (net-mgr-method-30 () none)
+    (net-mgr-method-31 () none)
+    (net-mgr-method-32 () none)
+    (net-mgr-method-33 () none)
+    (net-mgr-method-34 () none)
+    (net-mgr-method-35 () none)
+    (net-mgr-method-36 () none)
+    (net-mgr-method-37 () none)
+    (net-mgr-method-38 () none)
+    (net-mgr-method-39 () none)
+    (net-mgr-method-40 () none)
+    (net-mgr-method-41 () none)
+    (net-mgr-method-42 () none)
+    (net-mgr-method-43 () none)
+    (net-mgr-method-44 () none)
+    (net-mgr-method-45 () none)
+    (net-mgr-method-46 () none)
+    (net-mgr-method-47 () none)
+    (net-mgr-method-48 () none)
+    (net-mgr-method-49 () none)
+    (net-mgr-method-50 () none)
+    (net-mgr-method-51 () none)
+    (net-mgr-method-52 () none)
+    (net-mgr-method-53 () none)
+    (net-mgr-method-54 () none)
+    (net-mgr-method-55 () none)
+    (net-mgr-method-56 () none)
+    (net-mgr-method-57 () none)
+    (net-mgr-method-58 () none)
+    (net-mgr-method-59 () none)
+    )
   )
 
+;; full shape from all-types, kept in agreement for JakXTypeConsistency
 (deftype net-player (process-nettable)
-  ((last-known-pos       vector :inline :offset 192)
-   (last-known-pos-valid basic          :offset 208)
-   (mgr                  basic          :offset 212)
-   (vehicle              uint64         :offset 216)
+  ((last-known-pos          vector :inline :offset 192)
+   (last-known-pos-valid    basic          :offset 208)
+   (mgr                     basic          :offset 212)
+   (vehicle                 uint64         :offset 216)
+   (rev-mgr                 uint64         :offset 224)
+   (score                   int32          :offset 236)
+   (player-num              int8           :offset 240)
+   (team                    uint8          :offset 241)
+   (color                   uint32         :offset 244)
+   (font-color              uint8          :offset 248)
+   (multiplier              int8           :offset 249)
+   (death-indicator-1       uint64         :offset 256)
+   (death-indicator-2       uint64         :offset 264)
+   (wpn-left-type           uint8          :offset 272)
+   (wpn-right-type          uint8          :offset 273)
+   (wpn-left-ammo           uint8          :offset 274)
+   (wpn-right-ammo          uint8          :offset 275)
+   (turbo-qty               uint8          :offset 276)
+   (dark-eco                uint8          :offset 277)
+   (health                  uint8          :offset 278)
+   (last-weapon-provision   float          :offset 280)
+   (top-speed               float          :offset 284)
+   (player-id               int8           :offset 288)
+   (flags                   uint8          :offset 289)
+   (rank                    int8           :offset 290)
+   (human-rank              int8           :offset 291)
+   (next-spawn-time         uint64         :offset 296)
+   (state-time              uint64         :offset 304)
+   (vehicle-impact-callback basic          :offset 312)
+   (spawn-count             int32          :offset 316)
+   (speech-id               uint8          :offset 320)
+   (last-speech-time        uint64         :offset 328)
+   (best-power-slide        float          :offset 336)
+   (best-hang-time          int32          :offset 340)
+   (display-score           int32          :offset 344)
+   (kills                   int32          :offset 348)
+   (deaths                  int32          :offset 352)
+   (last-spawn-time         uint64         :offset 360)
+   (dead-camera-pos-valid   basic          :offset 368)
+   (dead-camera-pos         vector :inline :offset 384)
    )
   (:methods
     (net-player-method-42 () none) ;; 42
@@ -55,7 +174,55 @@
     (net-player-method-46 () none) ;; 46
     (net-player-method-47 () none) ;; 47
     (net-player-method-48 () none) ;; 48
-    (net-player-method-49 (_type_) process) ;; 49 ;; returns the driven vehicle process
+    (net-player-method-49 (_type_) process) ;; 49 ;; returns the driven vehicle process (cam-vehicle-update checks its next-state)
+    (net-player-method-50 () none) ;; 50
+    (net-player-method-51 () none) ;; 51
+    (net-player-method-52 () none) ;; 52
+    (net-player-method-53 () none) ;; 53
+    (net-player-method-54 () none) ;; 54
+    (net-player-method-55 () none) ;; 55
+    (net-player-method-56 () none) ;; 56
+    (net-player-method-57 () none) ;; 57
+    (net-player-method-58 () none) ;; 58
+    (net-player-method-59 () none) ;; 59
+    (net-player-method-60 () none) ;; 60
+    (net-player-method-61 () none) ;; 61
+    (net-player-method-62 () none) ;; 62
+    (net-player-method-63 () none) ;; 63
+    (net-player-method-64 () none) ;; 64
+    (net-player-method-65 () none) ;; 65
+    (net-player-method-66 () none) ;; 66
+    (net-player-method-67 () none) ;; 67
+    (net-player-method-68 () none) ;; 68
+    (net-player-method-69 () none) ;; 69
+    (net-player-method-70 () none) ;; 70
+    (net-player-method-71 () none) ;; 71
+    (net-player-method-72 () none) ;; 72
+    (net-player-method-73 () none) ;; 73
+    (net-player-method-74 () none) ;; 74
+    (net-player-method-75 () none) ;; 75
+    (net-player-method-76 () none) ;; 76
+    (net-player-method-77 () none) ;; 77
+    (net-player-method-78 () none) ;; 78
+    (net-player-method-79 () none) ;; 79
+    (net-player-method-80 () none) ;; 80
+    (net-player-method-81 () none) ;; 81
+    (net-player-method-82 () none) ;; 82
+    (net-player-method-83 () none) ;; 83
+    (net-player-method-84 () none) ;; 84
+    (net-player-method-85 () none) ;; 85
+    (net-player-method-86 () none) ;; 86
+    (net-player-method-87 () none) ;; 87
+    (net-player-method-88 () none) ;; 88
+    (net-player-method-89 () none) ;; 89
+    (net-player-method-90 () none) ;; 90
+    (net-player-method-91 () none) ;; 91
+    (net-player-method-92 () none) ;; 92
+    (net-player-method-93 () none) ;; 93
+    (net-player-method-94 () none) ;; 94
+    (net-player-method-95 () none) ;; 95
+    (net-player-method-96 () none) ;; 96
+    (net-player-method-97 () none) ;; 97
     )
   )
 
@@ -67,7 +234,7 @@
 (define-extern find-nav-mesh (function object vector float float float collide-cache object)) ;; nav-mesh.gc
 (define-extern spawn-hud-slowmo (function object)) ;; hud-classes land later
 (define-extern empty-state (state process)) ;; process-drawable.gc family; linked at runtime
-(define-extern sleep-code (function none :behavior process)) ;; process-drawable.gc; linked at runtime
+(define-extern sleep-code (function symbol :behavior process)) ;; process-drawable.gc; linked at runtime; symbol return matches jak3 and all-types
 (define-extern *no-state* state) ;; process-drawable.gc; linked at runtime
 (define-extern *explosion-effect-suppress* symbol) ;; home unlanded; linked at runtime
 (define-extern *text-display-nice-shot-proc* process) ;; home unlanded; linked at runtime
@@ -97,20 +264,135 @@
     (gui-control-method-18 () none)
     (gui-control-method-19 () none)
     (gui-control-method-20 (_type_ uint symbol int int int float) object) ;; sound-params-set!
+    (gui-control-method-21 () none)
+    (gui-control-method-22 () none)
+    (gui-control-method-23 () none)
+    (gui-control-method-24 () none)
+    (gui-control-method-25 () none)
     )
   )
 (define-extern *gui-control* gui-control)
 
 ;; og:preserve-this bring-up minimal net-world (full deftype not landed; only
 ;; net-state game-start-time/total-pause-time are read here)
+(deftype green-room-stats (structure)
+  ((intro-end-time        int32     :offset 0)
+   (scheduled-finish-time int32     :offset 4)
+   (scores                uint16 6 :offset 8)
+   (laps                  uint8 6 :offset 20)
+   )
+  )
+
+(deftype net-world-game-options (structure)
+  ((advanced-options game-task-advanced-options :inline :offset 0)
+   )
+  )
+
+;; empty uint64 wrapper, identical to all-types; defined here because the game build
+;; compiles this file before any vehicle source that would otherwise carry it
+(deftype vehicle-load-parts (uint64)
+  ()
+  )
+
+(deftype net-world-staging-player (structure)
+  ((vehicle-load-parts       vehicle-load-parts  :offset 0)
+   (vehicle-tuning-info      uint32  :offset 8)
+   (vehicle-selection        int8    :offset 12)
+   (desired-driver-selection int8    :offset 13)
+   (flags                    uint8   :offset 14)
+   (team-id                  uint8   :offset 15)
+   (player-num               int8    :offset 16)
+   (base-color               uint32  :offset 20)
+   (stripe-color             uint32  :offset 24)
+   (skill-level              int32   :offset 28)
+   )
+  (:methods
+    (net-world-staging-player-method-9 () none) ;; 9
+    )
+  )
+
 (deftype net-world-state (structure)
-  ((game-start-time  int32 :offset 800)
-   (total-pause-time int32 :offset 804)
+  ((players            net-world-staging-player                24    :inline  :offset 0)
+   (assigned-drivers   uint8                24      :offset 768)
+   (game-creator-ip    uint32                         :offset 792)
+   (game-creation-time uint32                         :offset 796)
+   (game-start-time    int32                          :offset 800)
+   (total-pause-time   int32                          :offset 804)
+   (task-node-name     uint8                32      :offset 808)
+   (player-ready-flags uint8                          :offset 840)
+   (flags              int8                           :offset 841)
+   (max-humans         int8                           :offset 842)
+   (buddy-slots        int8                           :offset 843)
+   (clan-slots         int8                           :offset 844)
+   (ai-slots           int8                           :offset 845)
+   (vehicle-class      int8                           :offset 846)
+   (options            net-world-game-options :inline :offset 848)
+   (clan-ids           uint32                2       :offset 856)
+   (green-room-stats   green-room-stats       :inline :offset 864)
+   (time-of-day        int8                           :offset 890)
    )
   )
 (deftype net-world (process-nettable)
-  ((net-state net-world-state :inline :offset 192)
+  ((net-state                  net-world-state :inline :offset 192)
+   (is-late-join               basic                   :offset 1084)
+   (need-start-load            basic                   :offset 1088)
+   (current-garage-player      int32                   :offset 1092)
+   (current-garage-spare-slot  int32                   :offset 1096)
+   (cont                       basic                   :offset 1100)
+   (task                       uint8                   :offset 1104)
+   (task-node                  uint16                  :offset 1106)
+   (task-info                  basic                   :offset 1108)
+   (task-node-info             basic                   :offset 1112)
+   (player-to-vehicle-slot-map uint8         24      :offset 1116)
+   (vehicle-slot-to-player-map uint8         6       :offset 1140)
    )
+  (:methods
+    (net-world-method-42 () none) ;; 42
+    (net-world-method-43 () none) ;; 43
+    (net-world-method-44 () none) ;; 44
+    (net-world-method-45 () none) ;; 45
+    (net-world-method-46 () none) ;; 46
+    (net-world-method-47 () none) ;; 47
+    (net-world-method-48 () none) ;; 48
+    (net-world-method-49 () none) ;; 49
+    (net-world-method-50 () none) ;; 50
+    (net-world-method-51 () none) ;; 51
+    (net-world-method-52 () none) ;; 52
+    (net-world-method-53 () none) ;; 53
+    (net-world-method-54 () none) ;; 54
+    (net-world-method-55 () none) ;; 55
+    (net-world-method-56 () none) ;; 56
+    (net-world-method-57 () none) ;; 57
+    (net-world-method-58 () none) ;; 58
+    (net-world-method-59 () none) ;; 59
+    (net-world-method-60 () none) ;; 60
+    (net-world-method-61 () none) ;; 61
+    (net-world-method-62 () none) ;; 62
+    (net-world-method-63 () none) ;; 63
+    (net-world-method-64 () none) ;; 64
+    (net-world-method-65 () none) ;; 65
+    (net-world-method-66 () none) ;; 66
+    (net-world-method-67 () none) ;; 67
+    (net-world-method-68 () none) ;; 68
+    (net-world-method-69 () none) ;; 69
+    (net-world-method-70 () none) ;; 70
+    (net-world-method-71 () none) ;; 71
+    (net-world-method-72 () none) ;; 72
+    (net-world-method-73 () none) ;; 73
+    (net-world-method-74 () none) ;; 74
+    (net-world-method-75 () none) ;; 75
+    (net-world-method-76 () none) ;; 76
+    (net-world-method-77 () none) ;; 77
+    (net-world-method-78 () none) ;; 78
+    (net-world-method-79 () none) ;; 79
+    (net-world-method-80 () none) ;; 80
+    (net-world-method-81 () none) ;; 81
+    (net-world-method-82 () none) ;; 82
+    (net-world-method-83 () none) ;; 83
+    (net-world-method-84 () none) ;; 84
+    (net-world-method-85 () none) ;; 85
+    (net-world-method-86 () none) ;; 86
+    )
   )
 
 ;; failed to figure out what this is:
