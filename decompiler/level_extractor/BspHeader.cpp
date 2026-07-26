@@ -831,7 +831,20 @@ void DrawableTreeTfrag::read_from_file(TypedRef ref,
     throw Error("misaligned data array");
   }
 
-  time_of_day.read_from_file(deref_label(get_field_ref(ref, "time-of-day-pal", dts)));
+  if (get_word_kind_for_field(ref, "time-of-day-pal", dts) == decompiler::LinkedWord::PTR) {
+    time_of_day.read_from_file(deref_label(get_field_ref(ref, "time-of-day-pal", dts)));
+  } else {
+    // A tfrag tree can carry a null palette; interior levels that ignore the day/night cycle
+    // do. Vertex colour indices still reference up to the engine maximum of 8192 palette
+    // entries, so substitute a full-size neutral palette to keep every lookup valid. A
+    // single-entry palette is not enough and rainbows the level.
+    lg::warn("drawable-tree-tfrag has no time-of-day palette; using a neutral one");
+    time_of_day.width = 8;
+    time_of_day.height = 8192;
+    time_of_day.pad = 0;
+    // 0x80 is the GS neutral (1.0) multiplier per channel
+    time_of_day.colors.resize(8 * 8192, 0x80808080);
+  }
 
   for (int idx = 0; idx < length; idx++) {
     Ref array_slot_ref = data_ref;
