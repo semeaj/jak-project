@@ -36920,9 +36920,13 @@
 (define-extern foreground-generic-merc-death (function draw-control generic-merc-ctrl none))
 (define-extern foreground-generic-merc-add-fragments (function merc-effect pointer mercneric-chain pointer))
 (define-extern foreground-generic-merc (function draw-control pointer int pointer))
-;; (define-extern foreground-merc function) ;; (function draw-control (inline-array pris-mtx) pointer int int object pointer)
-(define-extern foreground-emerc (function draw-control (inline-array pris-mtx) pointer object int int pointer))
-;; (define-extern foreground-check-longest-edge-asm function) ;; (function draw-control float symbol)
+;; jakx: 5 args, not jak3's 6 - the trailing bucket-info argument was dropped
+;; (call sites pass dc, mtxs, dma, 32/35, 17/20 only)
+(define-extern foreground-merc (function draw-control (inline-array pris-mtx) pointer int int pointer))
+;; jakx: 5 args, not jak3's 6 - the trailing bone-flags argument was dropped
+;; (asm reads a0-t0 only; t1 is written before any read)
+(define-extern foreground-emerc (function draw-control (inline-array pris-mtx) pointer object int pointer))
+(define-extern foreground-check-longest-edge-asm (function draw-control float symbol))
 (define-extern foreground-ripple (function draw-control merc-ctrl pointer int pointer))
 (define-extern foreground-draw (function draw-control dma-buffer float none))
 (define-extern foreground-draw-hud (function draw-control dma-buffer float none))

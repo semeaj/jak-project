@@ -374,8 +374,11 @@
     // "hfrag-h", // weird duplicate type
     // "joint",
     // "subdivide",
-    "shadow-cpu-h"
-    // "foreground",
+    "shadow-cpu-h",
+    // jak3 parity: foreground-draw/-ripple carry undecompilable VU0 asm and
+    // foreground-emerc never converts, so the whole file skips goalc in the
+    // offline set (jak3's config does the same); the decomp-vs-REF diff still runs
+    "foreground"
     // "tie-methods",
     // "scene-actor" // top level lambda that defines a type
   ],
