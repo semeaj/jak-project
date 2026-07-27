@@ -8466,7 +8466,7 @@
   (:methods
     (deactivate (_type_) _type_) ;; 9
     (unload! (_type_) _type_) ;; 10
-    (is-object-visible? (_type_ int) symbol) ;; 11
+    (is-object-visible? (_type_ int int) symbol) ;; 11 ;; jakx adds a viewport index; body reads vis-bits per viewport
     (level-method-12 () none) ;; 12 ;; (level-method-12 () none)
     (bsp-name (_type_) symbol) ;; 13
     (compute-memory-usage! (_type_ symbol) memory-usage-block) ;; 14
@@ -30903,7 +30903,7 @@
   :size-assert         #x100
   :flag-assert         #x3b00700100
   (:methods
-    (process-focusable-method-50 () none) ;; 50
+    (process-focusable-method-50 (_type_) int) ;; 50 ;; result cached per entry by attackable-hash-update
     (get-trans (_type_ int) vector) ;; 51 ;; jak3 parity (id 21 there): trans getter used by sc m24 for point-of-interest
     (process-focusable-method-52 (_type_ int) quaternion) ;; 52 ;; get-quat: result feeds quaternion->matrix; jakx adds an index int like m51
     (process-focusable-method-53 () none) ;; 53
@@ -36086,8 +36086,8 @@
 ;; (define-extern joint-control-cleanup function) ;; (function joint-control kheap art-joint-anim symbol)
 ;; (define-extern joint-control-channel-eval function) ;; (function joint-control-channel float :behavior process)
 ;; (define-extern joint-control-channel-eval! function) ;; (function joint-control-channel (function joint-control-channel float float float float) float :behavior process)
-;; (define-extern joint-control-channel-group-eval! function) ;; (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)
-;; (define-extern joint-control-channel-group! function) ;; (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)
+(define-extern joint-control-channel-group-eval! (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)) ;; jak3-parity sig
+(define-extern joint-control-channel-group! (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)) ;; jak3-parity sig
 ;; (define-extern joint-control-copy! function) ;; (function joint-control joint-control joint-control)
 ;; (define-extern joint-control-remap! function) ;; (function joint-control art-group art-group pair int string symbol)
 ;; (define-extern flatten-joint-control-to-spr function) ;; (function joint-control int)
@@ -41531,12 +41531,26 @@
 ;; attackable-hash                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; attackable-hash is already defined!
+;; og:preserve-this jakx-only type, no jak3 counterpart. Layout derived from the
+;; object's own top-level (static at L27, flag 0x900000012), inspect reads and
+;; attackable-hash-update: three parallel 48-entry tables indexed together.
+(deftype attackable-hash (basic)
+  ;; field names are retail: the auto-generated inspect in the debug segment prints them
+  ((procs            (pointer handle)      :offset-assert 4)  ;; validated each update
+   (trans            (inline-array vector) :offset-assert 8)  ;; refreshed from (-> proc root trans) per update
+   (masks            (pointer int32)       :offset-assert 12) ;; per-entry result of process-focusable method 50
+   (allocated-length uint8                 :offset-assert 16) ;; static 48
+   (length           uint8                 :offset-assert 17) ;; live count, update compacts + returns it
+   )
+  :method-count-assert 9
+  :size-assert         #x12
+  :flag-assert         #x900000012
+  )
 
-;; (define-extern *attackable-hash* attackable-hash)
-;; (define-extern attackable-hash-copy! function)
-;; (define-extern attackable-hash-exchange! function)
-;; (define-extern attackable-hash-update function)
+(define-extern *attackable-hash* attackable-hash)
+(define-extern attackable-hash-copy! (function attackable-hash int int none))
+(define-extern attackable-hash-exchange! (function attackable-hash int int int))
+(define-extern attackable-hash-update (function attackable-hash int)) ;; ret = new count byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; projectile                     ;;
@@ -42388,11 +42402,11 @@
 (define-extern *vis-actors* symbol)
 (define-extern *additional-spawner-count* int)
 (define-extern *additional-spawners* (pointer handle))
-(define-extern register-additional-spawner (function handle none))
+(define-extern register-additional-spawner (function process int)) ;; reads ppointer/pid off the process and packs the handle itself
 (define-extern unregister-spawner-at-index (function int none))
 (define-extern *camera-pos-0* vector)
 (define-extern *camera-pos-1* vector)
-(define-extern vis-cull-all? (function vector float symbol))
+(define-extern vis-cull-all? (function level int symbol)) ;; dispatches is-object-visible? per viewport
 (define-extern vis-dist-additional-ok? (function vector float symbol))
 (define-extern vis-dist-ok? (function vector float symbol))
 (define-extern entity-by-name (function string entity))
@@ -51551,7 +51565,6 @@
 ;; viewer                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype viewer (process-drawable)
   ((janim art-joint-anim  :offset-assert 248) ;; guessed by decompiler
    )
@@ -51562,17 +51575,17 @@
     viewer-process ;; associated process guessed by decompiler, old: (state viewer)
     )
   )
-|#
 
-;; (define-extern *viewer-sg* skeleton-group) ;; skeleton-group
-;; (define-extern viewer-string object) ;; string
-;; (define-extern viewer-ja-name object) ;; string
-;; (define-extern viewer-geo-name object) ;; string
-;; (define-extern actor-get-arg! function) ;; (function string string string symbol)
-;; (define-extern art-part-name function) ;; (function string string)
-;; (define-extern init-viewer function) ;; (function string string object :behavior viewer)
-;; (define-extern init-viewer-for-other function) ;; (function string vector entity-actor object :behavior viewer)
-;; (define-extern add-a-bunch function) ;; (function string int int float process-tree entity-actor symbol)
+(define-extern *viewer* viewer) ;; init-from-entity!/init-viewer-for-other store self here
+(define-extern *viewer-sg* skeleton-group)
+(define-extern viewer-string string)
+(define-extern viewer-ja-name string)
+(define-extern viewer-geo-name string)
+(define-extern actor-get-arg! (function string string string symbol))
+(define-extern art-part-name (function string string))
+(define-extern init-viewer (function string string object :behavior viewer))
+(define-extern init-viewer-for-other (function string vector entity-actor object :behavior viewer))
+(define-extern add-a-bunch (function string int int float process-tree entity-actor symbol))
 (define-extern birth-viewer (function process entity-actor object))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

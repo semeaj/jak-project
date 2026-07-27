@@ -13,13 +13,14 @@
 
 ;; DECOMP BEGINS
 
-;; og:preserve-this partial landing (rung 5): the birth chain is live from clean
-;; machine output (entity-by-aid, add-to-level!, remove-from-level!, the
+;; og:preserve-this partial landing (rungs 5 + 6b): the birth chain is live from
+;; clean machine output (entity-by-aid, add-to-level!, remove-from-level!, the
 ;; birth!/kill! family, init-entity, entity-deactivate-handler, birth and
-;; deactivate-entities on bsp-header), plus the three actor globals. Still
-;; pending: actors-update (the per-frame birth!/kill! driver, so nothing calls
-;; birth! yet), the additional-spawner/vis-predicate surface, and the debug
-;; tooling. jakx caches the entity name in the `unknown` slot where jak3 did a
+;; deactivate-entities on bsp-header), plus actors-update (the per-frame
+;; birth!/kill! driver, called from real-main-draw-hook) and the
+;; additional-spawner/vis-predicate surface. Still pending: the debug tooling
+;; (draw-actor-marks, entity-speed-test, process-status-bits and friends).
+;; jakx caches the entity name in the `unknown` slot where jak3 did a
 ;; res-lump lookup.
 
 (define *spawn-actors* #t)
@@ -27,6 +28,77 @@
 (define *compact-actors* #t)
 
 (define *vis-actors* #t)
+
+(define *additional-spawner-count* 0)
+
+(define *additional-spawners* (new 'static 'array handle 1 (new 'static 'handle)))
+
+;; og:preserve-this jakx-only subsystem, no jak3 counterpart: a one-slot registry
+;; of spawner processes whose distance also satisfies the actor birth check
+;; (vis-dist-additional-ok?). Nothing registers into it until the race legs land.
+(defun register-additional-spawner ((arg0 process))
+  (when (>= *additional-spawner-count* 1)
+    (break!)
+    0
+    )
+  (set! (-> *additional-spawners* *additional-spawner-count*) (process->handle arg0))
+  (let ((v0-0 (+ *additional-spawner-count* 1)))
+    (set! *additional-spawner-count* v0-0)
+    v0-0
+    )
+  )
+
+(defun unregister-spawner-at-index ((arg0 int))
+  (when (!= arg0 -1)
+    (dotimes (v1-1 (- *additional-spawner-count* (+ arg0 1)))
+      (set! (-> *additional-spawners* (+ v1-1 arg0)) (-> *additional-spawners* (+ arg0 1 v1-1)))
+      )
+    (set! *additional-spawner-count* (+ *additional-spawner-count* -1))
+    )
+  (none)
+  )
+
+;; og:preserve-this jakx viewport delta vs jak3: actors-update captures the active
+;; math camera position per viewport into these, and the vis distance checks below
+;; test both when *view-count* is 2. jak3 keeps a single camera-pos local instead.
+(define *camera-pos-0* (new 'static 'vector))
+
+(define *camera-pos-1* (new 'static 'vector))
+
+(defun vis-cull-all? ((arg0 level) (arg1 int))
+  (or (is-object-visible? arg0 arg1 0) (and (= *view-count* 2) (is-object-visible? arg0 arg1 1)))
+  )
+
+(defun vis-dist-additional-ok? ((arg0 vector) (arg1 float))
+  (let ((gp-0 (new 'stack-no-clear 'array 'int32 1)))
+    (set! (-> gp-0 0) -1)
+    (dotimes (s3-0 *additional-spawner-count*)
+      (let ((v1-4 (handle->process (-> *additional-spawners* s3-0))))
+        (cond
+          (v1-4
+            (when (< (vector-vector-distance arg0 (-> (the-as process-drawable v1-4) root trans)) arg1)
+              (unregister-spawner-at-index (-> gp-0 0))
+              (return #t)
+              )
+            )
+          (else
+            (set! (-> gp-0 0) s3-0)
+            )
+          )
+        )
+      )
+    (unregister-spawner-at-index (-> gp-0 0))
+    )
+  #f
+  )
+
+(defun vis-dist-ok? ((arg0 vector) (arg1 float))
+  (let ((s5-0 (* arg1 arg1)))
+    (or (< (vector-vector-distance-squared arg0 *camera-pos-0*) s5-0)
+        (and (= *view-count* 2) (< (vector-vector-distance-squared arg0 *camera-pos-1*) s5-0))
+        )
+    )
+  )
 
 (defun entity-by-name ((arg0 string))
   (if (not arg0)
@@ -466,5 +538,222 @@
         )
       )
     )
+  (none)
+  )
+
+;; og:preserve-this retail jakx deltas vs jak3 in this method, all from the
+;; disassembly: (1) update-actor-hash is followed by attackable-hash-update;
+;; (2) the camera position is captured per viewport into *camera-pos-0/1*
+;; under view-push-context, where jak3 keeps one camera-pos local; (3) the
+;; distance checks route through vis-dist-ok?/vis-dist-additional-ok?/
+;; vis-cull-all? instead of jak3's inline vector-vector-distance forms;
+;; (4) tuning: compact lerp 16..4 (jak3 8..1), birth-max floor 4 (jak3 2).
+(defmethod actors-update ((this level-group))
+  (let ((sv-16 this))
+    (when *compact-actors*
+      (if (and (= *compact-actors* 'debug) (= (-> *nk-dead-pool* alive-list prev) (-> *nk-dead-pool* first-gap)))
+          (churn *nk-dead-pool* 1)
+          )
+      (let ((gp-0
+              (the int
+                   (lerp-scale 16.0 4.0 (the float (-> *display* frames (-> *display* last-screen) run-time)) 2000.0 8000.0)
+                   )
+              )
+            )
+        (if (nonzero? *debug-dead-pool*)
+            (compact *debug-dead-pool* 10)
+            )
+        (compact *nk-dead-pool* gp-0)
+        )
+      )
+    (update-actor-hash)
+    (attackable-hash-update *attackable-hash*)
+    (when (not (paused?))
+      (let ((gp-1 (-> *display* frames (-> *display* last-screen) run-time)))
+        (let ((f0-5 (fmax
+                      327680.0
+                      (fmin (+ 327680.0 (* 204.8 (the float (- 7000 (the-as int gp-1))))) (-> *ACTOR-bank* birth-dist))
+                      )
+                    )
+              )
+          (seek! (-> *ACTOR-bank* pause-dist) f0-5 (* 81920.0 (seconds-per-frame)))
+          )
+        (seekl! (-> *ACTOR-bank* birth-max) (the int (lerp-scale 25.0 4.0 (the float gp-1) 2000.0 7000.0)) 10)
+        )
+      (if (movie?)
+          (set! (-> *ACTOR-bank* birth-max) 1000)
+          )
+      )
+    (when *spawn-actors*
+      (view-push-context 0)
+      (set! (-> *camera-pos-0* quad) (-> (view-get-active-math-camera) trans quad))
+      (view-pop-context)
+      (view-push-context 1)
+      (set! (-> *camera-pos-1* quad) (-> (view-get-active-math-camera) trans quad))
+      (view-pop-context)
+      (let ((sv-24 0))
+        (dotimes (gp-4 (-> sv-16 length))
+          (let ((s5-1 (-> sv-16 level gp-4)))
+            (when (= (-> s5-1 status) 'active)
+              (let ((sv-32 (-> s5-1 task-mask)))
+                (cond
+                  ((= (-> s5-1 display?) 'special)
+                   (let* ((s5-2 (-> s5-1 entity))
+                          (s4-1 (-> s5-2 length))
+                          )
+                     (dotimes (s3-0 s4-1)
+                       (let ((v1-57 (-> s5-2 data s3-0)))
+                         (cond
+                           ((and (logtest? (-> v1-57 kill-mask) (task-mask special)) (not (logtest? (-> v1-57 kill-mask) sv-32)))
+                            (when (not (or (-> v1-57 process) (logtest? (-> v1-57 perm status) (entity-perm-status bit-0 dead))))
+                              (birth! (-> v1-57 entity))
+                              (+! sv-24 1)
+                              (if (>= sv-24 (-> *ACTOR-bank* birth-max))
+                                  (goto cfg-153)
+                                  )
+                              )
+                            )
+                           (else
+                             (if (and (-> v1-57 process)
+                                      (not (logtest? (-> v1-57 perm status) (entity-perm-status no-kill)))
+                                      (not (logtest? (-> v1-57 process mask) (process-mask no-kill)))
+                                      )
+                                 (kill! (-> v1-57 entity))
+                                 )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                  ((= (-> s5-1 display?) 'actor)
+                   (let* ((s5-3 (-> s5-1 entity))
+                          (s4-2 (-> s5-3 length))
+                          )
+                     (dotimes (s3-1 s4-2)
+                       (let ((v1-72 (-> s5-3 data s3-1)))
+                         (cond
+                           ((not (logtest? (-> v1-72 kill-mask) sv-32))
+                            (when (not (or (-> v1-72 process) (logtest? (-> v1-72 perm status) (entity-perm-status bit-0 dead))))
+                              (birth! (-> v1-72 entity))
+                              (+! sv-24 1)
+                              (if (>= sv-24 (-> *ACTOR-bank* birth-max))
+                                  (goto cfg-153)
+                                  )
+                              )
+                            )
+                           (else
+                             (if (and (-> v1-72 process)
+                                      (not (logtest? (-> v1-72 perm status) (entity-perm-status no-kill)))
+                                      (not (logtest? (-> v1-72 process mask) (process-mask no-kill)))
+                                      )
+                                 (kill! (-> v1-72 entity))
+                                 )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                  ((not *vis-actors*)
+                   (let* ((s5-4 (-> s5-1 entity))
+                          (s4-3 (-> s5-4 length))
+                          )
+                     (dotimes (s3-2 s4-3)
+                       (let ((s2-0 (-> s5-4 data s3-2)))
+                         (cond
+                           ((and (or (and (nonzero? *screen-shot-work*) (-> *screen-shot-work* highres-enable))
+                                     (or (vis-dist-additional-ok? (-> s2-0 trans) (-> *ACTOR-bank* birth-dist))
+                                         (vis-dist-ok? (-> s2-0 trans) (-> *ACTOR-bank* birth-dist))
+                                         )
+                                     )
+                                 (not (logtest? (-> s2-0 perm status) (entity-perm-status bit-9 bit-10)))
+                                 (not (logtest? (-> s2-0 kill-mask) sv-32))
+                                 )
+                            (when (not (or (-> s2-0 process) (logtest? (-> s2-0 perm status) (entity-perm-status bit-0 dead))))
+                              (birth! (-> s2-0 entity))
+                              (+! sv-24 1)
+                              (if (>= sv-24 (-> *ACTOR-bank* birth-max))
+                                  (goto cfg-153)
+                                  )
+                              )
+                            )
+                           (else
+                             (if (and (-> s2-0 process)
+                                      (not (logtest? (-> s2-0 perm status) (entity-perm-status no-kill)))
+                                      (not (logtest? (-> s2-0 process mask) (process-mask no-kill)))
+                                      )
+                                 (kill! (-> s2-0 entity))
+                                 )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                  (*vis-actors*
+                    (when (not (and (-> s5-1 vis-info 0) (-> s5-1 all-visible?)))
+                      (let* ((sv-36 (-> s5-1 entity))
+                             (sv-40 (-> sv-36 length))
+                             (sv-44 (the-as symbol #f))
+                             )
+                        (dotimes (s4-4 sv-40)
+                          (let ((s3-3 (-> sv-36 data s4-4)))
+                            (cond
+                              ((or (and (vis-dist-additional-ok? (-> s3-3 trans) 327680.0)
+                                        (not (logtest? (-> s3-3 perm status) (entity-perm-status bit-9 bit-10)))
+                                        (not (logtest? (-> s3-3 kill-mask) sv-32))
+                                        )
+                                   (and (vis-cull-all? s5-1 (-> s3-3 vis-id))
+                                        (not (logtest? (-> s3-3 perm status) (entity-perm-status bit-9 bit-10)))
+                                        (not (logtest? (-> s3-3 kill-mask) sv-32))
+                                        (or (-> s5-1 vis-info 0) (vis-dist-ok? (-> s3-3 trans) (-> s3-3 vis-dist)))
+                                        )
+                                   (and (nonzero? *screen-shot-work*) (-> *screen-shot-work* highres-enable))
+                                   )
+                               (when (not (or (-> s3-3 process) (logtest? (-> s3-3 perm status) (entity-perm-status bit-0 dead)) sv-44))
+                                 (birth! (-> s3-3 entity))
+                                 (+! sv-24 1)
+                                 (when (< (/ (the float (memory-free *nk-dead-pool*)) (the float (memory-total *nk-dead-pool*))) 0.1)
+                                   (if (and *debug-segment* (not *display-capture-mode*))
+                                       (format
+                                         *stdcon*
+                                         "low actor memory, no birth triggered!!! ~,,0fK/~,,0fK~%"
+                                         (* 0.0009765625 (the float (memory-free *nk-dead-pool*)))
+                                         (* 0.0009765625 (the float (memory-total *nk-dead-pool*)))
+                                         )
+                                       )
+                                   (set! sv-44 #t)
+                                   )
+                                 )
+                               )
+                              (else
+                                (when (and (-> s3-3 process)
+                                           (not (logtest? (-> s3-3 perm status) (entity-perm-status no-kill)))
+                                           (not (logtest? (-> s3-3 process mask) (process-mask no-kill)))
+                                           )
+                                  (kill! (-> s3-3 entity))
+                                  (+! sv-24 1)
+                                  )
+                                )
+                              )
+                            )
+                          (if (>= sv-24 (-> *ACTOR-bank* birth-max))
+                              (goto cfg-153)
+                              )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  (label cfg-153)
+  0
   (none)
   )

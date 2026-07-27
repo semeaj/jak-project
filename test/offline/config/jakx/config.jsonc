@@ -378,7 +378,11 @@
     // jak3 parity: foreground-draw/-ripple carry undecompilable VU0 asm and
     // foreground-emerc never converts, so the whole file skips goalc in the
     // offline set (jak3's config does the same); the decomp-vs-REF diff still runs
-    "foreground"
+    "foreground",
+    // the retail static at L27 carries pointer-to-label table fields the static
+    // decoder cannot decode, so the REF records <static-data L27> which does not
+    // compile; the decomp-vs-REF diff still runs (goal_src hand-authors the static)
+    "attackable-hash"
     // "tie-methods",
     // "scene-actor" // top level lambda that defines a type
   ],

@@ -3949,6 +3949,14 @@
     (draw *sky-work*)
     (flush-cache 0)
     )
+  ;; og:preserve-this actors leg (rung 6b): retail runs the level actor update
+  ;; between the collision-event dispatch and the background draw (the commented
+  ;; original's 'actors profiler block wraps a method-17 dispatch on *level*).
+  ;; The collision-event and nav blocks that retail runs around it are still
+  ;; unlanded; this is the spawn driver only. Every frame it compacts the dead
+  ;; pools, refreshes the actor and attackable hashes, and births/kills entities
+  ;; by distance and vis against the per-viewport camera positions.
+  (actors-update *level*)
   (init-background)
   (execute-connections *background-draw-engine* #f)
   (finish-background)

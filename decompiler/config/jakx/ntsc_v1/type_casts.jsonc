@@ -1,4 +1,12 @@
 {
+  // additional-spawner vis helpers (entity.o): the spawner handle resolves to a
+  // process-drawable whose root trans feeds the distance check
+  "vis-dist-additional-ok?": [[24, "v1", "process-drawable"]],
+  // the hash stores focusable processes; update reads root trans and dispatches method 50
+  "attackable-hash-update": [
+    [[49, 56], "a0", "process-focusable"],
+    [[84, 94], "a0", "process-focusable"]
+  ],
   // level / load-state / level-info family, ported from jak3 (op indices verified or adjusted per jakx asm)
   "lookup-level-info": [
     [11, "v1", "basic"],
