@@ -19,13 +19,13 @@
    (state-time   time-frame)
    )
   (:methods
-    (process-drawable-method-42 () none)
-    (process-drawable-method-43 () none)
+    (initialize-skeleton (_type_ skeleton-group pair) draw-control)
+    (initialize-skeleton-by-name (_type_ string) draw-control)
     (process-drawable-method-44 () none)
     (process-drawable-method-45 () none)
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
-    (process-drawable-method-48 () none)
+    (process-drawable-method-48 (_type_) float)
     (process-drawable-method-49 (_type_) process)
     )
   (:states

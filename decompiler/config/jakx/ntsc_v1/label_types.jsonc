@@ -3,6 +3,12 @@
     ["L215", "shadow-settings"], // *default-shadow-settings* static; jak3's same-named label was a bucket array
     ["L216", "vector"]
   ],
+  // all-ones default color-mult/color-emissive vectors quad-copied into draw-control
+  // by skeleton-group->draw-control; jak3's L463/L462 with the same content
+  "process-drawable": [
+    ["L472", "vector"],
+    ["L471", "vector"]
+  ],
   // entity leg: *camera-pos-0*/*camera-pos-1* zero-init vectors, *additional-spawners*
   // is a single-slot static handle table (8 bytes before the next label)
   "entity": [

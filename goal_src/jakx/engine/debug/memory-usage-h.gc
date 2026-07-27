@@ -5,6 +5,10 @@
 ;; name in dgo: memory-usage-h
 ;; dgos: ENGINE, GAME
 
+;; og:preserve-this jak3 keeps the same extern here; mem-size's home (memory-usage.gc)
+;; builds later and joint.gc's art-group inspect calls it
+(define-extern mem-size (function basic symbol int int))
+
 ;; DECOMP BEGINS
 
 ;; this file is debug only

@@ -1,22 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: viewer.gc
-;; name in dgo: viewer
-;; dgos: ENGINE, GAME
-
-(declare-type viewer process-drawable)
-(define-extern *viewer* viewer)
-
-;; DECOMP BEGINS
-
-;; og:preserve-this landed at rung 6b half 2, machine-verbatim except one guard noted
-;; below. jakx delta vs jak3, read off the disassembly: viewer-process carries no
-;; align-control machinery (jak3 news an align-control and runs compute-delta-align!
-;; and align! in the loop; the jakx original has neither), and init-from-entity! reads
-;; the entity name from the cached `unknown` slot where jak3 does a res-lump lookup
-;; (the same delta entity.gc records).
-
+;; definition for symbol *viewer-sg*, type skeleton-group
 (define *viewer-sg* (new 'static 'skeleton-group
                       :bounds (new 'static 'vector :data (new 'static 'array float 4 0.0 0.0 0.0 16384.0))
                       :lod-dist (new 'static 'array float 6 4095996000.0 0.0 0.0 0.0 0.0 0.0)
@@ -24,6 +9,7 @@
                       )
         )
 
+;; definition of type viewer
 (deftype viewer (process-drawable)
   ((janim  art-joint-anim)
    )
@@ -32,6 +18,21 @@
     )
   )
 
+;; definition for method 3 of type viewer
+(defmethod inspect ((this viewer))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-drawable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tjanim: ~A~%" (-> this janim))
+  (label cfg-4)
+  this
+  )
+
+;; failed to figure out what this is:
 (defstate viewer-process (viewer)
   :code (behavior ()
     (until #f
@@ -49,12 +50,16 @@
   :post ja-post
   )
 
+;; definition for symbol viewer-string, type string
 (define viewer-string (new 'global 'string 64 (the-as string #f)))
 
+;; definition for symbol viewer-ja-name, type string
 (define viewer-ja-name (new 'global 'string 64 (the-as string #f)))
 
+;; definition for symbol viewer-geo-name, type string
 (define viewer-geo-name (new 'global 'string 64 (the-as string #f)))
 
+;; definition for function actor-get-arg!
 (defun actor-get-arg! ((arg0 string) (arg1 string) (arg2 string))
   (let ((s5-0 (-> arg2 data))
         (gp-0 (-> arg0 data))
@@ -91,6 +96,7 @@
   #f
   )
 
+;; definition for function art-part-name
 (defun art-part-name ((arg0 string))
   (let ((gp-0 (-> arg0 data)))
     (while (nonzero? (-> gp-0 0))
@@ -108,6 +114,7 @@
   (clear viewer-string)
   )
 
+;; definition for function init-viewer
 (defbehavior init-viewer viewer ((arg0 string) (arg1 string))
   (let* ((s5-0 *level*)
          (s3-0 (method-of-object s5-0 art-group-get-by-name))
@@ -141,13 +148,7 @@
         (else
           (actor-get-arg! viewer-ja-name "ja" arg1)
           (actor-get-arg! viewer-geo-name "geo" arg1)
-          ;; og:preserve-this method-slot guard (rung 5 pattern): load-to-heap-by-name's
-          ;; body waits for the loader leg, so the slot links 0; retail calls it bare.
-          ;; This branch only runs when the level art lookup misses.
-          (let ((s2-1 (if (nonzero? (method-of-object (-> self level art-group) load-to-heap-by-name))
-                          (load-to-heap-by-name (-> self level art-group) arg0 'load global 0)
-                          )
-                      )
+          (let ((s2-1 (load-to-heap-by-name (-> self level art-group) arg0 'load global 0))
                 (s5-1 (the-as int #f))
                 (s4-1 (the-as int #f))
                 (s3-1 (the-as int #f))
@@ -202,6 +203,7 @@
     )
   )
 
+;; definition for method 11 of type viewer
 (defmethod init-from-entity! ((this viewer) (arg0 entity-actor))
   (set! *viewer* this)
   (set! (-> this root) (new 'process 'trsqv))
@@ -214,6 +216,8 @@
     )
   )
 
+;; definition for function init-viewer-for-other
+;; INFO: Used lq/sq
 (defbehavior init-viewer-for-other viewer ((arg0 string) (arg1 vector) (arg2 entity-actor))
   (set! *viewer* self)
   (process-entity-set! self arg2)
@@ -224,6 +228,8 @@
   (init-viewer arg0 arg0)
   )
 
+;; definition for function add-a-bunch
+;; INFO: Used lq/sq
 (defun add-a-bunch ((arg0 string) (arg1 int) (arg2 int) (arg3 float) (arg4 process-tree) (arg5 entity-actor))
   (dotimes (s0-0 arg1)
     (let ((sv-32 0))
@@ -248,6 +254,7 @@
   #f
   )
 
+;; definition for function birth-viewer
 ;; WARN: Return type mismatch symbol vs object.
 (defun birth-viewer ((arg0 process) (arg1 entity-actor))
   (set! (-> arg0 type) viewer)

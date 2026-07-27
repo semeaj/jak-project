@@ -29,3 +29,25 @@
 ;; ---effect-control-flag
 
 ;; DECOMP BEGINS
+
+(deftype effect-control (basic)
+  "An effect such as a particle with sound effects that plays during an animation."
+  ((process           process-drawable)
+   (flags             effect-control-flag)
+   (last-frame-group  art-joint-anim)
+   (last-frame-num    float)
+   (channel-offset    int32)
+   (res               res-lump)
+   (name              (pointer res-tag))
+   (param             uint32)
+   )
+  (:methods
+    (new (symbol type process-drawable) _type_)
+    (effect-control-method-9 (_type_) none)
+    (do-effect (_type_ string float int) none)
+    (do-effect-for-surface (_type_ symbol float int basic pat-surface) none)
+    (play-effect-sound (_type_ symbol float int basic sound-name) int)
+    (set-channel-offset! (_type_ int) none)
+    (play-effects-from-res-lump (_type_ float float float) none)
+    )
+  )

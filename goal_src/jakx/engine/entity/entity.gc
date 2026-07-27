@@ -29,6 +29,24 @@
 
 (define *vis-actors* #t)
 
+(defun process-entity-set! ((arg0 process) (arg1 entity))
+  (set! (-> arg0 entity) (the-as entity-actor arg1))
+  (if arg1
+      (set! (-> arg0 level) (-> arg1 extra level))
+      (set! (-> arg0 level) (-> *level* level-default))
+      )
+  arg1
+  )
+
+;; WARN: Return type mismatch process-drawable vs none.
+(defun process-drawable-from-entity! ((arg0 process-drawable) (arg1 entity-actor))
+  (logior! (-> arg0 mask) (process-mask actor-pause))
+  (set! (-> arg0 root trans quad) (-> arg1 extra trans quad))
+  (quaternion-copy! (the-as quaternion (-> arg0 root rot)) (-> arg1 quat))
+  (vector-identity! (-> arg0 root scale))
+  (none)
+  )
+
 (define *additional-spawner-count* 0)
 
 (define *additional-spawners* (new 'static 'array handle 1 (new 'static 'handle)))
@@ -308,9 +326,10 @@
 ;; og:preserve-this one jakx delta vs jak3, from the disassembly: the
 ;; task-mask never / process-nettable method-40 auto-spawn-prevention prologue
 ;; (jak3 has no counterpart; the checked birth-viewer return below matches jak3
-;; exactly). Two runtime-link guards until the home objects land:
-;; entity-info-lookup (entity-table.o) degrades to the default #x4000 heap and
-;; birth-viewer (viewer.o) degrades to the retail no-process-type error path.
+;; exactly). One runtime-link guard until the home object lands:
+;; entity-info-lookup (entity-table.o) degrades to the default #x4000 heap.
+;; The birth-viewer guard retired at rung 6b half 2: viewer.o is landed, and
+;; actor birth runs from actors-update, long after GAME.CGO links.
 (defmethod birth! ((this entity-actor))
   (when (not (logtest? (-> this extra kill-mask) (task-mask never)))
     (let ((s5-0 (-> this etype)))
@@ -351,7 +370,7 @@
        (init-entity s4-0 this s5-1)
        )
       (else
-        (when (not (and (nonzero? birth-viewer) (birth-viewer s4-0 this)))
+        (when (not (birth-viewer s4-0 this))
           (format 0 "ERROR: no proper process type named ~A exists in the code, could not start ~A~%" s5-1 this)
           (logior! (-> this extra perm status) (entity-perm-status bit-0))
           )

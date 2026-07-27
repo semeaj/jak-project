@@ -2,6 +2,85 @@
   // additional-spawner vis helpers (entity.o): the spawner handle resolves to a
   // process-drawable whose root trans feeds the distance check
   "vis-dist-additional-ok?": [[24, "v1", "process-drawable"]],
+  // initialize-skeleton: root is a collide-shape behind the as-type guard at op 120,
+  // jak3 method 14 carries the same pair of casts
+  "(method 42 process-drawable)": [
+    [111, "v1", "vector"],
+    [124, "s4", "collide-shape"],
+    [126, "s4", "collide-shape"]
+  ],
+  // process-drawable.o bridge surface, jak3 set (op indices per jakx asm where they differ)
+  "ja-post": [
+    [43, "a0", "collide-shape"],
+    [45, "a0", "collide-shape"]
+  ],
+  "transform-post": [
+    [3, "a0", "collide-shape"],
+    [5, "a0", "collide-shape"]
+  ],
+  "transform-and-sleep": [
+    [10, "a0", "collide-shape"],
+    [12, "a0", "collide-shape"]
+  ],
+  "transform-and-sleep-code": [
+    [10, "a0", "collide-shape"],
+    [12, "a0", "collide-shape"]
+  ],
+  "rider-trans": [
+    [1, "a0", "collide-shape"],
+    [3, "a0", "collide-shape"]
+  ],
+  "rider-post": [
+    [4, "a0", "collide-shape"],
+    [9, "a0", "collide-shape"],
+    [13, "gp", "collide-shape"],
+    [15, "gp", "collide-shape"],
+    [3, "gp", "collide-shape"],
+    [8, "gp", "collide-shape"]
+  ],
+  "pusher-post": [
+    [3, "gp", "collide-shape"],
+    [8, "gp", "collide-shape"],
+    [10, "gp", "collide-shape"]
+  ],
+  // parent process's draw copied (light-index/shadow-mask) through a process-tree
+  // typed register; jak3 carries the same casts at its own ops 283-292
+  // scratchpad bounding-sphere staging (jak3's version casts the same region to
+  // foreground-work; jakx's layout is unmapped, the sphere is enough)
+  "real-dma-add-process-drawable": [
+    [54, "s1", "vector"],
+    [[104, 109], "s2", "(inline-array vector)"],
+    [143, "s1", "vector"],
+    [[156, 164], "v1", "vector"],
+    [263, "a3", "(pointer uint128)"]
+  ],
+  "skeleton-group->draw-control": [
+    [[241, 248], "v1", "process-drawable"],
+    [250, "v1", "process-drawable"]
+  ],
+  "(method 14 draw-control)": [
+    [38, "t9", "(function object object object none)"]
+  ],
+  "ja-linear-vel": [["_stack_", 16, "res-tag"]],
+  "joint-control-reset!": [
+    [3, "a1", "int"],
+    [7, "a1", "int"],
+    [5, "a0", "int"],
+    [[11, 34], "v1", "joint-control-channel"]
+  ],
+  "ja-channel-push!": [
+    [35, "v1", "int"],
+    [35, "a0", "int"]
+  ],
+  "ja-blend-eval": [[[3, 26], "s5", "joint-control-channel"]],
+  "(method 9 joint-control)": [
+    [[15, 68], "s3", "joint-control-channel"],
+    [[13, 70], "s5", "(pointer float)"]
+  ],
+  "(method 10 top-anim-joint-control)": [
+    [5, "a0", "process-drawable"],
+    [162, "s2", "art-joint-anim"]
+  ],
   // the hash stores focusable processes; update reads root trans and dispatches method 50
   "attackable-hash-update": [
     [[49, 56], "a0", "process-focusable"],
@@ -353,6 +432,44 @@
   "glst-find-node-by-name": [[6, "s5", "glst-named-node"]],
   "glst-length-of-longest-name": [[5, "s5", "glst-named-node"]],
   "history-print": [[20, "a1", "int"]],
+  // joint (jak3 set; op indices verified against the jakx asm, codegen matches)
+  "(method 9 art)": [[9, "v1", "pointer"]],
+  "(method 9 art-mesh-geo)": [
+    [20, "s4", "(pointer int16)"],
+    [[14, 19], "a0", "drawable"],
+    [10, "v1", "(pointer art)"],
+    [14, "v1", "(pointer art)"]
+  ],
+  "(method 9 art-joint-anim)": [[9, "v1", "pointer"]],
+  "joint-control-copy!": [
+    [8, "a0", "uint"],
+    [8, "v1", "uint"]
+  ],
+  "joint-control-remap!": [
+    [127, "t9", "(function joint-control joint-control-channel int object)"],
+    [181, "t9", "(function joint-control joint-control-channel int object)"],
+    ["_stack_", 60, "basic"]
+  ],
+  "flatten-joint-control-to-spr": [
+    [[201, 203], "a1", "terrain-context"],
+    [[131, 133], "a0", "terrain-context"],
+    [[182, 184], "a1", "terrain-context"],
+    [[164, 166], "a0", "terrain-context"],
+    [195, "v1", "terrain-context"],
+    [65, "a3", "(pointer float)"],
+    [67, "a3", "(pointer float)"],
+    [[18, 47], "a2", "(inline-array vector)"],
+    [47, "a2", "pointer"],
+    [[48, 118], "a2", "(inline-array vector)"],
+    [118, "a2", "pointer"],
+    [24, "a3", "(pointer float)"],
+    [17, "a2", "int"]
+  ],
+  "create-interpolated2-joint-animation-frame": [
+    [[48, 125], "v1", "joint-anim-frame"],
+    [[62, 67], "t2", "(inline-array vector)"],
+    [[67, 71], "a2", "(inline-array vector)"]
+  ],
   "joint-mod-foot-rot-handler": [
     [[0, 7], "s5", "joint-mod"],
     [[35, 152], "s5", "joint-mod"]

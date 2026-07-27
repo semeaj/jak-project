@@ -156,6 +156,11 @@
     "(method 33 sky-work)",
     // texture: hand-optimized asm (plzcw), same treatment as jak3
     "adgif-shader<-texture-with-update!",
+    // joint: VU0/scratchpad anim decompression, jak3 treatment (superseded on PC by
+    // the pure-GOAL decompressor; the def-mips2c is never registered in C++)
+    "calc-animation-from-spr",
+    // joint: the one live mips2c function, same as jak3
+    "cspace<-parented-transformq-joint!",
     // sparticle-launcher / sparticle
     "sp-init-fields!",
     "particle-adgif",

@@ -19050,6 +19050,12 @@
   :flag-assert         #xe00000030
   )
 
+(deftype art-mesh-anim (art-element)
+  "An unused mesh animation."
+  ((data basic :dynamic))
+  :flag-assert #xe00000030
+  )
+
 (declare-type merc-eye-anim-block structure)
 (deftype art-joint-anim (art-element)
   "Art for a joint animation. Also contains the eye animation."
@@ -19223,6 +19229,7 @@
 (declare-type cloth-base basic)
 (declare-type verlet-particle-system cloth-base)
 (declare-type cloth-system verlet-particle-system)
+(declare-type cloth-on-skeleton cloth-system) ;; initialize-skeleton news an (array cloth-on-skeleton); full deftype waits for the cloth leg
 (declare-type joint-control basic)
 
 (deftype draw-control (basic)
@@ -19280,13 +19287,13 @@
   :flag-assert         #x1000000104
   ;; field draw-control-global-effect is likely a value type.
   (:methods
-    (new (symbol type) _type_) ;; 0 ;; (new (symbol type process symbol) _type_)
-     (get-skeleton-origin (_type_) vector)
-    (draw-control-method-10 () none) ;; 10 ;; (lod-set! (_type_ int) none)
-    (draw-control-method-11 () none) ;; 11 ;; (lods-assign! (_type_ lod-set) none)
-    (draw-control-method-12 () none) ;; 12 ;; (setup-masks (_type_ int int) none)
+    (new (symbol type process symbol) _type_) ;; 0
+    (get-skeleton-origin (_type_) vector)
+    (lod-set! (_type_ int) none) ;; 10
+    (lods-assign! (_type_ lod-set) none) ;; 11
+    (setup-masks (_type_ int int) none) ;; 12
     (setup-cspace-and-add (_type_ art-joint-geo symbol) cspace-array) ;; 13
-    (draw-control-method-14 () none) ;; 14 ;; (draw-control-method-14 (_type_ cspace-array joint-control) none)
+    (draw-control-method-14 (_type_ cspace-array joint-control) none) ;; 14
     (do-joint-math (_type_ cspace-array joint-control) none) ;; 15
     )
   )
@@ -28792,13 +28799,13 @@
   :size-assert         #xf8
   :flag-assert         #x32007000f8
   (:methods
-    (process-drawable-method-42 () none) ;; 42
-    (process-drawable-method-43 () none) ;; 43
+    (initialize-skeleton (_type_ skeleton-group pair) draw-control) ;; 42 ;; jak3 method 14; proven by the viewer.o call sites (skeleton-group build + call, jak3 parity) and the op-12 type-prop failure reading this at root offset 188
+    (initialize-skeleton-by-name (_type_ string) draw-control) ;; 43 ;; jak3 method 15
     (process-drawable-method-44 () none) ;; 44
     (process-drawable-method-45 () none) ;; 45
     (process-drawable-method-46 () none) ;; 46
     (process-drawable-method-47 () none) ;; 47
-    (process-drawable-method-48 () none) ;; 48
+    (process-drawable-method-48 (_type_) float) ;; 48 ;; stub returning -1.0 in retail
     (process-drawable-method-49 (_type_) process) ;; 49 ;; returns the associated vehicle process (cam-vehicle-update checks its next-state)
     )
   (:states
@@ -36080,46 +36087,48 @@
   )
 |#
 
-;; (define-extern joint-anim-login function) ;; (function joint-anim-drawable joint-anim-drawable)
-;; (define-extern joint-anim-inspect-elt function) ;; (function joint-anim float joint-anim)
-;; (define-extern jacc-mem-usage function) ;; (function joint-anim-compressed-control memory-usage-block int joint-anim-compressed-control)
-;; (define-extern joint-control-cleanup function) ;; (function joint-control kheap art-joint-anim symbol)
-;; (define-extern joint-control-channel-eval function) ;; (function joint-control-channel float :behavior process)
-;; (define-extern joint-control-channel-eval! function) ;; (function joint-control-channel (function joint-control-channel float float float float) float :behavior process)
+(define-extern joint-anim-login (function joint-anim-drawable joint-anim-drawable))
+(define-extern joint-anim-inspect-elt (function joint-anim float joint-anim))
+(define-extern jacc-mem-usage (function joint-anim-compressed-control memory-usage-block int joint-anim-compressed-control))
+(define-extern joint-control-cleanup (function joint-control kheap art-joint-anim symbol))
+(define-extern joint-control-channel-eval (function joint-control-channel float :behavior process))
+(define-extern joint-control-channel-eval! (function joint-control-channel (function joint-control-channel float float float float) float :behavior process))
 (define-extern joint-control-channel-group-eval! (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)) ;; jak3-parity sig
 (define-extern joint-control-channel-group! (function joint-control-channel art-joint-anim (function joint-control-channel float float float float) int)) ;; jak3-parity sig
-;; (define-extern joint-control-copy! function) ;; (function joint-control joint-control joint-control)
-;; (define-extern joint-control-remap! function) ;; (function joint-control art-group art-group pair int string symbol)
-;; (define-extern flatten-joint-control-to-spr function) ;; (function joint-control int)
-;; (define-extern matrix-from-joint-anim-frame function) ;; (function joint-anim-compressed-control int int matrix)
-;; (define-extern matrix-from-control-channel! function) ;; (function matrix joint joint-control-channel matrix)
-;; (define-extern matrix-from-control-pair! function) ;; (function matrix joint-control-channel joint int matrix)
-;; (define-extern matrix-from-control! function) ;; (function matrix-stack joint joint-control symbol matrix)
-;; (define-extern cspace<-cspace! function) ;; (function cspace cspace matrix)
-;; (define-extern cspace<-cspace-normalized! function) ;; (function cspace cspace matrix)
-;; (define-extern cspace<-parent-joint! function) ;; (function cspace (pointer process-drawable) int matrix)
+(define-extern joint-control-copy! (function joint-control joint-control joint-control))
+(define-extern joint-control-remap! (function joint-control art-group art-group pair int string symbol))
+(define-extern flatten-joint-control-to-spr (function joint-control int))
+(define-extern matrix-from-joint-anim-frame (function joint-anim-compressed-control int int matrix))
+(define-extern matrix-from-control-channel! (function matrix joint joint-control-channel matrix))
+(define-extern matrix-from-control-pair! (function matrix joint-control-channel joint int matrix))
+(define-extern matrix-from-control! (function matrix-stack joint joint-control symbol matrix))
+(define-extern cspace<-cspace! (function cspace cspace matrix))
+(define-extern cspace<-cspace-normalized! (function cspace cspace matrix))
+(define-extern cspace<-parent-joint! (function cspace (pointer process-drawable) int matrix))
 (define-extern cspace<-transformq! (function cspace transformq matrix))
-;; (define-extern cspace<-transformq+trans! function) ;; (function cspace transformq vector matrix)
-;; (define-extern cspace<-transformq+world-trans! function) ;; (function cspace transformq vector matrix)
-;; (define-extern cspace<-transformq+rot-offset! function) ;; (function cspace transformq vector matrix)
-;; (define-extern cspace-calc-total-matrix! function) ;; (function cspace matrix matrix)
-;; (define-extern cspace<-matrix-no-push-joint! function) ;; (function cspace joint-control matrix)
-;; (define-extern cspace<-matrix-joint! function) ;; (function cspace matrix matrix)
+(define-extern cspace<-transformq+trans! (function cspace transformq vector matrix))
+(define-extern cspace<-transformq+world-trans! (function cspace transformq vector matrix))
+(define-extern cspace<-transformq+rot-offset! (function cspace transformq vector matrix))
+(define-extern cspace-calc-total-matrix! (function cspace matrix matrix))
+(define-extern cspace<-matrix-no-push-joint! (function cspace joint-control matrix))
+(define-extern cspace<-matrix-joint! (function cspace matrix matrix))
 (define-extern cspace<-parented-matrix-joint! (function cspace matrix matrix))
-;; (define-extern cspace<-parented-matrix-mirror! function) ;; (function cspace matrix matrix)
-;; (define-extern cspace<-parented-matrix-joint-flip-z! function) ;; (function cspace matrix matrix)
-;; (define-extern cspace<-matrix-joint-flip-z! function) ;; (function cspace matrix none)
+(define-extern cspace<-parented-matrix-mirror! (function cspace matrix matrix))
+(define-extern cspace<-parented-matrix-joint-flip-z! (function cspace matrix matrix))
+(define-extern cspace<-matrix-joint-flip-z! (function cspace matrix none))
 (define-extern cspace<-parented-transformq-joint! (function cspace transformq none))
-;; (define-extern cspace<-parented-transformq-joint-flip-z! function) ;; (function cspace transformq none)
+(define-extern cspace<-parented-transformq-joint-flip-z! (function cspace transformq none))
+;; the VU/scratchpad decompression family stays untyped, jak3 parity: parked as asm
+;; functions, superseded on PC by the pure-GOAL decompressor
 ;; (define-extern clear-frame-accumulator function)
 ;; (define-extern normalize-frame-quaternions function)
 ;; (define-extern decompress-fixed-data-to-accumulator function)
 ;; (define-extern decompress-frame-data-to-accumulator function)
 ;; (define-extern decompress-frame-data-pair-to-accumulator function)
-;; (define-extern make-joint-jump-tables function) ;; (function int)
-;; (define-extern calc-animation-from-spr function) ;; (function joint-anim-frame int none)
-;; (define-extern create-interpolated-joint-animation-frame function) ;; (function joint-anim-frame int joint-control int)
-;; (define-extern create-interpolated2-joint-animation-frame function) ;; (function joint-anim-frame int joint-control int)
+(define-extern make-joint-jump-tables (function int))
+(define-extern calc-animation-from-spr (function joint-anim-frame int none))
+(define-extern create-interpolated-joint-animation-frame (function joint-anim-frame int joint-control int))
+(define-extern create-interpolated2-joint-animation-frame (function joint-anim-frame int joint-control int))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; joint-mod                      ;;
@@ -40246,7 +40255,6 @@
 ;; cloth-h                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype stick-constraint (structure)
   ((constraint-length-half               float   :offset-assert 0)
    (one-over-two-times-constraint-length float   :offset-assert 4)
@@ -40258,9 +40266,7 @@
   :size-assert         #x10
   :flag-assert         #x900000010
   )
-|#
 
-#|
 (deftype verlet-particle (structure)
   ((pos        vector :inline :offset-assert 0)
    (prev-pos   vector :inline :offset-assert 16)
@@ -40270,9 +40276,7 @@
   :size-assert         #x24
   :flag-assert         #x900000024
   )
-|#
 
-#|
 (deftype disc-constraint (structure)
   ((normal               vector :inline :offset-assert 0)
    (origin               vector :inline :offset-assert 16)
@@ -40284,9 +40288,7 @@
   :size-assert         #x28
   :flag-assert         #x900000028
   )
-|#
 
-#|
 (deftype cylinder-constraint (structure)
   ((c0     vector :inline :offset-assert 0)
    (norm   vector :inline :offset-assert 16)
@@ -40297,9 +40299,7 @@
   :size-assert         #x28
   :flag-assert         #x900000028
   )
-|#
 
-#|
 (deftype particle-anchor-point (structure)
   ((anchor-pos     vector :inline :offset-assert 0)
    (particle-index uint16         :offset-assert 16)
@@ -40308,93 +40308,63 @@
   :size-assert         #x12
   :flag-assert         #x900000012
   )
-|#
 
-#|
 (deftype particle-array (inline-array-class)
-  ((length           int32                    :offset-assert 4)
-   (allocated-length int32                    :offset-assert 8)
-   (data             verlet-particle :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data verlet-particle :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype float-array (inline-array-class)
-  ((length           int32          :offset-assert 4)
-   (allocated-length int32          :offset-assert 8)
-   (data             float :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data float :dynamic :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype stick-constraint-array (inline-array-class)
-  ((length           int32                     :offset-assert 4)
-   (allocated-length int32                     :offset-assert 8)
-   (data             stick-constraint :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data stick-constraint :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype collision-sphere-array (inline-array-class)
-  ((length           int32           :offset-assert 4)
-   (allocated-length int32           :offset-assert 8)
-   (data             sphere :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data sphere :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype collision-disc-array (inline-array-class)
-  ((length           int32                    :offset-assert 4)
-   (allocated-length int32                    :offset-assert 8)
-   (data             disc-constraint :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data disc-constraint :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype collision-cylinder-array (inline-array-class)
-  ((length           int32                        :offset-assert 4)
-   (allocated-length int32                        :offset-assert 8)
-   (data             cylinder-constraint :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data cylinder-constraint :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype anchor-point-array (inline-array-class)
-  ((length           int32                          :offset-assert 4)
-   (allocated-length int32                          :offset-assert 8)
-   (data             particle-anchor-point :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data particle-anchor-point :dynamic :inline :offset-assert 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype verlet-particle-system (cloth-base)
   ((particles               particle-array         :offset-assert 4) ;; guessed by decompiler
    (drag                    float                  :offset-assert 8)
@@ -40414,9 +40384,7 @@
     (verlet-particle-system-method-15 () none) ;; 15 ;; (debug-draw (_type_) none)
     )
   )
-|#
 
-#|
 (deftype current-position-info (structure)
   ((current-vert-index      uint16            :offset-assert 0)
    (last-2-x-index          uint16            :offset-assert 2)
@@ -40436,40 +40404,34 @@
   :size-assert         #xd0
   :flag-assert         #x9000000d0
   )
-|#
 
-#|
+;; the dumper emitted inherited fields at raw (declared minus 4) offsets; re-based to
+;; child-only declared offsets, which land exactly on jak3's layout
 (deftype cloth-system (verlet-particle-system)
-  ((particles                  particle-array                 :offset-assert 0) ;; guessed by decompiler
-   (drag                       float                          :offset-assert 4)
-   (accum-force                vector                 :inline :offset-assert 12)
-   (timestep-frequency         int8                           :offset-assert 28)
-   (last-simulate-remaining    int8                           :offset-assert 29)
-   (momentum                   vector                 :inline :offset-assert 44)
-   (ground-constraint          float                          :offset-assert 60)
-   (disc-collision-constraints collision-disc-array           :offset-assert 64) ;; guessed by decompiler
-   (collision-constraints      collision-sphere-array         :offset-assert 68) ;; guessed by decompiler
-   (stick-constraints          stick-constraint-array         :offset-assert 72) ;; guessed by decompiler
-   (anchor-points              anchor-point-array             :offset-assert 76) ;; guessed by decompiler
-   (constraint-strengths       int32                  3       :offset-assert 80) ;; guessed by decompiler
-   (num-xy-constraints         int16                          :offset-assert 92)
-   (num-diagonal-constraints   int16                          :offset-assert 94)
-   (cloth-width                int32                          :offset-assert 96)
-   (cloth-height               int32                          :offset-assert 100)
-   (strip                      prim-strip                     :offset-assert 104) ;; guessed by decompiler
-   (strip2                     prim-strip                     :offset-assert 108) ;; guessed by decompiler
-   (strip3                     prim-strip                     :offset-assert 112) ;; guessed by decompiler
-   (mesh                       art-cloth-geo                  :offset-assert 116) ;; guessed by decompiler
-   (gravity-constant           float                          :offset-assert 120)
-   (wind-constant              float                          :offset-assert 124)
-   (flags                      cloth-flag                     :offset-assert 132)
-   (thickness-scalar           float                          :offset-assert 140)
-   (ball-collision-radius      float                          :offset-assert 144)
-   (face-normal-scalar         float                          :offset-assert 148)
-   (reset-count                int8                           :offset-assert 152)
-   (num-iterations             int8                           :offset-assert 153)
-   (secret-disable             uint64                         :offset-assert 156) ;; game-secrets
-   (params                     cloth-params                   :offset-assert 164)
+  ((ground-constraint          float                  :offset-assert 64)
+   (disc-collision-constraints collision-disc-array   :offset-assert 68)
+   (collision-constraints      collision-sphere-array :offset-assert 72)
+   (stick-constraints          stick-constraint-array :offset-assert 76)
+   (anchor-points              anchor-point-array     :offset-assert 80)
+   (constraint-strengths       int32                3 :offset-assert 84)
+   (num-xy-constraints         int16                  :offset-assert 96)
+   (num-diagonal-constraints   int16                  :offset-assert 98)
+   (cloth-width                int32                  :offset-assert 100)
+   (cloth-height               int32                  :offset-assert 104)
+   (strip                      prim-strip             :offset-assert 108)
+   (strip2                     prim-strip             :offset-assert 112)
+   (strip3                     prim-strip             :offset-assert 116)
+   (mesh                       art-cloth-geo          :offset-assert 120)
+   (gravity-constant           float                  :offset-assert 124)
+   (wind-constant              float                  :offset-assert 128)
+   (flags                      cloth-flag             :offset-assert 136)
+   (thickness-scalar           float                  :offset-assert 144)
+   (ball-collision-radius      float                  :offset-assert 148)
+   (face-normal-scalar         float                  :offset-assert 152)
+   (reset-count                int8                   :offset-assert 156)
+   (num-iterations             int8                   :offset-assert 157)
+   (secret-disable             uint64                 :offset-assert 160) ;; game-secrets
+   (params                     cloth-params           :offset-assert 168)
    )
   :method-count-assert 38
   :size-assert         #xac
@@ -40500,21 +40462,21 @@
     (cloth-system-method-37 () none) ;; 37 ;; (cloth-system-cmd-handler (_type_ pair) none)
     )
   )
-|#
 
-#|
+;; activated for initialize-skeleton, which news an (array cloth-on-skeleton) when the
+;; skeleton-group carries cloth-params; dumper raw offsets re-based +4 to declared,
+;; landing on jak3's layout exactly; field semantics wait for the cloth leg
 (deftype cloth-on-skeleton (cloth-system)
-  ((base-transform-index int16          :offset-assert 168)
-   (owner                uint64         :offset-assert 172) ;; handle
-   (last-owner-pos       vector :inline :offset-assert 188)
-   (last-owner-mat       matrix :inline :offset-assert 204)
+  ((base-transform-index int16          :offset-assert 172)
+   (owner                uint64         :offset-assert 176) ;; handle
+   (last-owner-pos       vector :inline :offset-assert 192)
+   (last-owner-mat       matrix :inline :offset-assert 208)
    )
   :method-count-assert 38
   :size-assert         #x110
   :flag-assert         #x2600000110
   ;; field cloth-flag is likely a value type.
   )
-|#
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40558,6 +40520,10 @@
 (define-extern ja-step (function int float :behavior process-drawable))
 (define-extern ja-rate (function int float :behavior process-drawable))
 (define-extern ja-linear-vel (function int vector :behavior process-drawable))
+;; jakx-only pair, no jak3 counterpart. DELIBERATELY left untyped: giving either a
+;; signature sends the decompiler into an infinite loop analyzing its body (verified
+;; each independently, 2s run becomes a >60s hang). Parked like the net-mgr-dme
+;; family; the REF records them as no-type-analysis, which is deterministic.
 ;; (define-extern ja-linear-dist function)
 ;; (define-extern ja-distance-covered function)
 (define-extern ja-channel-set! (function int int :behavior process-drawable))
@@ -42123,8 +42089,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern sphere-cull function) ;; (function vector symbol)
-;; (define-extern guard-band-cull function) ;; (function vector symbol)
-;; (define-extern sphere-in-view-frustum? function) ;; (function sphere symbol)
+(define-extern guard-band-cull (function vector symbol))
+(define-extern sphere-in-view-frustum? (function sphere symbol))
 ;; (define-extern line-in-view-frustum? function) ;; (function vector vector symbol)
 ;; (define-extern sphere-in-view-frustum-any? function)
 ;; (define-extern line-in-view-frustum-any? function)
@@ -42153,7 +42119,7 @@
 (define-extern calc-vu1-lights (function vu-lights draw-control symbol none))
 (define-extern calc-particle-average-color function) ;; jakx-new, refine after unlock
 (define-extern calc-particle-directional-color function) ;; jakx-new, refine after unlock
-(define-extern real-dma-add-process-drawable function) ;; refine after unlock
+(define-extern real-dma-add-process-drawable (function process-drawable draw-control symbol dma-buffer none)) ;; jakx-only indirection under dma-add-process-drawable, same arg shape
 (define-extern dma-add-process-drawable (function process-drawable draw-control symbol dma-buffer none))
 (define-extern *hud-lights* vu-lights)
 (define-extern dma-add-process-drawable-hud (function process-drawable draw-control float dma-buffer none))
@@ -42324,7 +42290,7 @@
 
 ;; memory-usage-block is already defined!
 
-;; (define-extern mem-size function) ;; (function basic symbol int int)
+(define-extern mem-size (function basic symbol int int))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; entity                         ;;

@@ -372,7 +372,11 @@
   "skip_compile_files": [
     "types-h", // weird array of types.
     // "hfrag-h", // weird duplicate type
-    // "joint",
+    // the REFs record the parked VU0/scratchpad decompression family (joint) and the
+    // raw-op parked methods (process-drawable) which do not compile; goal_src lands
+    // the real bodies and the decomp-vs-REF diff still gates both
+    "joint",
+    "process-drawable",
     // "subdivide",
     "shadow-cpu-h",
     // jak3 parity: foreground-draw/-ripple carry undecompilable VU0 asm and

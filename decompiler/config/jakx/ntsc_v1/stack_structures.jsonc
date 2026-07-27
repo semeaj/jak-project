@@ -7,6 +7,7 @@
   "show-level": [[16, ["array", "symbol", 18]]],
   "vis-dist-additional-ok?": [[16, ["array", "int32", 1]]],
   "add-a-bunch": [[16, "vector"]],
+  "(method 9 joint-control)": [[16, "vector"]],
   "(method 25 level)": [[16, "event-message-block"]],
   "(method 10 cam-setting-data)": [[16, "event-message-block"]],
   "update-camera": [[16, ["inline-array", "vector", 7]]],

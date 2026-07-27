@@ -236,6 +236,7 @@ set(RUNTIME_SOURCE
         mips2c/jak3_functions/ocean_vu0.cpp
         mips2c/jak3_functions/generic_merc.cpp
         mips2c/jakx_functions/font.cpp
+  mips2c/jakx_functions/joint.cpp
   mips2c/jakx_functions/particle_curves.cpp
   mips2c/jakx_functions/sky.cpp
         mips2c/jakx_functions/sparticle_launcher.cpp
