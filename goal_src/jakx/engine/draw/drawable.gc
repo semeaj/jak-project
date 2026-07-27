@@ -3956,8 +3956,9 @@
   ;; once per viewport inside a view context (the commented original's loop: push
   ;; context, store current-viewport-index, foreground-engine-execute, then the
   ;; EE/VU0 pass under the real clock, pop context). foreground-engine-execute is
-  ;; length-gated, and *foreground-draw-engine* has no connections until
-  ;; setup-cspace-and-add lands (rung 4), so it is a no-op today; the EE/VU0 pass
+  ;; length-gated, and *foreground-draw-engine* gets no connections until the rung-5
+  ;; spawn path starts calling setup-cspace-and-add (landed, rung 4), so it is a
+  ;; no-op today; the EE/VU0 pass
   ;; keeps its rung-1 role (bones + guarded stubs). jakx delta vs jak3: jak3 swaps
   ;; the clock by time-of-day mode, the jakx original loads real-clock always.
   (dotimes (vp-idx (-> *viewport-array* num-viewports))

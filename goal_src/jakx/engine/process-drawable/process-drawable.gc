@@ -38,6 +38,12 @@
   )
 ;; ---attack-mask
 
+;; og:preserve-this externs for a later-building object (add-process-drawable lives in
+;; drawable.o, game.gd line 317 vs process-drawable.o at 293) and an unlanded one
+;; (cspace<-parented-matrix-joint! belongs to joint.o, still a stub); jak3 keeps the
+;; same kind of block at the top of its process-drawable.gc.
+(define-extern add-process-drawable (function process-drawable draw-control symbol dma-buffer none))
+(define-extern cspace<-parented-matrix-joint! (function cspace matrix matrix))
 
 ;; DECOMP BEGINS
 
@@ -47,8 +53,9 @@
 ;; og:preserve-this partial landing: the two engine walkers run every frame from
 ;; display-loop-main. Hand-written from process-drawable_ir2.asm (the handle-deref
 ;; pattern degrades their decomp to raw ops); the shape matches jak3 exactly, with
-;; jakx reading node-list/draw/skel at 192/196/200. The rest of process-drawable.o
-;; stays pending.
+;; jakx reading node-list/draw/skel at 192/196/200. setup-cspace-and-add (rung 4)
+;; is landed at the end of the file, verbatim from clean machine output. The rest
+;; of process-drawable.o stays pending.
 
 (defun execute-math-engine ()
   ;; og:preserve-this the do-joint-math body (joint.o home) is not landed yet, so the
@@ -158,5 +165,59 @@
         )
       )
     #f
+    )
+  )
+
+(defmethod setup-cspace-and-add ((this draw-control) (jgeo art-joint-geo) (allocation symbol))
+  (let ((s5-0 ((method-of-type cspace-array new) allocation cspace-array (+ (-> jgeo length) 1))))
+    (let ((v0-1 ((method-of-type skeleton new) allocation skeleton (+ (-> jgeo length) 1))))
+      (set! (-> this skeleton) v0-1)
+      (let ((s3-1 v0-1))
+        (when (or (zero? s5-0) (zero? s3-1))
+          (go process-drawable-art-error "memory")
+          (set! s5-0 (the-as cspace-array #f))
+          (goto cfg-13)
+          )
+        (let ((v1-9 ((method-of-type cspace reset-and-assign-geo!) (-> s5-0 data 0) (the-as drawable #f))))
+          (set! (-> v1-9 bone) (the-as bone (-> s3-1 bones)))
+          )
+        (let ((v1-10 (-> s5-0 data)))
+          (set! (-> v1-10 0 param0) (the-as (function cspace transformq none) cspace<-transformq!))
+          (set! (-> v1-10 0 param1) (the-as basic (-> this process root trans)))
+          )
+        (let ((v1-12 (reset-and-assign-geo! (-> s5-0 data 1) (the-as drawable #f))))
+          (set! (-> v1-12 joint) (-> jgeo data 0))
+          (set! (-> v1-12 bone) (-> s3-1 bones 1))
+          (set! (-> v1-12 parent) (the-as cspace (-> s5-0 data)))
+          )
+        (let ((v1-14 (reset-and-assign-geo! (-> s5-0 data 2) (the-as drawable #f))))
+          (set! (-> v1-14 joint) (-> jgeo data 1))
+          (set! (-> v1-14 bone) (-> s3-1 bones 2))
+          (set! (-> v1-14 parent) (the-as cspace (-> s5-0 data)))
+          (set! (-> v1-14 param0) (the-as (function cspace transformq none) cspace<-parented-matrix-joint!))
+          (set! (-> v1-14 param1) (-> this process))
+          )
+        (let ((s2-0 3))
+          (while (< s2-0 (-> s5-0 length))
+            (let* ((s0-0 (-> jgeo data (+ s2-0 -1)))
+                   (s1-0 (if (-> s0-0 parent)
+                             (+ (-> s0-0 parent number) 1)
+                             0
+                             )
+                         )
+                   (v1-25 (reset-and-assign-geo! (-> s5-0 data s2-0) (the-as drawable #f)))
+                   )
+              (set! (-> v1-25 joint) s0-0)
+              (set! (-> v1-25 bone) (-> s3-1 bones s2-0))
+              (set! (-> v1-25 parent) (-> s5-0 data s1-0))
+              )
+            (+! s2-0 1)
+            )
+          )
+        )
+      )
+    (add-connection *foreground-draw-engine* (-> this process) add-process-drawable (-> this process) this #f)
+    (label cfg-13)
+    s5-0
     )
   )

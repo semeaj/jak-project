@@ -8,6 +8,9 @@
   "(method 3 inline-array-class)": {
     "args": ["idx-to-remove"]
   },
+  "(method 13 draw-control)": {
+    "args": ["this", "jgeo", "allocation"]
+  },
   "identity": {
     "args": ["obj"]
   },
