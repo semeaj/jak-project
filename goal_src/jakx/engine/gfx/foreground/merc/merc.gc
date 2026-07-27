@@ -9,11 +9,11 @@
 
 (define *texture-login-data* (new 'static 'texture-login-data))
 
-;; og:preserve-this bring-up gate: the VU1 init chains this file emits are only safe once
-;; the C++ side registers renderers on the merc buckets (Merc2, actors leg rung 6); until
-;; then the DMA follower asserts on the unparsed chain (tag.addr == 0). Same pattern as
-;; *sky-clouds-clut-ready*. Flip when the renderer lands.
-(define *merc-vu1-init-ready* #f)
+;; og:preserve-this bring-up gate, FLIPPED at rung 6: Merc2BucketRenderer is registered
+;; on all 104 merc destinations from the landed *bucket-map* and its setup parser
+;; accepts the jakx 80-byte GS-set (test/zbuf/frame/scissor), so the per-frame VU1 init
+;; chains are safe to emit. Same pattern as *sky-clouds-clut-ready*.
+(define *merc-vu1-init-ready* #t)
 
 ;; og:preserve-this bring-up externs: the eye system (eye.gc) is not landed; these two
 ;; link 0 at runtime and their call sites below are guarded. Retire with the eye leg.

@@ -934,6 +934,15 @@ void Merc2::handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state) 
     ASSERT(nothing.size_bytes == 0);
     ASSERT(nothing.vif0() == 0);
     ASSERT(nothing.vif1() == 0);
+  } else if (render_state->version == GameVersion::JakX) {
+    auto second = dma.read_and_advance();
+    // Jak X sets four registers per split-screen viewport: test/zbuf like jak3,
+    // plus frame-1/scissor-1 which the other games never write here.
+    ASSERT(second.size_bytes == 80);
+    auto nothing = dma.read_and_advance();
+    ASSERT(nothing.size_bytes == 0);
+    ASSERT(nothing.vif0() == 0);
+    ASSERT(nothing.vif1() == 0);
   } else {
     auto second = dma.read_and_advance();
     ASSERT(second.size_bytes == 48);  // setting up test/zbuf register.

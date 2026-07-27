@@ -536,6 +536,26 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
     init_bucket_renderer<DirectRenderer>("debug-menu", BucketCategory::OTHER, BucketId::DEBUG_MENU,
                                          0x8000);
 
+    // Merc: the 104 distinct merc-mode destinations read mechanically out of the
+    // landed *bucket-map* (foreground-h.gc, vu1-bucket-map(level 0..18, category in
+    // {tfrag,pris,shrub,alpha,pris2,water}, viewport 0..1, mode merc)); the jak3-copied
+    // MERC_L* enum names are wrong for jakx (forge #44) so raw ids are ground truth.
+    // Levels 6..17 share one common region (406..509) and each category has a common
+    // pair at the tail; water shares its buckets with emerc, single registration.
+    // Emerc buckets get no renderer of their own in any game: Merc2 absorbs the
+    // envmap path internally via its shader switch.
+    static constexpr int kMercBuckets[104] = {
+        14,  25,  37,  48,  60,  71,  83,  94,  106, 117, 129, 140, 151, 160, 170, 179, 189, 198,
+        208, 217, 227, 236, 246, 255, 263, 273, 284, 294, 305, 315, 326, 336, 347, 357, 368, 378,
+        386, 390, 395, 399, 406, 410, 415, 419, 424, 428, 433, 437, 442, 446, 451, 455, 460, 464,
+        469, 473, 478, 482, 487, 491, 496, 500, 505, 509, 514, 518, 523, 527, 532, 536, 541, 545,
+        550, 554, 559, 563, 568, 572, 577, 581, 586, 590, 595, 599, 604, 608, 613, 617, 622, 626,
+        634, 643, 653, 662, 672, 681, 691, 700, 710, 719, 729, 738, 748, 757};
+    for (int id : kMercBuckets) {
+      init_bucket_renderer<Merc2BucketRenderer>(fmt::format("merc-{}", id), BucketCategory::MERC,
+                                                id, m_merc2);
+    }
+
     for (size_t i = 0; i < m_bucket_renderers.size(); i++) {
       if (!m_bucket_renderers[i]) {
         init_bucket_renderer<SkipRenderer>(fmt::format("bucket-{}", i), BucketCategory::OTHER, i);
