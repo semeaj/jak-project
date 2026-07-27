@@ -7,8 +7,13 @@
 # matches reality. It never changes a label itself; the human stays the authority, the
 # robot is just the tripwire.
 #
-# Runs from develop (the default branch, which is what schedules execute from). Upstream
-# reads are unauthenticated; one page a day is far inside the anonymous rate limit.
+# Runs from develop (the default branch, which is what schedules execute from).
+#
+# UPSTREAM_GITHUB_TOKEN is optional and wants no scopes at all, since every GitHub read
+# here is public. It is worth setting anyway: without it the reads are anonymous, and
+# the anonymous budget of 60 requests an hour belongs to the runner's egress IP rather
+# than to this job, so anything else on that address can spend it. That is what failed
+# the 2026-07-27 run on its first request.
 
 name: Reconcile upstream
 
@@ -32,4 +37,5 @@ jobs:
           FORGE_REPO: ${{ github.repository }}
           UPSTREAM: open-goal/jak-project
           AUTHOR: semeaj
+          UPSTREAM_TOKEN: ${{ secrets.UPSTREAM_GITHUB_TOKEN }}
         run: python3 .forgejo/scripts/reconcile_upstream.py
