@@ -227,8 +227,8 @@ that gets accessed by the accompanying process."
   (:methods
     (birth! (_type_) _type_)
     (kill! (_type_) _type_)
-    (entity-method-24 (_type_) _type_)
-    (entity-method-25 (_type_) _type_)
+    (add-to-level! (_type_ level-group level actor-id) none)
+    (remove-from-level! (_type_ level-group) _type_)
     (get-level (_type_) level)
     )
   )
@@ -301,7 +301,7 @@ that gets accessed by the accompanying process."
 
 ;; definition of type actor-group
 (deftype actor-group (inline-array-class)
-  ((data  actor-reference  :dynamic)
+  ((data  actor-reference  :inline :dynamic :offset  12)
    )
   )
 
@@ -314,7 +314,7 @@ that gets accessed by the accompanying process."
   (format #t "[~8x] ~A~%" this (-> this type))
   (format #t "~1Tlength: ~D~%" (-> this length))
   (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
-  (format #t "~1Tdata[0] @ #x~X~%" (-> this data))
+  (format #t "~1Tdata[0] @ #x~X~%" (&-> this data 0 id))
   (label cfg-4)
   this
   )

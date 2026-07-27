@@ -5,11 +5,29 @@
 ;; name in dgo: entity
 ;; dgos: ENGINE, GAME
 
+;; og:preserve-this externs for symbols whose home objects are unlanded stubs:
+;; entity-info-lookup lives in entity-table.o and birth-viewer in viewer.o; both
+;; call sites below carry runtime-link guards until those objects land.
+(define-extern entity-info-lookup (function type entity-info))
+(define-extern birth-viewer (function process entity-actor object))
+
 ;; DECOMP BEGINS
 
-;; og:preserve-this partial landing: entity-by-name only (the camera ring's
-;; entity binding path waits on it); the rest of entity.o stays pending. jakx
-;; caches the entity name in the `unknown` slot where jak3 did a res-lump lookup.
+;; og:preserve-this partial landing (rung 5): the birth chain is live from clean
+;; machine output (entity-by-aid, add-to-level!, remove-from-level!, the
+;; birth!/kill! family, init-entity, entity-deactivate-handler, birth and
+;; deactivate-entities on bsp-header), plus the three actor globals. Still
+;; pending: actors-update (the per-frame birth!/kill! driver, so nothing calls
+;; birth! yet), the additional-spawner/vis-predicate surface, and the debug
+;; tooling. jakx caches the entity name in the `unknown` slot where jak3 did a
+;; res-lump lookup.
+
+(define *spawn-actors* #t)
+
+(define *compact-actors* #t)
+
+(define *vis-actors* #t)
+
 (defun entity-by-name ((arg0 string))
   (if (not arg0)
       (return (the-as entity #f))
@@ -67,3 +85,386 @@
   (the-as entity #f)
   )
 
+(defun entity-by-aid ((arg0 uint))
+  (dotimes (v1-0 (-> *level* length))
+    (let ((a1-3 (-> *level* level v1-0)))
+      (when (= (-> a1-3 status) 'active)
+        (let ((a1-4 (-> a1-3 entity)))
+          (when (nonzero? a1-4)
+            (let ((a2-4 0)
+                  (a3-2 (+ (-> a1-4 length) -1))
+                  )
+              0
+              (while (>= a3-2 a2-4)
+                (let* ((t0-3 (+ a2-4 (/ (- a3-2 a2-4) 2)))
+                       (t1-2 (-> a1-4 data t0-3))
+                       (t2-0 (-> t1-2 perm aid))
+                       )
+                  (cond
+                    ((= t2-0 arg0)
+                     (return (-> t1-2 entity))
+                     )
+                    ((< (the-as uint t2-0) arg0)
+                     (set! a2-4 (+ t0-3 1))
+                     )
+                    (else
+                      (set! a3-2 (+ t0-3 -1))
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  (the-as entity #f)
+  )
+
+(defmethod add-to-level! ((this entity-actor) (arg0 level-group) (arg1 level) (arg2 actor-id))
+  (let ((v1-4 (-> arg1 entity data (-> arg1 entity length))))
+    (+! (-> arg1 entity length) 1)
+    (set! (-> v1-4 process) #f)
+    (set! (-> v1-4 entity) this)
+    (set! (-> this extra) v1-4)
+    (cond
+      ((-> arg0 entity-link)
+       (let* ((a0-6 (-> arg0 entity-link))
+              (t0-1 (-> a0-6 next-link))
+              )
+         (set! (-> a0-6 next-link) v1-4)
+         (set! (-> v1-4 prev-link) a0-6)
+         (set! (-> v1-4 next-link) t0-1)
+         (set! (-> t0-1 prev-link) v1-4)
+         )
+       )
+      (else
+        (set! (-> v1-4 prev-link) v1-4)
+        (set! (-> v1-4 next-link) v1-4)
+        )
+      )
+    (set! (-> arg0 entity-link) v1-4)
+    (set! (-> v1-4 trans quad) (-> this trans quad))
+    )
+  (set! (-> this extra perm aid) arg2)
+  (set! (-> this extra level) arg1)
+  (set! (-> this extra kill-mask)
+        (logior (logand (-> this kill-mask)
+                        (task-mask
+                          task0
+                          task1
+                          task2
+                          task3
+                          task4
+                          task5
+                          task6
+                          task7
+                          done
+                          dummy0
+                          network
+                          vehicle
+                          special
+                          primary0
+                          ctywide
+                          never
+                          )
+                        )
+                (logclear
+                  (task-mask movie0 movie1 movie2 tm19 tm20 tm21 tm22 tm23 tm24 tm25 tm26 tm27 tm28 tm29 tm30 tm31)
+                  (-> this kill-mask)
+                  )
+                )
+        )
+  (if (not (-> arg1 vis-info 0))
+      (set! (-> this extra vis-dist) (res-lump-float this 'vis-dist :default 40960000.0))
+      )
+  (cond
+    ((= (-> this type) entity-actor)
+     (set! (-> this extra perm task) (-> this task))
+     (set! (-> this extra vis-id) (-> this vis-id))
+     )
+    (else
+      (set! (-> this extra perm task) (game-task none))
+      (set! (-> this extra vis-id) 0)
+      0
+      )
+    )
+  (none)
+  )
+
+(defmethod remove-from-level! ((this entity) (arg0 level-group))
+  (let ((v1-0 (-> this extra)))
+    (cond
+      ((= (-> v1-0 next-link) v1-0)
+       (set! (-> arg0 entity-link) #f)
+       )
+      (else
+        (set! (-> v1-0 next-link prev-link) (-> v1-0 prev-link))
+        (set! (-> v1-0 prev-link next-link) (-> v1-0 next-link))
+        (if (= (-> arg0 entity-link) v1-0)
+            (set! (-> arg0 entity-link) (-> v1-0 prev-link))
+            )
+        )
+      )
+    )
+  this
+  )
+
+;; og:preserve-this jakx delta vs jak3: the camera connection registers
+;; (view-get-active-camera), not the *camera* global; seventh viewport-era
+;; divergence on this ladder.
+(defmethod birth! ((this entity-camera))
+  (add-connection *camera-engine* (view-get-active-camera) nothing this #f #f)
+  this
+  )
+
+(defmethod kill! ((this entity-camera))
+  (remove-by-param1 *camera-engine* (the-as int this))
+  this
+  )
+
+(defun init-entity ((arg0 process) (arg1 entity-actor) (arg2 type))
+  (activate arg0 *entity-pool* (the-as string (-> arg1 unknown)) (the-as pointer #x70004000))
+  (set! (-> arg0 entity) arg1)
+  (set! (-> arg0 level) (-> arg1 extra level))
+  (set! (-> arg1 extra process) arg0)
+  (run-now-in-process arg0 (method-of-object arg0 init-from-entity!) arg0 arg1)
+  (none)
+  )
+
+;; og:preserve-this one jakx delta vs jak3, from the disassembly: the
+;; task-mask never / process-nettable method-40 auto-spawn-prevention prologue
+;; (jak3 has no counterpart; the checked birth-viewer return below matches jak3
+;; exactly). Two runtime-link guards until the home objects land:
+;; entity-info-lookup (entity-table.o) degrades to the default #x4000 heap and
+;; birth-viewer (viewer.o) degrades to the retail no-process-type error path.
+(defmethod birth! ((this entity-actor))
+  (when (not (logtest? (-> this extra kill-mask) (task-mask never)))
+    (let ((s5-0 (-> this etype)))
+      (when (and (type-type? s5-0 process-nettable) (nonzero? (-> s5-0 method-table 40)))
+        (format 0 "WARNING: preventing ~A from auto-spawning~%" this)
+        (logior! (-> this extra kill-mask) (task-mask network never))
+        (set! this (the-as entity-actor #f))
+        (goto cfg-21)
+        )
+      )
+    )
+  (let* ((s5-1 (-> this etype))
+         (v1-11 (if (nonzero? entity-info-lookup)
+                    (entity-info-lookup s5-1)
+                    )
+                )
+         (s4-0 (get-process
+                 *default-dead-pool*
+                 s5-1
+                 (if v1-11
+                     (-> v1-11 heap-size)
+                     #x4000
+                     )
+                 0
+                 )
+               )
+         )
+    (cond
+      ((not s4-0)
+       )
+      ((begin
+         (set! (-> s4-0 type) s5-1)
+         (and s5-1
+              (valid? s5-1 type (the-as string #f) #f 0)
+              (valid? (method-of-object s4-0 init-from-entity!) function (the-as string #f) #f 0)
+              )
+         )
+       (init-entity s4-0 this s5-1)
+       )
+      (else
+        (when (not (and (nonzero? birth-viewer) (birth-viewer s4-0 this)))
+          (format 0 "ERROR: no proper process type named ~A exists in the code, could not start ~A~%" s5-1 this)
+          (logior! (-> this extra perm status) (entity-perm-status bit-0))
+          )
+        )
+      )
+    )
+  (label cfg-21)
+  this
+  )
+
+(defun entity-deactivate-handler ((arg0 process) (arg1 entity-actor))
+  (when (= arg0 (-> arg1 extra process))
+    (logclear! (-> arg1 extra perm status) (entity-perm-status error no-kill))
+    (set! (-> arg1 extra process) #f)
+    )
+  (none)
+  )
+
+(defmethod kill! ((this entity-actor))
+  (let ((a0-1 (-> this extra process)))
+    (if a0-1
+        (deactivate a0-1)
+        (entity-deactivate-handler a0-1 this)
+        )
+    )
+  this
+  )
+
+;; og:preserve-this the machine output keeps the two retail .mfc0 Count perf
+;; reads as explicit asm forms, jak3's exact treatment of the same function. The
+;; actor-groups fixup loop is hand-shaped from the raw ops (check and store the
+;; actor slot at entry+0, resolve from the aid at entry+4); the decompiler's
+;; expression pass misprints that loop's field decomposition.
+(defmethod birth ((this bsp-header))
+  (local-vars (v1-75 int) (s5-0 int))
+  (.mfc0 s5-0 Count)
+  (let ((a2-0 (if (nonzero? (-> this actors))
+                  (-> this actors length)
+                  0
+                  )
+              )
+        )
+    (cond
+      ((not (-> this level entity))
+       (set! (-> this level entity) (new 'loading-level 'entity-links-array a2-0))
+       )
+      ((< (-> this level entity allocated-length) a2-0)
+       (format
+         0
+         "ERROR: Attempting to rebirth level ~A with incorrect entity table size ~D/~D~%"
+         (-> this level)
+         a2-0
+         (-> this level entity allocated-length)
+         )
+       )
+      )
+    )
+  (set! (-> this level entity length) 0)
+  0
+  (when (nonzero? (-> this actors))
+    (dotimes (s4-0 (-> this actors length))
+      (let* ((a0-4 (-> this actor-birth-order s4-0))
+             (v1-23 (-> this actors data (logand a0-4 8191) actor))
+             )
+        (add-to-level! v1-23 *level* (-> this level) (the-as actor-id (-> v1-23 aid)))
+        )
+      )
+    )
+  (let ((s4-1 (-> this cameras)))
+    (when (nonzero? s4-1)
+      (dotimes (s3-0 (-> s4-1 length))
+        (birth! (-> s4-1 s3-0))
+        )
+      )
+    )
+  (let ((s4-2 (-> this level status)))
+    (set! (-> this level status) 'active)
+    (do-nothing *level*)
+    (dotimes (s3-1 (-> *level* length))
+      (let ((s2-0 (-> *level* level s3-1)))
+        (when (= (-> s2-0 status) 'active)
+          (when (nonzero? (-> s2-0 bsp actor-groups))
+            (countdown (s1-0 (-> s2-0 bsp actor-groups length))
+              (let ((s0-0 (-> s2-0 bsp actor-groups s1-0))
+                    (sv-16 0)
+                    )
+                (while (< sv-16 (-> s0-0 length))
+                  (if (not (-> s0-0 data sv-16 actor))
+                      (set! (-> s0-0 data sv-16 actor) (the-as entity-actor (entity-by-aid (-> s0-0 data sv-16 id))))
+                      )
+                  (+! sv-16 1)
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    (set! (-> this level status) s4-2)
+    )
+  (.mfc0 v1-75 Count)
+  (let ((a3-2 (- v1-75 s5-0)))
+    (format 0 "Done ~S in ~D~%" "birth" a3-2)
+    )
+  (none)
+  )
+
+;; og:preserve-this partial landing: the cross-level reference clearing, the
+;; kill!/unlink loops, and the nav-mesh kill loop (guarded, see below) are live;
+;; the one deferred piece is the retail tail between the camera and nav-mesh
+;; loops, a kernel-context relocating sweep dispatching check-for-rougue-process
+;; over the process tree, which waits on check-for-rougue-process and its
+;; iterate lambda (actors-update leg). The fixup loops are hand-shaped from the
+;; raw ops like birth's (actor slot at entry+0, range-checked as a pointer).
+(defmethod deactivate-entities ((this bsp-header))
+  (let ((v1-1 (-> this level heap base))
+        (a0-2 (-> this level heap top-base))
+        )
+    (when (nonzero? (-> this actor-groups))
+      (dotimes (a1-2 (-> this actor-groups length))
+        (let ((a2-2 (-> this actor-groups a1-2)))
+          (dotimes (a3-1 (-> a2-2 length))
+            (let ((t0-2 (-> a2-2 data a3-1 actor)))
+              (if (and t0-2 (not (and (>= (the-as int t0-2) (the-as int v1-1)) (< (the-as int t0-2) (the-as int a0-2)))))
+                  (set! (-> a2-2 data a3-1 actor) (the-as entity-actor #f))
+                  )
+              )
+            )
+          )
+        )
+      )
+    (dotimes (a1-5 (-> *level* length))
+      (let ((a2-10 (-> *level* level a1-5)))
+        (when (= (-> a2-10 status) 'active)
+          (when (!= a2-10 (-> this level))
+            (when (nonzero? (-> a2-10 bsp actor-groups))
+              (dotimes (a3-10 (-> a2-10 bsp actor-groups length))
+                (let ((t0-13 (-> a2-10 bsp actor-groups a3-10)))
+                  (dotimes (t1-2 (-> t0-13 length))
+                    (let ((t2-3 (-> t0-13 data t1-2 actor)))
+                      (if (and t2-3 (>= (the-as int t2-3) (the-as int v1-1)) (< (the-as int t2-3) (the-as int a0-2)))
+                          (set! (-> t0-13 data t1-2 actor) (the-as entity-actor #f))
+                          )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  (let ((s5-0 (-> this actors)))
+    (when (nonzero? s5-0)
+      (dotimes (s4-0 (-> s5-0 length))
+        (let ((s3-0 (-> s5-0 data s4-0 actor)))
+          (kill! s3-0)
+          (remove-from-level! s3-0 *level*)
+          )
+        )
+      )
+    )
+  (let ((s5-1 (-> this cameras)))
+    (when (nonzero? s5-1)
+      (dotimes (s4-1 (-> s5-1 length))
+        (kill! (-> s5-1 s4-1))
+        )
+      )
+    )
+  (let ((s5-3 (-> this nav-meshes)))
+    (when (nonzero? s5-3)
+      (dotimes (s4-2 (-> s5-3 length))
+        ;; og:preserve-this runtime-link guard: entity-nav-mesh inherits kill!
+        ;; from entity, whose base defmethod is unlanded, so the slot links 0
+        ;; until the nav-mesh leg lands; retail calls it bare
+        (let* ((a0-14 (-> s5-3 s4-2))
+               (t9-14 (method-of-object a0-14 kill!))
+               )
+          (if (nonzero? (the-as int t9-14))
+              (t9-14 a0-14)
+              )
+          )
+        )
+      )
+    )
+  (none)
+  )

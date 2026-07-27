@@ -33395,8 +33395,8 @@
   (:methods
     (birth! (_type_) _type_) ;; 22
     (kill! (_type_) _type_) ;; 23
-    (entity-method-24 (_type_) _type_) ;; 23 (add-to-level! (_type_ level-group level actor-id) none) ;; 24
-    (entity-method-25 (_type_) _type_) ;; (remove-from-level! (_type_ level-group) _type_) ;; 25
+    (add-to-level! (_type_ level-group level actor-id) none) ;; 24
+    (remove-from-level! (_type_ level-group) _type_) ;; 25
     (get-level (_type_) level) ;; 26
     )
   )
@@ -33464,7 +33464,11 @@
   )
 
 (deftype actor-group (inline-array-class)
-  ((data             actor-reference :dynamic :offset-assert 16) ;; guessed by decompiler
+  ;; jakx delta vs jak3: inline actor-reference entries at offset 12, an anomaly
+  ;; against the shared inline-array-class base (whose _data sits at 16 in both
+  ;; games, as jak3's actor-group keeps it); the birth fixup loop pins it,
+  ;; reading actor at 12+i*8 and id at 16+i*8
+  ((data             actor-reference :dynamic :inline :offset 12)
    )
   :method-count-assert 14
   :size-assert         #x10
@@ -42312,18 +42316,16 @@
 ;; entity                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype debug-actor-info (basic)
-  ((name    string   :offset-assert 4) ;; guessed by decompiler
+  ((name    string   :offset-assert 4)
    (handle  uint64   :offset-assert 8) ;; handle
-   (process process  :offset-assert 16) ;; guessed by decompiler
+   (process process  :offset-assert 16)
    (pid     int32    :offset-assert 20)
    )
   :method-count-assert 9
   :size-assert         #x18
   :flag-assert         #x900000018
   )
-|#
 
 ;; actor-group is already defined!
 
@@ -42381,56 +42383,56 @@
   )
 |#
 
-;; (define-extern *spawn-actors* object) ;; symbol
-;; (define-extern *compact-actors* object) ;; symbol
-;; (define-extern *vis-actors* object) ;; symbol
-;; (define-extern *additional-spawner-count* object)
-;; (define-extern *additional-spawners* object)
-;; (define-extern register-additional-spawner function)
-;; (define-extern unregister-spawner-at-index function)
-;; (define-extern *camera-pos-0* object)
-;; (define-extern *camera-pos-1* object)
-;; (define-extern vis-cull-all? function)
-;; (define-extern vis-dist-additional-ok? function)
-;; (define-extern vis-dist-ok? function)
+(define-extern *spawn-actors* symbol)
+(define-extern *compact-actors* symbol)
+(define-extern *vis-actors* symbol)
+(define-extern *additional-spawner-count* int)
+(define-extern *additional-spawners* (pointer handle))
+(define-extern register-additional-spawner (function handle none))
+(define-extern unregister-spawner-at-index (function int none))
+(define-extern *camera-pos-0* vector)
+(define-extern *camera-pos-1* vector)
+(define-extern vis-cull-all? (function vector float symbol))
+(define-extern vis-dist-additional-ok? (function vector float symbol))
+(define-extern vis-dist-ok? (function vector float symbol))
 (define-extern entity-by-name (function string entity))
 (define-extern entity-by-type (function type entity-actor))
-;; (define-extern entity-by-aid function) ;; (function uint entity)
-;; (define-extern entity-actor-from-level-name function) ;; (function symbol entity-actor)
-;; (define-extern entity-nav-mesh-by-aid function) ;; (function actor-id entity-nav-mesh)
-;; (define-extern nav-mesh-from-res-tag function) ;; (function entity symbol int nav-mesh)
-;; (define-extern entity-by-meters function) ;; (function float float float entity-actor)
-;; (define-extern process-by-ename function) ;; (function string process)
-;; (define-extern entity-process-count function) ;; (function symbol int)
-;; (define-extern entity-count function) ;; (function int)
-;; (define-extern entity-remap-names function) ;; (function pair none)
-;; (define-extern process-status-bits function) ;; (function process symbol none)
-;; (define-extern process-entity-set! function) ;; (function process entity entity)
+(define-extern entity-by-aid (function uint entity))
+(define-extern entity-actor-from-level-name (function symbol entity-actor))
+(define-extern entity-nav-mesh-by-aid (function actor-id entity-nav-mesh))
+(define-extern nav-mesh-from-res-tag (function entity symbol int nav-mesh))
+(define-extern entity-by-meters (function float float float entity-actor))
+(define-extern process-by-ename (function string process))
+(define-extern entity-process-count (function symbol int))
+(define-extern entity-count (function int))
+(define-extern entity-remap-names (function pair none))
+(define-extern process-status-bits (function process symbol none))
+(define-extern process-entity-set! (function process entity entity))
 (define-extern process-task-mask (function process task-mask)) ;; 
-;; (define-extern update-actor-vis-box function) ;; (function process-drawable vector vector none)
-;; (define-extern expand-bounding-box function) ;; (function vector vector vector vector none)
-;; (define-extern expand-bounding-box-from-nav-meshes function) ;; (function entity vector vector object)
-;; (define-extern expand-vis-box-with-point function) ;; (function entity vector none)
-;; (define-extern *debug-actor-info* debug-actor-info) ;; debug-actor-info
-;; (define-extern *pid-string* object) ;; string
-;; (define-extern debug-actor function) ;; (function string none)
-;; (define-extern debug-actor-process function) ;; (function process none)
-;; (define-extern draw-actor-marks function) ;; (function process none)
-;; (define-extern init-entity function) ;; (function process entity-actor type none)
-;; (define-extern entity-deactivate-handler function) ;; (function process entity-actor none)
-;; (define-extern check-for-rougue-process function) ;; (function process int int level none)
-;; (define-extern process-drawable-scale-from-entity! function) ;; (function process-drawable entity none)
-;; (define-extern process-drawable-from-entity! function) ;; (function process-drawable entity-actor none)
-;; (define-extern reset-actors-by-game-type function)
-;; (define-extern reset-actors function) ;; (function symbol none)
-;; (define-extern reset-cameras function) ;; (function none)
-;; (define-extern entity-birth-no-kill function) ;; (function entity process)
-;; (define-extern entity-task-complete-on function) ;; (function entity none)
-;; (define-extern entity-task-complete-off function) ;; (function entity none)
-;; (define-extern process-entity-status! function) ;; (function process entity-perm-status symbol entity-perm-status)
-;; (define-extern find-nearest-entity function) ;; (function vector type entity)
-;; (define-extern entity-speed-test function) ;; (function string entity)
-;; (define-extern dump-entity-remap function) ;; (function object object none)
+(define-extern update-actor-vis-box (function process-drawable vector vector none))
+(define-extern expand-bounding-box (function vector vector vector vector none))
+(define-extern expand-bounding-box-from-nav-meshes (function entity vector vector object))
+(define-extern expand-vis-box-with-point (function entity vector none))
+(define-extern *debug-actor-info* debug-actor-info)
+(define-extern *pid-string* string)
+(define-extern debug-actor (function string none))
+(define-extern debug-actor-process (function process none))
+(define-extern draw-actor-marks (function process none))
+(define-extern init-entity (function process entity-actor type none))
+(define-extern entity-deactivate-handler (function process entity-actor none))
+(define-extern check-for-rougue-process (function process int int level none))
+(define-extern process-drawable-scale-from-entity! (function process-drawable entity none))
+(define-extern process-drawable-from-entity! (function process-drawable entity-actor none))
+(define-extern reset-actors-by-game-type (function symbol none)) ;; signature authored from usage, no jak3 counterpart
+(define-extern reset-actors (function symbol none))
+(define-extern reset-cameras (function none))
+(define-extern entity-birth-no-kill (function entity process))
+(define-extern entity-task-complete-on (function entity none))
+(define-extern entity-task-complete-off (function entity none))
+(define-extern process-entity-status! (function process entity-perm-status symbol entity-perm-status))
+(define-extern find-nearest-entity (function vector type entity))
+(define-extern entity-speed-test (function string entity))
+(define-extern dump-entity-remap (function object object none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; path                           ;;
@@ -42809,7 +42811,7 @@
 ;; (define-extern task-node-open? function) ;; (function game-task-node symbol)
 ;; (define-extern task-node-open! function) ;; (function game-task-node symbol int)
 ;; (define-extern task-node-close-upwards function) ;; (function (array game-task-node-info) int none)
-;; (define-extern task-node-reset function) ;; (function symbol int)
+(define-extern task-node-reset (function symbol int))
 (define-extern cheat-add-gold (function none)) ;; refine when task-control lands
 ;; (define-extern *cache-open-node* object)
 ;; (define-extern get-open-task-node-info function)
@@ -51571,7 +51573,7 @@
 ;; (define-extern init-viewer function) ;; (function string string object :behavior viewer)
 ;; (define-extern init-viewer-for-other function) ;; (function string vector entity-actor object :behavior viewer)
 ;; (define-extern add-a-bunch function) ;; (function string int int float process-tree entity-actor symbol)
-;; (define-extern birth-viewer function) ;; (function process entity-actor object)
+(define-extern birth-viewer (function process entity-actor object))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; part-tester                    ;;

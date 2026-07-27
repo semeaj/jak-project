@@ -157,13 +157,6 @@
   (none)
   )
 
-;; og:preserve-this bring-up no-op: the real bsp-header birth (entity.o home, jak3
-;; entity.gc equivalent) births the level's actors; entity/actor systems are phase-2
-;; and an FMV level has none to birth.
-(defmethod birth ((this bsp-header))
-  0
-  (none)
-  )
 ;; og:preserve-this hand-landed: the decomp fails on the *artist-flip-visible*
 ;; lq/sq scratchpad loop (debug-only; dropped here). The vf16-31 background
 ;; register setup matches the original loads; on PC they only feed the commented

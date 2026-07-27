@@ -115,8 +115,8 @@ that gets accessed by the accompanying process."
   (:methods
     (birth! (_type_) _type_)
     (kill! (_type_) _type_)
-    (entity-method-24 (_type_) _type_)
-    (entity-method-25 (_type_) _type_)
+    (add-to-level! (_type_ level-group level actor-id) none) ;; 24
+    (remove-from-level! (_type_ level-group) _type_) ;; 25
     (get-level (_type_) level)
     )
   )
@@ -175,7 +175,11 @@ that gets accessed by the accompanying process."
 
 
 (deftype actor-group (inline-array-class)
-  ((data  actor-reference  :dynamic)
+  ;; jakx delta vs jak3: inline actor-reference entries at offset 12, an anomaly
+  ;; against the shared inline-array-class base (whose _data sits at 16 in both
+  ;; games, as jak3's actor-group keeps it); birth's fixup loop pins it, reading
+  ;; actor at 12+i*8 and id at 16+i*8
+  ((data  actor-reference  :dynamic :inline :offset 12)
    )
   )
 
