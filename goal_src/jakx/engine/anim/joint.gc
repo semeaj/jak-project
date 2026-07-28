@@ -1181,15 +1181,77 @@
   this
   )
 
-;; og:preserve-this art-group relocate (method 7, the linker's entry point for every
-;; -ag data object) is PARKED, not landed: its body immediately logs in the whole
-;; group, and probing the login chain bottoms out at a call-boundary fault into
-;; adgif-shader-login (0xC5, bisected to exactly this method; the boundary fault
-;; needs C++-side debugging). Its callees (link-art-to-master, set-loaded-art,
-;; load-to-heap-by-name) landed with the loader art slice; relocate itself retires
-;; in two steps: record-only (set-loaded-art without the default-level immediate
-;; login), then the login un-gating once the adgif call-boundary fault is fixed.
-;; Until then art groups link inert, the state every prior rung shipped.
+;; og:preserve-this the long-parked relocate lands with its full retail body. The
+;; boot crash that parked it was never in this method: the login chain's first
+;; adgif-shader-login call goes through level-remap-texture, which was declared but
+;; undefined (an unbound symbol reads 0, and calling 0 executes arena+0), pinned by
+;; catching the fault under lldb and walking [rsp] back into texture.o. With
+;; level-remap-texture landed in bsp.gc the whole common-art tail logs in clean.
+;; WARN: Return type mismatch art-group vs none.
+(defmethod relocate ((this art-group) (heap kheap) (name (pointer uint8)))
+  (let ((s4-0 (clear *temp-string*)))
+    (string<-charp s4-0 name)
+    (set! this
+          (cond
+            ((not this)
+             (format 0 "ERROR: art-group ~A is not a valid file.~%" s4-0)
+             (the-as art-group #f)
+             )
+            ((not (type? this art-group))
+             (format 0 "ERROR: art-group ~A is not a art-group.~%" s4-0)
+             (the-as art-group #f)
+             )
+            ((not (file-info-correct-version? (-> this info) (file-kind art-group) 0))
+             (the-as art-group #f)
+             )
+            (else
+              (let ((s5-1 (-> *level* loading-level)))
+                (if (and (nonzero? (-> s5-1 code-memory-end)) (< (the-as uint (-> s5-1 load-buffer-mode)) (the-as uint 2)))
+                    (set! (-> s5-1 load-buffer-mode) (level-memory-mode tiny-edge))
+                    )
+                (cond
+                  ((and s5-1 (= (-> s5-1 name) 'default) (not *print-login*))
+                   (format
+                     0
+                     "ERROR: illegal login of art ~A (in level ~A) to level ~A~%"
+                     this
+                     (get-level-by-heap-ptr-and-status *level* (the-as pointer this) 'loading)
+                     s5-1
+                     )
+                   (break!)
+                   0
+                   )
+                  ((or (not s5-1) (= (-> s5-1 name) 'default))
+                   )
+                  ((!= (get-level-by-heap-ptr-and-status *level* (the-as pointer this) 'loading) s5-1)
+                   (format
+                     0
+                     "ERROR: illegal login of art ~A (in level ~A) to level ~A~%"
+                     this
+                     (get-level-by-heap-ptr-and-status *level* (the-as pointer this) 'loading)
+                     s5-1
+                     )
+                   (break!)
+                   0
+                   )
+                  )
+                (when (or (not s5-1) (= (-> s5-1 name) 'default))
+                  (login this)
+                  (if (contains-art-for-other-group? this)
+                      (link-art-to-master this)
+                      )
+                  )
+                (if s5-1
+                    (set-loaded-art (-> s5-1 art-group) this)
+                    )
+                )
+              this
+              )
+            )
+          )
+    )
+  (none)
+  )
 
 ;; WARN: Return type mismatch uint vs int.
 (defmethod asize-of ((this art-mesh-geo))

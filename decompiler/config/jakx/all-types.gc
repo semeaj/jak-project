@@ -36171,6 +36171,7 @@
 ;; (define-extern mem-usage-bsp-tree function) ;; (function bsp-header bsp-node memory-usage-block int none)
 ;; (define-extern *test-shrub* object) ;; int
 (define-extern bsp-camera-asm (function bsp-header vector int none)) ;; jakx adds a vis-index arg
+(define-extern level-remap-texture (function texture-id texture-id))
 ;; (define-extern print-collide-stats function) ;; (function none)
 ;; (define-extern level-remap-texture function) ;; (function texture-id texture-id)
 (define-extern build-masks (function bsp-header none))

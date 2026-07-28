@@ -11,6 +11,49 @@
 ;; load chain) decompiles clean in bsp_ir2.asm and is landed below; the rest of bsp.o
 ;; stays pending on its blocked top-level.
 
+;; og:preserve-this level-remap-texture is jak3's landed body verbatim: the jakx asm
+;; (bsp_ir2.asm L43) is the same remap-table binary search access for access, and the
+;; two 64-bit label constants L83/L84 (#xfffffff8, #xffffff00) equal jak3's align mask
+;; and its (new 'static 'texture-id :index #xfff :page #xfff). The decompiler cannot
+;; resolve the search's CFG (strange-gotos), so this is a port, not machine output.
+;; It was the first unbound symbol on the art-group login chain: adgif-shader-login-fast
+;; calls it on every shader, so relocate login died at arena+0 without it.
+;; WARN: Return type mismatch uint vs texture-id.
+(defun level-remap-texture ((arg0 texture-id))
+  "Level tpages combine the tpages of many individual actors.
+   Given a texture ID for a texture in an individual actor,
+   determine the texture ID for this texture in the level's
+   combined page."
+  (let ((v1-1 (-> *level* log-in-level-bsp)))
+    (when v1-1
+      (let* ((a3-0 (-> v1-1 texture-remap-table-len))
+             (v1-2 (the-as object (-> v1-1 texture-remap-table)))
+             (t0-0 (the-as (pointer uint64) v1-2))
+             (a1-1 (the-as uint #xfffffff8))
+             (a2-1 (logand (new 'static 'texture-id :index #xfff :page #xfff) arg0))
+             (a3-2 (the-as object (&+ t0-0 (* a3-0 8))))
+             )
+        (label cfg-2)
+        (b! (= v1-2 a3-2) cfg-8 :delay (nop!))
+        (let ((t0-3 (the-as object (logand (/ (+ (the-as int v1-2) (the-as int a3-2)) 2) a1-1))))
+          (let ((t1-1 (- (-> (the-as (pointer uint32) t0-3) 0) a2-1)))
+            (b! (zero? t1-1) cfg-7 :delay (nop!))
+            (b! (< (the-as int t1-1) 0) cfg-6 :delay (nop!))
+            )
+          (b! #t cfg-2 :delay (set! a3-2 (the-as (pointer uint64) t0-3)))
+          (label cfg-6)
+          (b! #t cfg-2 :delay (set! v1-2 (+ (the-as int t0-3) 8)))
+          (label cfg-7)
+          (set! arg0 (the-as texture-id (logior (-> (the-as (pointer uint32) t0-3) 1) 20)))
+          )
+        )
+      (label cfg-8)
+      0
+      )
+    )
+  (the-as texture-id arg0)
+  )
+
 (defun build-masks ((arg0 bsp-header))
   (let ((v1-0 (-> arg0 drawable-trees))
         (s2-0 (the-as int (-> arg0 tfrag-closest)))
