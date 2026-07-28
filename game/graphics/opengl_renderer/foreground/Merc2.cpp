@@ -842,7 +842,13 @@ void Merc2::handle_all_dma(DmaFollower& dma,
   }
   // if we reach here, there's stuff to draw
   // this handles merc-specific setup DMA
-  handle_setup_dma(dma, render_state);
+  if (!handle_setup_dma(dma, render_state)) {
+    // jakx bring-up: unexpected chain shape was logged; skip the bucket instead of dying
+    while (dma.current_tag_offset() != render_state->next_bucket) {
+      dma.read_and_advance();
+    }
+    return;
+  }
 
   // handle each merc transfer
   while (dma.current_tag_offset() != render_state->next_bucket) {
@@ -860,8 +866,33 @@ void set_uniform(GLuint uniform, const math::Vector4f& val) {
 }
 }  // namespace
 
-void Merc2::handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state) {
+bool Merc2::handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state) {
   auto first = dma.read_and_advance();
+
+  if (render_state->version == GameVersion::JakX) {
+    // jakx's merc-vu1-add-vu-function emits its MPG chunk header even for the
+    // zero-length PC vu block, producing an empty leading transfer that jak3's
+    // emitter omits entirely; skip empties to reach the setup packet.
+    while (first.size_bytes == 0 && dma.current_tag_offset() != render_state->next_bucket) {
+      first = dma.read_and_advance();
+    }
+    if (first.size_bytes != 10 * 16) {
+      // jakx bring-up diagnostic: dump the shape once per unexpected size, then
+      // let the caller skip the bucket so the frame survives.
+      static int dumps = 0;
+      if (dumps < 8) {
+        dumps++;
+        lg::error("jakx merc setup mismatch: first transfer {} bytes, vif0 {}, vif1 {}",
+                  first.size_bytes, first.vifcode0().print(), first.vifcode1().print());
+        for (int i = 0; i < 4 && dma.current_tag_offset() != render_state->next_bucket; i++) {
+          auto nxt = dma.read_and_advance();
+          lg::error("  following transfer {}: {} bytes, vif0 {}, vif1 {}", i, nxt.size_bytes,
+                    nxt.vifcode0().print(), nxt.vifcode1().print());
+        }
+      }
+      return false;
+    }
+  }
 
   // 10 quadword setup packet
   ASSERT(first.size_bytes == 10 * 16);
@@ -952,6 +983,7 @@ void Merc2::handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state) 
     ASSERT(nothing.vif0() == 0);
     ASSERT(nothing.vif1() == 0);
   }
+  return true;
 }
 
 namespace {

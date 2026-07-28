@@ -140,7 +140,7 @@ class Merc2 {
   Uniforms m_merc_uniforms, m_emerc_uniforms;
 
   void init_shader_common(Shader& shader, Uniforms* uniforms, bool include_lights);
-  void handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state);
+  bool handle_setup_dma(DmaFollower& dma, SharedRenderState* render_state);
   void handle_all_dma(DmaFollower& dma,
                       SharedRenderState* render_state,
                       ScopedProfilerNode& prof,
