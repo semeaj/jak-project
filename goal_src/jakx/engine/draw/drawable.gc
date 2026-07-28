@@ -4293,18 +4293,27 @@
   ;; no-op today; the EE/VU0 pass
   ;; keeps its rung-1 role (bones + guarded stubs). jakx delta vs jak3: jak3 swaps
   ;; the clock by time-of-day mode, the jakx original loads real-clock always.
-  (dotimes (vp-idx (-> *viewport-array* num-viewports))
-    (view-push-context vp-idx)
-    (set! (-> *viewport-array* current-viewport-index) vp-idx)
-    (foreground-engine-execute *foreground-draw-engine*)
-    (with-pp
-      (let ((prev-clock (-> pp clock)))
-        (set! (-> pp clock) (-> *display* real-clock))
-        (foreground-execute-cpu-vu0-engines)
-        (set! (-> pp clock) prev-clock)
+  ;; restore current-viewport-index after the loop: view-pop-context only moves the
+  ;; view stack, and leaving the index at the last viewport made every later
+  ;; consumer in the frame (update-camera -> update-visible among them) read and
+  ;; write viewport 1's state while the renderers consume viewport 0's. That was
+  ;; the frozen-visibility bug: the per-frame all-visible refresh landed in
+  ;; vis-bits[1] and vis-bits[0] never changed after boot.
+  (let ((prev-vp (-> *viewport-array* current-viewport-index)))
+    (dotimes (vp-idx (-> *viewport-array* num-viewports))
+      (view-push-context vp-idx)
+      (set! (-> *viewport-array* current-viewport-index) vp-idx)
+      (foreground-engine-execute *foreground-draw-engine*)
+      (with-pp
+        (let ((prev-clock (-> pp clock)))
+          (set! (-> pp clock) (-> *display* real-clock))
+          (foreground-execute-cpu-vu0-engines)
+          (set! (-> pp clock) prev-clock)
+          )
         )
+      (view-pop-context)
       )
-    (view-pop-context)
+    (set! (-> *viewport-array* current-viewport-index) prev-vp)
     )
   0
   (none)
