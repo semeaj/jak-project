@@ -5105,7 +5105,7 @@
   :flag-assert         #xa00000098
   (:methods
     (new (symbol type int) _type_) ;; 0
-    (cpad-info-method-9 () none) ;; 9 ;; (adjust-to-screen-flip (_type_) int)
+    (adjust-to-screen-flip (_type_) int) ;; 9
     )
   )
 
