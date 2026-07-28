@@ -1792,10 +1792,14 @@ int InitHeapAndSymbol() {
   Ptr<Type>(u32_in_fixed_sym(FIX_SYM_PAIR_TYPE))->delete_method =
       make_function_from_c((void*)delete_pair);
 
+  // jakx process-tree/process are one method and 8/16 bytes larger than jak3's (gkernel-h.gc
+  // flag-asserts #xf0000002c / #xf00000090); the jak3 values survived here only because
+  // size_of_type rounds 14 and 15 methods to the same bucket, so gkernel.gc's re-registration
+  // passed the redefinition guard.
   set_fixed_type(FIX_SYM_PROCESS_TREE, "process-tree", get_fixed_type_symbol(FIX_SYM_BASIC),
-                 pack_type_flag(0xe, 0, 0x24), 0, 0);
+                 pack_type_flag(0xf, 0, 0x2c), 0, 0);
   set_fixed_type(FIX_SYM_PROCESS_TYPE, "process", get_fixed_type_symbol(FIX_SYM_PROCESS_TREE),
-                 pack_type_flag(0xe, 0, 0x80), 0, 0);
+                 pack_type_flag(0xf, 0, 0x90), 0, 0);
   set_fixed_type(FIX_SYM_THREAD, "thread", get_fixed_type_symbol(FIX_SYM_BASIC),
                  pack_type_flag(0xc, 0, 0x28), 0, 0);
   set_fixed_type(FIX_SYM_CONNECTABLE, "connectable", get_fixed_type_symbol(FIX_SYM_STRUCTURE),
