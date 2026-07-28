@@ -55,8 +55,10 @@
          (vf9 :class vf)
          )
     (init-vf0-vector)
-        ;; og:preserve-this modified for PC: these registers would be loaded in dma-add-process-drawable
-        (let ((at-0 *math-camera*))
+        ;; og:preserve-this modified for PC: these registers would be loaded in dma-add-process-drawable.
+        ;; jakx delta vs jak3's rewrite: the *math-camera* global does not exist here (the
+        ;; viewport system replaced it); read the active viewport's math-camera instead.
+        (let ((at-0 (view-get-active-math-camera)))
           (.lvf vf20 (&-> at-0 guard-plane 0 quad))
           (.lvf vf21 (&-> at-0 guard-plane 1 quad))
           (.lvf vf22 (&-> at-0 guard-plane 2 quad))
@@ -88,7 +90,8 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-0 *math-camera*))
+    ;; jakx delta vs jak3's rewrite: no *math-camera* global here, read the active viewport's
+    (let ((v1-0 (view-get-active-math-camera)))
       (.lvf vf6 (&-> arg0 quad))
       (.lvf vf1 (&-> v1-0 plane 0 quad))
       (.lvf vf2 (&-> v1-0 plane 1 quad))
@@ -597,9 +600,28 @@
 ;;   (none)
 ;;   )
 
+;; og:preserve-this bring-up shim: the retail calc-vu1-lights selects title, rim
+;; or level light groups through vu-lights<-light-group!, which belongs to the
+;; unlanded lights leg. Until it lands, every actor whose draw-control carries
+;; no baked lights gets flat ambient lighting: zero directional terms, 0.75 grey
+;; ambient. Retire this body with the lights leg (the retail decomp is preserved
+;; commented below).
+(defun calc-vu1-lights ((arg0 vu-lights) (arg1 draw-control) (arg2 symbol))
+  (dotimes (i 3)
+    (set! (-> arg0 direction i quad) (the-as uint128 0))
+    (set! (-> arg0 color i quad) (the-as uint128 0))
+    )
+  (set! (-> arg0 direction 0 y) 1.0)
+  (set! (-> arg0 ambient x) 0.75)
+  (set! (-> arg0 ambient y) 0.75)
+  (set! (-> arg0 ambient z) 0.75)
+  (set! (-> arg0 ambient w) 1.0)
+  (none)
+  )
+
 ;; definition for function calc-vu1-lights
 ;; ERROR: failed type prop at 19: Unknown symbol: vu-lights<-light-group!
-;; NOTE: decomp still fails; commented out until fixed
+;; NOTE: retail decomp preserved for the lights leg; the shim above is live
 ;; (defun calc-vu1-lights ((a0-0 vu-lights) (a1-0 draw-control) (a2-0 symbol))
 ;;   (local-vars
 ;;     (v0-0 math-camera)
@@ -1025,8 +1047,8 @@
                        (and (= (-> s4-0 index) 1) (logtest? (draw-control-status suppress-vport-1) (-> arg1 status)))
                        )
                    )
-          (let ((s1-0 (the-as object (+ 9248 #x70000000)))
-                (s2-0 (the-as object (+ 9264 #x70000000)))
+          (let ((s1-0 (the-as object (-> (scratchpad-object foreground-work) bounds)))
+                (s2-0 (the-as object (-> (scratchpad-object foreground-work) lights)))
                 )
             (.lvf vf16 (&-> arg1 origin quad))
             (.svf (&-> (the-as vector s1-0) quad) vf16)
@@ -1080,7 +1102,7 @@
               (.lvf vf25 (&-> sv-16 camera-rot uvec quad))
               (.lvf vf26 (&-> sv-16 camera-rot fvec quad))
               (.lvf vf27 (&-> sv-16 camera-rot trans quad))
-              (let ((v1-45 (the-as object (+ 9376 #x70000000))))
+              (let ((v1-45 (the-as object (-> (scratchpad-object foreground-work) distance))))
                 (.lvf vf15 (&-> (the-as vector s1-0) quad))
                 (.mul.w.vf acc vf27 vf0)
                 (.add.mul.x.vf acc vf24 vf15 acc)
