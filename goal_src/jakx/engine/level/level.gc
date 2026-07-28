@@ -2853,9 +2853,34 @@
   )
 
 ;; definition for function play
-;; og:preserve-this bring-up extern: home is cam-start.gc, which compiles after the
-;; camera ring types this file cannot see. Retire with the warp helper.
+;; og:preserve-this bring-up externs: home is cam-start.gc, which compiles after the
+;; camera ring types this file cannot see. Retire with the warp helpers.
 (define-extern jakx-cam-warp-to-level (function level none))
+(define-extern jakx-cam-warp-to-continue (function continue-point none))
+
+;; og:preserve-this bring-up helper: look up a continue point by name across every
+;; level-load-info's continues list, jak3 get-continue-by-name's walk without the
+;; *game-info* half. Retires when game-info.gc lands.
+(defun jakx-find-continue-point ((arg0 string))
+  (let ((v1-0 *level-load-list*))
+    (while (not (null? v1-0))
+      (let* ((a1-0 (-> (the-as symbol (car v1-0)) value))
+             (a2-0 (-> (the-as level-load-info a1-0) continues))
+             )
+        (while (not (null? a2-0))
+          (let ((a3-0 (car a2-0)))
+            (if (string= arg0 (-> (the-as continue-point a3-0) name))
+                (return (the-as continue-point a3-0))
+                )
+            )
+          (set! a2-0 (cdr a2-0))
+          )
+        )
+      (set! v1-0 (cdr v1-0))
+      )
+    )
+  (the-as continue-point #f)
+  )
 
 (defun play ((arg0 symbol) (arg1 symbol))
   (kmemopen global "level-boot")
@@ -2883,7 +2908,21 @@
                    )
                  )
                )
+         ;; og:preserve-this bring-up: resolve the boot continue point (multi-level want
+         ;; set plus start-line camera framing); #f falls back to the single-level path.
+         ;; Gated on the normal boot path so kiosk/debug boots stay untouched.
+         (boot-cp (if (and (= s5-0 *jakx-boot-level*)
+                           *jakx-boot-continue*
+                           (nonzero? *level-load-list*)
+                           )
+                      (jakx-find-continue-point (the-as string *jakx-boot-continue*))
+                      (the-as continue-point #f)
+                      )
+                  )
          )
+    (if (and *jakx-boot-continue* (= s5-0 *jakx-boot-level*) (not boot-cp))
+        (format 0 "WARNING: boot continue ~S not found, booting level ~A~%" *jakx-boot-continue* s5-0)
+        )
     (let ((t9-7 stop)
           (a0-7 'play)
           )
@@ -2917,67 +2956,130 @@
     (set-blackout-frames (seconds 0.02))
     (when (not *dproc*)
       (reset! *load-state*)
-      ;; og:preserve-this temp guard: the level table is real now, but load-begin (and the
-      ;; rest of the DGO load chain) is not decompiled yet, so kicking off the boot level load
-      ;; would jump through an empty method slot. Flip *jakx-boot-level-load* in the REPL to
-      ;; experiment with the load path.
+      ;; og:preserve-this bring-up: the DGO load chain is live, but load-state's update!
+      ;; (want -> load propagation) is not landed, so the boot path drives each level
+      ;; synchronously, the proven single-level pattern repeated per want entry. When
+      ;; boot-cp resolved, its full want set loads (jungle-a-1 = junglew tiny-center +
+      ;; junglee tiny + junglea tiny, which exactly tiles the level heap; the tiny
+      ;; allocator has two banks, so a want set can never carry three tiny sections).
+      ;; The want-levels/want-display-level/want-vis-level calls stay for retail parity
+      ;; but are bookkeeping until update! lands. Flip *jakx-boot-level-load* in the
+      ;; REPL to skip the boot load entirely.
       (when (and (nonzero? *level-load-list*) *jakx-boot-level-load*)
-      (let ((s4-1 (level-get-for-use *level* s5-0 'active -1)))
         (let ((a1-11 (new 'stack-no-clear 'array 'symbol 18)))
-          (set! (-> a1-11 17) #f)
-          (set! (-> a1-11 16) #f)
-          (set! (-> a1-11 15) #f)
-          (set! (-> a1-11 14) #f)
-          (set! (-> a1-11 13) #f)
-          (set! (-> a1-11 12) #f)
-          (set! (-> a1-11 11) #f)
-          (set! (-> a1-11 10) #f)
-          (set! (-> a1-11 9) #f)
-          (set! (-> a1-11 8) #f)
-          (set! (-> a1-11 7) #f)
-          (set! (-> a1-11 6) #f)
-          (set! (-> a1-11 5) #f)
-          (set! (-> a1-11 4) #f)
-          (set! (-> a1-11 3) #f)
-          (set! (-> a1-11 2) #f)
-          (set! (-> a1-11 1) (if (= s5-0 'ctysluma)
-                                 'ctywide
-                                 )
+          (dotimes (i 18)
+            (set! (-> a1-11 i) #f)
+            )
+          (cond
+            (boot-cp
+              (dotimes (i (min 4 (the int (-> boot-cp want-count))))
+                (set! (-> a1-11 i) (-> boot-cp want i name))
                 )
-          (set! (-> a1-11 0) s5-0)
+              )
+            (else
+              (set! (-> a1-11 0) s5-0)
+              (if (= s5-0 'ctysluma)
+                  (set! (-> a1-11 1) 'ctywide)
+                  )
+              )
+            )
           (want-levels *load-state* a1-11)
           )
-        (want-display-level *load-state* s5-0 'display)
-        (if (= s5-0 'ctysluma)
-            (want-display-level *load-state* 'ctywide 'display)
+        (cond
+          (boot-cp
+            (dotimes (i (min 4 (the int (-> boot-cp want-count))))
+              (let ((w (-> boot-cp want i)))
+                (if (= (-> w display?) 'display)
+                    (want-display-level *load-state* (-> w name) 'display)
+                    )
+                )
+              )
             )
-        (want-vis-level *load-state* s5-0)
-        (while (and s4-1 (or (= (-> s4-1 status) 'loading) (= (-> s4-1 status) 'loading-bt) (= (-> s4-1 status) 'login)))
-          (set-blackout-frames (seconds 0.02))
-          (load-continue s4-1)
+          (else
+            (want-display-level *load-state* s5-0 'display)
+            (if (= s5-0 'ctysluma)
+                (want-display-level *load-state* 'ctywide 'display)
+                )
+            )
+          )
+        (want-vis-level *load-state* (if boot-cp (-> boot-cp vis-nick) s5-0))
+        (cond
+          (boot-cp
+            (dotimes (i (min 4 (the int (-> boot-cp want-count))))
+              (let ((w (-> boot-cp want i)))
+                (format 0 "boot-continue: loading ~A (~D of ~D)~%" (-> w name) (+ i 1) (-> boot-cp want-count))
+                (let ((s4-1 (level-get-for-use *level* (-> w name) 'active -1)))
+                  (while (and s4-1
+                              (or (= (-> s4-1 status) 'loading)
+                                  (= (-> s4-1 status) 'loading-bt)
+                                  (= (-> s4-1 status) 'login)
+                                  )
+                              )
+                    (set-blackout-frames (seconds 0.02))
+                    (load-continue s4-1)
+                    )
+                  )
+                )
+              )
+            )
+          (else
+            (let ((s4-1 (level-get-for-use *level* s5-0 'active -1)))
+              (while (and s4-1
+                          (or (= (-> s4-1 status) 'loading)
+                              (= (-> s4-1 status) 'loading-bt)
+                              (= (-> s4-1 status) 'login)
+                              )
+                          )
+                (set-blackout-frames (seconds 0.02))
+                (load-continue s4-1)
+                )
+              )
+            )
           )
         )
       )
-      )
     (set! *print-login* #f)
-    ;; og:preserve-this added #f check: level-get returns #f while level loading is not up yet
-    ;; on the bring-up; the original assumes the boot level always exists.
-    (let ((s4-2 (level-get *level* s5-0)))
-      (if s4-2
-          (level-status-update! s4-2 'active)
+    (cond
+      (boot-cp
+        ;; og:preserve-this bring-up shim: activate and display each level of the continue
+        ;; want set directly (load-state update!, which would propagate want -> display?,
+        ;; is not landed), then warp the camera ring onto the continue's own framing.
+        ;; Retire with the update! landing and the camera start chain.
+        (dotimes (i (min 4 (the int (-> boot-cp want-count))))
+          (let* ((w (-> boot-cp want i))
+                 (lev (level-get *level* (-> w name)))
+                 )
+            (when lev
+              (level-status-update! lev 'active)
+              (if (= (-> w display?) 'display)
+                  (set! (-> lev display?) 'display)
+                  )
+              )
+            )
           )
-      ;; og:preserve-this bring-up shim: the load-state update! method (which propagates
-      ;; want -> target -> level display?) is not landed yet, so flip the level's
-      ;; display? directly after boot activation. Retire with the update! landing.
-      (if s4-2
-          (set! (-> s4-2 display?) 'display)
+        (jakx-cam-warp-to-continue boot-cp)
+        )
+      (else
+        ;; og:preserve-this added #f check: level-get returns #f while level loading is not
+        ;; up yet on the bring-up; the original assumes the boot level always exists.
+        (let ((s4-2 (level-get *level* s5-0)))
+          (if s4-2
+              (level-status-update! s4-2 'active)
+              )
+          ;; og:preserve-this bring-up shim: the load-state update! method (which propagates
+          ;; want -> target -> level display?) is not landed yet, so flip the level's
+          ;; display? directly after boot activation. Retire with the update! landing.
+          (if s4-2
+              (set! (-> s4-2 display?) 'display)
+              )
+          ;; og:preserve-this bring-up shim: no camera/target start chain is landed, so the
+          ;; free camera sits at the origin ~400 m from brdroom's geometry. Warp the camera
+          ;; ring onto the level once at boot activation. Retire with the camera start chain.
+          (if s4-2
+              (jakx-cam-warp-to-level s4-2)
+              )
           )
-      ;; og:preserve-this bring-up shim: no camera/target start chain is landed, so the
-      ;; free camera sits at the origin ~400 m from brdroom's geometry. Warp the camera
-      ;; ring onto the level once at boot activation. Retire with the camera start chain.
-      (if s4-2
-          (jakx-cam-warp-to-level s4-2)
-          )
+        )
       )
     )
   (on #t)

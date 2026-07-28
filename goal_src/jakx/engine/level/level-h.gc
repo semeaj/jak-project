@@ -254,6 +254,14 @@
 ;; the bsp with tfrag/tie trees).
 (define *jakx-boot-level* 'junglea)
 
+;; og:preserve-this bring-up lever: when set to a continue-point name, play's boot path
+;; loads that continue's full want set (retail's sliding window for a track position) and
+;; warps the camera onto its camera-trans/camera-rot framing. Set #f in the REPL to boot
+;; the single *jakx-boot-level* instead. "jungle-a-1" is the jungle track A start line:
+;; junglew (tiny-center) + junglee (tiny) + junglea (tiny), exactly the three-level
+;; window the level heap is sized for.
+(define *jakx-boot-continue* "jungle-a-1")
+
 ;; DECOMP BEGINS
 
 

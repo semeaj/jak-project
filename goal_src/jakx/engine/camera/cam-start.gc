@@ -55,6 +55,11 @@
 (define *jakx-cam-warp-frames* 0)
 ;; w > 0 marks the target valid; xyz = warp position
 (define *jakx-cam-warp-target* (new 'static 'vector))
+;; orientation override, decoded from a continue point's packed camera-rot. The pad
+;; fallback re-derives the view from *save-camera-inv-rot* every frame (cam-update.gc
+;; move-camera-from-pad), so the tick seeds both it and the math-camera while pinned.
+(define *jakx-cam-warp-rot* (new 'static 'matrix))
+(define *jakx-cam-warp-rot-valid* #f)
 
 (defun jakx-cam-warp-to-level ((lev level))
   "og:preserve-this bring-up helper: arm the per-frame camera warp for the level
@@ -114,6 +119,53 @@ the extracted brdroom glb bounds center."
     )
   (set! *jakx-cam-warp-level* lev)
   (set! *jakx-cam-warp-frames* 600)
+  0
+  (none)
+  )
+
+(defun jakx-cam-warp-to-continue ((cp continue-point))
+  "og:preserve-this bring-up helper: arm the camera warp at a continue point's
+camera-trans with its packed camera-rot orientation (the retail start-line
+framing) instead of deriving a target from level geometry. Decode matches jak3
+move-camera!: nine row-major int16s at 1/32767 scale. Retire with the real
+camera start chain alongside the level warp."
+  (let ((lev (level-get *level* (-> cp level))))
+    (cond
+      (lev
+        (set! (-> *jakx-cam-warp-target* x) (-> cp camera-trans x))
+        (set! (-> *jakx-cam-warp-target* y) (-> cp camera-trans y))
+        (set! (-> *jakx-cam-warp-target* z) (-> cp camera-trans z))
+        (set! (-> *jakx-cam-warp-target* w) 1.0)
+        (let ((m *jakx-cam-warp-rot*))
+          (matrix-identity! m)
+          (set! (-> m rvec x) (* 0.00003051851 (-> cp camera-rot 0)))
+          (set! (-> m rvec y) (* 0.00003051851 (-> cp camera-rot 1)))
+          (set! (-> m rvec z) (* 0.00003051851 (-> cp camera-rot 2)))
+          (set! (-> m uvec x) (* 0.00003051851 (-> cp camera-rot 3)))
+          (set! (-> m uvec y) (* 0.00003051851 (-> cp camera-rot 4)))
+          (set! (-> m uvec z) (* 0.00003051851 (-> cp camera-rot 5)))
+          (set! (-> m fvec x) (* 0.00003051851 (-> cp camera-rot 6)))
+          (set! (-> m fvec y) (* 0.00003051851 (-> cp camera-rot 7)))
+          (set! (-> m fvec z) (* 0.00003051851 (-> cp camera-rot 8)))
+          )
+        (set! *jakx-cam-warp-rot-valid* #t)
+        (set! *jakx-cam-warp-level* lev)
+        (set! *jakx-cam-warp-frames* 600)
+        (format 0 "cam-warp: continue ~S target <~m ~m ~m>~%"
+                (-> cp name)
+                (-> cp camera-trans x)
+                (-> cp camera-trans y)
+                (-> cp camera-trans z)
+                )
+        )
+      (else
+        (format 0 "cam-warp: continue ~S level ~A not loaded, warp not armed~%"
+                (-> cp name)
+                (-> cp level)
+                )
+        )
+      )
+    )
   0
   (none)
   )
@@ -237,8 +289,16 @@ origin; release after the counter runs out."
           (set! (-> mc trans x) (-> warp x))
           (set! (-> mc trans y) (-> warp y))
           (set! (-> mc trans z) (-> warp z))
+          (if *jakx-cam-warp-rot-valid*
+              (matrix-copy! (-> mc inv-camera-rot) *jakx-cam-warp-rot*)
+              )
           )
         )
+      ;; the pad fallback rebuilds the view from *save-camera-inv-rot* each frame, so
+      ;; seeding it here is what makes the continue orientation survive the release
+      (if *jakx-cam-warp-rot-valid*
+          (matrix-copy! *save-camera-inv-rot* *jakx-cam-warp-rot*)
+          )
       ;; at the end of the pin window the ring has settled ('set-slave storms are
       ;; boot-time only), so retire the combiner: killing it and clearing the view
       ;; slots drops update-camera into its no-combiner pad fallback
@@ -256,6 +316,8 @@ origin; release after the counter runs out."
         (format 0 "cam-warp: released at <~m ~m ~m>, combiner retired~%"
                 (-> warp x) (-> warp y) (-> warp z))
         (set! *jakx-cam-warp-level* (the level #f))
+        ;; the seed itself stays in *save-camera-inv-rot*; only the pin ends here
+        (set! *jakx-cam-warp-rot-valid* #f)
         )
       )
     )
