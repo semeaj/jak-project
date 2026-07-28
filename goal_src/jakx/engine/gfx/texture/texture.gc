@@ -1135,6 +1135,16 @@
 ;; definition for method 21 of type texture-pool
 ;; ERROR: failed type prop at 0: Could not figure out load: (set! v1 (l.w (+ a1 12)))
 ;; NOTE: decomp still fails; commented out until fixed
+;; og:preserve-this bring-up stub: the parked retail body (below) marks the hud warp
+;; sprite's texture dirty when a level's display state changes. The streaming display
+;; propagation in load-state update! is the first-ever caller, and dispatching the null
+;; vtable slot was a call through zero. Stale hud warp sprites are the only cost until
+;; the real body lands with the hud leg.
+(defmethod mark-hud-warp-sprite-dirty ((this texture-pool) (arg0 object))
+  0
+  (none)
+  )
+
 ;; (defmethod mark-hud-warp-sprite-dirty ((a0-0 texture-pool) (a1-0 object))
 ;;   (local-vars
 ;;     (v0-1 none)

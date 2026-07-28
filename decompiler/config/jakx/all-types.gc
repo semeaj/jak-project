@@ -3171,6 +3171,8 @@
   (halfb 7)
   (halfc 8)
   (virtual 9)
+  ;; jakx-only mode, seen in update-sound-banks; jak3's enum stops at 9
+  (unk-10 10)
   )
 ;; ---gsound-h:sound-bank-mode
 

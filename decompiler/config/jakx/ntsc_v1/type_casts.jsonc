@@ -139,7 +139,11 @@
   "update-sound-banks": [[131, "a0", "pair"]],
   "(method 10 load-state)": [
     [461, "v1", "level"],
-    [468, "v1", "level"]
+    [468, "v1", "level"],
+    // jakx: the border/vis-nick tail sits at higher ops than jak3's 461/468; v1-269 is
+    // the chosen border level whose name feeds want-vis-level
+    [830, "v1", "level"],
+    [837, "v1", "level"]
   ],
 
   "entity-actor-count": [["_stack_", 16, "res-tag"]],
