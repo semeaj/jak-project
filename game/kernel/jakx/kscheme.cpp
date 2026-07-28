@@ -94,12 +94,15 @@ u64 alloc_from_heap(u32 heap_symbol, u32 type, s32 size, u32 pp) {
 
     return kmalloc(heap_ptr, size, KMALLOC_MEMSET, gstr->data()).offset;
   } else if (heap_symbol == s7.offset + FIX_SYM_PROCESS_TYPE) {
-    u32 start = *Ptr<u32>(pp + 0x64);
-    u32 heapEnd = *Ptr<u32>(pp + 0x60);
+    // jakx process layout: heap-top declared 116 (raw 0x70), heap-cur declared 120
+    // (raw 0x74). The jak3-copied 0x60/0x64 read the event-hook/allocated-length
+    // region instead, so the first-ever process-heap allocation dereferenced garbage.
+    u32 start = *Ptr<u32>(pp + 0x74);
+    u32 heapEnd = *Ptr<u32>(pp + 0x70);
     u32 allocEnd = start + aligned_size;
 
     if (allocEnd < heapEnd) {
-      *Ptr<u32>(pp + 0x64) = allocEnd;
+      *Ptr<u32>(pp + 0x74) = allocEnd;
       memset(Ptr<u8>(start).c(), 0, aligned_size);
       return start;
     } else {
