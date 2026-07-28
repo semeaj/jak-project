@@ -7,9 +7,10 @@ comment on the affected forge item saying what changed upstream and which label 
 looks wrong. Deciding remains a human's job; noticing no longer is.
 
 Matching is by branch name: a forge pull request whose head branch equals the head ref
-of one of our upstream pull requests. Forge issues cannot be matched this way, so items
-that carry state/submitted but match no upstream head are listed in the run log for
-eyeballing rather than commented on.
+of one of our upstream pull requests. A forge issue has no branch of its own, so it
+borrows the one from the pull request that closes it, which the forge records as a
+pull_ref event on the issue. Anything still unmatched after that is listed in the run
+log for eyeballing rather than commented on.
 
 Idempotency: before commenting, the script scans the item's existing comments for the
 marker line this script writes. Same upstream state seen before means no new comment.
@@ -168,6 +169,41 @@ def upstream_prs_by_branch():
     return by_branch
 
 
+def closing_pull_heads(num):
+    """Head branches of the forge pull requests that close issue `num`, best first.
+
+    An issue carries no branch, so it cannot be matched to an upstream pull request the
+    way a forge pull request can. The forge does hold the link: opening a pull request
+    whose body says "Closes #N" writes a pull_ref event onto issue N with ref_action
+    'closes'.
+
+    That action degrades to 'neutered' when the closing line is later edited out of the
+    body, which happens routinely here because pull request bodies get rewritten to read
+    as-if-upstream before submission. A neutered reference is stale rather than false,
+    and it is still evidence of which branch carries the fix, so it is ranked below a
+    live one instead of being dropped.
+    """
+    events = forge(f"/issues/{num}/timeline?limit=100")
+    refs = {"closes": [], "neutered": []}
+    for ev in events:
+        if ev.get("type") != "pull_ref":
+            continue
+        number = (ev.get("ref_issue") or {}).get("number")
+        if number and ev.get("ref_action") in refs:
+            refs[ev["ref_action"]].append(number)
+
+    heads = []
+    for action in ("closes", "neutered"):
+        for pr in refs[action]:
+            head = (forge(f"/pulls/{pr}").get("head") or {}).get("ref")
+            # A pull request whose branch has been deleted can report refs/pull/N/head
+            # as its head. That is a forge-internal ref, not a branch anyone could have
+            # pushed upstream, and matching on it would be meaningless.
+            if head and not head.startswith("refs/"):
+                heads.append((pr, action, head))
+    return heads
+
+
 def main():
     if not FORGE_TOKEN:
         raise ReconcileError("FORGE_TOKEN is unset, so the forge half of this run "
@@ -184,16 +220,27 @@ def main():
         items = forge(f"/issues?labels={label}&state=all&type=all&limit=50")
         for it in items:
             num = it["number"]
-            # The issues listing returns pull requests as issue objects without a head
-            # field; fetch the pull detail for those.
-            head = None
+            via = None
             if it.get("pull_request"):
+                # The issues listing returns pull requests as issue objects without a
+                # head field; fetch the pull detail for those. The head ref name
+                # normally survives in the record even after the branch is deleted,
+                # which is what makes a closed staging pull request matchable at all.
                 head = ((forge(f"/pulls/{num}").get("head") or {}).get("ref"))
+            else:
+                head = None
+                for pr, action, candidate in closing_pull_heads(num):
+                    if candidate in by_branch:
+                        head, via = candidate, (pr, action)
+                        break
             if not head:
                 if label == "state/submitted":
-                    unmatched.append(num)
+                    unmatched.append((num, "no branch to match it by"))
                 continue
             if head not in by_branch:
+                if label == "state/submitted":
+                    unmatched.append((num, f"branch `{head}` matches no upstream "
+                                           f"pull request by {AUTHOR}"))
                 continue
             up_num, up_state = by_branch[head]
             # state/submitted expects an open upstream PR; anything else is a delta.
@@ -210,18 +257,29 @@ def main():
                 "closed": "upstream closed without merging; label needs a human call",
                 "open": "an upstream PR exists; label should move to state/submitted",
             }[up_state]
+            provenance = ""
+            if via:
+                via_num, via_action = via
+                stale = (" a closing reference its body no longer carries, so check the"
+                         " match" if via_action == "neutered" else "")
+                provenance = (f" This issue has no branch of its own; it was matched "
+                              f"through pull request #{via_num}, which closes it"
+                              f"{' (' + stale.strip() + ')' if stale else ''}.")
             body = (f"{marker}\n\nUpstream pull request "
                     f"open-goal/jak-project#{up_num} for branch `{head}` is now "
-                    f"**{up_state}**, but this item carries `{label}`: {verdict}. "
+                    f"**{up_state}**, but this item carries `{label}`: {verdict}."
+                    f"{provenance} "
                     f"Detected by the scheduled reconciliation run; labels are never "
                     f"changed automatically.")
             forge(f"/issues/{num}/comments", "POST", {"body": body})
-            print(f"DELTA: forge #{num} [{label}] vs upstream #{up_num} ({up_state})")
+            print(f"DELTA: forge #{num} [{label}] vs upstream #{up_num} ({up_state})"
+                  + (f" via forge #{via[0]} ({via[1]})" if via else ""))
             deltas += 1
 
     if unmatched:
-        print(f"state/submitted items with no branch to match (issues, check by hand): "
-              f"{sorted(unmatched)}")
+        print("state/submitted items this run could not match (check by hand):")
+        for num, why in sorted(unmatched):
+            print(f"  #{num}: {why}")
     print(f"done: {deltas} delta(s) reported")
 
 
