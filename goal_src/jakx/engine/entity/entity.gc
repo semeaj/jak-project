@@ -27,7 +27,11 @@
 
 (define *compact-actors* #t)
 
-(define *vis-actors* #t)
+;; og:preserve-this bring-up: #f = distance-only spawning (retail default #t gates
+;; births on vis-bits, which stay zeroed until the .VIS leg lands, so no actor
+;; would ever spawn). Distance-only is what put the first actor pixels on screen;
+;; restore #t with the .VIS leg.
+(define *vis-actors* #f)
 
 (defun process-entity-set! ((arg0 process) (arg1 entity))
   (set! (-> arg0 entity) (the-as entity-actor arg1))

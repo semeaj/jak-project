@@ -53,14 +53,64 @@
 ;; then releases. Retire with the real camera start chain.
 (define *jakx-cam-warp-level* (the level #f))
 (define *jakx-cam-warp-frames* 0)
+;; w > 0 marks the target valid; xyz = warp position
+(define *jakx-cam-warp-target* (new 'static 'vector))
 
 (defun jakx-cam-warp-to-level ((lev level))
   "og:preserve-this bring-up helper: arm the per-frame camera warp for the level
-(see the comment above). Prefers the level bsphere; falls back to the extracted
-brdroom glb bounds center when the bsphere is unset (brdroom's is)."
+(see the comment above). Prefers the densest cluster in the level's actor table
+(the camera lands amid birthable entities; a track's all-actor centroid is
+mid-ring air and its BVH leaves are rim scenery), then the level bsphere, then
+the extracted brdroom glb bounds center."
   (let ((bs (-> lev bsp bsphere)))
     (format 0 "cam-warp: armed for ~A bsphere <~m ~m ~m r ~m>~%"
             (-> lev name) (-> bs x) (-> bs y) (-> bs z) (-> bs w))
+    )
+  (set! (-> *jakx-cam-warp-target* w) 0.0)
+  (let ((acts (-> lev bsp actors)))
+    (when (nonzero? (the-as int acts))
+      (let ((n (min 128 (-> acts length)))
+            (best-i -1)
+            (best-count 0)
+            )
+        ;; densest actor: most neighbors within 50m (204800 units)
+        (dotimes (i n)
+          (let ((count 0)
+                (ci (-> acts data i bsphere))
+                )
+            (dotimes (k n)
+              (let* ((ck (-> acts data k bsphere))
+                     (dx (- (-> ck x) (-> ci x)))
+                     (dz (- (-> ck z) (-> ci z)))
+                     )
+                (if (< (+ (* dx dx) (* dz dz)) (* 204800.0 204800.0))
+                    (+! count 1)
+                    )
+                )
+              )
+            (when (> count best-count)
+              (set! best-count count)
+              (set! best-i i)
+              )
+            )
+          )
+        (when (>= best-i 0)
+          (let ((cb (-> acts data best-i bsphere)))
+            (set! (-> *jakx-cam-warp-target* x) (-> cb x))
+            ;; 10m lift so the view is not inside a prop
+            (set! (-> *jakx-cam-warp-target* y) (+ (-> cb y) 40960.0))
+            (set! (-> *jakx-cam-warp-target* z) (-> cb z))
+            (set! (-> *jakx-cam-warp-target* w) 1.0)
+            (format 0 "cam-warp: actor-cluster target <~m ~m ~m> (~D neighbors)~%"
+                    (-> *jakx-cam-warp-target* x)
+                    (-> *jakx-cam-warp-target* y)
+                    (-> *jakx-cam-warp-target* z)
+                    best-count
+                    )
+            )
+          )
+        )
+      )
     )
   (set! *jakx-cam-warp-level* lev)
   (set! *jakx-cam-warp-frames* 600)
@@ -131,22 +181,36 @@ origin; release after the counter runs out."
               )
             )
           )
-        (cond
-          ((< 0.0 (-> bs w))
-           (set! (-> warp x) (-> bs x))
-           (set! (-> warp y) (-> bs y))
-           (set! (-> warp z) (-> bs z))
-           )
-          (tree-bs
-            (set! (-> warp x) (-> tree-bs x))
-            (set! (-> warp y) (+ (-> tree-bs y) leaf-lift))
-            (set! (-> warp z) (-> tree-bs z))
-            )
-          (else
-            ;; extracted brdroom glb bounds center, the original bring-up target
-            (set! (-> warp x) -1457697.0)
-            (set! (-> warp y) 435999.0)
-            (set! (-> warp z) -602753.0)
+        ;; prefer the actor-cluster target computed at arm time: the camera
+        ;; lands amid the actual birthable entities instead of an arbitrary
+        ;; BVH leaf (a track's leaf clusters sit on rim scenery; junglea's
+        ;; puts the release point ~570m from the nearest entity cluster)
+        (let ((ent-bs (the-as vector #f)))
+          (if (< 0.0 (-> *jakx-cam-warp-target* w))
+              (set! ent-bs *jakx-cam-warp-target*)
+              )
+          (cond
+            (ent-bs
+              (set! (-> warp x) (-> ent-bs x))
+              (set! (-> warp y) (-> ent-bs y))
+              (set! (-> warp z) (-> ent-bs z))
+              )
+            ((< 0.0 (-> bs w))
+             (set! (-> warp x) (-> bs x))
+             (set! (-> warp y) (-> bs y))
+             (set! (-> warp z) (-> bs z))
+             )
+            (tree-bs
+              (set! (-> warp x) (-> tree-bs x))
+              (set! (-> warp y) (+ (-> tree-bs y) leaf-lift))
+              (set! (-> warp z) (-> tree-bs z))
+              )
+            (else
+              ;; extracted brdroom glb bounds center, the original bring-up target
+              (set! (-> warp x) -1457697.0)
+              (set! (-> warp y) 435999.0)
+              (set! (-> warp z) -602753.0)
+              )
             )
           )
         )
