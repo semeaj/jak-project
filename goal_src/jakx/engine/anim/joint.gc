@@ -1779,7 +1779,7 @@
        (matrix-from-control-channel! matrix-to-modify jnt jcc)
        )
       (else
-        (let ((a2-3 (matrix-from-control-channel! (the-as matrix (+ #x70000000 0)) jnt jcc)))
+        (let ((a2-3 (matrix-from-control-channel! (scratchpad-object matrix) jnt jcc)))
           (matrix-lerp! matrix-to-modify matrix-to-modify a2-3 f30-0)
           )
         )
@@ -1890,7 +1890,7 @@
   )
 
 (defun cspace<-matrix-no-push-joint! ((dst cspace) (jc joint-control))
-  (let ((v1-2 (matrix-from-control! (the-as matrix-stack (+ 64 #x70000000)) (-> dst joint) jc 'no-push)))
+  (let ((v1-2 (matrix-from-control! (scratchpad-object matrix-stack :offset 64) (-> dst joint) jc 'no-push)))
     (matrix-copy! (-> dst bone transform) v1-2)
     )
   )

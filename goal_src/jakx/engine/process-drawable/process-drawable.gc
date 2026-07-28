@@ -422,9 +422,9 @@
               )
         )
     (let ((s3-0 (+ s5-0 2)))
-      ((-> arg1 generate-frame-function) (the-as joint-anim-frame (+ 2400 #x70000000)) s3-0 arg1)
+      ((-> arg1 generate-frame-function) (the-as joint-anim-frame (+ 2400 (scratchpad-object int))) s3-0 arg1)
       (if (-> arg1 prebind-function)
-          ((-> arg1 prebind-function) (the-as joint-anim-frame (+ 2400 #x70000000)) s3-0 arg1)
+          ((-> arg1 prebind-function) (the-as joint-anim-frame (+ 2400 (scratchpad-object int))) s3-0 arg1)
           )
       )
     (dotimes (s3-1 1)
@@ -438,7 +438,7 @@
       )
     (dotimes (s3-2 2)
       (let* ((a0-8 (-> arg0 data (+ s3-2 1)))
-             (a1-5 (+ (* s3-2 64) 2400 #x70000000))
+             (a1-5 (+ (* s3-2 64) 2400 (scratchpad-object int)))
              (t9-3 (-> a0-8 param0))
              )
         (if t9-3
@@ -452,14 +452,14 @@
          (dotimes (s4-1 s5-0)
            (cspace<-parented-transformq-joint!
              (-> arg0 data (+ s4-1 s3-3))
-             (the-as transformq (+ (* 48 s4-1) 2528 #x70000000))
+             (the-as transformq (+ (* 48 s4-1) 2528 (scratchpad-object int)))
              )
            )
          )
         (else
           (dotimes (s4-2 s5-0)
             (let ((a0-10 (-> arg0 data (+ s4-2 s3-3)))
-                  (a1-9 (+ (* 48 s4-2) 2528 #x70000000))
+                  (a1-9 (+ (* 48 s4-2) 2528 (scratchpad-object int)))
                   )
               (if (-> a0-10 param0)
                   ((-> a0-10 param0) a0-10 (the-as transformq a1-9))
@@ -1186,8 +1186,18 @@
   )
 
 
-;; method 49 of process-drawable parked: unconverted; returns the associated vehicle
-;; process (cam-vehicle-update reads its next-state), vehicle leg.
+;; og:preserve-this bring-up stub: method 49 is the jakx per-frame joint-control
+;; evaluator (jak3's evaluate-joint-control moved into the vtable, opening with the
+;; skel top-anim update; retail body at process-drawable_ir2.asm L167, CFG
+;; unresolved). The stub holds every actor at its initialize-skeleton pose (channel
+;; frame 0) without advancing animation; the full port needs
+;; joint-control-channel-eval (unlanded, jak3 joint.gc home) and retires with the
+;; anim-evaluation follow-up. Sole caller today: ja-post. Retail returns the
+;; associated vehicle process (cam-vehicle-update checks its next-state); #f is
+;; the honest no-vehicle answer.
+(defmethod process-drawable-method-49 ((this process-drawable))
+  (the-as process #f)
+  )
 
 ;; WARN: Return type mismatch int vs none.
 ;; WARN: Function ja-post has a return type of none, but the expression builder found a return statement.

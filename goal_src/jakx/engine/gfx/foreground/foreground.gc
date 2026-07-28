@@ -303,7 +303,7 @@
 
 (defun foreground-add-mtx-calc ((arg0 bone-calculation) (arg1 (inline-array pris-mtx)) (arg2 bone-calc-flags))
   "Request skinning matrix calculation."
-  (let ((t2-0 (-> (the-as foreground-work #x70000000) regs))
+  (let ((t2-0 (-> (scratchpad-object foreground-work) regs))
         (v1-1 *bone-calculation-list*)
         (a3-0 arg0)
         )
@@ -332,7 +332,7 @@
 
 (defun foreground-wrapup ()
   "Finish foreground DMA chains."
-  (let ((gp-0 (the-as foreground-work (+ #x70000000 0))))
+  (let ((gp-0 (scratchpad-object foreground-work)))
     (dotimes (s5-0 19)
       (let ((s4-0 (-> gp-0 grid level-buckets s5-0)))
         (dotimes (s3-0 10)
@@ -415,7 +415,7 @@
   "Generate DMA for shadow drawing."
   (local-vars (a3-3 shadow-settings))
   (let ((v1-0 (the-as object (-> arg0 shadow)))
-        (t0-0 (-> (the-as foreground-work #x70000000) distance w))
+        (t0-0 (-> (scratchpad-object foreground-work) distance w))
         )
     (set! a3-3
           (cond
@@ -573,7 +573,7 @@
         (let ((a1-1 (the-as object (&+ arg1 16))))
           (dotimes (t3-6 (the-as int (-> (the-as merc-fragment-control a3-0) mat-xfer-count)))
             (let ((t5-4
-                    (-> (the-as foreground-work #x70000000)
+                    (-> (scratchpad-object foreground-work)
                         regs
                         mtxs
                         (-> (the-as merc-fragment-control a3-0) mat-dest-data t3-6 matrix-number)
@@ -624,7 +624,7 @@
 (defun foreground-ripple ((arg0 draw-control) (arg1 merc-ctrl) (arg2 pointer) (arg3 int))
   (local-vars (v1-6 uint) (t0-0 pointer))
   (let* ((gp-0 (-> arg0 ripple))
-         (f0-0 (-> (the-as foreground-work #x70000000) regs dist))
+         (f0-0 (-> (scratchpad-object foreground-work) regs dist))
          (f1-3 (/ (- (-> gp-0 far-fade-dist) f0-0) (- (-> gp-0 far-fade-dist) (-> gp-0 close-fade-dist))))
          (f1-5 (fmax 0.0 (fmin 1.0 f1-3)))
          (f0-3 f1-5)
@@ -633,11 +633,11 @@
     (set! (-> gp-0 faded-scale) f30-0)
     (let ((f1-8 (/ f30-0 (* 128.0 (-> arg1 header xyz-scale)))))
       0
-      (let ((v1-5 (-> (the-as foreground-work #x70000000) regs num-bones)))
+      (let ((v1-5 (-> (scratchpad-object foreground-work) regs num-bones)))
         ;; (.sll v1-6 v1-5 7)
         (set! v1-6 (shl v1-5 7))
         )
-      (let ((a0-1 (the-as foreground-work #x70000000)))
+      (let ((a0-1 (scratchpad-object foreground-work)))
         ;; (.addu t0-0 arg2 v1-6)
         (set! t0-0 (&+ arg2 v1-6))
         (let ((v1-7 arg2)
