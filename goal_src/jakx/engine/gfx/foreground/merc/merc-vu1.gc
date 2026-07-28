@@ -7,4 +7,9 @@
 
 ;; DECOMP BEGINS
 
-(define merc-vu1-block (new 'static 'vu-function :length #x7e5 :qlength #x3f3))
+;; og:preserve-this jak3's PC treatment: lengths commented out so the vu-function
+;; is zero-length and merc-vu1-add-vu-function emits no MPG upload chunks (the PC
+;; Merc2 renderer implements the microprogram natively; with the lengths live,
+;; every merc bucket uploaded ~8 chunks of 2032 bytes of PS2 microcode per frame,
+;; which the setup parser then met instead of the 10-qw setup packet).
+(define merc-vu1-block (new 'static 'vu-function #|:length #x7e5 :qlength #x3f3|#))
