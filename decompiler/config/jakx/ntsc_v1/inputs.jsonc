@@ -388,7 +388,18 @@
     // the garage hub, second world-geometry level
     "GARAGE.DGO",
     // junglea, first exterior track section
-    "JGA.DGO"
+    "JGA.DGO",
+    // the jungle multi-section track set: sections b..g, shared art + actor code (jgx),
+    // the vista (jgy), and the persistent track-wide level (junglew)
+    "JGB.DGO",
+    "JGC.DGO",
+    "JGD.DGO",
+    "JGE.DGO",
+    "JGF.DGO",
+    "JGG.DGO",
+    "JGX.DGO",
+    "JGY.DGO",
+    "JUNGLEW.DGO"
   ],
 
   // Textures whose index data must survive extraction so the runtime can re-apply a
