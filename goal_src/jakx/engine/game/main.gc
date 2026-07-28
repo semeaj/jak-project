@@ -200,6 +200,15 @@
 ;; definition for symbol *last-master-mode*, type symbol
 (define *last-master-mode* 'game)
 
+;; og:preserve-this bring-up defines: these three globals belong to the unlanded
+;; progress/lobby/menu legs. Unbound they read 0, and 0 is truthy in GOAL, so the
+;; truthiness tests below misbranch: Start could never pause, and the 'progress
+;; arm would deref pointer 0. #f is the retail-correct initial value for each;
+;; their real homes re-define them when those legs land.
+(define *progress-process* (the-as (pointer process) #f))
+(define *lobby-menu-manager* (the-as basic #f))
+(define *in-game-menu-process* (the-as (pointer process) #f))
+
 ;; definition for function set-master-mode
 ;; WARN: Return type mismatch int vs none.
 (defun set-master-mode ((arg0 symbol))

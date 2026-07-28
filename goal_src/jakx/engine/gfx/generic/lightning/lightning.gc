@@ -12,7 +12,8 @@
 ;; a bring-up addition: *lightning-spec-id-table* is created by lightning.o's still
 ;; blocked top-level, so it can be unset here; drop the guard when the top-level lands.
 (defun unlink-lightning-spec-by-heap ((arg0 kheap))
-  (when *lightning-spec-id-table*
+  ;; nonzero? not truthiness: the unbound symbol reads 0, and 0 is truthy in GOAL
+  (when (nonzero? *lightning-spec-id-table*)
     (let* ((v1-0 *lightning-spec-id-table*)
            (a2-0 (-> v1-0 length))
            (a1-0 (-> arg0 base))
