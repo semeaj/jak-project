@@ -386,7 +386,11 @@
     // the retail static at L27 carries pointer-to-label table fields the static
     // decoder cannot decode, so the REF records <static-data L27> which does not
     // compile; the decomp-vs-REF diff still runs (goal_src hand-authors the static)
-    "attackable-hash"
+    "attackable-hash",
+    // the REF records the parked gui-control/spooler/external-art surface, which
+    // still carries CFG and type-prop errors; goal_src lands the art slice and
+    // the decomp-vs-REF diff still gates the whole object
+    "loader"
     // "tie-methods",
     // "scene-actor" // top level lambda that defines a type
   ],

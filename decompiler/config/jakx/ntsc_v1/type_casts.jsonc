@@ -1295,5 +1295,9 @@
     [78, "a1", "bone-memory"],
     [82, "a0", "dma-bank-control"],
     [146, "a0", "dma-bank-control"]
-  ]
+  ],
+  // loader art slice: loado returns object; jak3's casts at the same op indices
+  "drawable-load": [[16, "v0", "drawable"]],
+  "art-load": [[7, "v0", "art"]],
+  "art-group-load-check": [[21, "v0", "art-group"]]
 }

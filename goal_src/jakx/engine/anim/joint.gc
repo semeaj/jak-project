@@ -1183,11 +1183,13 @@
 
 ;; og:preserve-this art-group relocate (method 7, the linker's entry point for every
 ;; -ag data object) is PARKED, not landed: its body immediately logs in the whole
-;; group, and the common-art tail of the retail GAME.CGO carries element types only
-;; the loader leg defines, so installing it crashes the boot at the CGO tail (0xC5,
-;; bisected to exactly this method). It retires with the loader leg alongside its
-;; other callees (link-art-to-master, set-loaded-art, load-to-heap-by-name). Until
-;; then art groups link inert, the state every prior rung shipped.
+;; group, and probing the login chain bottoms out at a call-boundary fault into
+;; adgif-shader-login (0xC5, bisected to exactly this method; the boundary fault
+;; needs C++-side debugging). Its callees (link-art-to-master, set-loaded-art,
+;; load-to-heap-by-name) landed with the loader art slice; relocate itself retires
+;; in two steps: record-only (set-loaded-art without the default-level immediate
+;; login), then the login un-gating once the adgif call-boundary fault is fixed.
+;; Until then art groups link inert, the state every prior rung shipped.
 
 ;; WARN: Return type mismatch uint vs int.
 (defmethod asize-of ((this art-mesh-geo))

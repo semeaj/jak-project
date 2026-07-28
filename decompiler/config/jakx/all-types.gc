@@ -38003,7 +38003,14 @@
 ;; loader                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
+;; +++loader:spooler-flags
+(defenum spooler-flags
+  :bitfield #t
+  :type uint32
+  (blackout-on-stall)
+  )
+;; ---loader:spooler-flags
+
 (deftype spooler-block (basic)
   ((anim             spool-anim                          :offset-assert 4) ;; guessed by decompiler
    (idle             art-joint-anim                      :offset-assert 8) ;; guessed by decompiler
@@ -38028,7 +38035,6 @@
   :size-assert         #x58
   :flag-assert         #x900000058
   )
-|#
 
 #|
 (deftype load-dir (basic)
@@ -38078,13 +38084,15 @@
   )
 |#
 
-;; (define-extern *image-scene-name* object)
-;; (define-extern *image-scene-num* object)
-;; (define-extern drawable-load function) ;; (function drawable kheap drawable)
-;; (define-extern art-load function) ;; (function string kheap art)
-;; (define-extern art-group-load-check function) ;; (function string kheap int art-group)
+(define-extern *image-scene-name* string)
+(define-extern *image-scene-num* int)
+(define-extern drawable-load (function drawable kheap drawable))
+(define-extern art-load (function string kheap art))
+(define-extern art-group-load-check (function string kheap int art-group))
+(define-extern *stack-top* pointer)
+(define-extern *kernel-sp* pointer)
 (define-extern external-art-buffer-init (function external-art-buffer int))
-;; (define-extern *preload-spool-anims* object) ;; symbol
+(define-extern *preload-spool-anims* symbol)
 ;; (define-extern ja-play-spooled-anim function) ;; (function spool-anim art-joint-anim art-joint-anim (function process-drawable symbol) spooler-flags int :behavior process-drawable)
 ;; (define-extern ja-play-spooled-no-sync-anim function)
 ;; (define-extern ja-abort-spooled-anim function) ;; (function spool-anim art-joint-anim int int :behavior process-drawable)

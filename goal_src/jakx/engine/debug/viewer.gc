@@ -141,13 +141,9 @@
         (else
           (actor-get-arg! viewer-ja-name "ja" arg1)
           (actor-get-arg! viewer-geo-name "geo" arg1)
-          ;; og:preserve-this method-slot guard (rung 5 pattern): load-to-heap-by-name's
-          ;; body waits for the loader leg, so the slot links 0; retail calls it bare.
-          ;; This branch only runs when the level art lookup misses.
-          (let ((s2-1 (if (nonzero? (method-of-object (-> self level art-group) load-to-heap-by-name))
-                          (load-to-heap-by-name (-> self level art-group) arg0 'load global 0)
-                          )
-                      )
+          ;; This branch only runs when the level art lookup misses; the loader art
+          ;; slice landed load-to-heap-by-name, retiring the rung 5 method-slot guard.
+          (let ((s2-1 (load-to-heap-by-name (-> self level art-group) arg0 'load global 0))
                 (s5-1 (the-as int #f))
                 (s4-1 (the-as int #f))
                 (s3-1 (the-as int #f))
