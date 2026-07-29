@@ -5,6 +5,24 @@
 constexpr int OCEAN_TEX_TBP_JAK1 = 8160;  // todo
 constexpr int OCEAN_TEX_TBP_JAK2 = 672;
 
+void consume_bucket_epilogue_jakx(DmaFollower& dma, SharedRenderState* render_state) {
+  while (dma.current_tag_offset() != render_state->next_bucket) {
+    auto tag = dma.current_tag();
+    auto t = dma.read_and_advance();
+    if (t.size_bytes == 0) {
+      // the end tag and the CALL/RET/NEXT links
+      ASSERT(t.vifcode0().kind == VifCode::Kind::NOP);
+      ASSERT(t.vifcode1().kind == VifCode::Kind::NOP);
+    } else {
+      // the shared default-regs gif packet, reached through the CALL
+      ASSERT(tag.kind == DmaTag::Kind::CNT);
+      ASSERT(t.vifcode0().kind == VifCode::Kind::FLUSHA);
+      ASSERT(t.vifcode1().kind == VifCode::Kind::DIRECT);
+      ASSERT(t.size_bytes / 16 == t.vifcode1().immediate);
+    }
+  }
+}
+
 CommonOceanRenderer::CommonOceanRenderer() {
   m_vertices.resize(4096 * 10);  // todo decrease
   for (auto& buf : m_indices) {

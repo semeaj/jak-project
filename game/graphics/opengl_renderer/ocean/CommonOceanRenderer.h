@@ -1,6 +1,13 @@
 #pragma once
 #include "game/graphics/opengl_renderer/BucketRenderer.h"
 
+/*!
+ * Consume the standard jakx bucket epilogue: the bucket's end tag, then the dma CALL
+ * into the shared default-regs restore packet (12 qw, FLUSHA/DIRECT) and its RET.
+ * Asserts the shape; renders nothing (GS state does not carry across buckets on PC).
+ */
+void consume_bucket_epilogue_jakx(DmaFollower& dma, SharedRenderState* render_state);
+
 class CommonOceanRenderer {
  public:
   CommonOceanRenderer();

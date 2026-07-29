@@ -11,6 +11,7 @@ class OceanNear : public BucketRenderer {
   void render(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof) override;
   void render_jak1(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof);
   void render_jak2(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof);
+  void render_jakx(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof);
   void draw_debug_window() override;
   void init_textures(TexturePool& pool, GameVersion version) override;
 

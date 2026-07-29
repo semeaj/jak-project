@@ -31,6 +31,12 @@ class OceanMidAndFar : public BucketRenderer {
   void handle_ocean_mid(DmaFollower& dma,
                         SharedRenderState* render_state,
                         ScopedProfilerNode& prof);
+  void handle_ocean_far_jakx(DmaFollower& dma,
+                             SharedRenderState* render_state,
+                             ScopedProfilerNode& prof);
+  void handle_ocean_mid_jakx(DmaFollower& dma,
+                             SharedRenderState* render_state,
+                             ScopedProfilerNode& prof);
 
   DirectRenderer m_direct;
   OceanEnvmap m_envmap_renderer;

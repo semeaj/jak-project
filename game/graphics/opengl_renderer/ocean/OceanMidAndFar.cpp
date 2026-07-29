@@ -1,5 +1,9 @@
 #include "OceanMidAndFar.h"
 
+#include "common/dma/gs.h"
+
+#include "game/graphics/opengl_renderer/ocean/CommonOceanRenderer.h"
+
 #include "third-party/imgui/imgui.h"
 
 OceanMidAndFar::OceanMidAndFar(const std::string& name, int my_id)
@@ -50,10 +54,19 @@ void OceanMidAndFar::render(DmaFollower& dma,
 void OceanMidAndFar::render_jakx(DmaFollower& dma,
                                  SharedRenderState* render_state,
                                  ScopedProfilerNode& prof) {
-  // jak2's shape minus the ocean-texture section: jakx never shipped ocean-texture.o
-  // (its ocean texture routes through the texture animator instead), and the first
-  // real ocean frame showed the chain going envmap -> far -> mid with no texture
-  // section (the jak2 parser asserted on the far data at the texture slot).
+  // jakx bucket 6 (emitters in goal_src/jakx/engine/gfx/ocean/):
+  //  - update-map's 4-qw direct: FRAME_1/ZBUF_1/SCISSOR_1 A+D setup for the viewport
+  //  - draw-ocean-far, only when far-on: an 11-qw gs-set (test/alpha/tex0/tex1/miptbp1/
+  //    miptbp2/texa/clamp/fogcol/texflush, texturing from sky-texture-anim slot 3), then
+  //    one variable-size direct holding the render-ocean-quad GIF packets (just the 1-qw
+  //    close-sky-buffer terminator when every far quad is culled)
+  //  - draw-ocean-mid: base/offset, constants, VU-call grammar identical to jak2's
+  //    (same 0x2dd constants address, same 0/46/73/107/275/41/43 entry points)
+  //  - end-buffer!: a 2-qw texa restore, which is also the mid parser's end tag
+  // Unlike jak2/jak3 there is no envmap render or ocean-texture section: jakx never
+  // shipped ocean-texture.o (the ocean texture routes through the texture animator) and
+  // its envmap is an ordinary pool texture referenced from the mid/near constants. The
+  // VU program upload (dma-buffer-add-vu-function) emits nothing on PC.
   auto data0 = dma.read_and_advance();
   ASSERT(data0.vif1() == 0 || data0.vifcode1().kind == VifCode::Kind::NOP);
   ASSERT(data0.vif0() == 0 || data0.vifcode0().kind == VifCode::Kind::MARK);
@@ -62,21 +75,73 @@ void OceanMidAndFar::render_jakx(DmaFollower& dma,
   if (dma.current_tag_offset() == render_state->next_bucket) {
     return;
   }
+  m_direct.reset_state();
 
-  // The jakx chain differs from jak2/jak3: no separate far or texture sections (the
-  // jakx ocean texture routes through the texture animator), a compact envmap and
-  // far-color block, then the mid strip groups (shape captured on the water leg:
-  // 64/176/16-byte setup, then per-strip 128-byte unpack + 9x48 + 16 + mscalf).
-  // Until the jakx parser lands, drain the bucket so the frame keeps running;
-  // ocean geometry does not draw yet.
-  static bool s_logged = false;
-  if (!s_logged) {
-    fmt::print("OceanMidAndFar: jakx chain present, parser pending; draining\n");
-    s_logged = true;
+  handle_ocean_far_jakx(dma, render_state, prof);
+  m_direct.flush_pending(render_state, prof);
+
+  m_direct.set_mipmap(true);
+  handle_ocean_mid_jakx(dma, render_state, prof);
+
+  // Bucket epilogue: every opened jakx bucket closes with the end tag, then a dma CALL
+  // into the shared default-regs restore (one 12-qw FLUSHA/DIRECT with 11 A+D registers)
+  // and its RET. GS state does not carry across buckets on PC, so the restore is
+  // consumed, not rendered; jak2 skips its (shorter) equivalent the same way.
+  consume_bucket_epilogue_jakx(dma, render_state);
+
+  m_direct.flush_pending(render_state, prof);
+  m_direct.set_mipmap(false);
+}
+
+void OceanMidAndFar::handle_ocean_far_jakx(DmaFollower& dma,
+                                           SharedRenderState* render_state,
+                                           ScopedProfilerNode& prof) {
+  // update-map's viewport GS context: one 4-qw direct with FRAME_1/ZBUF_1/SCISSOR_1.
+  auto hdr = dma.read_and_advance();
+  ASSERT(hdr.size_bytes == 64);
+  ASSERT(hdr.vifcode0().kind == VifCode::Kind::NOP);
+  ASSERT(hdr.vifcode1().kind == VifCode::Kind::DIRECT);
+  ASSERT(hdr.vifcode1().immediate == 4);
+  m_direct.render_gif(hdr.data, hdr.size_bytes, render_state, prof);
+
+  // draw-ocean-far's transfers (absent when far-on is #f; the gs-set alone is also
+  // skipped when the sky-texture-anim slot-3 texture is #f). Everything up to the mid
+  // base/offset tag is direct GIF data.
+  while (dma.current_tag().kind == DmaTag::Kind::CNT &&
+         dma.current_tag_vifcode0().kind == VifCode::Kind::NOP) {
+    auto data = dma.read_and_advance();
+    ASSERT(data.vifcode1().kind == VifCode::Kind::DIRECT);
+    ASSERT(data.size_bytes / 16 == data.vifcode1().immediate);
+
+    // draw-ocean-far's 11-qw gs-set carries texa with ta0 = 0x80; patch ta0 to 0 the
+    // same way handle_ocean_far does for jak1/jak2's 160-byte init (see the note
+    // there). Identify it by its A+D giftag; the far quad data uses 3-reg packed tags.
+    if (data.size_bytes == 176 && GifTag(data.data).nreg() == 1 &&
+        data.data[112 + 8] == (u8)GsRegisterAddress::TEXA) {
+      u8 patched[176];
+      memcpy(patched, data.data, 176);
+      patched[112] = 0;  // texa ta0
+      m_direct.render_gif(patched, 176, render_state, prof);
+    } else {
+      m_direct.render_gif(data.data, data.size_bytes, render_state, prof);
+    }
   }
-  while (dma.current_tag_offset() != render_state->next_bucket) {
-    dma.read_and_advance();
-  }
+}
+
+void OceanMidAndFar::handle_ocean_mid_jakx(DmaFollower& dma,
+                                           SharedRenderState* render_state,
+                                           ScopedProfilerNode& prof) {
+  // draw-ocean-mid always runs when the bucket is non-empty, and its VU upload is empty
+  // on PC, so the base/offset tag must be next. The mid grammar itself is jak2's.
+  ASSERT(dma.current_tag_vifcode0().kind == VifCode::Kind::BASE);
+  m_mid_renderer.run_jak2(dma, render_state, prof);
+
+  // run_jak2 stops at end-buffer!'s 2-qw texa restore; consume it. jak2 skips this
+  // transfer without rendering it too (GS state does not carry across PC buckets).
+  auto texa = dma.read_and_advance();
+  ASSERT(texa.size_bytes == 32);
+  ASSERT(texa.vifcode0().kind == VifCode::Kind::NOP);
+  ASSERT(texa.vifcode1().kind == VifCode::Kind::DIRECT);
 }
 
 void OceanMidAndFar::render_jak1(DmaFollower& dma,
