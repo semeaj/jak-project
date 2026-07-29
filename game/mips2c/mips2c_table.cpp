@@ -400,6 +400,9 @@ namespace method_21_cloth_system { extern void link(); }
 namespace jakx {
 namespace live_func_curve { extern void link(); }
 namespace birth_func_curve { extern void link(); }
+namespace init_ocean_far_regs { extern void link(); }
+namespace draw_large_polygon_ocean { extern void link(); }
+namespace render_ocean_quad { extern void link(); }
 namespace set_sky_vf27 { extern void link(); }
 namespace set_sky_vf23_value { extern void link(); }
 namespace set_tex_offset { extern void link(); }
@@ -687,7 +690,10 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jak3::shadow_add_single_tris::link, jak3::shadow_add_double_tris::link}},
      {"cloth", {jak3::method_21_cloth_system::link}}},
     /////////// JAK X
-    {{"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}},
+    {{"ocean",
+      {jakx::init_ocean_far_regs::link, jakx::draw_large_polygon_ocean::link,
+       jakx::render_ocean_quad::link}},
+     {"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}},
      {"sparticle-launcher",
       {jakx::sparticle_motion_blur::link, jakx::sp_launch_particles_var::link,
        jakx::particle_adgif::link, jakx::sp_init_fields::link}},

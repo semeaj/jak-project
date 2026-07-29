@@ -172,5 +172,40 @@
   "(anon-function 5 gsound)": [
     [16, ["array", "symbol", 4]],
     [32, ["array", "symbol", 4]]
-  ]
+  ],
+  // ocean (jak3 entries shifted -6 to the jakx method numbers)
+  "(method 13 ocean)": [[16, "vector"]],
+  "(method 14 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 22 ocean)": [[16, "vector"]],
+  "(method 27 ocean)": [[16, "vector"]],
+  "(method 28 ocean)": [[16, "vector"]],
+  "(method 29 ocean)": [[16, "vector"]],
+  "(method 30 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 40 ocean)": [[16, "vector"]],
+  "(method 46 ocean)": [[16, "vector"]],
+  "(method 47 ocean)": [[16, "vector"]],
+  "(method 53 ocean)": [[16, "vector"]],
+  "(method 54 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 55 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 56 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 57 ocean)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 61 ocean)": [[16, "vector"]]
 }

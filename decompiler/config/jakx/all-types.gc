@@ -4459,7 +4459,8 @@
   (bucket628 628) ;; *bucket-map* full decode 2026-07-26
   (bucket629 629) ;; *bucket-map* full decode 2026-07-26
   (bucket630 630)
-
+  (bucket631 631) ;; ocean draw slot, viewport 0 ((method 13 ocean) L137 pair)
+  (bucket632 632) ;; ocean draw slot, viewport 1 ((method 13 ocean) L137 pair)
   (bucket633 633)
   (bucket634 634)
   (bucket635 635)
@@ -17932,8 +17933,8 @@
   :size-assert         #x34
   :flag-assert         #xb00000034
   (:methods
-    (ocean-map-method-9 () none) ;; 9 ;; (set-height! (_type_ float) none)
-    (ocean-map-method-10 () none) ;; 10 ;; (get-base-height (_type_) float)
+    (set-height! (_type_ float) none) ;; 9
+    (get-base-height (_type_) float) ;; 10
     )
   )
 
@@ -17970,79 +17971,79 @@
   :size-assert         #x43c
   :flag-assert         #x540000043c
   (:methods
-    (ocean-method-11 () none) ;; 11 ;; (get-height (_type_ vector symbol) float)
-    (ocean-method-12 () none) ;; 12 ;; (draw! (_type_) none)
-    (ocean-method-13 () none) ;; 13 ;; (update-map (_type_) none)
-    (ocean-method-14 () none) ;; 14 ;; (interp-wave (_type_ ocean-wave-info uint float) none)
-    (ocean-method-15 () none) ;; 15 ;; (ocean-method-15 (_type_ matrix matrix) none)
-    (ocean-method-16 () none) ;; 16 ;; (generate-verts (_type_ ocean-vert-array ocean-height-array) none)
-    (ocean-method-17 () none) ;; 17 ;; (add-colors! (_type_ vector ocean-vertex) none)
-    (ocean-method-18 () none) ;; 18 ;; (ocean-method-18 (_type_ (pointer ocean-colors) (pointer ocean-colors)) none)
-    (ocean-method-19 () none) ;; 19 ;; (init-buffer! (_type_ dma-buffer) none)
-    (ocean-method-20 () none) ;; 20 ;; (end-buffer! (_type_ dma-buffer) none)
-    (ocean-method-21 () none) ;; 21 ;; (set-corners! (_type_ float float) float)
-    (ocean-method-22 () none) ;; 22 ;; (ocean-near-add-call (_type_ dma-buffer int) none)
-    (ocean-method-23 () none) ;; 23 ;; (ocean-near-add-call-flush (_type_ dma-buffer int) none)
-    (ocean-method-24 () none) ;; 24 ;; (ocean-near-setup-constants (_type_ ocean-near-constants) none)
-    (ocean-method-25 () none) ;; 25 ;; (ocean-near-add-constants (_type_ dma-buffer) none)
-    (ocean-method-26 () none) ;; 26 ;; (ocean-near-add-heights (_type_ dma-buffer) none)
-    (ocean-method-27 () none) ;; 27 ;; (ocean-near-add-matrices (_type_ dma-buffer vector) none)
-    (ocean-method-28 () none) ;; 28 ;; (ocean-near-add-upload (_type_ dma-buffer uint uint) none)
-    (ocean-method-29 () none) ;; 29 ;; (draw-ocean-near (_type_ dma-buffer) none)
-    (ocean-method-30 () none) ;; 30 ;; (ocean-trans-camera-masks-bit? (_type_ uint uint) symbol)
-    (ocean-method-31 () none) ;; 31 ;; (ocean-trans-mask-ptrs-bit? (_type_ int int) symbol)
-    (ocean-method-32 () none) ;; 32 ;; (ocean-trans-mask-ptrs-set! (_type_ uint uint) symbol)
-    (ocean-method-33 () none) ;; 33 ;; (ocean-trans-add-upload-table (_type_ dma-buffer uint uint int int symbol) none)
-    (ocean-method-34 () none) ;; 34 ;; (ocean-trans-add-upload-strip (_type_ dma-buffer uint uint int int int) none)
-    (ocean-method-35 () none) ;; 35 ;; (ocean-transition-check (_type_ ocean-trans-mask int int vector) none)
-    (ocean-method-36 () none) ;; 36 ;; (ocean-make-trans-camera-masks (_type_ uint uint uint uint) none)
-    (ocean-method-37 () none) ;; 37 ;; (ocean-trans-add-upload (_type_ dma-buffer uint uint) none)
-    (ocean-method-38 () none) ;; 38 ;; (draw-ocean-transition-seams (_type_ dma-buffer) none)
-    (ocean-method-39 () none) ;; 39 ;; (ocean-trans-add-constants (_type_ dma-buffer) none)
-    (ocean-method-40 () none) ;; 40 ;; (draw-ocean-transition (_type_ dma-buffer) none)
-    (ocean-method-41 () none) ;; 41 ;; (ocean-mid-add-call (_type_ dma-buffer int) none)
-    (ocean-method-42 () none) ;; 42 ;; (ocean-mid-add-call-flush (_type_ dma-buffer uint) none)
-    (ocean-method-43 () none) ;; 43 ;; (ocean-matrix*! (_type_ matrix matrix matrix) matrix)
-    (ocean-method-44 () none) ;; 44 ;; (ocean-vector-matrix*! (_type_ vector vector matrix) vector)
-    (ocean-method-45 () none) ;; 45 ;; (ocean-mid-add-matrices (_type_ dma-buffer vector) none)
-    (ocean-method-46 () none) ;; 46 ;; (ocean-mid-check (_type_ pointer int int vector) symbol)
-    (ocean-method-47 () none) ;; 47 ;; (ocean-mid-setup-constants (_type_ ocean-mid-constants) none)
-    (ocean-method-48 () none) ;; 48 ;; (ocean-mid-add-constants (_type_ dma-buffer) none)
-    (ocean-method-49 () none) ;; 49 ;; (ocean-mid-camera-masks-bit? (_type_ uint uint) symbol)
-    (ocean-method-50 () none) ;; 50 ;; (ocean-mid-mask-ptrs-bit? (_type_ uint uint) symbol)
-    (ocean-method-51 () none) ;; 51 ;; (ocean-mid-camera-masks-set! (_type_ uint uint) symbol)
-    (ocean-method-52 () none) ;; 52 ;; (ocean-mid-add-upload (_type_ dma-buffer int int int int float) none)
-    (ocean-method-53 () none) ;; 53 ;; (ocean-mid-add-upload-table (_type_ dma-buffer uint uint (pointer float) int symbol) none)
-    (ocean-method-54 () none) ;; 54 ;; (ocean-mid-add-upload-top (_type_ dma-buffer uint uint) none)
-    (ocean-method-55 () none) ;; 55 ;; (ocean-mid-add-upload-middle (_type_ dma-buffer uint uint) none)
-    (ocean-method-56 () none) ;; 56 ;; (ocean-mid-add-upload-bottom (_type_ dma-buffer uint uint) none)
-    (ocean-method-57 () none) ;; 57 ;; (ocean-seams-add-constants (_type_ dma-buffer) none)
-    (ocean-method-58 () none) ;; 58 ;; (draw-ocean-mid-seams (_type_ dma-buffer) none)
-    (ocean-method-59 () none) ;; 59 ;; (draw-ocean-mid (_type_ dma-buffer) none)
-    (ocean-method-60 () none) ;; 60 ;; (ocean-method-60 (_type_ dma-buffer) none)
-    (ocean-method-61 () none) ;; 61 ;; (ocean-method-61 (_type_ dma-buffer) none)
-    (ocean-method-62 () none) ;; 62 ;; (ocean-method-62 (_type_ dma-buffer) none)
-    (ocean-method-63 () none) ;; 63 ;; (ocean-method-63 (_type_ dma-buffer) none)
-    (ocean-method-64 () none) ;; 64 ;; (ocean-method-64 (_type_ dma-buffer) none)
-    (ocean-method-65 () none) ;; 65 ;; (ocean-method-65 (_type_ dma-buffer) none)
-    (ocean-method-66 () none) ;; 66 ;; (ocean-method-66 (_type_ dma-buffer) none)
-    (ocean-method-67 () none) ;; 67 ;; (ocean-method-67 (_type_ dma-buffer) none)
-    (ocean-method-68 () none) ;; 68 ;; (render-ocean-far (_type_ dma-buffer int) none)
-    (ocean-method-69 () none) ;; 69 ;; (draw-ocean-far (_type_ dma-buffer) none)
-    (ocean-method-70 () none) ;; 70 ;; (ocean-texture-setup-constants (_type_ ocean-texture-constants) none)
-    (ocean-method-71 () none) ;; 71 ;; (ocean-texture-add-constants (_type_ dma-buffer) none)
-    (ocean-method-72 () none) ;; 72 ;; (ocean-texture-add-envmap (_type_ dma-buffer) none)
-    (ocean-method-73 () none) ;; 73 ;; (ocean-texture-add-verts (_type_ dma-buffer int) none)
-    (ocean-method-74 () none) ;; 74 ;; (ocean-texture-add-verts-last (_type_ dma-buffer int int) none)
-    (ocean-method-75 () none) ;; 75 ;; (ocean-texture-add-call-start (_type_ dma-buffer) none)
-    (ocean-method-76 () none) ;; 76 ;; (ocean-texture-add-call-rest (_type_ dma-buffer) none)
-    (ocean-method-77 () none) ;; 77 ;; (ocean-texture-add-call-done (_type_ dma-buffer) none)
-    (ocean-method-78 () none) ;; 78 ;; (draw-ocean-texture (_type_ dma-buffer int) none)
-    (ocean-method-79 () none) ;; 79 ;; (ocean-method-79 (_type_ (pointer rgba)) none)
-    (ocean-method-80 () none) ;; 80 ;; (ocean-method-80 (_type_ dma-buffer) none)
-    (ocean-method-81 () none) ;; 81 ;; (draw-envmap-debug (_type_ dma-buffer) none)
-    (ocean-method-82 () none) ;; 82 ;; (ocean-method-82 (_type_ dma-buffer float) int)
-    (ocean-method-83 () none) ;; 83 ;; (ocean-method-83 (_type_ dma-buffer sky-upload-data vector4w float) none)
+    (get-height (_type_ vector symbol) float) ;; 11
+    (draw! (_type_) none) ;; 12
+    (update-map (_type_ viewport) none) ;; 13 ;; jakx adds the viewport arg, (l.wu (+ a1 176)) = math-camera
+    (add-colors! (_type_ vector ocean-vertex) none) ;; 14 ;; jak3 17; asm: 0.1 y-bump + haze-lights dots
+    (init-buffer! (_type_ dma-buffer) none) ;; 15 ;; jak3 19, inferred from the sequential drop map; not in the four core objects
+    (end-buffer! (_type_ dma-buffer) none) ;; 16 ;; jak3 20; asm: gs-set texa ta1 #x80
+    (ocean-near-add-call (_type_ dma-buffer int) none) ;; 17 ;; jak3 22; vif1 stmod
+    (ocean-near-add-call-flush (_type_ dma-buffer int) none) ;; 18 ;; jak3 23; vif1 flusha
+    (ocean-near-setup-constants (_type_ ocean-near-constants viewport) none) ;; 19 ;; jak3 24 + viewport
+    (ocean-near-add-constants (_type_ dma-buffer viewport) none) ;; 20 ;; jak3 25 + viewport (forwarded uncopied to 19)
+    (ocean-near-add-matrices (_type_ dma-buffer vector viewport) none) ;; 21 ;; jak3 27 + viewport; jak3 26 add-heights dropped
+    (ocean-near-add-upload (_type_ dma-buffer uint uint viewport) none) ;; 22 ;; jak3 28 + viewport
+    (draw-ocean-near (_type_ dma-buffer viewport) none) ;; 23 ;; jak3 29 + viewport
+    (ocean-trans-camera-masks-bit? (_type_ uint uint) symbol) ;; 24 ;; jak3 30
+    (ocean-trans-mask-ptrs-bit? (_type_ int int) symbol) ;; 25 ;; jak3 31
+    (ocean-trans-mask-ptrs-set! (_type_ uint uint) symbol) ;; 26 ;; jak3 32
+    (ocean-trans-add-upload-table (_type_ dma-buffer uint uint int int symbol viewport) none) ;; 27 ;; jak3 33 + viewport
+    (ocean-trans-add-upload-strip (_type_ dma-buffer uint uint int int int viewport) none) ;; 28 ;; jak3 34 + viewport
+    (ocean-transition-check (_type_ ocean-trans-mask int int vector) none) ;; 29 ;; jak3 35
+    (ocean-make-trans-camera-masks (_type_ uint uint uint uint viewport) none) ;; 30 ;; jak3 36 + viewport
+    (ocean-trans-add-upload (_type_ dma-buffer uint uint viewport) none) ;; 31 ;; jak3 37 + viewport
+    (draw-ocean-transition-seams (_type_ dma-buffer viewport) none) ;; 32 ;; jak3 38 + viewport
+    (ocean-trans-add-constants (_type_ dma-buffer) none) ;; 33 ;; jak3 39
+    (draw-ocean-transition (_type_ dma-buffer viewport) none) ;; 34 ;; jak3 40 + viewport
+    (ocean-mid-add-call (_type_ dma-buffer int) none) ;; 35 ;; jak3 41
+    (ocean-mid-add-call-flush (_type_ dma-buffer uint) none) ;; 36 ;; jak3 42
+    (ocean-matrix*! (_type_ matrix matrix matrix) matrix) ;; 37 ;; jak3 43
+    (ocean-vector-matrix*! (_type_ vector vector matrix) vector) ;; 38 ;; jak3 44
+    (ocean-mid-add-matrices (_type_ dma-buffer vector viewport) none) ;; 39 ;; jak3 45 + viewport
+    (ocean-mid-check (_type_ pointer int int vector viewport) symbol) ;; 40 ;; jak3 46 + viewport
+    (ocean-mid-setup-constants (_type_ ocean-mid-constants viewport) none) ;; 41 ;; jak3 47 + viewport
+    (ocean-mid-add-constants (_type_ dma-buffer viewport) none) ;; 42 ;; jak3 48 + viewport (forwarded uncopied to 41)
+    (ocean-mid-camera-masks-bit? (_type_ uint uint) symbol) ;; 43 ;; jak3 49
+    (ocean-mid-mask-ptrs-bit? (_type_ uint uint) symbol) ;; 44 ;; jak3 50
+    (ocean-mid-camera-masks-set! (_type_ uint uint) symbol) ;; 45 ;; jak3 51
+    (ocean-mid-add-upload (_type_ dma-buffer int int int int float viewport) none) ;; 46 ;; jak3 52 + viewport
+    (ocean-mid-add-upload-table (_type_ dma-buffer uint uint (pointer float) int symbol viewport) none) ;; 47 ;; jak3 53 + viewport
+    (ocean-mid-add-upload-top (_type_ dma-buffer uint uint viewport) none) ;; 48 ;; jak3 54 + viewport
+    (ocean-mid-add-upload-middle (_type_ dma-buffer uint uint viewport) none) ;; 49 ;; jak3 55 + viewport
+    (ocean-mid-add-upload-bottom (_type_ dma-buffer uint uint viewport) none) ;; 50 ;; jak3 56 + viewport
+    (ocean-seams-add-constants (_type_ dma-buffer) none) ;; 51 ;; jak3 57
+    (draw-ocean-mid-seams (_type_ dma-buffer viewport) none) ;; 52 ;; jak3 58 + viewport
+    (draw-ocean-mid (_type_ dma-buffer viewport) none) ;; 53 ;; jak3 59 + viewport
+    (ocean-method-54 (_type_ dma-buffer) none) ;; 54 ;; jak3 60 ocean-method-60
+    (ocean-method-55 (_type_ dma-buffer) none) ;; 55 ;; jak3 61
+    (ocean-method-56 (_type_ dma-buffer) none) ;; 56 ;; jak3 62
+    (ocean-method-57 (_type_ dma-buffer) none) ;; 57 ;; jak3 63
+    (ocean-method-58 (_type_ dma-buffer) none) ;; 58 ;; jak3 64
+    (ocean-method-59 (_type_ dma-buffer) none) ;; 59 ;; jak3 65
+    (ocean-method-60 (_type_ dma-buffer) none) ;; 60 ;; jak3 66
+    (ocean-method-61 (_type_ dma-buffer) none) ;; 61 ;; jak3 67
+    (render-ocean-far (_type_ dma-buffer viewport) none) ;; 62 ;; jak3 68
+    (draw-ocean-far (_type_ dma-buffer viewport) none) ;; 63 ;; jak3 69 + viewport
+    (ocean-texture-setup-constants (_type_ ocean-texture-constants) none) ;; 64 ;; jak3 70, shift-inferred (ocean-texture.o not yet decompiled)
+    (ocean-texture-add-constants (_type_ dma-buffer) none) ;; 65 ;; jak3 71, shift-inferred
+    (ocean-texture-add-envmap (_type_ dma-buffer) none) ;; 66 ;; jak3 72, shift-inferred
+    (ocean-texture-add-verts (_type_ dma-buffer int) none) ;; 67 ;; jak3 73, shift-inferred
+    (ocean-texture-add-verts-last (_type_ dma-buffer int int) none) ;; 68 ;; jak3 74, shift-inferred
+    (ocean-texture-add-call-start (_type_ dma-buffer) none) ;; 69 ;; jak3 75, shift-inferred
+    (ocean-texture-add-call-rest (_type_ dma-buffer) none) ;; 70 ;; jak3 76, shift-inferred
+    (ocean-texture-add-call-done (_type_ dma-buffer) none) ;; 71 ;; jak3 77, shift-inferred
+    (draw-ocean-texture (_type_ dma-buffer int) none) ;; 72 ;; jak3 78, shift-inferred
+    (ocean-method-73 (_type_ (pointer rgba)) none) ;; 73 ;; jak3 79, shift-inferred
+    (ocean-method-74 (_type_ dma-buffer) none) ;; 74 ;; jak3 80, shift-inferred
+    (draw-envmap-debug (_type_ dma-buffer) none) ;; 75 ;; jak3 81, shift-inferred
+    (ocean-method-76 (_type_ dma-buffer float) int) ;; 76 ;; jak3 82, shift-inferred
+    (ocean-method-77 (_type_ dma-buffer sky-upload-data vector4w float) none) ;; 77 ;; jak3 83, shift-inferred
+    (ocean-method-78 (_type_ dma-buffer) none) ;; 78 ;; jak3 84, shift-inferred
+    (ocean-method-79 (_type_ vector vector vector vector) none) ;; 79 ;; jak3 85, shift-inferred
+    (ocean-method-80 (_type_ vector vector vector) none) ;; 80 ;; jak3 86, shift-inferred
+    (ocean-method-81 (_type_ dma-buffer) none) ;; 81 ;; jak3 87, shift-inferred
+    (ocean-method-82 (_type_ dma-buffer) none) ;; 82 ;; jak3 88, shift-inferred
+    (rgba-to-vector! (_type_ vector (pointer int32)) none) ;; 83 ;; jak3 90; asm: pextlb/pextlh/itof unpack
     )
   )
 
@@ -42099,7 +42100,7 @@
 ;; drawable                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern sphere-cull function) ;; (function vector symbol)
+(define-extern sphere-cull (function vector symbol)) ;; activated for the ocean leg, jak3 sig
 (define-extern guard-band-cull (function vector symbol))
 (define-extern sphere-in-view-frustum? (function sphere symbol))
 ;; (define-extern line-in-view-frustum? function) ;; (function vector vector symbol)
@@ -42988,46 +42989,46 @@
 ;; ocean-trans-tables             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *ocean-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-up-table* object) ;; (pointer float)
-;; (define-extern *ocean-down-table* object) ;; (pointer float)
-;; (define-extern *ocean-down-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-down-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-up-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-up-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-up-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-down-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-down-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-down-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-up-right-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-up-left-table* object) ;; (pointer float)
-;; (define-extern *ocean-trans-corner-table* object) ;; (inline-array vector4w-2)
-;; (define-extern *ocean-trans-strip-array* object) ;; (pointer float)
-;; (define-extern *ocean-trans-st-table* object) ;; (inline-array vector)
+(define-extern *ocean-left-table* (pointer float))
+(define-extern *ocean-right-table* (pointer float))
+(define-extern *ocean-up-table* (pointer float))
+(define-extern *ocean-down-table* (pointer float))
+(define-extern *ocean-down-left-table* (pointer float))
+(define-extern *ocean-down-right-table* (pointer float))
+(define-extern *ocean-up-right-table* (pointer float))
+(define-extern *ocean-up-left-table* (pointer float))
+(define-extern *ocean-trans-left-table* (pointer float))
+(define-extern *ocean-trans-right-table* (pointer float))
+(define-extern *ocean-trans-up-table* (pointer float))
+(define-extern *ocean-trans-down-table* (pointer float))
+(define-extern *ocean-trans-down-left-table* (pointer float))
+(define-extern *ocean-trans-down-right-table* (pointer float))
+(define-extern *ocean-trans-up-right-table* (pointer float))
+(define-extern *ocean-trans-up-left-table* (pointer float))
+(define-extern *ocean-trans-corner-table* (inline-array vector4w-2))
+(define-extern *ocean-trans-strip-array* (pointer float))
+(define-extern *ocean-trans-st-table* (inline-array vector))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ocean                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern init-ocean-far-regs function) ;; (function none)
-;; (define-extern draw-large-polygon-ocean function) ;; (function none)
-;; (define-extern render-ocean-quad function) ;; (function (inline-array ocean-vertex) dma-buffer symbol)
-;; (define-extern test-seq-read function)
-;; (define-extern test-worst-read function)
-;; (define-extern test-seq-write function)
-;; (define-extern test-worst-write function)
-;; (define-extern test-to-spr function)
-;; (define-extern test-from-spr function)
-;; (define-extern test-to-from-spr function)
+(define-extern init-ocean-far-regs (function viewport none)) ;; jakx: takes the viewport (caller passes it at m62 op 130)
+(define-extern draw-large-polygon-ocean (function none))
+(define-extern render-ocean-quad (function (inline-array ocean-vertex) dma-buffer symbol))
+(define-extern test-seq-read function)
+(define-extern test-worst-read function)
+(define-extern test-seq-write function)
+(define-extern test-worst-write function)
+(define-extern test-to-spr function)
+(define-extern test-from-spr function)
+(define-extern test-to-from-spr function)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ocean-mid                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern ocean-mid-block object) ;; vu-function
+(define-extern ocean-mid-block vu-function)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ocean-transition               ;;
@@ -43038,7 +43039,7 @@
 ;; ocean-near                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern ocean-near-block object) ;; vu-function
+(define-extern ocean-near-block vu-function)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sparks                         ;;
@@ -61448,12 +61449,12 @@
 ;; havjung-ocean                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *ocean-colors-havjung* object)
-;; (define-extern *ocean-near-indices-havjung* ocean-near-indices)
-;; (define-extern *ocean-trans-indices-havjung* ocean-trans-indices)
-;; (define-extern *ocean-mid-indices-havjung* ocean-mid-indices)
-;; (define-extern *ocean-mid-masks-havjung* ocean-mid-masks)
-;; (define-extern *ocean-map-havjung* object)
+(define-extern *ocean-colors-havjung* ocean-colors)
+(define-extern *ocean-near-indices-havjung* ocean-near-indices)
+(define-extern *ocean-trans-indices-havjung* ocean-trans-indices)
+(define-extern *ocean-mid-indices-havjung* ocean-mid-indices)
+(define-extern *ocean-mid-masks-havjung* ocean-mid-masks)
+(define-extern *ocean-map-havjung* ocean-map)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jungle-part                    ;;
@@ -61712,12 +61713,12 @@
 ;; jungle-ocean                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *ocean-colors-jungle* object)
-;; (define-extern *ocean-near-indices-jungle* ocean-near-indices)
-;; (define-extern *ocean-trans-indices-jungle* ocean-trans-indices)
-;; (define-extern *ocean-mid-indices-jungle* ocean-mid-indices)
-;; (define-extern *ocean-mid-masks-jungle* ocean-mid-masks)
-;; (define-extern *ocean-map-jungle* object)
+(define-extern *ocean-colors-jungle* ocean-colors)
+(define-extern *ocean-near-indices-jungle* ocean-near-indices)
+(define-extern *ocean-trans-indices-jungle* ocean-trans-indices)
+(define-extern *ocean-mid-indices-jungle* ocean-mid-indices)
+(define-extern *ocean-mid-masks-jungle* ocean-mid-masks)
+(define-extern *ocean-map-jungle* ocean-map)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; peak-part                      ;;

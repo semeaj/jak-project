@@ -465,6 +465,16 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                                BucketId::TEX_LCOM_SKY_PRE, m_texture_animator);
     init_bucket_renderer<DirectRenderer>("sky", BucketCategory::OTHER, BucketId::SKY, 1024 * 8);
 
+    // Ocean: bucket 6 is GOAL-labeled ";; ocean" in vu1-user-h.gc's enum (mid/far).
+    // The near pass is per-viewport: the decompiled update-map emits near dma into
+    // bucket 631 or 632 selected by (-> viewport index), NOT jak3's positional 462
+    // (the forge-#44 lesson claimed another analogy). Every ocean C++ class already
+    // carries a GameVersion::JakX case. All three stay empty until the GOAL ocean
+    // lands and the draw hook emits into them.
+    init_bucket_renderer<OceanMidAndFar>("ocean-mid-far", BucketCategory::OCEAN, 6);
+    init_bucket_renderer<OceanNear>("ocean-near-v0", BucketCategory::OCEAN, 631);
+    init_bucket_renderer<OceanNear>("ocean-near-v1", BucketCategory::OCEAN, 632);
+
     // Ground truth from the game's *tfrag-init-table* and the draw-drawable-tree-tfrag*
     // bucket arrays (tfrag-methods.o): Jak X multiplexes 12 draw slots = 6 draw-levels x
     // 2 viewports (index = draw-index * 2 + current-viewport-index), with alternating
@@ -562,7 +572,9 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
       }
 
       m_bucket_renderers[i]->init_shaders(m_render_state.shaders);
-      m_bucket_renderers[i]->init_textures(*m_render_state.texture_pool, GameVersion::Jak3);
+      // was hardcoded GameVersion::Jak3; harmless while every downstream switch merges
+      // the Jak3/JakX cases, but the render-time state carries JakX and this should too
+      m_bucket_renderers[i]->init_textures(*m_render_state.texture_pool, GameVersion::JakX);
     }
   }
 }

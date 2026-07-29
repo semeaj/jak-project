@@ -737,7 +737,8 @@
   (bucket628 628) ;; *bucket-map* full decode 2026-07-26
   (bucket629 629) ;; *bucket-map* full decode 2026-07-26
   (bucket630 630)
-
+  (bucket631 631) ;; ocean draw slot, viewport 0 ((method 13 ocean) L137 pair)
+  (bucket632 632) ;; ocean draw slot, viewport 1 ((method 13 ocean) L137 pair)
   (bucket633 633)
   (bucket634 634)
   (bucket635 635)

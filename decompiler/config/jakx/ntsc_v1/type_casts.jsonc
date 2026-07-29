@@ -1303,5 +1303,134 @@
   // loader art slice: loado returns object; jak3's casts at the same op indices
   "drawable-load": [[16, "v0", "drawable"]],
   "art-load": [[7, "v0", "art"]],
-  "art-group-load-check": [[21, "v0", "art-group"]]
+  "art-group-load-check": [[21, "v0", "art-group"]],
+  // ocean (jak3 entries shifted -6 to the jakx method numbers; ops adjusted to the jakx asm)
+  "(method 12 ocean)": [[[10, 12], "v1", "symbol"]],
+  "(method 13 ocean)": [
+    [[57, 62], "a2", "dma-packet"],
+    [[67, 71], "a2", "(pointer uint64)"],
+    [[74, 86], "a1", "(pointer uint64)"],
+    [[145, 150], "a2", "dma-packet"],
+    [[155, 159], "a2", "(pointer uint64)"],
+    [[162, 174], "a1", "(pointer uint64)"]
+  ],
+  "(method 17 ocean)": [[[3, 11], "a0", "dma-packet"]],
+  "(method 18 ocean)": [[[3, 11], "a0", "dma-packet"]],
+  "(method 20 ocean)": [[[8, 16], "a1", "dma-packet"]],
+  "(method 21 ocean)": [
+    [[14, 26], "a0", "dma-packet"],
+    [[35, 39], "a3", "matrix"],
+    [[46, 51], "s1", "vector"]
+  ],
+  "(method 22 ocean)": [
+    [67, "a2", "(pointer int16)"],
+    [[44, 53], "a0", "dma-packet"],
+    [[81, 90], "a1", "vector4w"],
+    [[90, 99], "v1", "vector4w"],
+    [[111, 128], "t0", "vector4w"],
+    [[131, 269], "a1", "(inline-array vector4w)"]
+  ],
+  "(method 23 ocean)": [
+    [[35, 44], "a0", "dma-packet"],
+    [90, "a1", "(pointer int16)"]
+  ],
+  "(method 24 ocean)": [
+    [29, "a0", "(pointer uint8)"],
+    [31, "v1", "int"]
+  ],
+  "(method 25 ocean)": [[32, "a0", "(pointer int32)"]],
+  "(method 26 ocean)": [
+    [31, "t0", "(pointer int32)"],
+    [47, "a2", "(pointer uint8)"],
+    [55, "v1", "(pointer int8)"],
+    [49, "a1", "int"],
+    [33, "a1", "int"]
+  ],
+  "(method 27 ocean)": [
+    [[53, 62], "a0", "dma-packet"],
+    [[64, 68], "v1", "vector4w"],
+    [[120, 234], "v1", "(inline-array vector4w)"],
+    [[245, 254], "a0", "dma-packet"]
+  ],
+  "(method 28 ocean)": [
+    [[43, 54], "a0", "dma-packet"],
+    [[61, 66], "v1", "vector4w"],
+    [[68, 148], "v1", "(inline-array vector4w)"],
+    [[166, 175], "a0", "dma-packet"]
+  ],
+  "(method 30 ocean)": [["_stack_", 48, "ocean-trans-mask"]],
+  "(method 32 ocean)": [
+    [[106, 113], "a1", "(pointer int32)"],
+    [110, "a3", "(pointer uint8)"]
+  ],
+  "(method 33 ocean)": [
+    [[2, 16], "a0", "dma-packet"],
+    [[18, 28], "a0", "vector"],
+    [[28, 40], "a0", "vector"],
+    [[40, 52], "a0", "vector"],
+    [[52, 63], "v1", "vector"]
+  ],
+  "(method 34 ocean)": [["_stack_", 40, "ocean-trans-mask"]],
+  "(method 35 ocean)": [[[3, 11], "a0", "dma-packet"]],
+  "(method 36 ocean)": [[[3, 11], "a0", "dma-packet"]],
+  "(method 39 ocean)": [
+    [[18, 27], "a1", "dma-packet"],
+    [[35, 39], "t0", "matrix"],
+    [[46, 51], "s1", "vector"]
+  ],
+  "(method 42 ocean)": [[[8, 16], "a1", "dma-packet"]],
+  "(method 43 ocean)": [
+    [24, "a0", "(pointer uint8)"],
+    [26, "v1", "int"]
+  ],
+  "(method 45 ocean)": [
+    [39, "a0", "(pointer uint8)"],
+    [47, "v1", "(pointer uint8)"],
+    [41, "a1", "int"],
+    [30, "a1", "int"]
+  ],
+  "(method 46 ocean)": [
+    [[58, 73], "a2", "dma-packet"],
+    [[86, 92], "a0", "dma-packet"],
+    [[102, 104], "v1", "(pointer uint64)"]
+  ],
+  "(method 47 ocean)": [
+    [[53, 62], "a0", "dma-packet"],
+    [[64, 68], "v1", "vector4w"],
+    [[71, 150], "v1", "(inline-array vector4w)"],
+    [[161, 171], "a0", "dma-packet"]
+  ],
+  "(method 53 ocean)": [
+    [[22, 30], "a0", "dma-packet"],
+    [230, "t3", "(pointer uint8)"]
+  ],
+  "(method 51 ocean)": [
+    [[2, 16], "a0", "dma-packet"],
+    [[18, 28], "a0", "vector"],
+    [[28, 40], "a0", "vector"],
+    [[40, 52], "a0", "vector"],
+    [[52, 63], "v1", "vector"]
+  ],
+  "(method 54 ocean)": [
+    [[3, 210], "s4", "(inline-array ocean-vertex)"],
+    ["_stack_", 48, "float"]
+  ],
+  "(method 55 ocean)": [
+    [[3, 210], "s4", "(inline-array ocean-vertex)"],
+    ["_stack_", 48, "float"]
+  ],
+  "(method 56 ocean)": [
+    [[3, 210], "s4", "(inline-array ocean-vertex)"],
+    ["_stack_", 48, "float"]
+  ],
+  "(method 57 ocean)": [
+    [[3, 210], "s4", "(inline-array ocean-vertex)"],
+    ["_stack_", 48, "float"]
+  ],
+  "(method 58 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
+  "(method 59 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
+  "(method 60 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
+  "(method 61 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
+  "(method 62 ocean)": [[[3, 190], "s3", "(inline-array ocean-vertex)"]],
+  "(method 63 ocean)": [[[237, 244], "s3", "dma-packet"]]
 }

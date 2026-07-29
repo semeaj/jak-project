@@ -300,8 +300,8 @@
    (ocean-mid-masks      ocean-mid-masks)
    )
   (:methods
-    (ocean-map-method-9 () none)
-    (ocean-map-method-10 () none)
+    (set-height! (_type_ float) none) ;; 9
+    (get-base-height (_type_) float) ;; 10
     )
   )
 
@@ -336,79 +336,79 @@
    (wait-to-vu0         uint32)
    )
   (:methods
-    (ocean-method-11 () none)
-    (ocean-method-12 () none)
-    (ocean-method-13 () none)
-    (ocean-method-14 () none)
-    (ocean-method-15 () none)
-    (ocean-method-16 () none)
-    (ocean-method-17 () none)
-    (ocean-method-18 () none)
-    (ocean-method-19 () none)
-    (ocean-method-20 () none)
-    (ocean-method-21 () none)
-    (ocean-method-22 () none)
-    (ocean-method-23 () none)
-    (ocean-method-24 () none)
-    (ocean-method-25 () none)
-    (ocean-method-26 () none)
-    (ocean-method-27 () none)
-    (ocean-method-28 () none)
-    (ocean-method-29 () none)
-    (ocean-method-30 () none)
-    (ocean-method-31 () none)
-    (ocean-method-32 () none)
-    (ocean-method-33 () none)
-    (ocean-method-34 () none)
-    (ocean-method-35 () none)
-    (ocean-method-36 () none)
-    (ocean-method-37 () none)
-    (ocean-method-38 () none)
-    (ocean-method-39 () none)
-    (ocean-method-40 () none)
-    (ocean-method-41 () none)
-    (ocean-method-42 () none)
-    (ocean-method-43 () none)
-    (ocean-method-44 () none)
-    (ocean-method-45 () none)
-    (ocean-method-46 () none)
-    (ocean-method-47 () none)
-    (ocean-method-48 () none)
-    (ocean-method-49 () none)
-    (ocean-method-50 () none)
-    (ocean-method-51 () none)
-    (ocean-method-52 () none)
-    (ocean-method-53 () none)
-    (ocean-method-54 () none)
-    (ocean-method-55 () none)
-    (ocean-method-56 () none)
-    (ocean-method-57 () none)
-    (ocean-method-58 () none)
-    (ocean-method-59 () none)
-    (ocean-method-60 () none)
-    (ocean-method-61 () none)
-    (ocean-method-62 () none)
-    (ocean-method-63 () none)
-    (ocean-method-64 () none)
-    (ocean-method-65 () none)
-    (ocean-method-66 () none)
-    (ocean-method-67 () none)
-    (ocean-method-68 () none)
-    (ocean-method-69 () none)
-    (ocean-method-70 () none)
-    (ocean-method-71 () none)
-    (ocean-method-72 () none)
-    (ocean-method-73 () none)
-    (ocean-method-74 () none)
-    (ocean-method-75 () none)
-    (ocean-method-76 () none)
-    (ocean-method-77 () none)
-    (ocean-method-78 () none)
-    (ocean-method-79 () none)
-    (ocean-method-80 () none)
-    (ocean-method-81 () none)
-    (ocean-method-82 () none)
-    (ocean-method-83 () none)
+    (get-height (_type_ vector symbol) float) ;; 11
+    (draw! (_type_) none) ;; 12
+    (update-map (_type_ viewport) none) ;; 13 ;; jakx adds the viewport arg, (l.wu (+ a1 176)) = math-camera
+    (add-colors! (_type_ vector ocean-vertex) none) ;; 14 ;; jak3 17; asm: 0.1 y-bump + haze-lights dots
+    (init-buffer! (_type_ dma-buffer) none) ;; 15 ;; jak3 19, inferred from the sequential drop map; not in the four core objects
+    (end-buffer! (_type_ dma-buffer) none) ;; 16 ;; jak3 20; asm: gs-set texa ta1 #x80
+    (ocean-near-add-call (_type_ dma-buffer int) none) ;; 17 ;; jak3 22; vif1 stmod
+    (ocean-near-add-call-flush (_type_ dma-buffer int) none) ;; 18 ;; jak3 23; vif1 flusha
+    (ocean-near-setup-constants (_type_ ocean-near-constants viewport) none) ;; 19 ;; jak3 24 + viewport
+    (ocean-near-add-constants (_type_ dma-buffer viewport) none) ;; 20 ;; jak3 25 + viewport (forwarded uncopied to 19)
+    (ocean-near-add-matrices (_type_ dma-buffer vector viewport) none) ;; 21 ;; jak3 27 + viewport; jak3 26 add-heights dropped
+    (ocean-near-add-upload (_type_ dma-buffer uint uint viewport) none) ;; 22 ;; jak3 28 + viewport
+    (draw-ocean-near (_type_ dma-buffer viewport) none) ;; 23 ;; jak3 29 + viewport
+    (ocean-trans-camera-masks-bit? (_type_ uint uint) symbol) ;; 24 ;; jak3 30
+    (ocean-trans-mask-ptrs-bit? (_type_ int int) symbol) ;; 25 ;; jak3 31
+    (ocean-trans-mask-ptrs-set! (_type_ uint uint) symbol) ;; 26 ;; jak3 32
+    (ocean-trans-add-upload-table (_type_ dma-buffer uint uint int int symbol viewport) none) ;; 27 ;; jak3 33 + viewport
+    (ocean-trans-add-upload-strip (_type_ dma-buffer uint uint int int int viewport) none) ;; 28 ;; jak3 34 + viewport
+    (ocean-transition-check (_type_ ocean-trans-mask int int vector) none) ;; 29 ;; jak3 35
+    (ocean-make-trans-camera-masks (_type_ uint uint uint uint viewport) none) ;; 30 ;; jak3 36 + viewport
+    (ocean-trans-add-upload (_type_ dma-buffer uint uint viewport) none) ;; 31 ;; jak3 37 + viewport
+    (draw-ocean-transition-seams (_type_ dma-buffer viewport) none) ;; 32 ;; jak3 38 + viewport
+    (ocean-trans-add-constants (_type_ dma-buffer) none) ;; 33 ;; jak3 39
+    (draw-ocean-transition (_type_ dma-buffer viewport) none) ;; 34 ;; jak3 40 + viewport
+    (ocean-mid-add-call (_type_ dma-buffer int) none) ;; 35 ;; jak3 41
+    (ocean-mid-add-call-flush (_type_ dma-buffer uint) none) ;; 36 ;; jak3 42
+    (ocean-matrix*! (_type_ matrix matrix matrix) matrix) ;; 37 ;; jak3 43
+    (ocean-vector-matrix*! (_type_ vector vector matrix) vector) ;; 38 ;; jak3 44
+    (ocean-mid-add-matrices (_type_ dma-buffer vector viewport) none) ;; 39 ;; jak3 45 + viewport
+    (ocean-mid-check (_type_ pointer int int vector viewport) symbol) ;; 40 ;; jak3 46 + viewport
+    (ocean-mid-setup-constants (_type_ ocean-mid-constants viewport) none) ;; 41 ;; jak3 47 + viewport
+    (ocean-mid-add-constants (_type_ dma-buffer viewport) none) ;; 42 ;; jak3 48 + viewport (forwarded uncopied to 41)
+    (ocean-mid-camera-masks-bit? (_type_ uint uint) symbol) ;; 43 ;; jak3 49
+    (ocean-mid-mask-ptrs-bit? (_type_ uint uint) symbol) ;; 44 ;; jak3 50
+    (ocean-mid-camera-masks-set! (_type_ uint uint) symbol) ;; 45 ;; jak3 51
+    (ocean-mid-add-upload (_type_ dma-buffer int int int int float viewport) none) ;; 46 ;; jak3 52 + viewport
+    (ocean-mid-add-upload-table (_type_ dma-buffer uint uint (pointer float) int symbol viewport) none) ;; 47 ;; jak3 53 + viewport
+    (ocean-mid-add-upload-top (_type_ dma-buffer uint uint viewport) none) ;; 48 ;; jak3 54 + viewport
+    (ocean-mid-add-upload-middle (_type_ dma-buffer uint uint viewport) none) ;; 49 ;; jak3 55 + viewport
+    (ocean-mid-add-upload-bottom (_type_ dma-buffer uint uint viewport) none) ;; 50 ;; jak3 56 + viewport
+    (ocean-seams-add-constants (_type_ dma-buffer) none) ;; 51 ;; jak3 57
+    (draw-ocean-mid-seams (_type_ dma-buffer viewport) none) ;; 52 ;; jak3 58 + viewport
+    (draw-ocean-mid (_type_ dma-buffer viewport) none) ;; 53 ;; jak3 59 + viewport
+    (ocean-method-54 (_type_ dma-buffer) none) ;; 54 ;; jak3 60 ocean-method-60
+    (ocean-method-55 (_type_ dma-buffer) none) ;; 55 ;; jak3 61
+    (ocean-method-56 (_type_ dma-buffer) none) ;; 56 ;; jak3 62
+    (ocean-method-57 (_type_ dma-buffer) none) ;; 57 ;; jak3 63
+    (ocean-method-58 (_type_ dma-buffer) none) ;; 58 ;; jak3 64
+    (ocean-method-59 (_type_ dma-buffer) none) ;; 59 ;; jak3 65
+    (ocean-method-60 (_type_ dma-buffer) none) ;; 60 ;; jak3 66
+    (ocean-method-61 (_type_ dma-buffer) none) ;; 61 ;; jak3 67
+    (render-ocean-far (_type_ dma-buffer viewport) none) ;; 62 ;; jak3 68
+    (draw-ocean-far (_type_ dma-buffer viewport) none) ;; 63 ;; jak3 69 + viewport
+    (ocean-texture-setup-constants (_type_ ocean-texture-constants) none) ;; 64 ;; jak3 70, shift-inferred (ocean-texture.o not yet decompiled)
+    (ocean-texture-add-constants (_type_ dma-buffer) none) ;; 65 ;; jak3 71, shift-inferred
+    (ocean-texture-add-envmap (_type_ dma-buffer) none) ;; 66 ;; jak3 72, shift-inferred
+    (ocean-texture-add-verts (_type_ dma-buffer int) none) ;; 67 ;; jak3 73, shift-inferred
+    (ocean-texture-add-verts-last (_type_ dma-buffer int int) none) ;; 68 ;; jak3 74, shift-inferred
+    (ocean-texture-add-call-start (_type_ dma-buffer) none) ;; 69 ;; jak3 75, shift-inferred
+    (ocean-texture-add-call-rest (_type_ dma-buffer) none) ;; 70 ;; jak3 76, shift-inferred
+    (ocean-texture-add-call-done (_type_ dma-buffer) none) ;; 71 ;; jak3 77, shift-inferred
+    (draw-ocean-texture (_type_ dma-buffer int) none) ;; 72 ;; jak3 78, shift-inferred
+    (ocean-method-73 (_type_ (pointer rgba)) none) ;; 73 ;; jak3 79, shift-inferred
+    (ocean-method-74 (_type_ dma-buffer) none) ;; 74 ;; jak3 80, shift-inferred
+    (draw-envmap-debug (_type_ dma-buffer) none) ;; 75 ;; jak3 81, shift-inferred
+    (ocean-method-76 (_type_ dma-buffer float) int) ;; 76 ;; jak3 82, shift-inferred
+    (ocean-method-77 (_type_ dma-buffer sky-upload-data vector4w float) none) ;; 77 ;; jak3 83, shift-inferred
+    (ocean-method-78 (_type_ dma-buffer) none) ;; 78 ;; jak3 84, shift-inferred
+    (ocean-method-79 (_type_ vector vector vector vector) none) ;; 79 ;; jak3 85, shift-inferred
+    (ocean-method-80 (_type_ vector vector vector) none) ;; 80 ;; jak3 86, shift-inferred
+    (ocean-method-81 (_type_ dma-buffer) none) ;; 81 ;; jak3 87, shift-inferred
+    (ocean-method-82 (_type_ dma-buffer) none) ;; 82 ;; jak3 88, shift-inferred
+    (rgba-to-vector! (_type_ vector (pointer int32)) none) ;; 83 ;; jak3 90; asm: pextlb/pextlh/itof unpack
     )
   )
 

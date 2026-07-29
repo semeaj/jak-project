@@ -39,9 +39,43 @@ void OceanMidAndFar::render(DmaFollower& dma,
       break;
     case GameVersion::Jak2:
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       render_jak2(dma, render_state, prof);
       break;
+    case GameVersion::JakX:
+      render_jakx(dma, render_state, prof);
+      break;
+  }
+}
+
+void OceanMidAndFar::render_jakx(DmaFollower& dma,
+                                 SharedRenderState* render_state,
+                                 ScopedProfilerNode& prof) {
+  // jak2's shape minus the ocean-texture section: jakx never shipped ocean-texture.o
+  // (its ocean texture routes through the texture animator instead), and the first
+  // real ocean frame showed the chain going envmap -> far -> mid with no texture
+  // section (the jak2 parser asserted on the far data at the texture slot).
+  auto data0 = dma.read_and_advance();
+  ASSERT(data0.vif1() == 0 || data0.vifcode1().kind == VifCode::Kind::NOP);
+  ASSERT(data0.vif0() == 0 || data0.vifcode0().kind == VifCode::Kind::MARK);
+  ASSERT(data0.size_bytes == 0);
+
+  if (dma.current_tag_offset() == render_state->next_bucket) {
+    return;
+  }
+
+  // The jakx chain differs from jak2/jak3: no separate far or texture sections (the
+  // jakx ocean texture routes through the texture animator), a compact envmap and
+  // far-color block, then the mid strip groups (shape captured on the water leg:
+  // 64/176/16-byte setup, then per-strip 128-byte unpack + 9x48 + 16 + mscalf).
+  // Until the jakx parser lands, drain the bucket so the frame keeps running;
+  // ocean geometry does not draw yet.
+  static bool s_logged = false;
+  if (!s_logged) {
+    fmt::print("OceanMidAndFar: jakx chain present, parser pending; draining\n");
+    s_logged = true;
+  }
+  while (dma.current_tag_offset() != render_state->next_bucket) {
+    dma.read_and_advance();
   }
 }
 

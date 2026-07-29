@@ -1,11 +1,12 @@
 ;; og:preserve-this bring-up: data entries converted to .go raw copies (brdroom recipe).
 ;; Dropped code objects, MIPS code that cannot be raw-copied (their top-levels would
 ;; execute at link); they land with the jungle actor-code leg: jungle-part.o,
-;; jungle-part2.o, jungle-obs.o, jungle-ocean.o. The effects pair landed with the
-;; water leg (pure texture-anim-array data) and compiles from goal_src again.
+;; jungle-part2.o, jungle-obs.o. The effects pair and jungle-ocean landed with the
+;; water leg (pure data) and compile from goal_src again.
 ("JGX.DGO"
  ("jungle-effects.o"
   "havjung-effects.o"
+  "jungle-ocean.o"
   "tpage-1601.go"
   "tpage-1603.go"
   "tpage-1600.go"

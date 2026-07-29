@@ -34,6 +34,18 @@
     "(method 11 collide-mesh)",
     // dma
     "symlink2",
+    // ocean VU/asm family (jak3 parity; a later leg gives them mips2c)
+    "init-ocean-far-regs",
+    "draw-large-polygon-ocean",
+    "render-ocean-quad",
+    // ocean.o debug-segment PS2 memory benchmarks (jak3 parity)
+    "test-to-from-spr",
+    "test-from-spr",
+    "test-to-spr",
+    "test-seq-read",
+    "test-worst-read",
+    "test-seq-write",
+    "test-worst-write",
     // actual asm
     "(method 17 bounding-box)",
     "quad-copy!",
@@ -139,6 +151,10 @@
   "mips2c_functions_by_name": [
     "live-func-curve",
     "birth-func-curve",
+    // ocean far-quad VU family (jak3 treats the same trio as mips2c)
+    "init-ocean-far-regs",
+    "draw-large-polygon-ocean",
+    "render-ocean-quad",
     // sky (jak3 set; jakx method numbers shift: jak3 17/18/29/30/31/34/35 ->
     // jakx 16/17/28/29/30/32/33; day-star-dma dropped)
     "set-tex-offset",

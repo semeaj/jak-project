@@ -39,9 +39,17 @@ void OceanNear::render(DmaFollower& dma,
       break;
     case GameVersion::Jak2:
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       render_jak2(dma, render_state, prof);
       break;
+    case GameVersion::JakX: {
+      // jakx parser pending (see OceanMidAndFar); drain the per-viewport near bucket
+      auto data0 = dma.read_and_advance();
+      (void)data0;
+      while (dma.current_tag_offset() != render_state->next_bucket) {
+        dma.read_and_advance();
+      }
+      break;
+    }
   }
 }
 
