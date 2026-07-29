@@ -58,12 +58,15 @@
       (let ((ent (-> arg0 entity data i entity)))
         (when (type? ent entity-actor)
           (let ((actor (the-as entity-actor ent)))
-            (when (type-type? (-> actor etype) process-nettable)
-              ;; og:preserve-this bring-up guard: an etype can be a landed deftype
-              ;; skeleton deriving process-nettable whose slot 32 is still null (the
-              ;; per-type actor code is unlanded); dispatching it was a call through
-              ;; zero, found by the first streamed section's birth (jungleb; boot
-              ;; levels' etypes are unresolved and skip the type-type? test entirely)
+            ;; og:preserve-this bring-up guards, two layers (forge #51 class): the
+            ;; type? gate keeps type-type?'s parent walk off unresolved etypes that
+            ;; still hold the type-name SYMBOL (walking a symbol strides into garbage;
+            ;; lldb-proven on a churned discard), and the slot gate below keeps the
+            ;; dispatch off landed skeleton types whose slots are still null. Both
+            ;; retire with proper etype resolution (entity-table.o leg).
+            (when (and (type? (-> actor etype) type)
+                       (type-type? (-> actor etype) process-nettable)
+                       )
               (let ((t9-net (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-32))))
                 (when (nonzero? (the-as int t9-net))
                   ((the-as (function process-nettable entity-actor none) t9-net)
@@ -88,9 +91,12 @@
       (let ((ent (-> arg0 entity data i entity)))
         (when (type? ent entity-actor)
           (let ((actor (the-as entity-actor ent)))
-            (when (type-type? (-> actor etype) process-nettable)
-              ;; og:preserve-this bring-up guard: same null-slot class as method 13's
-              ;; slot 32 guard above, on the unload-side walk
+            ;; og:preserve-this bring-up guards: same two layers as method 13 above
+            ;; (type? gate for symbol-valued etypes, slot gate for skeleton types),
+            ;; on the unload-side walk where the churned-discard crash actually fired
+            (when (and (type? (-> actor etype) type)
+                       (type-type? (-> actor etype) process-nettable)
+                       )
               (let ((t9-net (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-33))))
                 (when (nonzero? (the-as int t9-net))
                   ((the-as (function process-nettable entity-actor none) t9-net)

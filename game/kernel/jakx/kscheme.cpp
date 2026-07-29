@@ -924,20 +924,34 @@ Ptr<Type> intern_type_from_c(int a, int b, const char* name, u64 methods) {
   if (!sym_value) {
     // new type
     int n_methods = methods;
+    bool force_global = false;
 
     if (methods == 0) {
       // some stupid types like user-defined children of integers have "0" as the method count
       n_methods = 0xc;
+      force_global = true;
     } else if (methods == 1) {
       // whatever builds the v2/v4 object files (level data) doesn't actually know method counts.
       // so it just puts a 1.  In this case, we should put lots of methods, just in case.
       // I guess 44 was the number they picked.
       n_methods = 0x2c;
+      force_global = true;
     }
 
-    // create the type.
+    // og:preserve-this bring-up change (forge #51): stub types created for v2/v4 DATA
+    // references (methods flag 0/1) allocate on the GLOBAL heap instead of the loading
+    // level's. Retail relied on the persistent level's code objects defining the shared
+    // actor types before any section linked, so section entities never held pointers
+    // into a sibling section's heap; with those code objects dropped on the bring-up,
+    // the first section to reference a type name stubbed it into its OWN heap, later
+    // sections' linked entity data kept the raw pointer, and the streaming window's
+    // bank recycling turned it into mapped garbage (type-type? then walked asset bytes;
+    // lldb-proven). Real code-defined types (real method counts via type-new) keep
+    // retail's level-heap semantics. Revisit when level code objects land: a level
+    // deftype refining one of these global stubs will fill it with method pointers
+    // into level code, which outlives this decision's assumptions.
     auto casted_sym = symbol.cast<Symbol4<Ptr<Type>>>();
-    auto type = alloc_and_init_type(casted_sym, n_methods, 0);  // allow level types
+    auto type = alloc_and_init_type(casted_sym, n_methods, force_global);
     type->symbol = casted_sym;
     type->num_methods = n_methods;
     return type;

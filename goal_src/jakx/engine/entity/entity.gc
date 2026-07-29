@@ -337,7 +337,12 @@
 (defmethod birth! ((this entity-actor))
   (when (not (logtest? (-> this extra kill-mask) (task-mask never)))
     (let ((s5-0 (-> this etype)))
-      (when (and (type-type? s5-0 process-nettable) (nonzero? (-> s5-0 method-table 40)))
+      ;; og:preserve-this bring-up guard (forge #51 class): an unresolved etype still
+      ;; holds the type-name SYMBOL, and type-type?'s parent walk on a symbol strides
+      ;; into garbage (lldb: read fault in gcommon's walk, symbol addresses in the
+      ;; registers). Verify the value is a real type object before walking. Retires
+      ;; with proper etype resolution (entity-table.o leg).
+      (when (and (type? s5-0 type) (type-type? s5-0 process-nettable) (nonzero? (-> s5-0 method-table 40)))
         (format 0 "WARNING: preventing ~A from auto-spawning~%" this)
         (logior! (-> this extra kill-mask) (task-mask network never))
         (set! this (the-as entity-actor #f))
