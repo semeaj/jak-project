@@ -229,5 +229,10 @@
   "rand-spawn-pickup": [[32, "vector"]],
   "spawn-pickups-from-destructible": [[16, ["inline-array", "vector", 2]]],
   "(event idle net-simple-destruct)": [[16, "event-message-block"]],
-  "(code active lightning-tracker)": [[16, "vector"]]
+  "(code active lightning-tracker)": [[16, "vector"]],
+  // jungle-part: both spawn helpers build the vector they copy into *launch-matrix* trans
+  // on the stack, and the decompiler cannot guess the type of a slot only ever touched
+  // with lq/sq. Same one-vector shape jak3 uses all over its stack_structures.
+  "spt-func-birth-on-height-die": [[16, "vector"]],
+  "spt-func-birth-on-pop": [[16, "vector"]]
 }

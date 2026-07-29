@@ -1641,5 +1641,65 @@
     [44, "a1", "int"],
     [53, "a2", "entity-actor"],
     [57, "a0", "entity-actor"]
+  ],
+
+  // jungle-part2: the ten bird path functions. jak3 needs the same shape for its
+  // identical part-wascityb-birdN-path family (jak3/ntsc_v1/type_casts.jsonc), but
+  // jakx needs one cast more. Op 13 is the (- <timer-target> (-> arg1 timer))
+  // subtract, which type prop cannot reconcile without knowing v1 is an int. The
+  // other two type the process reached through the particle's launch-control as a
+  // part-spawner: in jak3 part-spawner and process-drawable both put root at the
+  // same offset, so only the last-velocity read needed a cast, but in jakx
+  // part-spawner extends process (root at 140) while process-drawable extends
+  // process-nettable (root at 184), so the root read needs its own cast too.
+  "part-jungle-bird1-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird2-path": [
+    [13, "v1", "int"],
+    [83, "v1", "part-spawner"],
+    [87, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird3-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird4-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird5-path": [
+    [13, "v1", "int"],
+    [83, "v1", "part-spawner"],
+    [87, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird6-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird7-path": [
+    [13, "v1", "int"],
+    [83, "v1", "part-spawner"],
+    [87, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird8-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird9-path": [
+    [13, "v1", "int"],
+    [87, "v1", "part-spawner"],
+    [91, "a0", "part-spawner"]
+  ],
+  "part-jungle-bird10-path": [
+    [13, "v1", "int"],
+    [83, "v1", "part-spawner"],
+    [87, "a0", "part-spawner"]
   ]
 }

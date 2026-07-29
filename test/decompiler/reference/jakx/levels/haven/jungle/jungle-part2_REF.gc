@@ -1,12 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: jungle-part2.gc
-;; name in dgo: jungle-part2
-;; dgos: JGX, JUNGLEW
-
-;; DECOMP BEGINS
-
+;; failed to figure out what this is:
 (defpartgroup group-part-jungle-birds
   :id 351
   :bounds (static-bspherem 0 0 0 100)
@@ -22,8 +17,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1202
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.5))
     (:scale-y :copy scale-x)
@@ -60,6 +56,8 @@
     )
   )
 
+;; definition for function part-jungle-bird1-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird1-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -131,8 +129,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1203
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.6))
     (:scale-y :copy scale-x)
@@ -164,6 +163,8 @@
     )
   )
 
+;; definition for function part-jungle-bird2-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird2-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -235,8 +236,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1204
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.7))
     (:scale-y :copy scale-x)
@@ -265,6 +267,8 @@
     )
   )
 
+;; definition for function part-jungle-bird3-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird3-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -336,8 +340,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1205
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.8))
     (:scale-y :copy scale-x)
@@ -369,6 +374,8 @@
     )
   )
 
+;; definition for function part-jungle-bird4-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird4-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -440,8 +447,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1206
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.9))
     (:scale-y :copy scale-x)
@@ -478,6 +486,8 @@
     )
   )
 
+;; definition for function part-jungle-bird5-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird5-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -549,8 +559,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1207
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.5))
     (:scale-y :copy scale-x)
@@ -582,6 +593,8 @@
     )
   )
 
+;; definition for function part-jungle-bird6-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird6-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -653,8 +666,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1208
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.6))
     (:scale-y :copy scale-x)
@@ -683,6 +697,8 @@
     )
   )
 
+;; definition for function part-jungle-bird7-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird7-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -754,8 +770,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1209
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.7))
     (:scale-y :copy scale-x)
@@ -787,6 +804,8 @@
     )
   )
 
+;; definition for function part-jungle-bird8-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird8-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -858,8 +877,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1210
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.8))
     (:scale-y :copy scale-x)
@@ -896,6 +916,8 @@
     )
   )
 
+;; definition for function part-jungle-bird9-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird9-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)
@@ -967,8 +989,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 1211
-  :init-specs ((:texture (new 'static 'texture-id :index #x10 :page #x91d))
+  :init-specs ((:texture (jungle-bird-01 jungles-sprite))
     (:num 1.0)
     (:scale-x (meters 4.9))
     (:scale-y :copy scale-x)
@@ -1000,6 +1023,8 @@
     )
   )
 
+;; definition for function part-jungle-bird10-path
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun part-jungle-bird10-path ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (sparticle-texture-animate arg0 arg1 arg2)

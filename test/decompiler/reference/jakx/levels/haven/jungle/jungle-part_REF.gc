@@ -1,24 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: jungle-part.gc
-;; name in dgo: jungle-part
-;; dgos: HAVJUNGW, HAVTOURW, HJX, JGX, JUNGLEW
-
-(define-extern *range-color-lava-geyser-flame* curve-color-fast)
-(define-extern *range-alpha-lava-geyser-flame* curve2d-fast)
-(define-extern *range-scale-lava-geyser-flame-x* curve2d-fast)
-(define-extern *range-scale-lava-geyser-flame-y* curve2d-fast)
-(define-extern *r-curve-lava-geyser-flame* curve2d-fast)
-(define-extern *g-curve-lava-geyser-flame* curve2d-fast)
-(define-extern *b-curve-lava-geyser-flame* curve2d-fast)
-(define-extern *curve-alpha-lava-geyser-flame* curve2d-fast)
-(define-extern *curve-scale-lava-geyser-flame-x* curve2d-fast)
-(define-extern *curve-scale-lava-geyser-flame-y* curve2d-fast)
-(define-extern *part-jungle-lavafire-small-curve-settings* particle-curve-settings)
-
-;; DECOMP BEGINS
-
+;; definition for function spt-birth-func-brightness-statue-dust
 ;; WARN: Return type mismatch float vs none.
 (defun spt-birth-func-brightness-statue-dust ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((s5-0 (+ (mod (the-as int (rand-uint31-gen *random-generator*)) 41) 60))
@@ -33,6 +16,7 @@
   (none)
   )
 
+;; definition for function spt-birth-func-brightness-tree-root-dust
 ;; WARN: Return type mismatch float vs none.
 (defun spt-birth-func-brightness-tree-root-dust ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((s5-0 (+ (mod (the-as int (rand-uint31-gen *random-generator*)) 51) 90))
@@ -47,6 +31,7 @@
   (none)
   )
 
+;; definition for function spt-birth-func-brightness-tree-root-splinters
 ;; WARN: Return type mismatch float vs none.
 (defun spt-birth-func-brightness-tree-root-splinters ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((s5-0 (+ (mod (the-as int (rand-uint31-gen *random-generator*)) 101) 70))
@@ -61,6 +46,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-small-statue-outdoors
   :id 352
   :flags (sp0 sp4)
@@ -68,8 +54,9 @@
   :parts ((sp-item 1212 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1212
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-statue-dust)
     (:num 10.0)
     (:y (meters 0) (meters 15))
@@ -93,6 +80,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-small-statue-indoors
   :id 353
   :flags (sp0 sp4)
@@ -100,8 +88,9 @@
   :parts ((sp-item 1213 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1213
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-statue-dust)
     (:num 10.0)
     (:y (meters 0) (meters 15))
@@ -125,6 +114,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-clay-jar-a
   :id 354
   :flags (sp0 sp4)
@@ -132,8 +122,9 @@
   :parts ((sp-item 1214 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1214
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 10.0)
     (:y (meters 0) (meters 10))
     (:z (meters 0) (meters 2))
@@ -156,6 +147,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-clay-jar-b
   :id 355
   :flags (sp0 sp4)
@@ -163,8 +155,9 @@
   :parts ((sp-item 1215 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1215
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-tree-root-dust)
     (:num 10.0)
     (:y (meters 0) (meters 10))
@@ -188,6 +181,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-flaming-arrow
   :id 356
   :flags (sp0 sp4)
@@ -199,8 +193,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1216
-  :init-specs ((:texture (new 'static 'texture-id :index #x17 :page #x4))
+  :init-specs ((:texture (glow-soft level-default-sprite))
     (:num 1.0)
     (:y (meters -0.5))
     (:z (meters 5.5))
@@ -219,12 +214,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1220
   :init-specs ((:fade-a -0.3 -0.3))
   )
 
+;; failed to figure out what this is:
 (defpart 1217
-  :init-specs ((:texture (new 'static 'texture-id :index #x17 :page #x4))
+  :init-specs ((:texture (glow-soft level-default-sprite))
     (:num 1.0)
     (:y (meters 5))
     (:scale-x (meters 10))
@@ -242,8 +239,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1218
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 2.0)
     (:x (meters -1) (meters 2))
@@ -270,6 +268,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1221
   :init-specs ((:scalevel-x (meters -0.006666667) (meters -0.016666668))
     (:scalevel-y :copy scalevel-x)
@@ -277,8 +276,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1219
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 2.0)
     (:x (meters -1) (meters 2))
@@ -306,6 +306,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-tree-root-a
   :id 357
   :flags (sp0 sp4)
@@ -313,8 +314,9 @@
   :parts ((sp-item 1222 :flags (sp3 sp6)) (sp-item 1223 :flags (sp3 sp6)) (sp-item 1224 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1222
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-tree-root-dust)
     (:num 10.0)
     (:y (meters 0) (meters 10))
@@ -336,8 +338,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1223
-  :init-specs ((:texture (new 'static 'texture-id :index #x80 :page #x4))
+  :init-specs ((:texture (ceiling-dust level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-tree-root-dust)
     (:num 10.0)
     (:x (meters 0) (meters 4))
@@ -361,12 +364,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1225
   :init-specs ((:fade-a -0.053333335 -0.053333335))
   )
 
+;; failed to figure out what this is:
 (defpart 1224
-  :init-specs ((:texture (new 'static 'texture-id :index #x65 :page #x4))
+  :init-specs ((:texture (woodchip level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-tree-root-splinters)
     (:num 60.0)
     (:y (meters 0) (meters 15))
@@ -388,6 +393,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-tree-root-b
   :id 358
   :flags (sp0 sp4)
@@ -395,6 +401,7 @@
   :parts ((sp-item 1222 :flags (sp3 sp6)) (sp-item 1223 :flags (sp3 sp6)) (sp-item 1224 :flags (sp3 sp6)))
   )
 
+;; definition for function spt-birth-func-brightness-jungle-snake-dust
 ;; WARN: Return type mismatch float vs none.
 (defun spt-birth-func-brightness-jungle-snake-dust ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((s5-0 (+ (mod (the-as int (rand-uint31-gen *random-generator*)) 51) 150))
@@ -409,6 +416,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-snake-head-break
   :id 359
   :flags (sp0 sp4)
@@ -416,8 +424,9 @@
   :parts ((sp-item 1226 :flags (sp3 sp6)) (sp-item 1227 :flags (sp3 sp6)) (sp-item 1228 :flags (sp3 sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1226
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 30.0)
     (:x (meters -10) (meters 20))
     (:z (meters 0) (meters 60))
@@ -439,8 +448,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1227
-  :init-specs ((:texture (new 'static 'texture-id :index #x80 :page #x4))
+  :init-specs ((:texture (ceiling-dust level-default-sprite))
     (:birth-func 'spt-birth-func-brightness-jungle-snake-dust)
     (:num 30.0)
     (:x (meters -5) (meters 10))
@@ -466,8 +476,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1228
-  :init-specs ((:texture (new 'static 'texture-id :index #x8d :page #x4))
+  :init-specs ((:texture (dirt01 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 60.0)
     (:x (meters -20) (meters 40))
@@ -512,6 +523,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-torch-bamboo
   :id 360
   :flags (sp0 sp4 sp15)
@@ -523,8 +535,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1229
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:num 1.0)
     (:y (meters 1))
     (:scale-x (meters 1) (meters 1))
@@ -553,12 +566,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1233
   :init-specs ((:fade-a -0.85333335 -0.85333335) (:accel-x (meters -0.00066666666)))
   )
 
+;; failed to figure out what this is:
 (defpart 1230
-  :init-specs ((:texture (new 'static 'texture-id :index #x15 :page #x4))
+  :init-specs ((:texture (glow level-default-sprite))
     (:num 0.2)
     (:y (meters 2))
     (:scale-x (meters 13) (meters 2))
@@ -579,12 +594,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1234
   :init-specs ((:fade-a -0.4 -0.4))
   )
 
+;; failed to figure out what this is:
 (defpart 1231
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.005 0.08)
     (:y (meters 0))
     (:scale-x (meters 0.1) (meters 0.1))
@@ -613,6 +630,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1235
   :init-specs ((:accel-x (meters -0.0033333334) 1 (meters 0.006666667))
     (:accel-z (meters -0.0033333334) 1 (meters 0.006666667))
@@ -621,6 +639,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1236
   :init-specs ((:accel-x (meters -0.0016666667) 1 (meters 0.0033333334))
     (:accel-z (meters -0.0016666667) 1 (meters 0.0033333334))
@@ -629,6 +648,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1232
   :init-specs ((:num 0.1)
     (:y (meters 2) (meters 2))
@@ -649,10 +669,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1237
   :init-specs ((:fade-b -27.306667))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-torch-tunnel-face
   :id 361
   :flags (sp0 sp4 sp15)
@@ -664,8 +686,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1238
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:num 1.0)
     (:y (meters 1))
     (:scale-x (meters 2) (meters 2))
@@ -694,12 +717,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1242
   :init-specs ((:fade-a -0.85333335 -0.85333335) (:accel-x (meters -0.00066666666)))
   )
 
+;; failed to figure out what this is:
 (defpart 1239
-  :init-specs ((:texture (new 'static 'texture-id :index #x15 :page #x4))
+  :init-specs ((:texture (glow level-default-sprite))
     (:num 0.2)
     (:y (meters 2))
     (:scale-x (meters 30) (meters 5))
@@ -720,12 +745,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1243
   :init-specs ((:fade-a -0.4 -0.4))
   )
 
+;; failed to figure out what this is:
 (defpart 1240
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.005 0.08)
     (:y (meters 0))
     (:scale-x (meters 0.1) (meters 0.1))
@@ -754,6 +781,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1244
   :init-specs ((:accel-x (meters -0.0033333334) 1 (meters 0.006666667))
     (:accel-z (meters -0.0033333334) 1 (meters 0.006666667))
@@ -762,6 +790,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1245
   :init-specs ((:accel-x (meters -0.0016666667) 1 (meters 0.0033333334))
     (:accel-z (meters -0.0016666667) 1 (meters 0.0033333334))
@@ -770,6 +799,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1241
   :init-specs ((:num 0.1)
     (:y (meters 2))
@@ -787,6 +817,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-tunnel-a-torch
   :id 362
   :flags (sp0 sp4 sp15)
@@ -798,8 +829,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1246
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:num 1.0)
     (:y (meters 1))
     (:scale-x (meters 2) (meters 2))
@@ -828,12 +860,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1250
   :init-specs ((:fade-a -0.85333335 -0.85333335) (:accel-x (meters -0.00066666666)))
   )
 
+;; failed to figure out what this is:
 (defpart 1247
-  :init-specs ((:texture (new 'static 'texture-id :index #x15 :page #x4))
+  :init-specs ((:texture (glow level-default-sprite))
     (:num 0.3)
     (:y (meters 2))
     (:scale-x (meters 30) (meters 5))
@@ -854,12 +888,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1251
   :init-specs ((:fade-a -0.3 -0.2))
   )
 
+;; failed to figure out what this is:
 (defpart 1248
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.005 0.08)
     (:y (meters 0))
     (:scale-x (meters 0.1) (meters 0.1))
@@ -888,6 +924,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1252
   :init-specs ((:accel-x (meters -0.0033333334) 1 (meters 0.006666667))
     (:accel-z (meters -0.0033333334) 1 (meters 0.006666667))
@@ -896,6 +933,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1253
   :init-specs ((:accel-x (meters -0.0016666667) 1 (meters 0.0033333334))
     (:accel-z (meters -0.0016666667) 1 (meters 0.0033333334))
@@ -904,6 +942,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1249
   :init-specs ((:num 0.1)
     (:y (meters 2) (meters 2))
@@ -924,10 +963,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1254
   :init-specs ((:fade-b -27.306667))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-tunnel-b-torch
   :id 363
   :flags (sp0 sp4 sp15)
@@ -939,8 +980,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1255
-  :init-specs ((:texture (new 'static 'texture-id :index #xf :page #x4))
+  :init-specs ((:texture (explosion-edge level-default-sprite))
     (:num 2.0 1.0)
     (:y (meters 1))
     (:scale-x (meters 2) (meters 2))
@@ -969,12 +1011,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1259
   :init-specs ((:fade-a -0.13333334 -1.7066667) (:accel-x (meters -0.00066666666)))
   )
 
+;; failed to figure out what this is:
 (defpart 1256
-  :init-specs ((:texture (new 'static 'texture-id :index #x15 :page #x4))
+  :init-specs ((:texture (glow level-default-sprite))
     (:num 0.2 0.1)
     (:y (meters 4))
     (:scale-x (meters 30) (meters 5))
@@ -995,12 +1039,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1260
   :init-specs ((:fade-a -0.1 -0.1))
   )
 
+;; failed to figure out what this is:
 (defpart 1257
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.005 0.08)
     (:x (meters 0) (meters 5))
     (:y (meters 0))
@@ -1028,6 +1074,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1261
   :init-specs ((:fade-a -0.85 -0.85)
     (:accel-x (meters 0.002))
@@ -1037,6 +1084,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1262
   :init-specs ((:accel-x (meters -0.0033333334) (meters 0.006666667))
     (:accel-z (meters -0.0033333334) (meters 0.006666667))
@@ -1045,6 +1093,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1258
   :init-specs ((:num 0.1)
     (:y (meters 2))
@@ -1062,6 +1111,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-stairs-torch
   :id 364
   :flags (sp0 sp4 sp15)
@@ -1073,8 +1123,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1263
-  :init-specs ((:texture (new 'static 'texture-id :index #xbb :page #x4))
+  :init-specs ((:texture (flame02 level-default-sprite))
     (:num 1.0)
     (:y (meters 1))
     (:scale-x (meters 2) (meters 2))
@@ -1103,12 +1154,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1267
   :init-specs ((:fade-a -0.85333335 -0.85333335) (:accel-x (meters -0.00066666666)))
   )
 
+;; failed to figure out what this is:
 (defpart 1264
-  :init-specs ((:texture (new 'static 'texture-id :index #x15 :page #x4))
+  :init-specs ((:texture (glow level-default-sprite))
     (:num 0.2)
     (:y (meters 2))
     (:scale-x (meters 30) (meters 5))
@@ -1129,12 +1182,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1268
   :init-specs ((:fade-a -0.4 -0.4))
   )
 
+;; failed to figure out what this is:
 (defpart 1265
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.005 0.08)
     (:y (meters 0))
     (:scale-x (meters 0.1) (meters 0.1))
@@ -1163,6 +1218,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1269
   :init-specs ((:accel-x (meters -0.0033333334) 1 (meters 0.006666667))
     (:accel-z (meters -0.0033333334) 1 (meters 0.006666667))
@@ -1171,6 +1227,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1270
   :init-specs ((:accel-x (meters -0.0016666667) 1 (meters 0.0033333334))
     (:accel-z (meters -0.0016666667) 1 (meters 0.0033333334))
@@ -1179,6 +1236,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1266
   :init-specs ((:num 0.1)
     (:y (meters 2))
@@ -1196,6 +1254,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-waterfall-mist-thin-fall
   :id 365
   :flags (sp0 sp4)
@@ -1203,8 +1262,9 @@
   :parts ((sp-item 1271 :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1271
-  :init-specs ((:texture (new 'static 'texture-id :index #x80 :page #x4))
+  :init-specs ((:texture (ceiling-dust level-default-sprite))
     (:birth-func 'birth-func-flip-based-on-scale)
     (:num 0.05 0.05)
     (:x (meters -10) (meters 20))
@@ -1230,10 +1290,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1272
   :init-specs ((:scalevel-x (meters 0.016666668) (meters 0.033333335)) (:fade-a 0.0))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-waterfall-mist-wide-fall
   :id 366
   :flags (sp0 sp4)
@@ -1241,8 +1303,9 @@
   :parts ((sp-item 1273 :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1273
-  :init-specs ((:texture (new 'static 'texture-id :index #x80 :page #x4))
+  :init-specs ((:texture (ceiling-dust level-default-sprite))
     (:birth-func 'birth-func-flip-based-on-scale)
     (:num 0.05 0.1)
     (:x (meters -15) (meters 30))
@@ -1268,6 +1331,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1274
   :init-specs ((:scalevel-x (meters 0.016666668) (meters 0.033333335))
     (:scalevel-y (meters 0.006666667) (meters 0.013333334))
@@ -1275,6 +1339,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-waterfall-splash
   :id 367
   :flags (sp0 sp4)
@@ -1282,8 +1347,9 @@
   :parts ((sp-item 1275 :flags (sp6)) (sp-item 1276 :falloff-to (meters 300) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1276
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.5 0.5)
     (:x (meters -10) (meters 30))
@@ -1312,12 +1378,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1277
   :init-specs ((:fade-a -0.032 -0.032))
   )
 
+;; failed to figure out what this is:
 (defpart 1275
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 0.05 0.05)
     (:x (meters -20) (meters -10))
     (:y (meters 0))
@@ -1344,10 +1412,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1278
   :init-specs ((:fade-a -0.032 -0.032))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-waterspout-head
   :id 368
   :flags (sp0 sp4)
@@ -1355,8 +1425,9 @@
   :parts ((sp-item 1279 :falloff-to (meters 1000) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1279
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'spt-birth-func-part-jungle-waterspout-head)
     (:num 0.2)
     (:scale-x (meters 4) (meters 2))
@@ -1382,6 +1453,8 @@
     )
   )
 
+;; definition for function spt-func-birth-on-height-die
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defun spt-func-birth-on-height-die ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((f1-0 (-> arg1 key 0 origin trans y))
@@ -1434,6 +1507,7 @@
   (none)
   )
 
+;; definition for function spt-birth-func-part-jungle-waterspout-head
 (defun spt-birth-func-part-jungle-waterspout-head ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo) (arg3 object) (arg4 object))
   (birth-func-texture-group (the-as int arg0) arg1 arg2)
   (birth-func-flip-based-on-scale
@@ -1446,6 +1520,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-waterspout-splash
   :id 369
   :flags (sp0)
@@ -1455,8 +1530,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1280
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.2 0.05)
     (:x (meters 0) (meters 5))
@@ -1484,8 +1560,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1281
-  :init-specs ((:texture (new 'static 'texture-id :index #x5d :page #x4))
+  :init-specs ((:texture (splash-foam level-default-sprite))
     (:num 0.1 0.01)
     (:scale-x (meters 10) (meters 5))
     (:rot-x (degrees -30))
@@ -1505,6 +1582,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-snakeheads-splash
   :id 370
   :flags (sp0)
@@ -1512,8 +1590,9 @@
   :parts ((sp-item 1282 :falloff-to (meters 600) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1282
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 1.0)
     (:x (meters 0) (meters 8))
@@ -1541,6 +1620,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-ramp-splash
   :id 371
   :flags (sp0 sp4)
@@ -1548,8 +1628,9 @@
   :parts ((sp-item 1283 :falloff-to (meters 400) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1283
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 1.0)
     (:x (meters -1) (meters 2))
@@ -1578,6 +1659,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-grille-splash
   :id 372
   :flags (sp0 sp4)
@@ -1585,8 +1667,9 @@
   :parts ((sp-item 1284 :falloff-to (meters 200) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1284
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 5.0)
     (:x (meters -30) 16 (meters 3.53))
@@ -1615,6 +1698,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-lavafire-small
   :id 373
   :duration (seconds 2)
@@ -1625,8 +1709,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1285
-  :init-specs ((:texture (new 'static 'texture-id :index #x11 :page #x4))
+  :init-specs ((:texture (flame01 level-default-sprite))
     (:birth-func 'birth-func-curve)
     (:num 0.5 0.5)
     (:x (meters -1) (meters 2))
@@ -1646,6 +1731,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (if #t
     (set! *range-color-lava-geyser-flame*
           (new 'static 'curve-color-fast
@@ -1661,6 +1747,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *range-alpha-lava-geyser-flame*
           (new 'static 'curve2d-fast
@@ -1671,6 +1758,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *range-scale-lava-geyser-flame-x*
           (new 'static 'curve2d-fast
@@ -1681,6 +1769,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *range-scale-lava-geyser-flame-y*
           (new 'static 'curve2d-fast
@@ -1691,6 +1780,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *r-curve-lava-geyser-flame*
           (new 'static 'curve2d-fast
@@ -1701,6 +1791,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *g-curve-lava-geyser-flame*
           (new 'static 'curve2d-fast
@@ -1711,6 +1802,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *b-curve-lava-geyser-flame*
           (new 'static 'curve2d-fast
@@ -1721,6 +1813,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *curve-alpha-lava-geyser-flame*
           (new 'static 'curve2d-fast
@@ -1731,6 +1824,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *curve-scale-lava-geyser-flame-x*
           (new 'static 'curve2d-fast
@@ -1741,6 +1835,7 @@
           )
     )
 
+;; failed to figure out what this is:
 (if #t
     (set! *curve-scale-lava-geyser-flame-y*
           (new 'static 'curve2d-fast
@@ -1751,6 +1846,7 @@
           )
     )
 
+;; definition for symbol *part-jungle-lavafire-small-curve-settings*, type particle-curve-settings
 (define *part-jungle-lavafire-small-curve-settings* (new 'static 'particle-curve-settings
                                                       :lifetime-base (seconds 0.4)
                                                       :lifetime-offset (seconds 0.2)
@@ -1758,32 +1854,44 @@
                                                       )
         )
 
+;; failed to figure out what this is:
 (set! (-> *part-id-table* 1285 init-specs 15 initial-valuef)
       (the-as float *part-jungle-lavafire-small-curve-settings*)
       )
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* color-start) *range-color-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* alpha-start) *range-alpha-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* scale-x-start) *range-scale-lava-geyser-flame-x*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* scale-y-start) *range-scale-lava-geyser-flame-y*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* r-scalar) *r-curve-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* g-scalar) *g-curve-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* b-scalar) *b-curve-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* a-scalar) *curve-alpha-lava-geyser-flame*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* scale-x-scalar) *curve-scale-lava-geyser-flame-x*)
 
+;; failed to figure out what this is:
 (set! (-> *part-jungle-lavafire-small-curve-settings* scale-y-scalar) *curve-scale-lava-geyser-flame-y*)
 
+;; failed to figure out what this is:
 (defpart 1286
-  :init-specs ((:texture (new 'static 'texture-id :index #xcd :page #x4))
+  :init-specs ((:texture (lava-bubble level-default-sprite))
     (:num 0.01 0.04)
     (:x (meters 0) (meters 10))
     (:y (meters 0.5))
@@ -1802,6 +1910,8 @@
     )
   )
 
+;; definition for function spt-func-birth-on-pop
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defun spt-func-birth-on-pop ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (when (zero? (-> arg1 timer))
@@ -1847,6 +1957,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-volcano-lava-splash
   :id 374
   :linger-duration (seconds 0)
@@ -1855,8 +1966,9 @@
   :parts ((sp-item 1287 :falloff-to (meters 100) :flags (sp6) :period (seconds 20) :length (seconds 0.035)))
   )
 
+;; failed to figure out what this is:
 (defpart 1287
-  :init-specs ((:texture (new 'static 'texture-id :index #xc1 :page #x4))
+  :init-specs ((:texture (lava-drop-01 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 10.0)
     (:x (meters -1) (meters 2))
@@ -1882,6 +1994,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-lavaflow
   :id 375
   :flags (sp0 sp1 sp4)
@@ -1889,8 +2002,9 @@
   :parts ((sp-item 1037 :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1037
-  :init-specs ((:texture (new 'static 'texture-id :index #x1f :page #x4))
+  :init-specs ((:texture (harddot level-default-sprite))
     (:num 0.1)
     (:x (meters -8) (meters 16))
     (:y (meters 10))
@@ -1914,14 +2028,17 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1288
   :init-specs ((:fade-a 0.0) (:next-time (seconds 8.335)) (:next-launcher 1289))
   )
 
+;; failed to figure out what this is:
 (defpart 1289
   :init-specs ((:fade-a -0.512))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-fountain-small
   :id 376
   :flags (sp0 sp1 sp4)
@@ -1929,8 +2046,9 @@
   :parts ((sp-item 1290 :falloff-to (meters 5000) :flags (sp6)) (sp-item 1291 :falloff-to (meters 5000) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1291
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.4)
     (:x (meters 0) (meters 10))
@@ -1959,8 +2077,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1290
-  :init-specs ((:texture (new 'static 'texture-id :index #x5b :page #x4))
+  :init-specs ((:texture (specs level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.4)
     (:x (meters 0) (meters 10))
@@ -1988,8 +2107,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1293
-  :init-specs ((:texture (new 'static 'texture-id :index #xc1 :page #x4))
+  :init-specs ((:texture (lava-drop-01 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.0 0.2)
     (:x (meters 0) (meters 20))
@@ -2017,6 +2137,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-fountain-large
   :id 377
   :flags (sp0 sp1 sp4)
@@ -2029,8 +2150,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1298
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 200.0)
     (:x (meters 0) (meters 20))
@@ -2056,8 +2178,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1296
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.4)
     (:x (meters 0) (meters 20))
@@ -2086,12 +2209,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1292
   :init-specs ((:scalevel-x (meters 0)) (:scalevel-y (meters 0)))
   )
 
+;; failed to figure out what this is:
 (defpart 1294
-  :init-specs ((:texture (new 'static 'texture-id :index #x5b :page #x4))
+  :init-specs ((:texture (specs level-default-sprite))
     (:num 0.4)
     (:x (meters 0) (meters 20))
     (:y (meters 200) (meters 50))
@@ -2117,8 +2242,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1297
-  :init-specs ((:texture (new 'static 'texture-id :index #x63 :page #x4))
+  :init-specs ((:texture (water-drops level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 2.0)
     (:x (meters -70) (meters 140))
@@ -2145,8 +2271,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1295
-  :init-specs ((:texture (new 'static 'texture-id :index #x5b :page #x4))
+  :init-specs ((:texture (specs level-default-sprite))
     (:num 2.0)
     (:x (meters -70) (meters 140))
     (:y (meters -5))
@@ -2171,8 +2298,9 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1299
-  :init-specs ((:texture (new 'static 'texture-id :index #xc1 :page #x4))
+  :init-specs ((:texture (lava-drop-01 level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 0.0 0.2)
     (:x (meters 0) (meters 20))
@@ -2200,6 +2328,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-ocean-steam-small
   :id 378
   :flags (sp0 sp4)
@@ -2207,8 +2336,9 @@
   :parts ((sp-item 1300 :falloff-to (meters 500) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1300
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 0.0 0.2)
     (:x (meters 0))
     (:y (meters 0))
@@ -2234,10 +2364,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1301
   :init-specs ((:fade-a -0.0256 -0.0256))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-ocean-steam-large
   :id 379
   :flags (sp0 sp1 sp4)
@@ -2245,8 +2377,9 @@
   :parts ((sp-item 1302 :falloff-to (meters 1000) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1302
-  :init-specs ((:texture (new 'static 'texture-id :index #xc :page #x4))
+  :init-specs ((:texture (edge-cloud level-default-sprite))
     (:num 0.1)
     (:x (meters -2) (meters 4))
     (:y (meters 0))
@@ -2273,10 +2406,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1303
   :init-specs ((:fade-a -0.016842104 -0.016842104))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-smoke-small
   :id 380
   :flags (sp0 sp1 sp4)
@@ -2284,8 +2419,9 @@
   :parts ((sp-item 1304 :falloff-to (meters 1000) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1304
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 0.4)
     (:x (meters -4) 1 (meters 8))
     (:y (meters -5) (meters 10))
@@ -2314,10 +2450,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1305
   :init-specs ((:fade-a -0.018285714 -0.018285714))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-smoke-large
   :id 381
   :flags (sp0 sp1 sp4)
@@ -2325,8 +2463,9 @@
   :parts ((sp-item 1306 :falloff-to (meters 200) :flags (sp6)) (sp-item 1307 :falloff-to (meters 200) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1306
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 0.2)
     (:x (meters -40) (meters 80))
     (:y (meters -5) (meters 10))
@@ -2352,12 +2491,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1308
   :init-specs ((:fade-a -0.018285714 -0.018285714))
   )
 
+;; failed to figure out what this is:
 (defpart 1307
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 1.0)
     (:x (meters -45) 1 (meters 90))
     (:y (meters -20) (meters 40))
@@ -2387,10 +2528,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1309
   :init-specs ((:fade-a -0.03657143 -0.03657143))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-coolingsmoke-small
   :id 382
   :flags (sp0 sp1 sp4)
@@ -2398,8 +2541,9 @@
   :parts ((sp-item 1310 :falloff-to (meters 200) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1310
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 1.0)
     (:x (meters -30) (meters 60))
@@ -2428,10 +2572,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1311
   :init-specs ((:fade-a -0.03657143 -0.03657143))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-volcano-palmtree-flaming
   :id 383
   :flags (sp0 sp4)
@@ -2439,8 +2585,9 @@
   :parts ((sp-item 1312 :flags (sp6)) (sp-item 1313 :falloff-to (meters 800) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1312
-  :init-specs ((:texture (new 'static 'texture-id :index #x17 :page #x4))
+  :init-specs ((:texture (glow-soft level-default-sprite))
     (:num 0.1)
     (:y (meters 4))
     (:scale-x (meters 40))
@@ -2461,12 +2608,14 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1314
   :init-specs ((:fade-a -0.3 -0.3))
   )
 
+;; failed to figure out what this is:
 (defpart 1313
-  :init-specs ((:texture (new 'static 'texture-id :index #xf :page #x4))
+  :init-specs ((:texture (explosion-edge level-default-sprite))
     (:birth-func 'birth-func-texture-group)
     (:num 1.0)
     (:x (meters -6) (meters 12))
@@ -2497,10 +2646,12 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1315
   :init-specs ((:fade-a -0.85333335 -1.7))
   )
 
+;; failed to figure out what this is:
 (defpartgroup group-jungle-roadside-smoke
   :id 384
   :flags (sp0 sp1 sp4)
@@ -2508,8 +2659,9 @@
   :parts ((sp-item 1316 :falloff-to (meters 1000) :flags (sp6)))
   )
 
+;; failed to figure out what this is:
 (defpart 1316
-  :init-specs ((:texture (new 'static 'texture-id :index #x78 :page #x4))
+  :init-specs ((:texture (big-cloud level-default-sprite))
     (:num 0.3)
     (:x (meters -40) (meters 80))
     (:y (meters 0))
@@ -2537,6 +2689,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defpart 1317
   :init-specs ((:fade-a -0.064 -0.064))
   )

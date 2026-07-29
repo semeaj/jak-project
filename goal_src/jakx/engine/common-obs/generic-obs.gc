@@ -1790,17 +1790,32 @@
   :trans (behavior ()
     (when (-> self enable)
       (when (nonzero? (-> self path))
+        ;; slot 9 needs no guard: path-h.gc:115 does (set! (-> path-control method-table 9)
+        ;; nothing) BEFORE deftype curve-control on line 117, so the curve-control this
+        ;; trans actually holds inherits a real 'nothing' there, not a 0. Retail-faithful.
         ((method-of-object (-> self path) path-control-method-9))
-        (let ((t9-1 (method-of-object (-> self path) path-control-method-14)))
-          (-> self root trans)
-          (-> self path-pos)
-          'interp
-          (t9-1)
+        ;; og:preserve-this bring-up guard: path.gc is still a 9-line stub, so
+        ;; path-control slots 14 and 16 have no body anywhere in goal_src and read 0 --
+        ;; calling through them is a jump to address 0 and a DEP fault. Guard the SLOT,
+        ;; not the object: the object is a live curve-control, it is the method that is
+        ;; missing. Now that jungle-part/jungle-part2 land, the jungle part groups
+        ;; resolve, so these spawners take the success path instead of the bring-up park
+        ;; and this trans runs for real on the 66 junglea/junglee spawners that carry a
+        ;; 'path res lump. Delete both guards when path.gc lands.
+        (when (nonzero? (-> path-control method-table 14))
+          (let ((t9-1 (method-of-object (-> self path) path-control-method-14)))
+            (-> self root trans)
+            (-> self path-pos)
+            'interp
+            (t9-1)
+            )
           )
-        (let ((t9-2 (method-of-object (-> self path) path-control-method-16)))
-          (-> self last-velocity)
-          (-> self path-pos)
-          (t9-2)
+        (when (nonzero? (-> path-control method-table 16))
+          (let ((t9-2 (method-of-object (-> self path) path-control-method-16)))
+            (-> self last-velocity)
+            (-> self path-pos)
+            (t9-2)
+            )
           )
         (let ((f0-3 (+ (-> self path-pos) (* (-> self path-speed) (seconds-per-frame)))))
           (set! (-> self path-pos) f0-3)
@@ -1809,8 +1824,10 @@
         )
       ;; og:preserve-this bring-up guard: sparticle-launch-control's spawn (slot 16)
       ;; failed to decompile in sparticle-launcher.gc, so the slot reads 0 -- guard
-      ;; the SLOT. Particles resume from live spawners when that method lands.
-      (if (nonzero? (-> sparticle-launch-control method-table 16))
+      ;; the SLOT. Particles resume from live spawners when that method lands. The
+      ;; (nonzero? (-> self part)) half is needed too now that the init guard above can
+      ;; leave part at 0, so slot 16 landing before slot 14 cannot hand spawn a zero.
+      (if (and (nonzero? (-> sparticle-launch-control method-table 16)) (nonzero? (-> self part)))
           (spawn (-> self part) (-> self root trans))
           )
       ;; og:preserve-this bring-up guard: ambient-sound's update! (method 9) has
@@ -1888,8 +1905,23 @@
             (not (and (-> this entity) (logtest? (-> this entity extra perm status) (entity-perm-status subtask-complete)))
                  )
             )
-      (set! (-> this sound) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 0.0))
-      (set! (-> this sound-extra) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 1.0))
+      ;; og:preserve-this bring-up guard: ambient-sound declares its own new (slot 0) but
+      ;; the body is commented out in gsound-h.gc (undecompilable srl asm), so the slot
+      ;; still holds basic's inherited new. That is NOT a no-op: this call allocates
+      ;; nothing and hands back a stale pointer, so both fields came back equal and
+      ;; pointing at a dead viewer process, and deactivate's (stop! (-> this sound))
+      ;; dispatched through that object's method table and DEP-faulted. Guard the SLOT,
+      ;; not the object, and use slot 9 (update!) as the sentinel: unlike new it is
+      ;; declared on ambient-sound rather than inherited, so it genuinely reads 0 until
+      ;; gsound lands, and it is the same sentinel the trans below already uses. Leaving
+      ;; both fields 0 is safe: deactivate and the trans both test nonzero? first.
+      ;; Nothing reached this before jungle-part/jungle-part2 landed, because every
+      ;; jungle spawner failed the group lookup and parked ahead of these allocations.
+      ;; Delete together with the other ambient-sound guards when gsound lands.
+      (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
+        (set! (-> this sound) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 0.0))
+        (set! (-> this sound-extra) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 1.0))
+        )
       (when (res-lump-data arg0 'path pointer)
         (set! (-> this path) (new 'process 'curve-control this 'path (the-as res-lump #f) #f -1000000000.0))
         (logior! (-> this path flags) (path-control-flag display draw-line draw-point draw-text))
@@ -1946,7 +1978,21 @@
                  (deactivate this)
                  )
                 (else
-                  (set! (-> this part) (create-launch-control s5-1 this))
+                  ;; og:preserve-this bring-up guard: create-launch-control ends in an
+                  ;; unconditional (initialize <control> <group> <proc>) call, and
+                  ;; sparticle-launch-control's initialize (slot 14) is still commented
+                  ;; out in sparticle-launcher.gc, so that slot reads 0 and the call is a
+                  ;; jump to address 0. Guard the SLOT, not the object. Before
+                  ;; jungle-part/jungle-part2 landed nothing reached here: every jungle
+                  ;; spawner failed the group lookup and took the park above, and
+                  ;; time-of-day's three create-launch-control calls are guarded on their
+                  ;; part-group-id-table entries being unset. With the groups resolving
+                  ;; this is live, so leave part at 0 and still go active: the trans only
+                  ;; spawns behind the slot-16 guard below and deactivate already tests
+                  ;; (nonzero? (-> this part)). Delete when initialize lands.
+                  (if (nonzero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
+                      (set! (-> this part) (create-launch-control s5-1 this))
+                      )
                   (when (logtest? (-> s5-1 flags) (sp-group-flag sp10))
                     (process-entity-status! this (entity-perm-status subtask-complete) #t)
                     (set! (-> this enable) #f)

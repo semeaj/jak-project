@@ -61425,7 +61425,11 @@
 (define-extern spt-birth-func-brightness-tree-root-splinters (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
 (define-extern spt-birth-func-brightness-jungle-snake-dust (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
 (define-extern spt-func-birth-on-height-die (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
-(define-extern spt-birth-func-part-jungle-waterspout-head (function sparticle-system sparticle-cpuinfo sparticle-launchinfo none))
+;; five args, not three: this forwards the launcher and launch-state it was handed on to
+;; the 5-arg birth-func-flip-based-on-scale without ever naming them. jak3 has the same
+;; shape in spt-birth-func-fact-torch (factory-part.gc) and widens the signature the same
+;; way, with the two extra params typed object and passed through with the-as.
+(define-extern spt-birth-func-part-jungle-waterspout-head (function sparticle-system sparticle-cpuinfo sparticle-launchinfo object object none))
 (define-extern *range-color-lava-geyser-flame* curve-color-fast) ;; curve-color-fast
 (define-extern *range-alpha-lava-geyser-flame* curve2d-fast) ;; curve2d-fast
 (define-extern *range-scale-lava-geyser-flame-x* curve2d-fast) ;; curve2d-fast
