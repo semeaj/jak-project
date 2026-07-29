@@ -2905,12 +2905,30 @@
   (the-as continue-point #f)
   )
 
+;; og:preserve-this bring-up camera path recorder: while enabled, level-update's tick
+;; prints the active camera position a few times a second. A recorded flight bakes
+;; into a replay probe (scratchpad tooling) so streaming validation laps run without
+;; a pilot. Costs a handful of log lines per second; retire with the race/target legs.
+(define *jakx-campath-record* #t)
+(define *jakx-campath-frame* 0)
+
 (defun jakx-want-driver-tick ()
   "og:preserve-this bring-up want driver: retail refreshes load-state wants from race
 position through the continue-point system in game-info.gc (unlanded). Until it lands,
 every 30 frames pick the continue point nearest the active camera within the boot
 continue's family (same :level home, so only built DGO want sets are ever requested)
 and apply its want set when it changes; update! then streams the section window."
+  (when *jakx-campath-record*
+    (+! *jakx-campath-frame* 1)
+    (when (>= *jakx-campath-frame* 20)
+      (set! *jakx-campath-frame* 0)
+      (let ((mc (view-get-math-camera 0)))
+        (when (nonzero? (the-as int mc))
+          (format 0 "campath: ~f ~f ~f~%" (-> mc trans x) (-> mc trans y) (-> mc trans z))
+          )
+        )
+      )
+    )
   (when (and *jakx-want-driver* *jakx-want-driver-cp* (nonzero? *level-load-list*))
     (+! *jakx-want-driver-frame* 1)
     (when (>= *jakx-want-driver-frame* 30)
@@ -2930,7 +2948,15 @@ and apply its want set when it changes; update! then streams the section window.
                        )
                   (while (not (null? conts))
                     (let ((cp (the-as continue-point (car conts))))
-                      (when (= (-> cp level) home)
+                      ;; skip grid-start continues (the lightjak flag marks them, on both
+                      ;; jungle-wide-start and the havjung equivalent): they are pre-race
+                      ;; configurations whose want sets drop the arrival section, so
+                      ;; crossing the start line under one unloads the world around the
+                      ;; camera. They share a trans with the first lap checkpoint, which
+                      ;; must win the tie; lap flow belongs to the plain race continues.
+                      (when (and (= (-> cp level) home)
+                                 (not (logtest? (-> cp flags) (continue-flags lightjak)))
+                                 )
                         (let* ((dx (- (-> cp trans x) (-> cam x)))
                                (dy (- (-> cp trans y) (-> cam y)))
                                (dz (- (-> cp trans z) (-> cam z)))
@@ -2952,13 +2978,15 @@ and apply its want set when it changes; update! then streams the section window.
                 (set! lst (cdr lst))
                 )
               )
-            ;; hysteresis: switch only when the candidate is decisively closer (2x in
-            ;; squared distance) than the current continue. jungle-wide-start and
-            ;; jungle-a-1 share the same trans, so a plain nearest scan churns between
-            ;; co-located continues and thrashes the window
+            ;; hysteresis: switch only when the candidate is decisively closer than the
+            ;; current continue (1.4x in linear distance, 0.5 in squared). The margin
+            ;; only needs to prevent oscillation between distinct positions; 2x proved
+            ;; too conservative in flight, starting the next section's load at ~80% of
+            ;; the span between continues, which popped section A in at the lap line
+            ;; (the e-1-to-line span covers all of section E). 1.4x starts it at ~2/3.
             (when (and best
                        (!= best *jakx-want-driver-cp*)
-                       (< best-d (* 0.25 cur-d))
+                       (< best-d (* 0.5 cur-d))
                        )
               (format 0 "want-driver: window slides to ~S~%" (-> best name))
               (set! *jakx-want-driver-cp* best)
