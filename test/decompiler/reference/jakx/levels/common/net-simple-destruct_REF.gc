@@ -1,39 +1,21 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: net-simple-destruct.gc
-;; name in dgo: net-simple-destruct
-;; dgos: COMMON, GAME
-
-;; *entity-more-perm* is defined by the unlanded portion of entity-more-perm.o
-;; (its top-level define has not been landed yet); extern it here for the
-;; destruct-perm bookkeeping below.
-(define-extern *entity-more-perm* entity-more-perm-hash)
-
-;; not landed yet (collide/attack leg); the idle event handler guards the call
-(define-extern get-penetrate-using-from-attack-event (function process-drawable event-message-block penetrate))
-
-;; DECOMP BEGINS
-
+;; definition for symbol *net-simple-destruct-ct*, type int
 (define *net-simple-destruct-ct* 0)
 
-(define *net-simple-destruct-indices* (the-as (pointer int16) (new 'static 'array int16 400)))
+;; definition for symbol *net-simple-destruct-indices*, type (pointer int16)
+(define *net-simple-destruct-indices* <static-data L123>)
 
+;; definition for symbol *tmp-was-allocated*, type symbol
 (define *tmp-was-allocated* #f)
 
-(define *destruct-powerup-names* (the-as (array string) (new 'static 'boxed-array :type symbol
-                                                          'eco-green
-                                                          'eco-red
-                                                          'eco-blue
-                                                          'eco-light
-                                                          'eco-yellow
-                                                          )
-                                          )
-        )
+;; definition for symbol *destruct-powerup-names*, type (array string)
+(define *destruct-powerup-names* (the-as (array string) <static-data L122>))
 
+;; definition for function get-destruct-perm
 (defun get-destruct-perm ((arg0 uint))
-  ;; og:preserve-this hand-cast: goalc types a symbol's value slot as (pointer object)
-  (let ((gp-0 (entity-more-perm-hash-method-12 *entity-more-perm* arg0 (the-as (pointer symbol) (&-> '*tmp-was-allocated* value)))))
+  (let ((gp-0 (entity-more-perm-hash-method-12 *entity-more-perm* arg0 (&-> '*tmp-was-allocated* value))))
     (when *tmp-was-allocated*
       (set! (-> gp-0 user-object 0) -1)
       (when (>= *net-simple-destruct-ct* 400)
@@ -49,6 +31,8 @@
     )
   )
 
+;; definition for function count-powerups
+;; INFO: Used lq/sq
 (defun count-powerups ((arg0 process))
   (let ((gp-0 (new 'stack-no-clear 'array 'int32 1)))
     (set! (-> gp-0 0) 0)
@@ -72,6 +56,8 @@
     )
   )
 
+;; definition for function rand-spawn-pickup
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch symbol vs none.
 (defun rand-spawn-pickup ((arg0 process) (arg1 string) (arg2 vector) (arg3 float) (arg4 float) (arg5 float))
   (let* ((sv-16 (new 'static 'res-tag))
@@ -103,6 +89,8 @@
   (none)
   )
 
+;; definition for function spawn-pickups-from-destructible
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun spawn-pickups-from-destructible ((arg0 process-drawable) (arg1 float))
   (let ((a2-0 (-> arg0 node-list data 0 bone transform))
@@ -141,6 +129,7 @@
   (none)
   )
 
+;; definition for method 69 of type net-simple-destruct
 ;; WARN: Return type mismatch int vs none.
 (defmethod go-explode ((this net-simple-destruct))
   (if this
@@ -150,17 +139,20 @@
   (none)
   )
 
-;; og:preserve-this bring-up guard: retail gates the pickup spawn on
-;; (= (if *net-mgr* (-> *net-mgr* game-state local-machine-idx) 0)
-;;    (-> *net-mgr* game-state session-master-idx))
-;; net-mgr-h is still a stub, so the net-mgr type does not exist to compile those
-;; reads. Single-player is always the session master, so run the master-side path
-;; unconditionally. Re-derive to the retail compare when net-mgr-h lands.
+;; definition for method 66 of type net-simple-destruct
 (defmethod destroy! ((this net-simple-destruct))
-  (spawn-pickups-from-destructible this 0.0)
+  (if (= (if *net-mgr*
+             (-> *net-mgr* game-state local-machine-idx)
+             0
+             )
+         (-> *net-mgr* game-state session-master-idx)
+         )
+      (spawn-pickups-from-destructible this 0.0)
+      )
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate idle (net-simple-destruct)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -177,13 +169,7 @@
        )
       (('attack)
        (let ((s4-0 (the-as object (-> block param 1))))
-         ;; og:preserve-this bring-up guard: get-penetrate-using-from-attack-event's
-         ;; body is not landed yet (collide/attack leg), so the symbol reads 0 at
-         ;; runtime. Retail calls it unconditionally and discards the result here.
-         ;; Drop the nonzero? gate when that leg lands.
-         (if (nonzero? get-penetrate-using-from-attack-event)
-             (get-penetrate-using-from-attack-event (the-as process-drawable proc) block)
-             )
+         (get-penetrate-using-from-attack-event (the-as process-drawable proc) block)
          (when (!= (-> (the-as attack-info s4-0) id) (-> self incoming-attack-id))
            (set! (-> self incoming-attack-id) (the-as int (-> (the-as attack-info s4-0) id)))
            (let* ((a0-11 self)
@@ -207,6 +193,7 @@
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate explode (net-simple-destruct)
   :virtual #t
   :enter (behavior ()
@@ -222,6 +209,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate die (net-simple-destruct)
   :virtual #t
   :code (behavior ()
@@ -229,6 +217,7 @@
     )
   )
 
+;; definition for method 68 of type net-simple-destruct
 ;; WARN: Return type mismatch object vs none.
 (defmethod net-simple-destruct-method-68 ((this net-simple-destruct) (arg0 object))
   (logclear! (-> this mask) (process-mask actor-pause))
@@ -245,10 +234,12 @@
   (none)
   )
 
+;; definition for method 65 of type net-simple-destruct
 (defmethod impact-destroys? ((this net-simple-destruct) (arg0 rigid-body-impact))
   (< 122880.0 (* (-> arg0 impulse) (process-focusable-method-57 this)))
   )
 
+;; definition for method 63 of type net-simple-destruct
 (defmethod net-simple-destruct-method-63 ((this net-simple-destruct) (arg0 rigid-body-impact))
   (when (impact-destroys? this arg0)
     (if (not (process-nettable-method-22 (as-type (-> arg0 process) process-nettable)))
@@ -260,16 +251,19 @@
   0
   )
 
+;; definition for method 57 of type net-simple-destruct
 (defmethod process-focusable-method-57 ((this net-simple-destruct))
   999.99994
   )
 
+;; definition for method 11 of type net-simple-destruct
 (defmethod init-from-entity! ((this net-simple-destruct) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (go (method-of-object this idle))
   )
 
+;; definition for method 62 of type net-simple-destruct
 ;; WARN: Return type mismatch int vs symbol.
 (defmethod net-simple-destruct-method-62 ((this net-simple-destruct) (arg0 object) (arg1 attack-info))
   (let ((s4-0 (as-type (handle->process (-> arg1 attacker)) process-nettable)))
@@ -279,12 +273,14 @@
     (if (process-nettable-method-22 s4-0)
         (goto cfg-27)
         )
-    ;; og:preserve-this bring-up guard: retail also takes the damage path when
-    ;; (= (if *net-mgr* (-> *net-mgr* game-state local-machine-idx) 0)
-    ;;    (-> *net-mgr* game-state session-master-idx))
-    ;; net-mgr-h is a stub, so the reads cannot compile; single-player is always
-    ;; the session master, so take the branch. Re-derive when net-mgr-h lands.
-    (goto cfg-27)
+    (if (= (if *net-mgr*
+               (-> *net-mgr* game-state local-machine-idx)
+               0
+               )
+           (-> *net-mgr* game-state session-master-idx)
+           )
+        (goto cfg-27)
+        )
     (if (type? s4-0 net-enemy)
         (goto cfg-27)
         )
@@ -301,6 +297,7 @@
   (the-as symbol 0)
   )
 
+;; definition for method 67 of type net-simple-destruct
 ;; WARN: Return type mismatch int vs none.
 (defmethod net-simple-destruct-method-67 ((this net-simple-destruct) (arg0 object))
   (if *net-simple-destruct-mgr*
@@ -310,6 +307,7 @@
   (none)
   )
 
+;; definition for method 32 of type net-simple-destruct
 ;; WARN: Return type mismatch int vs none.
 (defmethod process-nettable-method-32 ((this net-simple-destruct) (arg0 entity-actor))
   (let ((v1-1 (get-destruct-perm (the-as uint (-> arg0 extra perm aid)))))
@@ -322,6 +320,7 @@
   (none)
   )
 
+;; definition for method 7 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch process-nettable vs net-simple-destruct-mgr.
 (defmethod relocate ((this net-simple-destruct-mgr) (offset int))
   (set! *net-simple-destruct-mgr* this)
@@ -331,6 +330,7 @@
   (the-as net-simple-destruct-mgr ((method-of-type process-nettable relocate) this offset))
   )
 
+;; definition for method 10 of type net-simple-destruct-mgr
 (defmethod deactivate ((this net-simple-destruct-mgr))
   "Make a process dead, clean it up, remove it from the active pool, and return to dead pool."
   (set! *net-simple-destruct-mgr* #f)
@@ -338,6 +338,7 @@
   (none)
   )
 
+;; definition for method 44 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 (defmethod net-simple-destruct-mgr-method-44 ((this net-simple-destruct-mgr))
   (set! *net-simple-destruct-ct* 0)
@@ -357,6 +358,7 @@
   (none)
   )
 
+;; definition for method 45 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 ;; WARN: Function (method 45 net-simple-destruct-mgr) has a return type of none, but the expression builder found a return statement.
 (defmethod net-simple-destruct-mgr-method-45 ((this net-simple-destruct-mgr) (arg0 process) (arg1 object))
@@ -368,54 +370,117 @@
       (if (!= (-> s3-0 user-object 0) -1)
           (return #f)
           )
-      ;; og:preserve-this bring-up guard: retail passes the net game time base
-      ;; (- (- (if *net-mgr* (-> *net-mgr* game-state time) 0)
-      ;;       (if *net-world* (-> *net-world* net-state game-start-time) 0))
-      ;;    (if *net-world* (-> *net-world* net-state total-pause-time) 0))
-      ;; net-mgr-h / net-world-h are stubs, so those reads cannot compile; with both
-      ;; globals #f the expression reduces to 0. Re-derive when the net h files land.
-      (let ((s2-0 (net-simple-destruct-mgr-method-46 this gp-0 0)))
+      (let ((s2-0 (net-simple-destruct-mgr-method-46 this gp-0 (- (- (if *net-mgr*
+                                                                         (-> *net-mgr* game-state time)
+                                                                         0
+                                                                         )
+                                                                     (if *net-world*
+                                                                         (-> *net-world* net-state game-start-time)
+                                                                         0
+                                                                         )
+                                                                     )
+                                                                  (if *net-world*
+                                                                      (-> *net-world* net-state total-pause-time)
+                                                                      0
+                                                                      )
+                                                                  )
+                                                     )
+                  )
+            )
         (set! (-> s3-0 user-object 0) s2-0)
         )
       )
-    ;; og:preserve-this bring-up guard: the retail net replication section is parked
-    ;; until process-nettable.gc (methods 27/28/29) and mem-buffer-h land -- the
-    ;; mem-buffer type does not exist yet and the nettable send methods are
-    ;; undefined placeholder slots. The decompiler also drops the call arguments
-    ;; while those slots carry placeholder sigs, so this section must be re-derived
-    ;; from the disasm rather than restored from here. Retail sequence:
-    ;;   (process-nettable-method-27 this 'object-destroyed)   ;; begin message
-    ;;   (mem-buffer-method-20 buf (-> gp-0 aid))              ;; write aid
-    ;;   (mem-buffer-method-16 buf <net game time>)            ;; write time
-    ;;   (mem-buffer-method-16 buf ...)                        ;; write respawn slot
-    ;;   (when arg1 (mem-buffer-method-27 buf ...))            ;; optional payload
-    ;;   (process-nettable-method-29 this -2 208)              ;; send
-    ;;   (process-nettable-method-28 this)                     ;; end message
+    (let ((t9-2 (method-of-object this process-nettable-method-27)))
+      'object-destroyed
+      (t9-2)
+      )
+    (let ((t9-3 (method-of-type mem-buffer mem-buffer-method-20)))
+      (-> gp-0 aid)
+      (t9-3)
+      )
+    (let ((t9-4 (method-of-type mem-buffer mem-buffer-method-16)))
+      (- (- (if *net-mgr*
+                (-> *net-mgr* game-state time)
+                0
+                )
+            (if *net-world*
+                (-> *net-world* net-state game-start-time)
+                0
+                )
+            )
+         (if *net-world*
+             (-> *net-world* net-state total-pause-time)
+             0
+             )
+         )
+      (t9-4)
+      )
+    ((method-of-type mem-buffer mem-buffer-method-16))
+    (if arg1
+        ((method-of-type mem-buffer mem-buffer-method-27))
+        )
+    (let ((t9-7 (method-of-object this process-nettable-method-29)))
+      -2
+      208
+      (t9-7)
+      )
+    ((method-of-object this process-nettable-method-28))
     (logior! (-> gp-0 extra perm status) (entity-perm-status dead))
     )
   0
   (none)
   )
 
+;; definition for method 17 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
-;; og:preserve-this bring-up guard: the retail body deserializes an
-;; 'object-destroyed message (aid + respawn slot via mem-buffer reads, methods
-;; 38/34/34), marks the perm dead, and go-explodes the live process (swapping pp
-;; around the go, falling back to the etype's method-69 slot when no process is
-;; alive). mem-buffer-h is a stub so none of the reads compile; net messages
-;; cannot arrive before the net legs land, so park the whole body and re-derive
-;; it from the disasm when mem-buffer-h lands.
 (defmethod process-nettable-method-17 ((this net-simple-destruct-mgr) (arg0 symbol) (arg1 mem-buffer))
-  0
-  (none)
+  (with-pp
+    (case arg0
+      (('object-destroyed)
+       (let ((s3-0 ((method-of-type mem-buffer mem-buffer-method-38))))
+         ((method-of-type mem-buffer mem-buffer-method-34))
+         (let ((s4-0 ((method-of-type mem-buffer mem-buffer-method-34)))
+               (v1-4 (get-destruct-perm (the-as uint s3-0)))
+               )
+           (when (= (-> v1-4 user-object 0) -1)
+             (set! (-> v1-4 user-object 0) s4-0)
+             (let ((a1-2 (-> v1-4 ent)))
+               (when a1-2
+                 (logior! (-> (the-as entity-actor a1-2) extra perm status) (entity-perm-status dead))
+                 (let ((a0-11 (-> (the-as entity-actor a1-2) extra process)))
+                   (cond
+                     (a0-11
+                       (let ((s4-1 pp))
+                         (set! pp a0-11)
+                         (go-explode a0-11)
+                         (set! pp s4-1)
+                         )
+                       )
+                     (else
+                       ((the-as (function object none) (-> (the-as entity-actor a1-2) etype method-table 69)) a0-11)
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+      )
+    0
+    (none)
+    )
   )
 
+;; definition for method 15 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 (defmethod process-nettable-method-15 ((this net-simple-destruct-mgr) (arg0 symbol) (arg1 mem-buffer))
   0
   (none)
   )
 
+;; definition for method 35 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 (defmethod process-nettable-method-35 ((this net-simple-destruct-mgr) (arg0 int))
   (net-simple-destruct-mgr-method-44 this)
@@ -424,6 +489,7 @@
   (none)
   )
 
+;; definition for function init-local-net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 (defun init-local-net-simple-destruct-mgr ()
   (process-spawn
@@ -441,6 +507,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate running (net-simple-destruct-mgr)
   :virtual #t
   :code (behavior ()
@@ -452,16 +519,26 @@
             (let* ((a0-6 (-> *entity-more-perm* data (-> *net-simple-destruct-indices* gp-0)))
                    (a1-3 (-> a0-6 user-object 0))
                    )
-              ;; og:preserve-this bring-up guard: retail compares the stored respawn
-              ;; time against the net game time
-              ;; (- (- (if *net-mgr* (-> *net-mgr* game-state time) 0)
-              ;;       (if *net-world* (-> *net-world* net-state game-start-time) 0))
-              ;;    (if *net-world* (-> *net-world* net-state total-pause-time) 0))
-              ;; net-mgr-h / net-world-h are stubs, so the reads cannot compile; with
-              ;; both globals #f the base reduces to 0. Re-derive when they land.
               (when (and (> (the-as int a1-3) 0)
                          (!= (the-as int a1-3) -1)
-                         (>= (- 0 (the-as int a1-3)) 0)
+                         (>= (- (- (- (if *net-mgr*
+                                          (-> *net-mgr* game-state time)
+                                          0
+                                          )
+                                      (if *net-world*
+                                          (-> *net-world* net-state game-start-time)
+                                          0
+                                          )
+                                      )
+                                   (if *net-world*
+                                       (-> *net-world* net-state total-pause-time)
+                                       0
+                                       )
+                                   )
+                                (the-as int a1-3)
+                                )
+                             0
+                             )
                          )
                 (set! (-> a0-6 user-object 0) -1)
                 (if (-> a0-6 ent)
@@ -478,12 +555,15 @@
     )
   )
 
+;; definition for method 47 of type net-simple-destruct-mgr
 ;; WARN: Return type mismatch int vs none.
 (defmethod net-simple-destruct-mgr-method-47 ((this net-simple-destruct-mgr))
   0
   (none)
   )
 
+;; definition for method 46 of type net-simple-destruct-mgr
+;; INFO: Used lq/sq
 (defmethod net-simple-destruct-mgr-method-46 ((this net-simple-destruct-mgr) (arg0 entity-actor) (arg1 int))
   (let ((s5-0 -2))
     (let* ((sv-16 (new 'static 'res-tag))

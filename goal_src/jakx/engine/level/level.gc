@@ -29,7 +29,7 @@
 ;; send-event-function would deref low memory).
 (define *net-world* (the-as net-world #f))
 (define-extern *car-level-array* car-level-array)
-(define-extern *entity-more-perm* object)
+(define-extern *entity-more-perm* entity-more-perm-hash)
 (define-extern texture-page-default-allocate (function texture-pool texture-page kheap int texture-page))
 (define-extern texture-page-level-allocate (function texture-pool texture-page kheap int texture-page))
 

@@ -1,12 +1,8 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: sparticle-subsampler.gc
-;; name in dgo: sparticle-subsampler
-;; dgos: ENGINE, GAME
-
-;; DECOMP BEGINS
-
+;; definition for method 9 of type sparticle-subsampler
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs vector.
 (defmethod init-with-vec! ((this sparticle-subsampler) (arg0 vector))
   (when (not (-> this inited?))
@@ -49,6 +45,8 @@
   (the-as vector 0)
   )
 
+;; definition for method 10 of type sparticle-subsampler
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs matrix.
 (defmethod init-with-mat! ((this sparticle-subsampler) (arg0 matrix))
   (when (not (-> this inited?))

@@ -1,12 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: joint-exploder.gc
-;; name in dgo: joint-exploder
-;; dgos: ENGINE, GAME
-
-;; DECOMP BEGINS
-
+;; definition of type joint-exploder-tuning
 (deftype joint-exploder-tuning (structure)
   ((explosion                    uint64)
    (duration                     time-frame)
@@ -34,12 +29,58 @@
     )
   )
 
+;; definition for method 3 of type joint-exploder-tuning
+(defmethod inspect ((this joint-exploder-tuning))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'joint-exploder-tuning)
+  (format #t "~1Texplosion: ~D~%" (-> this explosion))
+  (format #t "~1Tduration: ~D~%" (-> this duration))
+  (format #t "~1Tgravity: ~f~%" (-> this gravity))
+  (format #t "~1Trot-speed: ~f~%" (-> this rot-speed))
+  (format #t "~1Tbounds-inflate: ~f~%" (-> this bounds-inflate))
+  (format #t "~1Tmax-probes: ~D~%" (-> this max-probes))
+  (format #t "~1Tmax-probe-width: ~f~%" (-> this max-probe-width))
+  (format #t "~1Tmax-probe-height: ~f~%" (-> this max-probe-height))
+  (format #t "~1Tmax-probe-depth: ~f~%" (-> this max-probe-depth))
+  (format #t "~1Tmax-y-offset: ~f~%" (-> this max-y-offset))
+  (format #t "~1Tfriction: ~f~%" (-> this friction))
+  (format #t "~1Tfountain-rand-transv-lo: #<vector @ #x~X>~%" (-> this fountain-rand-transv-lo))
+  (format #t "~1Tfountain-rand-transv-hi: #<vector @ #x~X>~%" (-> this fountain-rand-transv-hi))
+  (format #t "~1Taway-from-focal-pt: #<vector @ #x~X>~%" (-> this fountain-rand-transv-lo))
+  (format #t "~1Taway-from-rand-transv-xz-lo: ~f~%" (-> this fountain-rand-transv-hi x))
+  (format #t "~1Taway-from-rand-transv-xz-hi: ~f~%" (-> this fountain-rand-transv-hi y))
+  (format #t "~1Taway-from-rand-transv-y-lo: ~f~%" (-> this fountain-rand-transv-hi z))
+  (format #t "~1Taway-from-rand-transv-y-hi: ~f~%" (-> this fountain-rand-transv-hi w))
+  (format #t "~1Thit-xz-reaction: ~f~%" (-> this hit-xz-reaction))
+  (format #t "~1Thit-y-reaction: ~f~%" (-> this hit-y-reaction))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-static-joint-params
 (deftype joint-exploder-static-joint-params (structure)
   ((joint-index         int16)
    (parent-joint-index  int16)
    )
   )
 
+;; definition for method 3 of type joint-exploder-static-joint-params
+(defmethod inspect ((this joint-exploder-static-joint-params))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'joint-exploder-static-joint-params)
+  (format #t "~1Tjoint-index: ~D~%" (-> this joint-index))
+  (format #t "~1Tparent-joint-index: ~D~%" (-> this parent-joint-index))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-static-params
 (deftype joint-exploder-static-params (basic)
   ((joints                  (array joint-exploder-static-joint-params))
    (collide-spec            collide-spec)
@@ -49,6 +90,23 @@
    )
   )
 
+;; definition for method 3 of type joint-exploder-static-params
+(defmethod inspect ((this joint-exploder-static-params))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tjoints: ~A~%" (-> this joints))
+  (format #t "~1Tcollide-spec: ~D~%" (-> this collide-spec))
+  (format #t "~1Tart-level: ~A~%" (-> this art-level))
+  (format #t "~1Tcollide-sound: ~D~%" (-> this collide-sound))
+  (format #t "~1Tcollide-sound-interval: ~D~%" (-> this collide-sound-interval))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-joint
 (deftype joint-exploder-joint (structure)
   ((next         int16)
    (prev         int16)
@@ -61,6 +119,26 @@
    )
   )
 
+;; definition for method 3 of type joint-exploder-joint
+(defmethod inspect ((this joint-exploder-joint))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'joint-exploder-joint)
+  (format #t "~1Tnext: ~D~%" (-> this next))
+  (format #t "~1Tprev: ~D~%" (-> this prev))
+  (format #t "~1Tjoint-index: ~D~%" (-> this joint-index))
+  (format #t "~1Tmat: #<matrix @ #x~X>~%" (-> this mat))
+  (format #t "~1Trmat: #<matrix @ #x~X>~%" (-> this rmat))
+  (format #t "~1Tupdate-rmat: #<matrix @ #x~X>~%" (-> this update-rmat))
+  (format #t "~1Ttransv: #<vector @ #x~X>~%" (-> this transv))
+  (format #t "~1Tprev-pos: #<vector @ #x~X>~%" (-> this prev-pos))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-joints
 (deftype joint-exploder-joints (basic)
   ((num-joints  int32)
    (joint       joint-exploder-joint  :inline :dynamic)
@@ -70,6 +148,20 @@
     )
   )
 
+;; definition for method 3 of type joint-exploder-joints
+(defmethod inspect ((this joint-exploder-joints))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tnum-joints: ~D~%" (-> this num-joints))
+  (format #t "~1Tjoint[0] @ #x~X~%" (-> this joint))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-list
 (deftype joint-exploder-list (structure)
   ((head         int32)
    (pre-moved?   symbol)
@@ -79,13 +171,46 @@
    )
   )
 
+;; definition for method 3 of type joint-exploder-list
+(defmethod inspect ((this joint-exploder-list))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'joint-exploder-list)
+  (format #t "~1Thead: ~D~%" (-> this head))
+  (format #t "~1Tpre-moved?: ~A~%" (-> this pre-moved?))
+  (format #t "~1Tbbox-valid?: ~A~%" (-> this bbox-valid?))
+  (format #t "~1Tprobeless?: ~A~%" (-> this probeless?))
+  (format #t "~1Tbbox: #<bounding-box @ #x~X>~%" (-> this bbox))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type joint-exploder-list-array
 (deftype joint-exploder-list-array (inline-array-class)
   ((data  joint-exploder-list  :inline :dynamic :offset  16)
    )
   )
 
+;; definition for method 3 of type joint-exploder-list-array
+(defmethod inspect ((this joint-exploder-list-array))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tlength: ~D~%" (-> this length))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Tdata[0] @ #x~X~%" (-> this data))
+  (label cfg-4)
+  this
+  )
+
+;; failed to figure out what this is:
 (set! (-> joint-exploder-list-array heap-base) (the-as uint 48))
 
+;; definition of type joint-exploder
 (deftype joint-exploder (process-drawable)
   ((parent                      (pointer process-drawable) :override)
    (die-if-below-y              float)
@@ -115,11 +240,35 @@
     )
   )
 
+;; definition for method 3 of type joint-exploder
+(defmethod inspect ((this joint-exploder))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-drawable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tdie-if-below-y: ~f~%" (-> this die-if-below-y))
+  (format #t "~2Tdie-if-beyond-xz-dist-sqrd: ~f~%" (-> this die-if-beyond-xz-dist-sqrd))
+  (format #t "~2Tjoints: ~A~%" (-> this joints))
+  (format #t "~2Tstatic-params: ~A~%" (-> this static-params))
+  (format #t "~2Tanim: ~A~%" (-> this anim))
+  (format #t "~2Tscale-vector: #<vector @ #x~X>~%" (-> this scale-vector))
+  (format #t "~2Ttuning: #<joint-exploder-tuning @ #x~X>~%" (-> this tuning))
+  (format #t "~2Tlists: ~A~%" (-> this lists))
+  (format #t "~2Tlast-colsound-time: ~D~%" (-> this last-colsound-time))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 5 of type joint-exploder-joints
 ;; WARN: Return type mismatch uint vs int.
 (defmethod asize-of ((this joint-exploder-joints))
   (the-as int (+ (-> this type size) (* 240 (-> this num-joints))))
   )
 
+;; definition for method 0 of type joint-exploder-joints
 (defmethod new joint-exploder-joints ((allocation symbol) (type-to-make type) (arg0 joint-exploder-static-params))
   (let* ((gp-0 (-> arg0 joints length))
          (v0-0 (object-new allocation type-to-make (the-as int (+ (-> type-to-make size) (* 240 gp-0)))))
@@ -129,6 +278,8 @@
     )
   )
 
+;; definition for function joint-exploder-joint-callback
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defun joint-exploder-joint-callback ((arg0 draw-control) (arg1 cspace-array) (arg2 joint-control))
   (let ((s4-0 (the-as joint-exploder (-> arg0 process))))
@@ -161,6 +312,8 @@
   (none)
   )
 
+;; definition for method 54 of type joint-exploder
+;; INFO: Used lq/sq
 (defmethod remove-from-list-and-reset ((this joint-exploder) (arg0 joint-exploder-list) (arg1 int))
   (let ((v0-0 (remove-joint-from-list this arg0 arg1)))
     (let* ((v1-1 (-> this joints))
@@ -175,6 +328,7 @@
     )
   )
 
+;; definition for method 57 of type joint-exploder
 (defmethod remove-joint-from-list ((this joint-exploder) (arg0 joint-exploder-list) (arg1 int))
   (let* ((v1-0 (-> this joints))
          (a2-1 (-> v1-0 joint arg1))
@@ -206,6 +360,7 @@
     )
   )
 
+;; definition for method 50 of type joint-exploder
 (defmethod add-joint-to-list ((this joint-exploder) (arg0 joint-exploder-list) (arg1 int))
   (let* ((v1-0 (-> this joints))
          (a3-0 (-> v1-0 joint arg1))
@@ -221,6 +376,8 @@
     )
   )
 
+;; definition for method 51 of type joint-exploder
+;; INFO: Used lq/sq
 (defmethod update-bbox-for-joint ((this joint-exploder) (arg0 joint-exploder-list) (arg1 joint-exploder-joint))
   (let ((a1-1 (-> arg1 mat trans)))
     (cond
@@ -238,6 +395,8 @@
   (none)
   )
 
+;; definition for method 58 of type joint-exploder
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch object vs joint-exploder-list.
 (defmethod adjust-bbox-for-limits-along-axis ((this joint-exploder) (arg0 joint-exploder-list) (arg1 int))
   (let ((s4-0 (the-as object #f)))
@@ -356,6 +515,8 @@
     )
   )
 
+;; definition for method 55 of type joint-exploder
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch symbol vs int.
 (defmethod final-adjust ((this joint-exploder) (arg0 joint-exploder-list) (arg1 int))
   (set! (-> arg0 bbox-valid?) #f)
@@ -410,6 +571,7 @@
   (the-as int #f)
   )
 
+;; definition for method 59 of type joint-exploder
 ;; WARN: Return type mismatch int vs none.
 (defmethod adjust-bbox-for-limits ((this joint-exploder) (arg0 joint-exploder-list))
   (when (and (-> arg0 bbox-valid?) (>= (-> arg0 head) 0) (not (-> arg0 probeless?)))
@@ -439,6 +601,8 @@
   (none)
   )
 
+;; definition for method 56 of type joint-exploder
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defmethod integrate-and-kill ((this joint-exploder) (arg0 joint-exploder-list))
   (local-vars (v1-8 float))
@@ -499,6 +663,8 @@
     )
   )
 
+;; definition for method 52 of type joint-exploder
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defmethod do-collision-response ((this joint-exploder) (arg0 joint-exploder-list))
   (let ((s5-0 (new 'stack-no-clear 'collide-query)))
@@ -551,10 +717,7 @@
                          (nonzero? v1-20)
                          (< (-> this static-params collide-sound-interval) (- (current-time) (-> this last-colsound-time)))
                          )
-                (let ((v1-23 (if (nonzero? make-sound-instance) ;; og:preserve-this bring-up guard: unlanded in gsound.gc
-                                 (make-sound-instance (-> *sound-info* v1-20) 0 #f)
-                                 )
-                             ))
+                (let ((v1-23 (make-sound-instance (-> *sound-info* v1-20) 0 #f)))
                   (cond
                     (v1-23
                       (set! (-> v1-23 trans quad) (-> s4-1 mat trans quad))
@@ -582,6 +745,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate joint-exploder-shatter (joint-exploder)
   :enter (behavior ()
     (set-time! (-> self state-time))
@@ -642,6 +806,8 @@
   :post ja-post
   )
 
+;; definition for method 53 of type joint-exploder
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defmethod init-joint-list ((this joint-exploder))
   (let ((gp-0 (-> this joints)))
@@ -729,6 +895,7 @@
   (none)
   )
 
+;; definition for method 7 of type joint-exploder
 ;; WARN: Return type mismatch process-drawable vs joint-exploder.
 (defmethod relocate ((this joint-exploder) (offset int))
   (if (nonzero? (-> this joints))
@@ -740,6 +907,8 @@
   (the-as joint-exploder ((method-of-type process-drawable relocate) this offset))
   )
 
+;; definition for function joint-exploder-init-by-other
+;; INFO: Used lq/sq
 (defbehavior joint-exploder-init-by-other joint-exploder ((arg0 skeleton-group) (arg1 int) (arg2 joint-exploder-tuning) (arg3 joint-exploder-static-params))
   (set! (-> self static-params) arg3)
   (set! (-> self die-if-beyond-xz-dist-sqrd) 10485760000.0)
@@ -783,6 +952,7 @@
   (go joint-exploder-shatter)
   )
 
+;; definition for method 0 of type joint-exploder-tuning
 ;; WARN: Return type mismatch structure vs joint-exploder-tuning.
 (defmethod new joint-exploder-tuning ((allocation symbol) (type-to-make type) (arg0 uint))
   (let ((t9-0 (method-of-type structure new))

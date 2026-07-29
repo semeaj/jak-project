@@ -155,7 +155,7 @@
 (deftype game-info-player (structure)
   ((current-continue      continue-point   :offset-assert 0)
    (last-continue         continue-point   :offset-assert 4)
-   (vehicle               uint64  :offset-assert 8)
+   (vehicle               handle  :offset-assert 8)
    (cash                  float   :offset-assert 16)
    (camera-inside-view    symbol   :offset-assert 20)
    (last-selected-vehicle uint8   :offset-assert 24)

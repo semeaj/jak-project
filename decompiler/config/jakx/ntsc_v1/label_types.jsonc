@@ -1,4 +1,8 @@
 {
+  // debris do-collision: static collide-query scratch (jak3 decomps it as (new 'static 'collide-query))
+  "debris": [["L73", "collide-query"]],
+  // touch-tracker event: zeroed static vector scratch
+  "generic-obs": [["L568", "attack-info"]],
   // ocean draw!/update-map: per-viewport ocean bucket pair, indexed by (-> viewport index)
   "ocean": [["L137", "(pointer bucket-id)", 2]],
   // the 19 seam/strip tables; jakx label order and element counts match jak3's

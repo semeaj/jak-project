@@ -12,6 +12,8 @@
     [6, "(function engine-pers connection-pers object object symbol)"],
     [13, "(function engine-pers connection-pers object object symbol)"]
   ],
+  "net-simple-destruct": [[4, "(function none :behavior net-simple-destruct-mgr)"]],
+  "generic-obs": [[34, "(function symbol :behavior touch-tracker)"]],
   "main": [
     [3, "(function none :behavior process)"],
     [5, "(function none :behavior process)"],

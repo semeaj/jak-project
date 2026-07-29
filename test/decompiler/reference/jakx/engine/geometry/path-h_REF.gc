@@ -83,7 +83,7 @@ These path-controls are typically allocated on a process heap."
     (average-segment-length (_type_ float) float)
     (path-control-method-22 () none)
     (path-control-method-23 () none)
-    (path-control-method-24 () none)
+    (path-control-method-24 (_type_ vector) float)
     (path-control-method-25 () none)
     (path-control-method-26 () none)
     (path-control-method-27 () none)

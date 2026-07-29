@@ -3,17 +3,18 @@
 
 ;; definition of type manipy
 (deftype manipy (process-drawable)
-  ((new-trans-hook        (function none))
+  ((root                  collide-shape :override)
+   (new-trans-hook        (function none))
    (cur-trans-hook        (function none))
    (cur-event-hook        (function none))
    (new-joint-anim        art-joint-anim)
    (new-joint-anim-blend  uint64)
    (new-joint-anim-frame  float)
    (anim-mode             symbol)
-   (cur-grab-handle       uint64)
-   (cur-target-handle     uint64)
-   (old-grab-pos          vector     :inline)
-   (joint                 joint-mod  4)
+   (cur-grab-handle       handle)
+   (cur-target-handle     handle)
+   (old-grab-pos          vector         :inline)
+   (joint                 joint-mod      4)
    (new-post-hook         (function none))
    (cur-post-hook         (function none))
    (clone-copy-trans      symbol)
@@ -23,11 +24,11 @@
    (prefix                basic)
    (shadow-volume-joint   int32)
    (speed                 float)
-   (user-uint64           uint64     4)
+   (user-uint64           uint64         4)
    (options               manipy-options)
    )
-  (:methods
-    (manipy-method-50 () none)
+  (:state-methods
+    idle
     )
   )
 
@@ -82,9 +83,11 @@
    (radius         meters)
    (world-sphere   sphere  :inline)
    )
+  (:state-methods
+    active
+    )
   (:methods
-    (part-spawner-method-15 () none)
-    (part-spawner-method-16 () none)
+    (is-in-view? (_type_) symbol)
     )
   )
 
@@ -129,14 +132,16 @@
    (duration         uint64)
    (linger-duration  uint64)
    (state-time       uint64)
-   (target           uint64)
+   (target           handle)
    (target-joint     int32)
    )
+  (:state-methods
+    active
+    linger
+    die
+    )
   (:methods
-    (part-tracker-method-15 () none)
-    (part-tracker-method-16 () none)
-    (part-tracker-method-17 () none)
-    (part-tracker-method-18 () none)
+    (notify-parent-of-death (_type_) none)
     )
   )
 
@@ -234,8 +239,8 @@
    (start-time     uint64)
    (offset0        vector      :inline)
    (offset1        vector      :inline)
-   (target0        uint64)
-   (target1        uint64)
+   (target0        handle)
+   (target1        handle)
    (target-joint0  int32)
    (target-joint1  int32)
    (sound          sound-id)
@@ -244,10 +249,12 @@
    (user-vector    vector      :inline)
    (user-handle    handle      2 :offset 304)
    )
+  (:state-methods
+    active
+    )
   (:methods
-    (lightning-tracker-method-15 () none)
-    (lightning-tracker-method-16 () none)
-    (lightning-tracker-method-17 () none)
+    (notify-parent-of-death (_type_) none)
+    (update (_type_) none)
     )
   )
 
@@ -283,14 +290,14 @@
 ;; definition of type touch-tracker
 (deftype touch-tracker (process-drawable)
   ((duration      uint64)
-   (target        uint64)
+   (target        handle)
    (event         symbol)
    (run-function  (function object))
    (callback      (function touch-tracker none))
    (event-mode    symbol)
    )
-  (:methods
-    (touch-tracker-method-50 () none)
+  (:state-methods
+    active
     )
   )
 
@@ -626,13 +633,15 @@
 (deftype simple-prim (process-drawable)
   ((strip  prim-strip)
    )
+  (:state-methods
+    active
+    )
   (:methods
-    (simple-prim-method-50 () none)
-    (simple-prim-method-51 () none)
-    (simple-prim-method-52 () none)
-    (simple-prim-method-53 () none)
-    (simple-prim-method-54 () none)
-    (simple-prim-method-55 () none)
+    (init-strip! (_type_) none)
+    (strip-setup (_type_) none)
+    (get-alpha (_type_) int)
+    (allocate-trans-and-strip! (_type_) prim-strip)
+    (get-color (_type_) rgba)
     )
   )
 
@@ -712,7 +721,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-

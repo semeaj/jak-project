@@ -1,12 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: debris.gc
-;; name in dgo: debris
-;; dgos: ENGINE, GAME
-
-;; DECOMP BEGINS
-
+;; definition of type debris-static-joint-params
 (deftype debris-static-joint-params (structure)
   ((parent-joint-index  int16)
    (group               string)
@@ -15,6 +10,22 @@
    )
   )
 
+;; definition for method 3 of type debris-static-joint-params
+(defmethod inspect ((this debris-static-joint-params))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'debris-static-joint-params)
+  (format #t "~1Tparent-joint-index: ~D~%" (-> this parent-joint-index))
+  (format #t "~1Tgroup: ~A~%" (-> this group))
+  (format #t "~1Toffset: #<vector @ #x~X>~%" (-> this offset))
+  (format #t "~1Tcolor-tint: #<rgbaf @ #x~X>~%" (-> this color-tint))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type debris-static-params
 (deftype debris-static-params (basic)
   ((joints             (array debris-static-joint-params))
    (collide-spec       collide-spec)
@@ -30,6 +41,29 @@
    )
   )
 
+;; definition for method 3 of type debris-static-params
+(defmethod inspect ((this debris-static-params))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tjoints: ~A~%" (-> this joints))
+  (format #t "~1Tcollide-spec: ~D~%" (-> this collide-spec))
+  (format #t "~1Tsound-hit: ~D~%" (-> this sound-hit))
+  (format #t "~1Tinitial-sound-hit: ~D~%" (-> this initial-sound-hit))
+  (format #t "~1Troll-sound: ~D~%" (-> this roll-sound))
+  (format #t "~1Tart-level: ~A~%" (-> this art-level))
+  (format #t "~1Tvscale: ~f~%" (-> this vscale))
+  (format #t "~1Tvolume-time: ~f~%" (-> this volume-time))
+  (format #t "~1Tplay-delay: ~D~%" (-> this play-delay))
+  (format #t "~1Tmin-speed: ~f~%" (-> this min-speed))
+  (format #t "~1Tmax-speed: ~f~%" (-> this max-speed))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type debris
 (deftype debris (basic)
   ((root             transformq  :inline)
    (node-list        cspace-array)
@@ -47,6 +81,31 @@
    )
   )
 
+;; definition for method 3 of type debris
+(defmethod inspect ((this debris))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Troot: #<transformq @ #x~X>~%" (-> this root))
+  (format #t "~1Tnode-list: ~A~%" (-> this node-list))
+  (format #t "~1Tdraw: ~A~%" (-> this draw))
+  (format #t "~1Tduration: ~f~%" (-> this duration))
+  (format #t "~1Thit-xz-reaction: ~f~%" (-> this hit-xz-reaction))
+  (format #t "~1Thit-y-reaction: ~f~%" (-> this hit-y-reaction))
+  (format #t "~1Tprev-pos: #<vector @ #x~X>~%" (-> this prev-pos))
+  (format #t "~1Tgravity: ~f~%" (-> this gravity))
+  (format #t "~1Trot-axis: #<vector @ #x~X>~%" (-> this rot-axis))
+  (format #t "~1Trot-angle: ~f~%" (-> this rot-angle))
+  (format #t "~1Ttransv: #<vector @ #x~X>~%" (-> this transv))
+  (format #t "~1Ttime-fade-out: ~D~%" (-> this time-fade-out))
+  (format #t "~1Tparams: ~A~%" (-> this params))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type debris-box
 (deftype debris-box (structure)
   ((start  uint32)
    (num    uint32)
@@ -54,6 +113,21 @@
    )
   )
 
+;; definition for method 3 of type debris-box
+(defmethod inspect ((this debris-box))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'debris-box)
+  (format #t "~1Tstart: ~D~%" (-> this start))
+  (format #t "~1Tnum: ~D~%" (-> this num))
+  (format #t "~1Tbbox: #<bounding-box @ #x~X>~%" (-> this bbox))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type debris-group
 (deftype debris-group (process)
   ((had-first-hit    basic)
    (dead-debris-num  int32)
@@ -74,6 +148,29 @@
     )
   )
 
+;; definition for method 3 of type debris-group
+(defmethod inspect ((this debris-group))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Thad-first-hit: ~A~%" (-> this had-first-hit))
+  (format #t "~2Tdead-debris-num: ~D~%" (-> this dead-debris-num))
+  (format #t "~2Tdebris-num: ~D~%" (-> this debris-num))
+  (format #t "~2Tnext-play: ~D~%" (-> this next-play))
+  (format #t "~2Tdebris: ~A~%" (-> this debris))
+  (format #t "~2Tmax-probe-width: ~f~%" (-> this max-probe-width))
+  (format #t "~2Tstate-time: ~D~%" (-> this state-time))
+  (format #t "~2Tnum-boxes: ~D~%" (-> this num-boxes))
+  (format #t "~2Tboxes[16] @ #x~X~%" (-> this boxes))
+  (label cfg-4)
+  this
+  )
+
+;; definition of type debris-tuning
 (deftype debris-tuning (structure)
   ((explosion                    uint64)
    (duration                     time-frame)
@@ -100,6 +197,37 @@
     )
   )
 
+;; definition for method 3 of type debris-tuning
+(defmethod inspect ((this debris-tuning))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (format #t "[~8x] ~A~%" this 'debris-tuning)
+  (format #t "~1Texplosion: ~D~%" (-> this explosion))
+  (format #t "~1Tduration: ~D~%" (-> this duration))
+  (format #t "~1Tgravity: ~f~%" (-> this gravity))
+  (format #t "~1Trot-speed: ~f~%" (-> this rot-speed))
+  (format #t "~1Tbounds-inflate: ~f~%" (-> this bounds-inflate))
+  (format #t "~1Tmax-probe-width: ~f~%" (-> this max-probe-width))
+  (format #t "~1Tmax-probe-height: ~f~%" (-> this max-probe-height))
+  (format #t "~1Tmax-probe-depth: ~f~%" (-> this max-probe-depth))
+  (format #t "~1Tfountain-rand-transv-lo: #<vector @ #x~X>~%" (-> this fountain-rand-transv-lo))
+  (format #t "~1Tfountain-rand-transv-hi: #<vector @ #x~X>~%" (-> this fountain-rand-transv-hi))
+  (format #t "~1Taway-from-focal-pt: #<vector @ #x~X>~%" (-> this fountain-rand-transv-lo))
+  (format #t "~1Taway-from-rand-transv-xz-lo: ~f~%" (-> this fountain-rand-transv-hi x))
+  (format #t "~1Taway-from-rand-transv-xz-hi: ~f~%" (-> this fountain-rand-transv-hi y))
+  (format #t "~1Taway-from-rand-transv-y-lo: ~f~%" (-> this fountain-rand-transv-hi z))
+  (format #t "~1Taway-from-rand-transv-y-hi: ~f~%" (-> this fountain-rand-transv-hi w))
+  (format #t "~1Thit-xz-reaction: ~f~%" (-> this hit-xz-reaction))
+  (format #t "~1Thit-y-reaction: ~f~%" (-> this hit-y-reaction))
+  (format #t "~1Tscale-rand-lo: ~f~%" (-> this scale-rand-lo))
+  (format #t "~1Tscale-rand-hi: ~f~%" (-> this scale-rand-hi))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 0 of type debris-tuning
 ;; WARN: Return type mismatch structure vs debris-tuning.
 (defmethod new debris-tuning ((allocation symbol) (type-to-make type) (arg0 uint))
   (let ((t9-0 (method-of-type structure new))
@@ -137,6 +265,7 @@
     )
   )
 
+;; definition for method 17 of type debris-group
 ;; WARN: Return type mismatch int vs none.
 (defmethod update-box! ((this debris-group) (idx int))
   (let ((s5-0 (-> this boxes idx)))
@@ -153,6 +282,8 @@
   (none)
   )
 
+;; definition for method 16 of type debris-group
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defmethod do-collision ((this debris-group) (idx int))
   (rlet ((acc :class vf)
@@ -259,10 +390,7 @@
                               ((not (-> this had-first-hit))
                                (set! (-> this had-first-hit) (the-as basic #t))
                                (set! (-> this next-play) (the-as int (+ (current-time) (-> s1-0 params play-delay))))
-                               (let ((v1-54 (if (nonzero? make-sound-instance) ;; og:preserve-this bring-up guard: unlanded in gsound.gc
-                                              (make-sound-instance (-> *sound-info* (-> s1-0 params initial-sound-hit)) 0 #f)
-                                              )
-                                          ))
+                               (let ((v1-54 (make-sound-instance (-> *sound-info* (-> s1-0 params initial-sound-hit)) 0 #f)))
                                  (cond
                                    (v1-54
                                      (set! (-> v1-54 trans quad) (-> s1-0 root trans quad))
@@ -285,10 +413,7 @@
                                         )
                                     (when (< 0.1 f0-16)
                                       (set! (-> this next-play) (the-as int (+ (current-time) (-> s1-0 params play-delay))))
-                                      (let ((v1-77 (if (nonzero? make-sound-instance) ;; og:preserve-this bring-up guard: unlanded in gsound.gc
-                                            (make-sound-instance (-> *sound-info* (-> s1-0 params roll-sound)) 0 #f)
-                                            )
-                                        ))
+                                      (let ((v1-77 (make-sound-instance (-> *sound-info* (-> s1-0 params roll-sound)) 0 #f)))
                                         (cond
                                           (v1-77
                                             (set! (-> v1-77 volume) (the int (* 1024.0 f26-0)))
@@ -312,10 +437,7 @@
                                           )
                                      (when (< 0.1 f0-16)
                                        (set! (-> this next-play) (the-as int (+ (current-time) (-> s1-0 params play-delay))))
-                                       (let ((v1-97 (if (nonzero? make-sound-instance) ;; og:preserve-this bring-up guard: unlanded in gsound.gc
-                                          (make-sound-instance (-> *sound-info* (-> s1-0 params sound-hit)) 0 #f)
-                                          )
-                                      ))
+                                       (let ((v1-97 (make-sound-instance (-> *sound-info* (-> s1-0 params sound-hit)) 0 #f)))
                                          (cond
                                            (v1-97
                                              (set! (-> v1-97 volume) (the int (* 1024.0 f26-1)))
@@ -361,6 +483,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate idle (debris-group)
   :virtual #t
   :enter (behavior ()
@@ -482,6 +605,7 @@
   :code sleep-code
   )
 
+;; definition for method 7 of type debris-group
 ;; WARN: Return type mismatch process vs debris-group.
 (defmethod relocate ((this debris-group) (offset int))
   (dotimes (v1-0 (-> this debris length))
@@ -503,6 +627,8 @@
   (the-as debris-group ((method-of-type process relocate) this offset))
   )
 
+;; definition for function debris-group-init-by-other
+;; INFO: Used lq/sq
 (defbehavior debris-group-init-by-other debris-group ((tuning debris-tuning) (params debris-static-params) (pdraw process-drawable))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -615,6 +741,7 @@
     )
   )
 
+;; definition for function debris-spawn
 ;; WARN: Return type mismatch (pointer process) vs (pointer debris-group).
 (defun debris-spawn ((arg0 process-drawable) (arg1 debris-tuning) (arg2 debris-static-params) (arg3 process-drawable))
   (if (not arg3)

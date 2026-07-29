@@ -20576,7 +20576,7 @@
    (num-verts           uint16               :offset-assert 86)
    (allocated-num-verts uint16               :offset-assert 88)
    (last-tex-id         uint32               :offset-assert 92)
-   (data                prim-vertex :dynamic :offset-assert 96) ;; guessed by decompiler
+   (data                prim-vertex :inline :dynamic :offset-assert 96) ;; jak3 has :inline too
    )
   :method-count-assert 11
   :size-assert         #x60
@@ -21005,7 +21005,7 @@
 (deftype game-info-player (structure)
   ((current-continue      continue-point   :offset-assert 0)
    (last-continue         continue-point   :offset-assert 4)
-   (vehicle               uint64  :offset-assert 8)
+   (vehicle               handle  :offset-assert 8)
    (cash                  float   :offset-assert 16)
    (camera-inside-view    symbol   :offset-assert 20)
    (last-selected-vehicle uint8   :offset-assert 24)
@@ -28694,17 +28694,17 @@
   :size-assert         #xbc
   :flag-assert         #x2a003000bc
   (:methods
-    (process-nettable-method-15 () none) ;; 15
+    (process-nettable-method-15 (_type_ symbol mem-buffer) none) ;; 15 ;; net message pack: nsd-mgr's override serializes 'object-destroyed / 'object-respawn payloads
     (process-nettable-method-16 () none) ;; 16
-    (process-nettable-method-17 () none) ;; 17
+    (process-nettable-method-17 (_type_ symbol mem-buffer) none) ;; 17 ;; net message unpack, same payload shapes as 15
     (process-nettable-method-18 () none) ;; 18
     (process-nettable-method-19 () none) ;; 19
     (process-nettable-method-20 () none) ;; 20
     (process-nettable-method-21 () none) ;; 21
-    (process-nettable-method-22 () none) ;; 22
+    (process-nettable-method-22 (_type_) symbol) ;; 22 ;; truthy gate on the attacker in nsd method 62 (locally-owned?)
     (process-nettable-method-23 () none) ;; 23
     (process-nettable-method-24 () none) ;; 24
-    (process-nettable-method-25 () none) ;; 25
+    (process-nettable-method-25 (_type_) symbol) ;; 25 ;; truthy gate read by nsd-mgr's idle-enter (net-active?)
     (process-nettable-method-26 () none) ;; 26
     (process-nettable-method-27 () none) ;; 27
     (process-nettable-method-28 () none) ;; 28
@@ -30306,15 +30306,16 @@
 ;; ---generic-obs-h:manipy-options
 
 (deftype manipy (process-drawable)
-  ((new-trans-hook       (function none)         :offset-assert 248) ;; guessed by decompiler
+  ((root                 collide-shape           :override) ;; jak3 has the same override
+   (new-trans-hook       (function none)         :offset-assert 248) ;; guessed by decompiler
    (cur-trans-hook       (function none)         :offset-assert 252) ;; guessed by decompiler
    (cur-event-hook       (function none)         :offset-assert 256) ;; guessed by decompiler
    (new-joint-anim       art-joint-anim          :offset-assert 260) ;; guessed by decompiler
    (new-joint-anim-blend uint64                  :offset-assert 264)
    (new-joint-anim-frame float                   :offset-assert 272)
    (anim-mode            symbol                  :offset-assert 276) ;; guessed by decompiler
-   (cur-grab-handle      uint64                  :offset-assert 280) ;; handle
-   (cur-target-handle    uint64                  :offset-assert 288) ;; handle
+   (cur-grab-handle      handle                  :offset-assert 280)
+   (cur-target-handle    handle                  :offset-assert 288)
    (old-grab-pos         vector          :inline :offset-assert 304)
    (joint                joint-mod       4       :offset-assert 320) ;; guessed by decompiler
    (new-post-hook        (function none)         :offset-assert 336) ;; guessed by decompiler
@@ -30333,8 +30334,8 @@
   :size-assert         #x1a4
   :flag-assert         #x33012001a4
   ;; field userdata uses ~A with a 64-bit load.
-  (:methods
-    (manipy-method-50 () none) ;; 50
+  (:state-methods
+    idle ;; 50, jak3 20
     )
   )
 
@@ -30356,9 +30357,11 @@
   :method-count-assert 17
   :size-assert         #xf0
   :flag-assert         #x11006000f0
+  (:state-methods
+    active ;; 15, jak3 14
+    )
   (:methods
-    (part-spawner-method-15 () none) ;; 14 ;; (active () _type_ :state)
-    (part-spawner-method-16 () none) ;; 15 ;; (is-in-view? (_type_) symbol)
+    (is-in-view? (_type_) symbol) ;; 16, jak3 15
     )
   )
 
@@ -30377,18 +30380,20 @@
    (duration        uint64                                 :offset-assert 344) ;; time-frame
    (linger-duration uint64                                 :offset-assert 352) ;; time-frame
    (state-time      uint64                                 :offset-assert 360) ;; time-frame
-   (target          uint64                                 :offset-assert 368) ;; handle
+   (target          handle                                 :offset-assert 368)
    (target-joint    int32                                  :offset-assert 376)
    )
   :method-count-assert 19
   :size-assert         #x17c
   :flag-assert         #x1300f0017c
   ;; field userdata uses ~A with a 64-bit load.
+  (:state-methods
+    active ;; 15, jak3 14
+    linger ;; 16, jak3 15
+    die ;; 17, jak3 16
+    )
   (:methods
-    (part-tracker-method-15 () none) ;; 14 ;; (active () _type_ :state) 15 ;; (linger () _type_ :state)
-    (part-tracker-method-16 () none) ;; 16 ;; (die () _type_ :state)
-    (part-tracker-method-17 () none) ;; 17 ;; (notify-parent-of-death (_type_) none)
-    (part-tracker-method-18 () none) ;; 18
+    (notify-parent-of-death (_type_) none) ;; 18, jak3 17
     )
   )
 
@@ -30428,8 +30433,8 @@
    (start-time    uint64                                    :offset-assert 168) ;; time-frame
    (offset0       vector                            :inline :offset-assert 176)
    (offset1       vector                            :inline :offset-assert 192)
-   (target0       uint64                                    :offset-assert 208) ;; handle
-   (target1       uint64                                    :offset-assert 216) ;; handle
+   (target0       handle                                    :offset-assert 208)
+   (target1       handle                                    :offset-assert 216)
    (target-joint0 int32                                     :offset-assert 224)
    (target-joint1 int32                                     :offset-assert 228)
    (sound         sound-id                                  :offset-assert 232) ;; guessed by decompiler
@@ -30442,16 +30447,18 @@
   :size-assert         #x140
   :flag-assert         #x1200b00140
   ;; field userdata uses ~A with a 64-bit load.
+  (:state-methods
+    active ;; 15, jak3 14
+    )
   (:methods
-    (lightning-tracker-method-15 () none) ;; 14 ;; (active () _type_ :state) 15 ;; (notify-parent-of-death (_type_) none)
-    (lightning-tracker-method-16 () none) ;; 16 ;; (update (_type_) none)
-    (lightning-tracker-method-17 () none) ;; 17
+    (notify-parent-of-death (_type_) none) ;; 16, jak3 15
+    (update (_type_) none) ;; 17, jak3 16
     )
   )
 
 (deftype touch-tracker (process-drawable)
   ((duration     uint64                         :offset-assert 248) ;; time-frame
-   (target       uint64                         :offset-assert 256) ;; handle
+   (target       handle                         :offset-assert 256)
    (event        symbol                         :offset-assert 264) ;; guessed by decompiler
    (run-function (function object)              :offset-assert 268) ;; guessed by decompiler
    (callback     (function touch-tracker none)  :offset-assert 272) ;; guessed by decompiler
@@ -30460,8 +30467,8 @@
   :method-count-assert 51
   :size-assert         #x118
   :flag-assert         #x3300900118
-  (:methods
-    (touch-tracker-method-50 () none) ;; 50
+  (:state-methods
+    active ;; 50, jak3 20
     )
   )
 
@@ -30565,13 +30572,15 @@
   :method-count-assert 56
   :size-assert         #xfc
   :flag-assert         #x38007000fc
+  (:state-methods
+    active ;; 50, jak3 20
+    )
   (:methods
-    (simple-prim-method-50 () none) ;; 50
-    (simple-prim-method-51 () none) ;; 51
-    (simple-prim-method-52 () none) ;; 52
-    (simple-prim-method-53 () none) ;; 53
-    (simple-prim-method-54 () none) ;; 54
-    (simple-prim-method-55 () none) ;; 55
+    (init-strip! (_type_) none) ;; 51, jak3 21
+    (strip-setup (_type_) none) ;; 52, jak3 22
+    (get-alpha (_type_) int) ;; 53, jak3 23
+    (allocate-trans-and-strip! (_type_) prim-strip) ;; 54, jak3 24
+    (get-color (_type_) rgba) ;; 55, jak3 25
     )
   )
 
@@ -30920,7 +30929,7 @@
     (process-focusable-method-54 () none) ;; 54
     (process-focusable-method-55 (_type_) meters) ;; 55 ;; jak3 get-water-height(25)+30; result consumed as float
     (process-focusable-method-56 (_type_) time-frame) ;; 56 ;; jak3 get-notice-time(26)+30
-    (process-focusable-method-57 () none) ;; 57
+    (process-focusable-method-57 (_type_) float) ;; 57 ;; jak3 27 shifted; nsd's impl returns a constant scale that impact-destroys? multiplies into the impulse
     (process-focusable-method-58 () none) ;; 58
     )
   )
@@ -32173,11 +32182,11 @@
     (collide-cache-method-9 () none) ;; 9 ;; (debug-draw (_type_) none)
     (collide-cache-method-10 (_type_ collide-query) float) ;; 10 ;; fill-and-probe-using-line-sphere
     (collide-cache-method-11 () none) ;; 11 ;; (fill-and-probe-using-spheres (_type_ collide-query) symbol)
-    (collide-cache-method-12 () none) ;; 12 ;; (fill-using-bounding-box (_type_ collide-query) none)
+    (collide-cache-method-12 (_type_ collide-query) none) ;; 12 ;; fill-using-bounding-box
     (collide-cache-method-13 () none) ;; 13 ;; (fill-using-line-sphere (_type_ collide-query) none)
     (collide-cache-method-14 () none) ;; 14 ;; (fill-using-spheres (_type_ collide-query) none)
     (collide-cache-method-15 () none) ;; 15 ;; (reset (_type_) none)
-    (collide-cache-method-16 () none) ;; 16 ;; (probe-using-line-sphere (_type_ collide-query) float)
+    (collide-cache-method-16 (_type_ collide-query) float) ;; 16 ;; probe-using-line-sphere
     (collide-cache-method-17 () none) ;; 17 ;; (probe-using-spheres (_type_ collide-query) symbol)
     (collide-cache-method-18 () none) ;; 18 ;; (fill-from-bg (_type_ (function collide-hash int collide-list collide-query int) (function collide-cache collide-list collide-query none) collide-query) none)
     (collide-cache-method-19 () none) ;; 19 ;; (fill-from-fg-boxes (_type_) none)
@@ -33547,13 +33556,13 @@
     (entity-more-perm-hash-method-9 () none) ;; 9
     (entity-more-perm-hash-method-10 () none) ;; 10
     (entity-more-perm-hash-method-11 () none) ;; 11
-    (entity-more-perm-hash-method-12 () none) ;; 12
+    (entity-more-perm-hash-method-12 (_type_ uint (pointer symbol)) entity-more-perm) ;; 12, lookup-or-allocate perm by aid; arg2 receives whether a new slot was allocated
     (entity-more-perm-hash-method-13 (_type_ level) none) ;; 13 ;; called method-of-type style from (method 25 level)
     (entity-more-perm-hash-method-14 (_type_ level) none) ;; 14 ;; structural twin of 13 (dispatches the adjacent process-type method slot)
     )
   )
 
-(define-extern *entity-more-perm* object) ;; TODO verify, no live consumers yet
+(define-extern *entity-more-perm* entity-more-perm-hash) ;; the hash instance; get-destruct-perm calls its method 12, nsd-mgr running indexes its inline data array
 (define-extern *level-type-list* type)
 (declare-type gui-control basic)
 ;; og:bring-up minimal gui-control deftype: the full one is commented (broken field read);
@@ -34488,8 +34497,8 @@
   :flag-assert         #xb00000068
   (:methods
     (new (symbol type sparticle-system uint float symbol float) _type_)
-    (sparticle-subsampler-method-9 () none) ;; 9 ;; (init-with-vec! (_type_ vector) vector)
-    (sparticle-subsampler-method-10 () none) ;; 10 ;; (init-with-mat! (_type_ matrix) matrix)
+    (init-with-vec! (_type_ vector) vector) ;; 9
+    (init-with-mat! (_type_ matrix) matrix) ;; 10
     )
   )
 
@@ -35011,7 +35020,7 @@
     (average-segment-length(_type_ float) float) ;; 21 ;; (path-duration->segment-duration (_type_ float) float)
     (path-control-method-22 () none) ;; 22 ;; (path-control-method-22 (_type_ vector) float)
     (path-control-method-23 () none) ;; 23 ;; (path-control-method-23 (_type_ vector) float)
-    (path-control-method-24 () none) ;; 24 ;; (path-control-method-24 (_type_ vector) float)
+    (path-control-method-24 (_type_ vector) float) ;; 24
     (path-control-method-25 () none) ;; 25 ;; (path-control-method-25 (_type_ vector) float)
     (path-control-method-26 () none) ;; 26 ;; (path-control-method-26 (_type_ float float) float)
     (path-control-method-27 () none) ;; 27 ;; (path-control-method-27 (_type_ vector) vector)
@@ -35991,7 +36000,7 @@
 (define-extern release-sound-handle function) ;; jakx-new instance ring, refine after unlock
 (define-extern get-sound-handle function) ;; jakx-new instance ring, refine after unlock
 (define-extern *sound-instances* (array sound-instance))
-(define-extern find-sound-instance function) ;; jakx-new instance ring, refine after unlock
+(define-extern find-sound-instance (function sound-id symbol sound-instance)) ;; jakx-new instance ring
 (define-extern remove-sound-instance-by-index function) ;; jakx-new instance ring, refine after unlock
 (define-extern remove-sound-instance-by-sound-id function) ;; jakx-new instance ring, refine after unlock
 (define-extern make-sound-instance (function object int symbol sound-instance))
@@ -39534,7 +39543,7 @@
 ;; (define-extern find-ground-point function) ;; (function control-info vector float float vector)
 ;; (define-extern collide-shape-moving-angle-set! function) ;; (function collide-shape-moving vector vector none)
 ;; (define-extern cshape-reaction-update-state function) ;; (function control-info collide-query vector none)
-;; (define-extern cshape-reaction-default function) ;; (function control-info collide-query vector vector collide-status)
+(define-extern cshape-reaction-default (function control-info collide-query vector vector collide-status))
 ;; (define-extern cshape-reaction-just-move function) ;; (function control-info collide-query vector collide-status)
 ;; (define-extern collide-shape-draw-debug-marks function) ;; (function none)
 ;; (define-extern *col-timer* object) ;; stopwatch
@@ -40755,15 +40764,15 @@
 ;; script                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern command-get-int function) ;; (function object int int)
+(define-extern command-get-int (function object int int))
 (define-extern command-get-float (function object float float))
-;; (define-extern command-get-time function) ;; (function object int time-frame)
-;; (define-extern command-get-param function) ;; (function object object object)
-;; (define-extern command-get-quoted-param function) ;; (function object object object)
-;; (define-extern command-get-process function) ;; (function object process process)
+(define-extern command-get-time (function object int time-frame))
+(define-extern command-get-param (function object object object))
+(define-extern command-get-quoted-param (function object object object))
+(define-extern command-get-process (function object process process))
 ;; (define-extern command-get-entity function) ;; (function object entity entity)
-;; (define-extern command-get-trans function) ;; (function object vector vector)
-;; (define-extern key-assoc function) ;; (function object pair vector4w pair)
+(define-extern command-get-trans (function object vector vector))
+(define-extern key-assoc (function object pair vector4w pair))
 ;; (define-extern *script-form* object) ;; (inline-array script-form)
 ;; (define-extern level-from-heap function) ;; (function int level)
 ;; (define-extern *syntax-context* object) ;; script-context
@@ -40773,14 +40782,12 @@
 ;; generic-obs                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype target-start (process-hidden)
   ()
   :method-count-assert 16
   :size-assert         #x90
   :flag-assert         #x1000000090
   )
-|#
 
 (deftype camera-start (process-hidden)
   ()
@@ -40789,80 +40796,62 @@
   :flag-assert         #x1000000090
   )
 
-#|
 (deftype cam-slope (process-hidden)
   ()
   :method-count-assert 16
   :size-assert         #x90
   :flag-assert         #x1000000090
   )
-|#
 
 ;; simple-prim is already defined!
 
-#|
 (deftype simple-prim-zbuf-mask (simple-prim)
   ()
   :method-count-assert 56
   :size-assert         #xfc
   :flag-assert         #x38007000fc
   )
-|#
 
-#|
 (deftype simple-prim-particle-binding (simple-prim)
   ((color      rgba    :offset-assert 252) ;; guessed by decompiler
    (lifetime   uint64  :offset-assert 256) ;; time-frame
-   (state-time uint64  :offset-assert 240) ;; time-frame
+   (pad        uint8 8 :offset-assert 264)
    )
   :method-count-assert 58
   :size-assert         #x110
   :flag-assert         #x3a00800110
-  (:methods
-    (simple-prim-particle-binding-method-57 () none) ;; 57
-    )
   (:state-methods
     die ;; 56
-    active ;; 50
+    )
+  (:methods
+    (setup! (_type_ int sparticle-cpuinfo sparticle-launchinfo) none) ;; 57, jak3 27
     )
   )
-|#
 
-#|
 (deftype part-controller (process)
-  ((actor-group        (pointer actor-group)                     :offset-assert 140) ;; guessed by decompiler
-   (actor-group-count  int32                                     :offset-assert 144)
-   (spawn-delay        uint64                                    :offset-assert 148) ;; time-frame
-   (current-part-index uint16                                    :offset-assert 156)
-   (state-time         uint64                                    :offset-assert 164) ;; time-frame
-   (next-reset-time    uint64                                    :offset-assert 172) ;; time-frame
-   (reset-interval-min uint64                                    :offset-assert 180) ;; time-frame
-   (reset-interval-max uint64                                    :offset-assert 188) ;; time-frame
-   (particle-launchers (array (pointer sparticle-launch-group))  :offset-assert 196) ;; guessed by decompiler
-   (spawn-sound        sound-info                                :offset-assert 200) ;; sound-name
+  ((actor-group        (pointer actor-group)                     :offset-assert 144) ;; guessed by decompiler
+   (actor-group-count  int32                                     :offset-assert 148)
+   (spawn-delay        uint64                                    :offset-assert 152) ;; time-frame
+   (current-part-index uint16                                    :offset-assert 160)
+   (state-time         uint64                                    :offset-assert 168) ;; time-frame
+   (next-reset-time    uint64                                    :offset-assert 176) ;; time-frame
+   (reset-interval-min uint64                                    :offset-assert 184) ;; time-frame
+   (reset-interval-max uint64                                    :offset-assert 192) ;; time-frame
+   (particle-launchers (array (pointer sparticle-launch-group))  :offset-assert 200) ;; guessed by decompiler
+   (spawn-sound        sound-info                                :offset-assert 204) ;; sound-name
    )
   :method-count-assert 16
   :size-assert         #xd0
   :flag-assert         #x10004000d0
-  (:methods
-    (part-controller-method-9 () none) ;; 9
-    (part-controller-method-10 () none) ;; 10
-    (part-controller-method-11 () none) ;; 11
-    (part-controller-method-12 () none) ;; 12
-    (part-controller-method-13 () none) ;; 13
-    (part-controller-method-14 () none) ;; 14 ;; (active () _type_ :state)
-    )
   (:state-methods
     active ;; 15
     )
   )
-|#
 
-#|
 (deftype sound-on-path (process-drawable)
   ((flags           uint8          :offset-assert 248)
    (spawn-sound     uint128        :offset-assert 256) ;; sound-name
-   (loop-sound      uint32         :offset-assert 276)
+   (loop-sound      uint32         :offset 276)
    (amb-sound       ambient-sound  :offset-assert 280) ;; guessed by decompiler
    (reverb-value    float          :offset-assert 284)
    (reverb-radius   float          :offset-assert 288)
@@ -40873,45 +40862,42 @@
   :size-assert         #x12c
   :flag-assert         #x3500a0012c
   (:state-methods
+    active ;; 50
     die ;; 51
     no-play ;; 52
-    active ;; 50
     )
   )
-|#
 
-#|
 (deftype crate (process-hidden)
   ()
   :method-count-assert 16
   :size-assert         #x90
   :flag-assert         #x1000000090
   )
-|#
 
-(define-extern *part-tracker-params-default* part-tracker-init-params) ;; 
-;; (define-extern *part-tracker-subsampler-params-default* object) ;; part-tracker-subsampler-init-params
-;; (define-extern entity-lookup-part-group function) ;; (function entity-actor (pointer string) symbol (pointer sparticle-launch-group))
-;; (define-extern clone-anim-once function) ;; (function handle symbol string none :behavior process-drawable)
-;; (define-extern clone-anim function) ;; (function handle symbol string none :behavior process-drawable)
-;; (define-extern manipy-post function) ;; (function none :behavior manipy)
-;; (define-extern manipy-init function) ;; (function vector entity-actor skeleton-group vector manipy-options none :behavior manipy)
-;; (define-extern part-tracker-init-base function) ;; (function sparticle-launch-group time-frame (function part-tracker vector) uint process-drawable object none :behavior part-tracker)
-;; (define-extern part-tracker-subsampler-init (function part-tracker-subsampler-init-params object :behavior part-tracker-subsampler)) ;; 
-;; (define-extern part-tracker-init function) ;; (function part-tracker-init-params object :behavior part-tracker)
-;; (define-extern part-tracker-track-root function) ;; (function sparticle-system sparticle-cpuinfo vector none)
-;; (define-extern lightning-tracker-init function) ;; (function lightning-spec time-frame symbol process-drawable vector vector none :behavior lightning-tracker)
-;; (define-extern process-grab? function) ;; (function process symbol symbol :behavior process)
-;; (define-extern process-release? function) ;; (function process symbol :behavior process)
-;; (define-extern camera-look-at function) ;; (function pair uint process)
-;; (define-extern ja-anim-done? function) ;; (function process symbol)
-;; (define-extern camera-pov-from function) ;; (function pair uint process)
-;; (define-extern touch-tracker-init function) ;; (function vector float time-frame none :behavior touch-tracker)
-;; (define-extern process-drawable-random-point! function) ;; (function process-drawable vector vector)
-;; (define-extern process-drawable-pair-random-point! function) ;; (function process-drawable process-drawable vector float vector)
-;; (define-extern simple-prim-init-by-other function) ;; (function vector vector texture-id object :behavior simple-prim)
-;; (define-extern birth-func-simple-prim function) ;; (function int sparticle-cpuinfo sparticle-launchinfo none)
-;; (define-extern external-camera-controller-init-by-other function) ;; (function entity time-frame symbol object :behavior external-camera-controller)
+(define-extern *part-tracker-params-default* part-tracker-init-params) ;;
+(define-extern *part-tracker-subsampler-params-default* part-tracker-init-params) ;; jakx unifies the subsampler params into part-tracker-init-params
+(define-extern entity-lookup-part-group (function entity-actor (pointer string) symbol (pointer sparticle-launch-group)))
+(define-extern clone-anim-once (function handle symbol string none :behavior process-drawable))
+(define-extern clone-anim (function handle symbol string none :behavior process-drawable))
+(define-extern manipy-post (function none :behavior manipy))
+(define-extern manipy-init (function vector entity-actor skeleton-group vector manipy-options none :behavior manipy))
+(define-extern part-tracker-init-base (function part-tracker-init-params none :behavior part-tracker)) ;; jakx passes the unified params struct, not jak3's arg list
+(define-extern part-tracker-subsampler-init (function part-tracker-init-params object :behavior part-tracker-subsampler))
+(define-extern part-tracker-init (function part-tracker-init-params object :behavior part-tracker))
+(define-extern part-tracker-track-root (function sparticle-system sparticle-cpuinfo vector none))
+(define-extern lightning-tracker-init (function lightning-spec time-frame symbol process-drawable vector vector none :behavior lightning-tracker))
+(define-extern process-grab? (function process symbol symbol :behavior process))
+(define-extern process-release? (function process symbol :behavior process))
+(define-extern camera-look-at (function pair uint process))
+(define-extern ja-anim-done? (function process symbol))
+(define-extern camera-pov-from (function pair uint process))
+(define-extern touch-tracker-init (function vector float time-frame none :behavior touch-tracker))
+(define-extern process-drawable-random-point! (function process-drawable vector vector))
+(define-extern process-drawable-pair-random-point! (function process-drawable process-drawable vector float vector))
+(define-extern simple-prim-init-by-other (function vector vector texture-id object :behavior simple-prim))
+(define-extern birth-func-simple-prim (function int sparticle-cpuinfo sparticle-launchinfo none))
+(define-extern external-camera-controller-init-by-other (function entity time-frame symbol object :behavior external-camera-controller))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lightning                      ;;
@@ -41884,7 +41870,7 @@
   )
 |#
 
-;; (define-extern get-penetrate-using-from-attack-event function) ;; (function process-drawable event-message-block penetrate)
+(define-extern get-penetrate-using-from-attack-event (function process-drawable event-message-block penetrate))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; target-handler                 ;;
@@ -43233,10 +43219,9 @@
 ;; joint-exploder                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype joint-exploder-tuning (structure)
   ((explosion                   uint64         :offset-assert 0)
-   (duration                    uint64         :offset-assert 8) ;; time-frame
+   (duration                    time-frame     :offset-assert 8)
    (gravity                     float          :offset-assert 16)
    (rot-speed                   float          :offset-assert 20)
    (bounds-inflate              float          :offset-assert 24)
@@ -43248,21 +43233,22 @@
    (friction                    float          :offset-assert 48)
    (fountain-rand-transv-lo     vector :inline :offset-assert 64)
    (fountain-rand-transv-hi     vector :inline :offset-assert 80)
-   (away-from-focal-pt          vector :inline :offset-assert 64)
-   (away-from-rand-transv-xz-lo float          :offset-assert 80)
-   (away-from-rand-transv-xz-hi float          :offset-assert 84)
-   (away-from-rand-transv-y-lo  float          :offset-assert 88)
-   (away-from-rand-transv-y-hi  float          :offset-assert 92)
+   (away-from-focal-pt          vector :inline :offset 64)
+   (away-from-rand-transv-xz-lo float          :offset 80)
+   (away-from-rand-transv-xz-hi float          :offset 84)
+   (away-from-rand-transv-y-lo  float          :offset 88)
+   (away-from-rand-transv-y-hi  float          :offset 92)
    (hit-xz-reaction             float          :offset-assert 96)
    (hit-y-reaction              float          :offset-assert 100)
    )
   :method-count-assert 9
   :size-assert         #x68
   :flag-assert         #x900000068
+  (:methods
+    (new (symbol type uint) _type_) ;; 0
+    )
   )
-|#
 
-#|
 (deftype joint-exploder-static-joint-params (structure)
   ((joint-index        int16  :offset-assert 0)
    (parent-joint-index int16  :offset-assert 2)
@@ -43271,23 +43257,19 @@
   :size-assert         #x4
   :flag-assert         #x900000004
   )
-|#
 
-#|
 (deftype joint-exploder-static-params (basic)
   ((joints                 (array joint-exploder-static-joint-params)  :offset-assert 4) ;; guessed by decompiler
    (collide-spec           collide-spec                                :offset-assert 8) ;; guessed by decompiler
    (art-level              symbol                                      :offset-assert 12) ;; guessed by decompiler
    (collide-sound          uint16                                      :offset-assert 16) ;; sound-name
-   (collide-sound-interval uint64                                      :offset-assert 24) ;; time-frame
+   (collide-sound-interval time-frame                                  :offset-assert 24)
    )
   :method-count-assert 9
   :size-assert         #x20
   :flag-assert         #x900000020
   )
-|#
 
-#|
 (deftype joint-exploder-joint (structure)
   ((next        int16          :offset-assert 0)
    (prev        int16          :offset-assert 2)
@@ -43302,20 +43284,19 @@
   :size-assert         #xf0
   :flag-assert         #x9000000f0
   )
-|#
 
-#|
 (deftype joint-exploder-joints (basic)
-  ((num-joints int32                         :offset-assert 4)
-   (joint      joint-exploder-joint :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((num-joints int32                                 :offset-assert 4)
+   (joint      joint-exploder-joint :inline :dynamic :offset-assert 16)
    )
   :method-count-assert 9
   :size-assert         #x10
   :flag-assert         #x900000010
+  (:methods
+    (new (symbol type joint-exploder-static-params) _type_) ;; 0
+    )
   )
-|#
 
-#|
 (deftype joint-exploder-list (structure)
   ((head        int32                :offset-assert 0)
    (pre-moved?  symbol               :offset-assert 4) ;; guessed by decompiler
@@ -43327,23 +43308,18 @@
   :size-assert         #x30
   :flag-assert         #x900000030
   )
-|#
 
-#|
 (deftype joint-exploder-list-array (inline-array-class)
-  ((length           int32                        :offset-assert 4)
-   (allocated-length int32                        :offset-assert 8)
-   (data             joint-exploder-list :dynamic :offset-assert 16) ;; guessed by decompiler
+  ((data joint-exploder-list :inline :dynamic :offset 16)
    )
   :method-count-assert 14
   :size-assert         #x10
   :flag-assert         #xe00000010
   )
-|#
 
-#|
 (deftype joint-exploder (process-drawable)
-  ((die-if-below-y             float                                :offset-assert 248)
+  ((parent                     (pointer process-drawable)           :override)
+   (die-if-below-y             float                                :offset-assert 248)
    (die-if-beyond-xz-dist-sqrd float                                :offset-assert 252)
    (joints                     joint-exploder-joints                :offset-assert 256) ;; guessed by decompiler
    (static-params              joint-exploder-static-params         :offset-assert 260) ;; guessed by decompiler
@@ -43351,37 +43327,35 @@
    (scale-vector               vector                       :inline :offset-assert 272)
    (tuning                     joint-exploder-tuning        :inline :offset-assert 288)
    (lists                      joint-exploder-list-array            :offset-assert 392) ;; guessed by decompiler
-   (last-colsound-time         uint64                               :offset-assert 400) ;; time-frame
+   (last-colsound-time         time-frame                           :offset-assert 400)
    )
   :method-count-assert 60
   :size-assert         #x198
   :flag-assert         #x3c01100198
   (:methods
-    (joint-exploder-method-50 () none) ;; 50
-    (joint-exploder-method-51 () none) ;; 51
-    (joint-exploder-method-52 () none) ;; 52
-    (joint-exploder-method-53 () none) ;; 53
-    (joint-exploder-method-54 () none) ;; 54
-    (joint-exploder-method-55 () none) ;; 55
-    (joint-exploder-method-56 () none) ;; 56
-    (joint-exploder-method-57 () none) ;; 57
-    (joint-exploder-method-58 () none) ;; 58
-    (joint-exploder-method-59 () none) ;; 59
+    (add-joint-to-list (_type_ joint-exploder-list int) int) ;; 50, jak3 20
+    (update-bbox-for-joint (_type_ joint-exploder-list joint-exploder-joint) none) ;; 51, jak3 21
+    (do-collision-response (_type_ joint-exploder-list) none) ;; 52, jak3 22
+    (init-joint-list (_type_) none) ;; 53, jak3 23
+    (remove-from-list-and-reset (_type_ joint-exploder-list int) int) ;; 54, jak3 24
+    (final-adjust (_type_ joint-exploder-list int) int) ;; 55, jak3 25
+    (integrate-and-kill (_type_ joint-exploder-list) none) ;; 56, jak3 26
+    (remove-joint-from-list (_type_ joint-exploder-list int) int) ;; 57, jak3 27
+    (adjust-bbox-for-limits-along-axis (_type_ joint-exploder-list int) joint-exploder-list) ;; 58, jak3 28
+    (adjust-bbox-for-limits (_type_ joint-exploder-list) none) ;; 59, jak3 29
     )
   (:states
     joint-exploder-shatter ;; associated process guessed by decompiler, old: (state joint-exploder)
     )
   )
-|#
 
-;; (define-extern joint-exploder-joint-callback function) ;; (function draw-control cspace-array joint-control none)
-;; (define-extern joint-exploder-init-by-other function) ;; (function skeleton-group int joint-exploder-tuning joint-exploder-static-params object :behavior joint-exploder)
+(define-extern joint-exploder-joint-callback (function draw-control cspace-array joint-control none))
+(define-extern joint-exploder-init-by-other (function skeleton-group int joint-exploder-tuning joint-exploder-static-params object :behavior joint-exploder))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; debris                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype debris-static-joint-params (structure)
   ((parent-joint-index int16   :offset-assert 0)
    (group              string  :offset-assert 4) ;; guessed by decompiler
@@ -43392,9 +43366,7 @@
   :size-assert         #x10
   :flag-assert         #x900000010
   )
-|#
 
-#|
 (deftype debris-static-params (basic)
   ((joints            (array debris-static-joint-params)  :offset-assert 4) ;; guessed by decompiler
    (collide-spec      collide-spec                        :offset-assert 8) ;; guessed by decompiler
@@ -43412,9 +43384,7 @@
   :size-assert         #x2c
   :flag-assert         #x90000002c
   )
-|#
 
-#|
 (deftype debris (basic)
   ((root            transformq           :inline :offset-assert 16)
    (node-list       cspace-array                 :offset-assert 64) ;; guessed by decompiler
@@ -43427,16 +43397,14 @@
    (rot-axis        vector               :inline :offset-assert 128)
    (rot-angle       float                        :offset-assert 144)
    (transv          vector               :inline :offset-assert 160)
-   (time-fade-out   uint64                       :offset-assert 176) ;; time-frame
+   (time-fade-out   time-frame                   :offset-assert 176)
    (params          debris-static-params         :offset-assert 184) ;; guessed by decompiler
    )
   :method-count-assert 9
   :size-assert         #xbc
   :flag-assert         #x9000000bc
   )
-|#
 
-#|
 (deftype debris-box (structure)
   ((start uint32               :offset-assert 0)
    (num   uint32               :offset-assert 4)
@@ -43446,9 +43414,7 @@
   :size-assert         #x30
   :flag-assert         #x900000030
   )
-|#
 
-#|
 (deftype debris-group (process)
   ((had-first-hit   basic             :offset-assert 144)
    (dead-debris-num int32             :offset-assert 148)
@@ -43456,33 +43422,25 @@
    (next-play       int32             :offset-assert 156)
    (debris          (array debris)    :offset-assert 160) ;; guessed by decompiler
    (max-probe-width float             :offset-assert 164)
-   (state-time      uint64            :offset-assert 168) ;; time-frame
+   (state-time      time-frame        :offset-assert 168)
    (num-boxes       uint32            :offset-assert 176)
-   (boxes           debris-box     16 :offset-assert 192) ;; guessed by decompiler
+   (boxes           debris-box     16 :inline :offset-assert 192)
    )
   :method-count-assert 18
   :size-assert         #x3c0
   :flag-assert         #x12033003c0
-  (:methods
-    (debris-group-method-9 () none) ;; 9
-    (debris-group-method-10 () none) ;; 10
-    (debris-group-method-11 () none) ;; 11
-    (debris-group-method-12 () none) ;; 12
-    (debris-group-method-13 () none) ;; 13
-    (debris-group-method-14 () none) ;; 14 ;; (idle () _type_ :state)
-    (debris-group-method-16 () none) ;; 16 ;; (update-box! (_type_ int) none)
-    (debris-group-method-17 () none) ;; 17
-    )
   (:state-methods
-    idle ;; 15, old: (do-collision (_type_ int) none)
+    idle ;; 15
+    )
+  (:methods
+    (do-collision (_type_ int) none) ;; 16, jak3 15
+    (update-box! (_type_ int) none) ;; 17, jak3 16
     )
   )
-|#
 
-#|
 (deftype debris-tuning (structure)
   ((explosion                   uint64         :offset-assert 0)
-   (duration                    uint64         :offset-assert 8) ;; time-frame
+   (duration                    time-frame     :offset-assert 8)
    (gravity                     float          :offset-assert 16)
    (rot-speed                   float          :offset-assert 20)
    (bounds-inflate              float          :offset-assert 24)
@@ -43491,11 +43449,11 @@
    (max-probe-depth             float          :offset-assert 36)
    (fountain-rand-transv-lo     vector :inline :offset-assert 48)
    (fountain-rand-transv-hi     vector :inline :offset-assert 64)
-   (away-from-focal-pt          vector :inline :offset-assert 48)
-   (away-from-rand-transv-xz-lo float          :offset-assert 64)
-   (away-from-rand-transv-xz-hi float          :offset-assert 68)
-   (away-from-rand-transv-y-lo  float          :offset-assert 72)
-   (away-from-rand-transv-y-hi  float          :offset-assert 76)
+   (away-from-focal-pt          vector :inline :offset 48)
+   (away-from-rand-transv-xz-lo float          :offset 64)
+   (away-from-rand-transv-xz-hi float          :offset 68)
+   (away-from-rand-transv-y-lo  float          :offset 72)
+   (away-from-rand-transv-y-hi  float          :offset 76)
    (hit-xz-reaction             float          :offset-assert 80)
    (hit-y-reaction              float          :offset-assert 84)
    (scale-rand-lo               float          :offset-assert 88)
@@ -43504,11 +43462,13 @@
   :method-count-assert 9
   :size-assert         #x60
   :flag-assert         #x900000060
+  (:methods
+    (new (symbol type uint) _type_) ;; 0
+    )
   )
-|#
 
-;; (define-extern debris-group-init-by-other function) ;; (function debris-tuning debris-static-params process-drawable object :behavior debris-group)
-;; (define-extern debris-spawn function) ;; (function process-drawable debris-tuning debris-static-params process-drawable (pointer debris-group))
+(define-extern debris-group-init-by-other (function debris-tuning debris-static-params process-drawable object :behavior debris-group))
+(define-extern debris-spawn (function process-drawable debris-tuning debris-static-params process-drawable (pointer debris-group)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; net-process-mgr-h              ;;
@@ -47136,7 +47096,6 @@
 ;; net-simple-destruct-h          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype net-simple-destruct (process-focusable)
   ((hit-points         float          :offset-assert 256)
    (incoming-attack-id int32          :offset-assert 260)
@@ -47145,43 +47104,44 @@
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
+  (:state-methods
+    idle ;; 59, go'd from init-from-entity!
+    explode ;; 60, go'd from go-explode (69)
+    die ;; 61, code calls destroy! (66)
+    )
   (:methods
-    (net-simple-destruct-method-59 () none) ;; 59
-    (net-simple-destruct-method-60 () none) ;; 60
-    (net-simple-destruct-method-61 () none) ;; 61
-    (net-simple-destruct-method-62 () none) ;; 62
-    (net-simple-destruct-method-63 () none) ;; 63
+    (net-simple-destruct-method-62 (_type_ object attack-info) symbol) ;; 62 ;; attack gate: attacker must be nettable + mgr sync
+    (net-simple-destruct-method-63 (_type_ rigid-body-impact) object) ;; 63 ;; impact entry: calls impact-destroys? then routes by attacker
     (net-simple-destruct-method-64 () none) ;; 64
-    (net-simple-destruct-method-65 () none) ;; 65
-    (net-simple-destruct-method-66 () none) ;; 66
-    (net-simple-destruct-method-67 () none) ;; 67
-    (net-simple-destruct-method-68 () none) ;; 68
-    (net-simple-destruct-method-69 () none) ;; 69
+    (impact-destroys? (_type_ rigid-body-impact) symbol) ;; 65 ;; impulse * (method 57) threshold check; jungle props override
+    (destroy! (_type_) none) ;; 66 ;; the destruction method every jungle prop overrides and tail-calls
+    (net-simple-destruct-method-67 (_type_ object) none) ;; 67 ;; forwards (this, arg) to mgr method 45
+    (net-simple-destruct-method-68 (_type_ object) none) ;; 68 ;; hide + disable: clears mask bits, zeroes root, sets draw status bit
+    (go-explode (_type_) none) ;; 69 ;; go state 60 (explode) when this is set
     )
   )
-|#
 
-#|
 (deftype net-simple-destruct-mgr (process-nettable)
   ()
   :method-count-assert 48
   :size-assert         #xbc
   :flag-assert         #x30003000bc
+  (:state-methods
+    running ;; 42
+    )
   (:methods
-    (net-simple-destruct-mgr-method-42 () none) ;; 42
     (net-simple-destruct-mgr-method-43 () none) ;; 43
-    (net-simple-destruct-mgr-method-44 () none) ;; 44
-    (net-simple-destruct-mgr-method-45 () none) ;; 45
-    (net-simple-destruct-mgr-method-46 () none) ;; 46
-    (net-simple-destruct-mgr-method-47 () none) ;; 47
+    (net-simple-destruct-mgr-method-44 (_type_) none) ;; 44 ;; reset: zeroes *net-simple-destruct-ct*, then method 25/34 net setup
+    (net-simple-destruct-mgr-method-45 (_type_ process object) none) ;; 45 ;; records a destroyed destructible (called via nsd method 67)
+    (net-simple-destruct-mgr-method-46 (_type_ entity-actor int) int) ;; 46, reads 'respawn-delay from the entity res
+    (net-simple-destruct-mgr-method-47 (_type_) none) ;; 47
     )
   )
-|#
 
-;; (define-extern net-simple-destruct-mgr-init-remote function)
-;; (define-extern *msg-map-net-simple-destruct-mgr* array)
-;; (define-extern *net-process-class-info-net-simple-destruct-mgr* object)
-;; (define-extern *net-simple-destruct-mgr* object)
+(define-extern net-simple-destruct-mgr-init-remote (function int none :behavior process-nettable))
+(define-extern *msg-map-net-simple-destruct-mgr* (array symbol))
+(define-extern *net-process-class-info-net-simple-destruct-mgr* net-process-class-info)
+(define-extern *net-simple-destruct-mgr* net-simple-destruct-mgr)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; net-hud-h                      ;;
@@ -53143,7 +53103,7 @@
 ;; (define-extern init-spartacus-library function)
 ;; (define-extern *spartacus-file-path* object)
 ;; (define-extern spartacus-editor-init function)
-;; (define-extern *spartacus-editor* object)
+(define-extern *spartacus-editor* object)
 ;; (define-extern spartacus-start function)
 ;; (define-extern spartacus-stop function)
 
@@ -53882,15 +53842,15 @@
 ;; net-simple-destruct            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *net-simple-destruct-ct* object)
-;; (define-extern *net-simple-destruct-indices* object)
-;; (define-extern *tmp-was-allocated* object)
-;; (define-extern *destruct-powerup-names* array)
-;; (define-extern get-destruct-perm function)
-;; (define-extern count-powerups function)
-;; (define-extern rand-spawn-pickup function)
-;; (define-extern spawn-pickups-from-destructible function)
-;; (define-extern init-local-net-simple-destruct-mgr function)
+(define-extern *net-simple-destruct-ct* int)
+(define-extern *net-simple-destruct-indices* (pointer int16))
+(define-extern *tmp-was-allocated* symbol)
+(define-extern *destruct-powerup-names* (array string))
+(define-extern get-destruct-perm (function uint entity-more-perm))
+(define-extern count-powerups (function process int))
+(define-extern rand-spawn-pickup (function process string vector float float float none))
+(define-extern spawn-pickups-from-destructible (function process-drawable float none))
+(define-extern init-local-net-simple-destruct-mgr (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; net-enemy                      ;;
@@ -61483,25 +61443,20 @@
 ;; jungle-obs                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype jungle-clay-jar-a (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-#|
 (deftype jungle-clay-jar-b (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-#|
 (deftype flaming-arrow (process-drawable)
   ((flame-sound basic  :offset-assert 248)
    )
@@ -61512,9 +61467,7 @@
     idle ;; 50
     )
   )
-|#
 
-#|
 (deftype jungle-stone-snake-head-proxy (process-focusable)
   ((actor-group       uint32         :offset-assert 256)
    (actor-group-count int32          :offset-assert 260)
@@ -61526,20 +61479,18 @@
   :method-count-assert 65
   :size-assert         #x130
   :flag-assert         #x4100a00130
+  (:state-methods
+    idle ;; 59
+    explode ;; 60
+    )
   (:methods
     (jungle-stone-snake-head-proxy-method-61 () none) ;; 61
     (jungle-stone-snake-head-proxy-method-62 () none) ;; 62
     (jungle-stone-snake-head-proxy-method-63 () none) ;; 63
     (jungle-stone-snake-head-proxy-method-64 () none) ;; 64
     )
-  (:state-methods
-    idle ;; 59
-    explode ;; 60
-    )
   )
-|#
 
-#|
 (deftype jungle-stone-snake-head-draw (jungle-stone-snake-head-proxy)
   ((waterfall-part uint64  :offset-assert 304)
    )
@@ -61551,9 +61502,7 @@
     explode ;; 60
     )
   )
-|#
 
-#|
 (deftype jungle-stone-snake-head (process-nettable)
   ((exploded basic   :offset-assert 188)
    (drawable uint64  :offset-assert 192)
@@ -61561,65 +61510,56 @@
   :method-count-assert 46
   :size-assert         #xc8
   :flag-assert         #x2e004000c8
+  (:state-methods
+    idle ;; 42
+    )
   (:methods
     (jungle-stone-snake-head-method-43 () none) ;; 43
     (jungle-stone-snake-head-method-44 () none) ;; 44
     (jungle-stone-snake-head-method-45 () none) ;; 45
     )
-  (:state-methods
-    idle ;; 42
-    )
   )
-|#
 
-#|
 (deftype jungle-tree-root-large-a (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-#|
 (deftype jungle-tree-root-large-b (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-#|
 (deftype jungle-statue-small-outdoors (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-#|
 (deftype jungle-statue-small-indoors (net-simple-destruct)
   ()
   :method-count-assert 70
   :size-assert         #x120
   :flag-assert         #x4600900120
   )
-|#
 
-;; (define-extern *jungle-clay-jar-a-debris-params* debris-static-params)
-;; (define-extern *jungle-clay-jar-b-debris-params* debris-static-params)
-;; (define-extern spawn-flame function)
-;; (define-extern jungle-stone-snake-head-draw-init-by-other function)
-;; (define-extern jungle-stone-snake-head-init-remote function)
-;; (define-extern *msg-map-jungle-stone-snake-head* array)
-;; (define-extern *net-process-class-info-jungle-stone-snake-head* object)
-;; (define-extern *jungle-stone-snake-head-explode-params* joint-exploder-static-params)
-;; (define-extern *jungle-tree-root-large-a-debris-params* debris-static-params)
-;; (define-extern *jungle-tree-root-large-b-debris-params* debris-static-params)
-;; (define-extern *jungle-statue-small-outdoors-debris-params* debris-static-params)
-;; (define-extern *jungle-statue-small-indoors-debris-params* debris-static-params)
+(define-extern *jungle-clay-jar-a-debris-params* debris-static-params)
+(define-extern *jungle-clay-jar-b-debris-params* debris-static-params)
+(define-extern spawn-flame (function none :behavior flaming-arrow))
+(define-extern jungle-stone-snake-head-draw-init-by-other function)
+(define-extern jungle-stone-snake-head-init-remote function)
+(define-extern *msg-map-jungle-stone-snake-head* (array symbol))
+(define-extern *net-process-class-info-jungle-stone-snake-head* net-process-class-info)
+(define-extern *jungle-stone-snake-head-explode-params* joint-exploder-static-params)
+(define-extern *jungle-tree-root-large-a-debris-params* debris-static-params)
+(define-extern *jungle-tree-root-large-b-debris-params* debris-static-params)
+(define-extern *jungle-statue-small-outdoors-debris-params* debris-static-params)
+(define-extern *jungle-statue-small-indoors-debris-params* debris-static-params)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jungle-effects                 ;;

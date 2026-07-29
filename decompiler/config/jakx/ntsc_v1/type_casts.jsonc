@@ -1432,5 +1432,214 @@
   "(method 60 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
   "(method 61 ocean)": [[[3, 250], "gp", "(inline-array ocean-vertex)"]],
   "(method 62 ocean)": [[[3, 190], "s3", "(inline-array ocean-vertex)"]],
-  "(method 63 ocean)": [[[237, 244], "s3", "dma-packet"]]
+  "(method 63 ocean)": [[[237, 244], "s3", "dma-packet"]],
+  // debris (jak3 entry, same op range)
+  "(method 0 debris-tuning)": [[[7, 84], "v0", "debris-tuning"]],
+  // joint-exploder (jak3 entries; joint-exploder methods sit +30 vs jak3, and the
+  // tuning new has one extra store vs jak3's [7, 82] from the added duration field)
+  "(method 0 joint-exploder-tuning)": [
+    [[7, 86], "v0", "joint-exploder-tuning"]
+  ],
+  "joint-exploder-joint-callback": [
+    [3, "s4", "joint-exploder"],
+    [24, "s4", "joint-exploder"]
+  ],
+  "(method 58 joint-exploder)": [[222, "s4", "joint-exploder-list"]],
+  // generic-obs (jak3 entries, op indices adjusted to the jakx asm where they differ)
+  "clone-anim-once": [
+    [22, "gp", "process-drawable"],
+    [31, "gp", "process-drawable"],
+    [50, "gp", "process-drawable"],
+    [48, "a0", "collide-shape"],
+    [57, "gp", "process-drawable"],
+    [64, "gp", "process-drawable"],
+    [68, "gp", "process-drawable"],
+    [107, "v1", "manipy"],
+    [52, "a0", "collide-shape"]
+  ],
+  "birth-func-simple-prim": [
+    [28, "a0", "simple-prim-particle-binding"],
+    [25, "t0", "texture-id"],
+    [33, "a0", "simple-prim-particle-binding"]
+  ],
+  "process-drawable-random-point!": [
+    [29, "s4", "collide-shape"],
+    [33, "s4", "collide-shape"]
+  ],
+  "camera-pov-from": [
+    [14, "gp", "process-drawable"],
+    [17, "gp", "process-drawable"],
+    [24, "v0", "joint"]
+  ],
+  "ja-anim-done?": [[35, "gp", "process-drawable"]],
+  "process-release?": [[18, "a0", "process-focusable"]],
+  "part-tracker-track-root": [[3, "v1", "part-tracker"]],
+  "entity-lookup-part-group": [
+    [51, "s4", "(pointer sparticle-launch-group)"],
+    [56, "s4", "(pointer sparticle-launch-group)"],
+    [70, "s4", "(pointer sparticle-launch-group)"]
+  ],
+  "manipy-init": [
+    [142, "a0", "collide-shape"],
+    [143, "a0", "collide-shape"],
+    [207, "v0", "joint"],
+    [232, "v0", "joint"]
+  ],
+  "part-tracker-init-base": [
+    [69, "a0", "matrix"],
+    [[79, 83], "a3", "matrix"]
+  ],
+  "part-tracker-init": [
+    [62, "s4", "particle-local-space-info"],
+    [64, "s4", "particle-local-space-info"],
+    [67, "s4", "particle-local-space-info"],
+    [77, "s4", "particle-local-space-info"]
+  ],
+  "(method 11 part-spawner)": [
+    [[199, 231], "s4", "(pointer degrees)"],
+    [182, "v1", "vector"]
+  ],
+  "(code idle manipy)": [
+    [[183, 190], "gp", "handle"],
+    [61, "a1", "process-drawable"],
+    [82, "gp", "process-drawable"],
+    [88, "gp", "process-drawable"],
+    [131, "a0", "process-drawable"],
+    [193, "a0", "process-drawable"],
+    [164, "a0", "process"]
+  ],
+  "(trans idle manipy)": [
+    [62, "v1", "process-drawable"],
+    [69, "a0", "collide-shape"],
+    [70, "a0", "collide-shape"]
+  ],
+  "(event idle manipy)": [
+    [45, "v0", "joint"],
+    [227, "v1", "process-drawable"],
+    [354, "v1", "vector"],
+    [362, "v1", "vector"],
+    [396, "t9", "(function manipy none)"],
+    [401, "t9", "(function manipy none)"],
+    [479, "a0", "process"],
+    [502, "v1", "process-drawable"],
+    [511, "a0", "process-drawable"],
+    [539, "v1", "vector"],
+    [547, "v1", "vector"],
+    [202, "v1", "float"],
+    [128, "v1", "float"],
+    [131, "v1", "float"],
+    [134, "v1", "float"],
+    [145, "v1", "float"],
+    [160, "v1", "float"],
+    [163, "v1", "float"],
+    [166, "v1", "float"],
+    [169, "v1", "float"],
+    [184, "v1", "float"],
+    [187, "v1", "float"],
+    [190, "v1", "float"],
+    [193, "v1", "float"],
+    [231, "v1", "process-drawable"],
+    [359, "v1", "vector"],
+    [367, "v1", "vector"],
+    [484, "a0", "process"],
+    [507, "v1", "process-drawable"],
+    [516, "a0", "process-drawable"],
+    [534, "a0", "collide-shape"],
+    [535, "a0", "collide-shape"],
+    [544, "v1", "vector"],
+    [552, "v1", "vector"],
+    [560, "v1", "vector"],
+    [407, "v1", "float"],
+    [436, "v1", "float"],
+    [471, "v1", "float"],
+    [703, "a0", "float"]
+  ],
+  "(trans linger part-tracker)": [
+    [37, "v1", "process-drawable"],
+    [41, "v1", "process-drawable"],
+    [50, "v1", "process-drawable"],
+    [54, "s5", "process-drawable"],
+    [57, "v1", "process-drawable"],
+    [62, "v1", "process-drawable"]
+  ],
+  "(trans active part-tracker)": [
+    [38, "s5", "process-drawable"],
+    [41, "gp", "process-drawable"],
+    [41, "v1", "process-drawable"],
+    [45, "v1", "process-drawable"],
+    [54, "v1", "process-drawable"]
+  ],
+  "(trans active part-tracker-subsampler)": [
+    [38, "s5", "process-drawable"],
+    [41, "gp", "process-drawable"],
+    [41, "v1", "process-drawable"],
+    [45, "v1", "process-drawable"],
+    [51, "v1", "process-drawable"]
+  ],
+  "(event active part-tracker)": [
+    [9, "v1", "process"],
+    [13, "a0", "process"],
+    [16, "v1", "process"],
+    [31, "v1", "vector"]
+  ],
+  "(event active part-spawner)": [[25, "v1", "vector"]],
+  "(trans active part-controller)": [[46, "v1", "entity-actor"]],
+  "(trans active sound-on-path)": [[14, "v1", "process-drawable"]],
+  "(exit active lightning-tracker)": [[4, "v0", "sound-rpc-set-param"]],
+  "(code active lightning-tracker)": [[67, "s4", "process-drawable"]],
+  "(code active touch-tracker)": [
+    [65, "v1", "collide-shape"],
+    [22, "a0", "process-drawable"],
+    [31, "v1", "collide-shape"],
+    [32, "a0", "collide-shape"],
+    [43, "a0", "collide-shape"],
+    [55, "a0", "collide-shape"],
+    [26, "a0", "collide-shape"],
+    [45, "a0", "collide-shape"],
+    [57, "a0", "collide-shape"]
+  ],
+  "(event active touch-tracker)": [
+    [71, "a0", "process"],
+    [98, "t9", "(function touch-tracker object)"]
+  ],
+  "(method 11 simple-prim)": [[31, "v1", "vector"]],
+  "(method 17 lightning-tracker)": [
+    [53, "a0", "process-drawable"],
+    [66, "a0", "process-focusable"],
+    [67, "a0", "process-focusable"],
+    [69, "a0", "process-focusable"],
+    [82, "a0", "process-focusable"],
+    [141, "a0", "process-drawable"],
+    [154, "a0", "process-focusable"],
+    [174, "a0", "process-drawable"]
+  ],
+  // net-simple-destruct
+  "count-powerups": [["_stack_", 32, "res-tag"]],
+  "rand-spawn-pickup": [
+    ["_stack_", 16, "res-tag"],
+    [29, "v1", "float"],
+    [49, "v1", "float"],
+    [59, "v1", "vector"]
+  ],
+  "(method 46 net-simple-destruct-mgr)": [["_stack_", 16, "res-tag"]],
+  "(method 17 net-simple-destruct-mgr)": [
+    [[29, 40], "a1", "entity-actor"],
+    [39, "a0", "net-simple-destruct"],
+    [47, "a1", "entity-actor"],
+    [51, "t9", "(function object none)"]
+  ],
+  "(method 62 net-simple-destruct)": [[24, "a0", "process-nettable"]],
+  "(method 63 net-simple-destruct)": [[16, "a0", "process-nettable"]],
+  "(event idle net-simple-destruct)": [
+    [13, "gp", "rigid-body-impact"],
+    [49, "s4", "attack-info"],
+    [51, "s4", "attack-info"]
+  ],
+  "(code running net-simple-destruct-mgr)": [
+    [16, "a1", "int"],
+    [20, "a1", "int"],
+    [44, "a1", "int"],
+    [53, "a2", "entity-actor"],
+    [57, "a0", "entity-actor"]
+  ]
 }

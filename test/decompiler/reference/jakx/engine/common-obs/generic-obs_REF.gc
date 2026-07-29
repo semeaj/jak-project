@@ -1,41 +1,17 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: generic-obs.gc
-;; name in dgo: generic-obs
-;; dgos: ENGINE, GAME
-
-;; the debug actor editor (spartacus-editor.o) is not landed; its global is only
-;; ever read behind *debug-segment* / nonzero? gates here.
-(define-extern *spartacus-editor* object)
-
-;; defined in entity.gc, which builds after this file
-(define-extern process-entity-status! (function process entity-perm-status symbol entity-perm-status))
-(define-extern process-entity-set! (function process entity entity))
-(define-extern process-drawable-from-entity! (function process-drawable entity-actor none))
-
-;; defined in collide-shape.gc, which is still a stub (jak3's generic-obs carries the same extern)
-(define-extern cshape-reaction-default (function control-info collide-query vector vector collide-status))
-
-(define-extern make-sound-instance (function object int symbol sound-instance)) ;; gsound.gc, commented there; linked at runtime
-
-;; DECOMP BEGINS
-
-;; og:preserve-this bring-up state: parked processes sleep here instead of dying.
-;; Going empty-state (whose code returns) deactivates the process, the entity
-;; loses it, and the actor birth loop re-births it every frame; marking the perm
-;; dead instead trips the kill path. A live sleeping process is the quiet option.
-;; Delete together with the park guards when the part-group legs land.
-(defstate bring-up-parked (process)
-  :code sleep-code
-  )
-
+;; definition for symbol *part-tracker-params-default*, type part-tracker-init-params
 (define *part-tracker-params-default* (new 'static 'part-tracker-init-params))
 
+;; definition for symbol *part-tracker-subsampler-params-default*, type part-tracker-init-params
 (define *part-tracker-subsampler-params-default* (new 'static 'part-tracker-init-params))
 
+;; failed to figure out what this is:
 (defskelgroup skel-spotlight spotlight -1 -1 ((-1 (meters 999999))) :bounds (static-spherem 0 0 0 10))
 
+;; definition for function entity-lookup-part-group
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch object vs (pointer sparticle-launch-group).
 (defun entity-lookup-part-group ((arg0 entity-actor) (arg1 (pointer string)) (arg2 symbol))
   (with-pp
@@ -60,17 +36,7 @@
                      )
                  (not s4-0)
                  )
-            (begin
-              ;; og:preserve-this bring-up guard: retail goes process-drawable-art-error here,
-              ;; but jakx part-spawner / part-tracker are plain process children (root at 144)
-              ;; while art-error's enter reads process-drawable offsets (root at 188) -- on
-              ;; these types that lands in unrelated float bits and segfaults the PC runtime.
-              ;; Until the per-level defpart data lands, a missing part group is expected, so
-              ;; park in bring-up-parked (see its doc block above for why neither empty-state
-              ;; nor a dead perm works). Restore the retail go once the part-group legs land.
-              (format 0 "WARNING: ~A: part group lookup failed, parking (bring-up)~%" arg0)
-              (go bring-up-parked)
-              )
+            (go process-drawable-art-error (the-as string #f))
             )
         (let ((s3-1 (-> (the-as (pointer sparticle-launch-group) s4-0) 0)))
           (cond
@@ -87,9 +53,7 @@
                  )
              )
             (else
-              ;; og:preserve-this bring-up guard: same art-error layout hazard as above
-              (format 0 "WARNING: ~A: bad part group entry, parking (bring-up)~%" arg0)
-              (go bring-up-parked)
+              (go process-drawable-art-error (the-as string s3-1))
               )
             )
           )
@@ -99,6 +63,8 @@
     )
   )
 
+;; definition for function clone-anim-once
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defbehavior clone-anim-once process-drawable ((arg0 handle) (arg1 symbol) (arg2 string))
   (logclear! (-> self skel status) (joint-control-status valid-spooled-frame))
@@ -166,6 +132,7 @@
   (none)
   )
 
+;; definition for function clone-anim
 ;; WARN: Return type mismatch int vs none.
 (defbehavior clone-anim process-drawable ((arg0 handle) (arg1 symbol) (arg2 string))
   (ja-post)
@@ -178,29 +145,434 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate die (process-hidden)
   :virtual #t
   :code nothing
   )
 
+;; definition for method 11 of type process-hidden
 (defmethod init-from-entity! ((this process-hidden) (arg0 entity-actor))
   "Copy defaults from the entity."
   (process-entity-status! this (entity-perm-status dead) #t)
   (go (method-of-object this die))
   )
 
+;; definition of type target-start
 (deftype target-start (process-hidden)
   ()
   )
 
+;; definition for method 3 of type target-start
+(defmethod inspect ((this target-start))
+  (when (not this)
+    (set! this this)
+    (goto cfg-62)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tname: ~A~%" (-> this name))
+  (format #t "~1Tmask: #x~X : (process-mask " (-> this mask))
+  (let ((s5-0 (-> this mask)))
+    (if (= (logand s5-0 (process-mask process-tree)) (process-mask process-tree))
+        (format #t "process-tree ")
+        )
+    (if (= (logand (process-mask network) s5-0) (process-mask network))
+        (format #t "network ")
+        )
+    (if (= (logand s5-0 (process-mask target)) (process-mask target))
+        (format #t "target ")
+        )
+    (if (= (logand (process-mask collectable) s5-0) (process-mask collectable))
+        (format #t "collectable ")
+        )
+    (if (= (logand (process-mask projectile) s5-0) (process-mask projectile))
+        (format #t "projectile ")
+        )
+    (if (= (logand s5-0 (process-mask sleep-code)) (process-mask sleep-code))
+        (format #t "sleep-code ")
+        )
+    (if (= (logand s5-0 (process-mask actor-pause)) (process-mask actor-pause))
+        (format #t "actor-pause ")
+        )
+    (if (= (logand (process-mask bot) s5-0) (process-mask bot))
+        (format #t "bot ")
+        )
+    (if (= (logand (process-mask vehicle) s5-0) (process-mask vehicle))
+        (format #t "vehicle ")
+        )
+    (if (= (logand (process-mask enemy) s5-0) (process-mask enemy))
+        (format #t "enemy ")
+        )
+    (if (= (logand (process-mask entity) s5-0) (process-mask entity))
+        (format #t "entity ")
+        )
+    (if (= (logand s5-0 (process-mask heap-shrunk)) (process-mask heap-shrunk))
+        (format #t "heap-shrunk ")
+        )
+    (if (= (logand (process-mask sidekick) s5-0) (process-mask sidekick))
+        (format #t "sidekick ")
+        )
+    (if (= (logand s5-0 (process-mask going)) (process-mask going))
+        (format #t "going ")
+        )
+    (if (= (logand s5-0 (process-mask execute)) (process-mask execute))
+        (format #t "execute ")
+        )
+    (if (= (logand (process-mask death) s5-0) (process-mask death))
+        (format #t "death ")
+        )
+    (if (= (logand s5-0 (process-mask no-kill)) (process-mask no-kill))
+        (format #t "no-kill ")
+        )
+    (if (= (logand (process-mask platform) s5-0) (process-mask platform))
+        (format #t "platform ")
+        )
+    (if (= (logand s5-0 (process-mask freeze)) (process-mask freeze))
+        (format #t "freeze ")
+        )
+    (if (= (logand s5-0 (process-mask sleep)) (process-mask sleep))
+        (format #t "sleep ")
+        )
+    (if (= (logand s5-0 (process-mask progress)) (process-mask progress))
+        (format #t "progress ")
+        )
+    (if (= (logand s5-0 (process-mask menu)) (process-mask menu))
+        (format #t "menu ")
+        )
+    (if (= (logand (process-mask camera) s5-0) (process-mask camera))
+        (format #t "camera ")
+        )
+    (if (= (logand (process-mask ambient) s5-0) (process-mask ambient))
+        (format #t "ambient ")
+        )
+    (if (= (logand s5-0 (process-mask dark-effect)) (process-mask dark-effect))
+        (format #t "dark-effect ")
+        )
+    (if (= (logand (process-mask crate) s5-0) (process-mask crate))
+        (format #t "crate ")
+        )
+    (if (= (logand s5-0 (process-mask kernel-run)) (process-mask kernel-run))
+        (format #t "kernel-run ")
+        )
+    (if (= (logand s5-0 (process-mask movie)) (process-mask movie))
+        (format #t "movie ")
+        )
+    (if (= (logand s5-0 (process-mask pause)) (process-mask pause))
+        (format #t "pause ")
+        )
+    )
+  (format #t ")~%")
+  (format #t "~1Tclock: ~A~%" (-> this clock))
+  (format #t "~1Tview: ~A~%" (-> this view))
+  (format #t "~1Tparent: #x~X~%" (-> this parent))
+  (format #t "~1Tbrother: #x~X~%" (-> this brother))
+  (format #t "~1Tchild: #x~X~%" (-> this child))
+  (format #t "~1Tppointer: #x~X~%" (-> this ppointer))
+  (format #t "~1Tself: ~A~%" (-> this self))
+  (format #t "~1Tprofile-ticks: ~D~%" (-> this profile-ticks))
+  (format #t "~1Tpool: ~A~%" (-> this pool))
+  (format #t "~1Tstatus: ~A~%" (-> this status))
+  (format #t "~1Tpid: ~D~%" (-> this pid))
+  (format #t "~1Tmain-thread: ~A~%" (-> this main-thread))
+  (format #t "~1Ttop-thread: ~A~%" (-> this top-thread))
+  (format #t "~1Tentity: ~A~%" (-> this entity))
+  (format #t "~1Tlevel: ~A~%" (-> this level))
+  (format #t "~1Tstate: ~A~%" (-> this state))
+  (format #t "~1Tprev-state: ~A~%" (-> this prev-state))
+  (format #t "~1Tnext-state: ~A~%" (-> this next-state))
+  (format #t "~1Tstate-stack: ~A~%" (-> this state-stack))
+  (format #t "~1Ttrans-hook: ~A~%" (-> this trans-hook))
+  (format #t "~1Tpost-hook: ~A~%" (-> this post-hook))
+  (format #t "~1Tevent-hook: ~A~%" (-> this event-hook))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Theap-base: #x~X~%" (-> this heap-base))
+  (format #t "~1Theap-top: #x~X~%" (-> this heap-top))
+  (format #t "~1Theap-cur: #x~X~%" (-> this heap-cur))
+  (format #t "~1Tstack-frame-top: ~A~%" (-> this stack-frame-top))
+  (format #t "~1Theap: #<kheap @ #x~X>~%" (&-> this heap-base))
+  (format #t "~1Tconnection-list: ~`connectable`P~%" (-> this connection-list))
+  (format #t "~1Tstack[0] @ #x~X~%" (-> this stack))
+  (label cfg-62)
+  this
+  )
+
+;; definition of type camera-start
 (deftype camera-start (process-hidden)
   ()
   )
 
+;; definition for method 3 of type camera-start
+(defmethod inspect ((this camera-start))
+  (when (not this)
+    (set! this this)
+    (goto cfg-62)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tname: ~A~%" (-> this name))
+  (format #t "~1Tmask: #x~X : (process-mask " (-> this mask))
+  (let ((s5-0 (-> this mask)))
+    (if (= (logand s5-0 (process-mask process-tree)) (process-mask process-tree))
+        (format #t "process-tree ")
+        )
+    (if (= (logand (process-mask network) s5-0) (process-mask network))
+        (format #t "network ")
+        )
+    (if (= (logand s5-0 (process-mask target)) (process-mask target))
+        (format #t "target ")
+        )
+    (if (= (logand (process-mask collectable) s5-0) (process-mask collectable))
+        (format #t "collectable ")
+        )
+    (if (= (logand (process-mask projectile) s5-0) (process-mask projectile))
+        (format #t "projectile ")
+        )
+    (if (= (logand s5-0 (process-mask sleep-code)) (process-mask sleep-code))
+        (format #t "sleep-code ")
+        )
+    (if (= (logand s5-0 (process-mask actor-pause)) (process-mask actor-pause))
+        (format #t "actor-pause ")
+        )
+    (if (= (logand (process-mask bot) s5-0) (process-mask bot))
+        (format #t "bot ")
+        )
+    (if (= (logand (process-mask vehicle) s5-0) (process-mask vehicle))
+        (format #t "vehicle ")
+        )
+    (if (= (logand (process-mask enemy) s5-0) (process-mask enemy))
+        (format #t "enemy ")
+        )
+    (if (= (logand (process-mask entity) s5-0) (process-mask entity))
+        (format #t "entity ")
+        )
+    (if (= (logand s5-0 (process-mask heap-shrunk)) (process-mask heap-shrunk))
+        (format #t "heap-shrunk ")
+        )
+    (if (= (logand (process-mask sidekick) s5-0) (process-mask sidekick))
+        (format #t "sidekick ")
+        )
+    (if (= (logand s5-0 (process-mask going)) (process-mask going))
+        (format #t "going ")
+        )
+    (if (= (logand s5-0 (process-mask execute)) (process-mask execute))
+        (format #t "execute ")
+        )
+    (if (= (logand (process-mask death) s5-0) (process-mask death))
+        (format #t "death ")
+        )
+    (if (= (logand s5-0 (process-mask no-kill)) (process-mask no-kill))
+        (format #t "no-kill ")
+        )
+    (if (= (logand (process-mask platform) s5-0) (process-mask platform))
+        (format #t "platform ")
+        )
+    (if (= (logand s5-0 (process-mask freeze)) (process-mask freeze))
+        (format #t "freeze ")
+        )
+    (if (= (logand s5-0 (process-mask sleep)) (process-mask sleep))
+        (format #t "sleep ")
+        )
+    (if (= (logand s5-0 (process-mask progress)) (process-mask progress))
+        (format #t "progress ")
+        )
+    (if (= (logand s5-0 (process-mask menu)) (process-mask menu))
+        (format #t "menu ")
+        )
+    (if (= (logand (process-mask camera) s5-0) (process-mask camera))
+        (format #t "camera ")
+        )
+    (if (= (logand (process-mask ambient) s5-0) (process-mask ambient))
+        (format #t "ambient ")
+        )
+    (if (= (logand s5-0 (process-mask dark-effect)) (process-mask dark-effect))
+        (format #t "dark-effect ")
+        )
+    (if (= (logand (process-mask crate) s5-0) (process-mask crate))
+        (format #t "crate ")
+        )
+    (if (= (logand s5-0 (process-mask kernel-run)) (process-mask kernel-run))
+        (format #t "kernel-run ")
+        )
+    (if (= (logand s5-0 (process-mask movie)) (process-mask movie))
+        (format #t "movie ")
+        )
+    (if (= (logand s5-0 (process-mask pause)) (process-mask pause))
+        (format #t "pause ")
+        )
+    )
+  (format #t ")~%")
+  (format #t "~1Tclock: ~A~%" (-> this clock))
+  (format #t "~1Tview: ~A~%" (-> this view))
+  (format #t "~1Tparent: #x~X~%" (-> this parent))
+  (format #t "~1Tbrother: #x~X~%" (-> this brother))
+  (format #t "~1Tchild: #x~X~%" (-> this child))
+  (format #t "~1Tppointer: #x~X~%" (-> this ppointer))
+  (format #t "~1Tself: ~A~%" (-> this self))
+  (format #t "~1Tprofile-ticks: ~D~%" (-> this profile-ticks))
+  (format #t "~1Tpool: ~A~%" (-> this pool))
+  (format #t "~1Tstatus: ~A~%" (-> this status))
+  (format #t "~1Tpid: ~D~%" (-> this pid))
+  (format #t "~1Tmain-thread: ~A~%" (-> this main-thread))
+  (format #t "~1Ttop-thread: ~A~%" (-> this top-thread))
+  (format #t "~1Tentity: ~A~%" (-> this entity))
+  (format #t "~1Tlevel: ~A~%" (-> this level))
+  (format #t "~1Tstate: ~A~%" (-> this state))
+  (format #t "~1Tprev-state: ~A~%" (-> this prev-state))
+  (format #t "~1Tnext-state: ~A~%" (-> this next-state))
+  (format #t "~1Tstate-stack: ~A~%" (-> this state-stack))
+  (format #t "~1Ttrans-hook: ~A~%" (-> this trans-hook))
+  (format #t "~1Tpost-hook: ~A~%" (-> this post-hook))
+  (format #t "~1Tevent-hook: ~A~%" (-> this event-hook))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Theap-base: #x~X~%" (-> this heap-base))
+  (format #t "~1Theap-top: #x~X~%" (-> this heap-top))
+  (format #t "~1Theap-cur: #x~X~%" (-> this heap-cur))
+  (format #t "~1Tstack-frame-top: ~A~%" (-> this stack-frame-top))
+  (format #t "~1Theap: #<kheap @ #x~X>~%" (&-> this heap-base))
+  (format #t "~1Tconnection-list: ~`connectable`P~%" (-> this connection-list))
+  (format #t "~1Tstack[0] @ #x~X~%" (-> this stack))
+  (label cfg-62)
+  this
+  )
+
+;; definition of type cam-slope
 (deftype cam-slope (process-hidden)
   ()
   )
 
+;; definition for method 3 of type cam-slope
+(defmethod inspect ((this cam-slope))
+  (when (not this)
+    (set! this this)
+    (goto cfg-62)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tname: ~A~%" (-> this name))
+  (format #t "~1Tmask: #x~X : (process-mask " (-> this mask))
+  (let ((s5-0 (-> this mask)))
+    (if (= (logand s5-0 (process-mask process-tree)) (process-mask process-tree))
+        (format #t "process-tree ")
+        )
+    (if (= (logand (process-mask network) s5-0) (process-mask network))
+        (format #t "network ")
+        )
+    (if (= (logand s5-0 (process-mask target)) (process-mask target))
+        (format #t "target ")
+        )
+    (if (= (logand (process-mask collectable) s5-0) (process-mask collectable))
+        (format #t "collectable ")
+        )
+    (if (= (logand (process-mask projectile) s5-0) (process-mask projectile))
+        (format #t "projectile ")
+        )
+    (if (= (logand s5-0 (process-mask sleep-code)) (process-mask sleep-code))
+        (format #t "sleep-code ")
+        )
+    (if (= (logand s5-0 (process-mask actor-pause)) (process-mask actor-pause))
+        (format #t "actor-pause ")
+        )
+    (if (= (logand (process-mask bot) s5-0) (process-mask bot))
+        (format #t "bot ")
+        )
+    (if (= (logand (process-mask vehicle) s5-0) (process-mask vehicle))
+        (format #t "vehicle ")
+        )
+    (if (= (logand (process-mask enemy) s5-0) (process-mask enemy))
+        (format #t "enemy ")
+        )
+    (if (= (logand (process-mask entity) s5-0) (process-mask entity))
+        (format #t "entity ")
+        )
+    (if (= (logand s5-0 (process-mask heap-shrunk)) (process-mask heap-shrunk))
+        (format #t "heap-shrunk ")
+        )
+    (if (= (logand (process-mask sidekick) s5-0) (process-mask sidekick))
+        (format #t "sidekick ")
+        )
+    (if (= (logand s5-0 (process-mask going)) (process-mask going))
+        (format #t "going ")
+        )
+    (if (= (logand s5-0 (process-mask execute)) (process-mask execute))
+        (format #t "execute ")
+        )
+    (if (= (logand (process-mask death) s5-0) (process-mask death))
+        (format #t "death ")
+        )
+    (if (= (logand s5-0 (process-mask no-kill)) (process-mask no-kill))
+        (format #t "no-kill ")
+        )
+    (if (= (logand (process-mask platform) s5-0) (process-mask platform))
+        (format #t "platform ")
+        )
+    (if (= (logand s5-0 (process-mask freeze)) (process-mask freeze))
+        (format #t "freeze ")
+        )
+    (if (= (logand s5-0 (process-mask sleep)) (process-mask sleep))
+        (format #t "sleep ")
+        )
+    (if (= (logand s5-0 (process-mask progress)) (process-mask progress))
+        (format #t "progress ")
+        )
+    (if (= (logand s5-0 (process-mask menu)) (process-mask menu))
+        (format #t "menu ")
+        )
+    (if (= (logand (process-mask camera) s5-0) (process-mask camera))
+        (format #t "camera ")
+        )
+    (if (= (logand (process-mask ambient) s5-0) (process-mask ambient))
+        (format #t "ambient ")
+        )
+    (if (= (logand s5-0 (process-mask dark-effect)) (process-mask dark-effect))
+        (format #t "dark-effect ")
+        )
+    (if (= (logand (process-mask crate) s5-0) (process-mask crate))
+        (format #t "crate ")
+        )
+    (if (= (logand s5-0 (process-mask kernel-run)) (process-mask kernel-run))
+        (format #t "kernel-run ")
+        )
+    (if (= (logand s5-0 (process-mask movie)) (process-mask movie))
+        (format #t "movie ")
+        )
+    (if (= (logand s5-0 (process-mask pause)) (process-mask pause))
+        (format #t "pause ")
+        )
+    )
+  (format #t ")~%")
+  (format #t "~1Tclock: ~A~%" (-> this clock))
+  (format #t "~1Tview: ~A~%" (-> this view))
+  (format #t "~1Tparent: #x~X~%" (-> this parent))
+  (format #t "~1Tbrother: #x~X~%" (-> this brother))
+  (format #t "~1Tchild: #x~X~%" (-> this child))
+  (format #t "~1Tppointer: #x~X~%" (-> this ppointer))
+  (format #t "~1Tself: ~A~%" (-> this self))
+  (format #t "~1Tprofile-ticks: ~D~%" (-> this profile-ticks))
+  (format #t "~1Tpool: ~A~%" (-> this pool))
+  (format #t "~1Tstatus: ~A~%" (-> this status))
+  (format #t "~1Tpid: ~D~%" (-> this pid))
+  (format #t "~1Tmain-thread: ~A~%" (-> this main-thread))
+  (format #t "~1Ttop-thread: ~A~%" (-> this top-thread))
+  (format #t "~1Tentity: ~A~%" (-> this entity))
+  (format #t "~1Tlevel: ~A~%" (-> this level))
+  (format #t "~1Tstate: ~A~%" (-> this state))
+  (format #t "~1Tprev-state: ~A~%" (-> this prev-state))
+  (format #t "~1Tnext-state: ~A~%" (-> this next-state))
+  (format #t "~1Tstate-stack: ~A~%" (-> this state-stack))
+  (format #t "~1Ttrans-hook: ~A~%" (-> this trans-hook))
+  (format #t "~1Tpost-hook: ~A~%" (-> this post-hook))
+  (format #t "~1Tevent-hook: ~A~%" (-> this event-hook))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Theap-base: #x~X~%" (-> this heap-base))
+  (format #t "~1Theap-top: #x~X~%" (-> this heap-top))
+  (format #t "~1Theap-cur: #x~X~%" (-> this heap-cur))
+  (format #t "~1Tstack-frame-top: ~A~%" (-> this stack-frame-top))
+  (format #t "~1Theap: #<kheap @ #x~X>~%" (&-> this heap-base))
+  (format #t "~1Tconnection-list: ~`connectable`P~%" (-> this connection-list))
+  (format #t "~1Tstack[0] @ #x~X~%" (-> this stack))
+  (label cfg-62)
+  this
+  )
+
+;; definition for function manipy-post
 ;; WARN: Return type mismatch int vs none.
 (defbehavior manipy-post manipy ()
   ((-> self cur-post-hook))
@@ -215,464 +587,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate idle (manipy)
   :virtual #t
-  :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
-    (local-vars (s4-0 object))
-    (case message
-      (('blend-shape)
-       (when (nonzero? (-> self skel))
-         (cond
-           ((-> block param 0)
-            (set! s4-0 (logior (-> self skel status) (joint-control-status blend-shape eye-anim)))
-            (set! (-> self skel status) (the-as joint-control-status s4-0))
-            )
-           (else
-             (set! s4-0 (logclear (-> self skel status) (joint-control-status blend-shape eye-anim)))
-             (set! (-> self skel status) (the-as joint-control-status s4-0))
-             )
-           )
-         s4-0
-         )
-       )
-      (('shadow)
-       (when (nonzero? (-> self draw))
-         (cond
-           ((-> block param 0)
-            (set! s4-0 (-> self shadow-backup))
-            (set! (-> self draw shadow) (the-as shadow-geo s4-0))
-            s4-0
-            )
-           (else
-             (set! (-> self draw shadow) #f)
-             #f
-             )
-           )
-         )
-       )
-      (('shadow-volume)
-       (let ((v1-14 (the-as
-                      joint
-                      (get-art-by-name-method (-> self draw jgeo) (the-as string (-> block param 0)) (the-as type #f))
-                      )
-                    )
-             )
-         (if v1-14
-             (set! (-> self shadow-volume-joint) (+ (-> v1-14 number) 1))
-             )
-         )
-       (when (and (-> self draw shadow-ctrl) (< 1 argc) (>= (the-as int (-> block param 1)) 0))
-         (let ((v0-1 (command-get-int (-> block param 1) 0)))
-           (set! (-> self draw shadow-ctrl settings flags) (the-as shadow-flags v0-1))
-           v0-1
-           )
-         )
-       )
-      (('shadow-type)
-       (if (and (-> self draw shadow-ctrl) (> argc 0))
-           (set! (-> self draw shadow-ctrl settings shadow-type) (command-get-int (-> block param 0) 0))
-           )
-       )
-      (('shadow-disable-smooth)
-       (when (nonzero? (-> self draw))
-         (cond
-           ((-> block param 0)
-            (when (-> self draw shadow-ctrl)
-              (set! s4-0 (logior (-> self draw shadow-ctrl settings flags) (shadow-flags shdf08)))
-              (set! (-> self draw shadow-ctrl settings flags) (the-as shadow-flags s4-0))
-              s4-0
-              )
-            )
-           (else
-             (when (-> self draw shadow-ctrl)
-               (set! s4-0 (logclear (-> self draw shadow-ctrl settings flags) (shadow-flags shdf08)))
-               (set! (-> self draw shadow-ctrl settings flags) (the-as shadow-flags s4-0))
-               s4-0
-               )
-             )
-           )
-         )
-       )
-      (('shadow-dir)
-       (when (and (-> self draw shadow-ctrl) (> argc 0))
-         (set! s4-0 (-> self draw shadow-ctrl settings shadow-dir))
-         (set! (-> (the-as vector s4-0) x) (the-as float (-> block param 0)))
-         (set! (-> (the-as vector s4-0) y) (the-as float (-> block param 1)))
-         (set! (-> (the-as vector s4-0) z) (the-as float (-> block param 2)))
-         (set! (-> (the-as vector s4-0) w) (the-as float (if (< 3 argc)
-                                                             (command-get-param (-> block param 3) #f)
-                                                             409600.0
-                                                             )
-                                                   )
-               )
-         s4-0
-         )
-       )
-      (('shadow-top-plane)
-       (when (and (-> self draw shadow-ctrl) (>= argc 4))
-         (set! s4-0 (-> self draw shadow-ctrl settings top-plane))
-         (set! (-> (the-as plane s4-0) x) (the-as float (-> block param 0)))
-         (set! (-> (the-as plane s4-0) y) (the-as float (-> block param 1)))
-         (set! (-> (the-as plane s4-0) z) (the-as float (-> block param 2)))
-         (set! (-> (the-as plane s4-0) w) (the-as float (-> block param 3)))
-         s4-0
-         )
-       )
-      (('shadow-bot-plane)
-       (when (and (-> self draw shadow-ctrl) (>= argc 4))
-         (set! s4-0 (-> self draw shadow-ctrl settings bot-plane))
-         (set! (-> (the-as plane s4-0) x) (the-as float (-> block param 0)))
-         (set! (-> (the-as plane s4-0) y) (the-as float (-> block param 1)))
-         (set! (-> (the-as plane s4-0) z) (the-as float (-> block param 2)))
-         (set! (-> (the-as plane s4-0) w) (the-as float (-> block param 3)))
-         s4-0
-         )
-       )
-      (('shadow-fade-dist)
-       (if (-> self draw shadow-ctrl)
-           (set! (-> self draw shadow-ctrl settings fade-dist) (the-as float (-> block param 0)))
-           )
-       )
-      (('no-fog)
-       (set! s4-0 (logior (-> self draw status) (draw-control-status disable-fog)))
-       (set! (-> self draw status) (the-as draw-control-status s4-0))
-       s4-0
-       )
-      (('setup-spotlight-shadow)
-       (when (-> self draw shadow-ctrl)
-         (let ((v1-80 (command-get-process "spotlight" (view-get-active-target))))
-           (when v1-80
-             (let ((s5-2 (-> (the-as process-drawable v1-80) node-list data)))
-               (vector<-cspace! (new 'stack-no-clear 'vector) (-> s5-2 0))
-               (let ((s5-3 (vector-normalize-copy! (new 'stack-no-clear 'vector) (-> s5-2 0 bone transform fvec) -1.0))
-                     (s4-2
-                       (vector<-cspace! (new 'stack-no-clear 'vector) (-> self node-list data (-> self draw shadow-joint-index)))
-                       )
-                     (f30-0 1638400.0)
-                     (s3-0 (new 'stack-no-clear 'collide-query))
-                     (f28-0 122880.0)
-                     )
-                 (set! (-> s3-0 start-pos quad) (-> s4-2 quad))
-                 (vector-normalize-copy! (-> s3-0 move-dist) s5-3 f28-0)
-                 (let ((v1-91 s3-0))
-                   (set! (-> v1-91 radius) 1638.4)
-                   (set! (-> v1-91 collide-with) (collide-spec obstacle hit-by-others-list))
-                   (set! (-> v1-91 ignore-process0) self)
-                   (set! (-> v1-91 ignore-process1) #f)
-                   (set! (-> v1-91 ignore-pat)
-                         (new 'static 'pat-surface :noentity #x1 :nojak #x1 :probe #x1 :noendlessfall #x1 :board #x1)
-                         )
-                   (set! (-> v1-91 action-mask) (collide-action solid))
-                   (set! (-> v1-91 best-other-prim) #f)
-                   )
-                 (let* ((f0-14 (collide-cache-method-10 *collide-cache* s3-0))
-                        (f28-1 (if (< 0.0 f0-14)
-                                   (* f0-14 f28-0)
-                                   122880.0
-                                   )
-                               )
-                        )
-                   (shadow-control-method-14
-                     (-> self draw shadow-ctrl)
-                     s4-2
-                     s5-3
-                     f30-0
-                     (- f28-1 (command-get-float (-> block param 0) 0.0))
-                     (+ f28-1 (command-get-float (-> block param 1) 0.0))
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-      (('color-mult)
-       (when (>= argc 4)
-         (set! s4-0 (-> self draw color-mult))
-         (set! (-> (the-as rgbaf s4-0) x) (command-get-float (-> block param 0) 0.0))
-         (set! (-> (the-as rgbaf s4-0) y) (command-get-float (-> block param 1) 0.0))
-         (set! (-> (the-as rgbaf s4-0) z) (command-get-float (-> block param 2) 0.0))
-         (set! (-> (the-as rgbaf s4-0) w) (command-get-float (-> block param 3) 0.0))
-         s4-0
-         )
-       )
-      (('color-mult-vector)
-       (set! s4-0 (-> self draw color-mult))
-       (set! (-> (the-as rgbaf s4-0) quad) (-> (the-as vector (-> block param 0)) quad))
-       s4-0
-       )
-      (('color-emissive-vector)
-       (set! s4-0 (-> self draw color-emissive))
-       (set! (-> (the-as rgbaf s4-0) quad) (-> (the-as vector (-> block param 0)) quad))
-       s4-0
-       )
-      (('segment)
-       (let ((a1-34 (/ (the-as int (-> block param 0)) 8))
-             (a2-5 (/ (the-as int (-> block param 1)) 8))
-             )
-         (setup-masks (-> self draw) (the-as int a1-34) (the-as int a2-5))
-         )
-       )
-      (('trans-hook)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self new-trans-hook) (the-as (function none) s4-0))
-       s4-0
-       )
-      (('post-hook)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self new-post-hook) (the-as (function none) s4-0))
-       s4-0
-       )
-      (('user-data)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self userdata) (the-as uint s4-0))
-       s4-0
-       )
-      (('eval)
-       ((the-as (function manipy none) (-> block param 0)) self)
-       )
-      (('speed)
-       (set! (-> self speed) (the-as float (-> block param 0)))
-       )
-      (('event-hook)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self cur-event-hook) (the-as (function none) s4-0))
-       s4-0
-       )
-      (('art-joint-anim)
-       (set! (-> self new-joint-anim)
-             (get-art-by-name (-> self draw art-group) (the-as string (-> block param 0)) art-joint-anim)
-             )
-       (set! (-> self new-joint-anim-blend) (the-as uint (if (>= argc 2)
-                                                             (the-as int (-> block param 1))
-                                                             0
-                                                             )
-                                                    )
-             )
-       (set! (-> self new-joint-anim-frame) (the-as float (if (>= argc 3)
-                                                              (-> block param 2)
-                                                              0.0
-                                                              )
-                                                    )
-             )
-       )
-      (('anim-mode)
-       (when (nonzero? (-> self skel))
-         (set! (-> self anim-mode) (the-as symbol (-> block param 0)))
-         (if (= (-> self anim-mode) 'clone-anim)
-             (ja-post)
-             )
-         (-> self anim-mode)
-         )
-       )
-      (('origin-joint-index 'center-joint)
-       (set! (-> self draw origin-joint-index) (-> block param 0))
-       (set! s4-0 (-> block param 0))
-       (set! (-> self draw shadow-joint-index) (the-as uint s4-0))
-       s4-0
-       )
-      (('max-vis-dist)
-       (set! (-> self draw lod-set lod (-> self draw lod-set max-lod) dist) (the-as float (-> block param 0)))
-       )
-      (('grab)
-       (set! (-> self cur-grab-handle) (process->handle (the-as process (-> block param 0))))
-       (let* ((v1-126 (-> self cur-grab-handle))
-              (v1-127
-                (and (nonzero? (l32-false-check v1-126)) (let ((a0-46 (-> v1-126 process 0)))
-                                                           (if (= (the-as process-drawable (-> v1-126 pid)) (-> a0-46 pid))
-                                                               a0-46
-                                                               )
-                                                           )
-                     )
-                )
-              )
-         (when v1-127
-           (set! s4-0 (-> self old-grab-pos))
-           (set! (-> (the-as vector s4-0) quad) (-> (the-as process-drawable v1-127) root trans quad))
-           s4-0
-           )
-         )
-       )
-      (('target)
-       (set! s4-0 (process->handle (the-as process (-> block param 0))))
-       (set! (-> self cur-target-handle) (the-as handle s4-0))
-       s4-0
-       )
-      (('trans)
-       (cond
-         ((type? (-> self root) collide-shape)
-          (move-to-point! (-> self root) (the-as vector (-> block param 0)))
-          )
-         (else
-           (set! s4-0 (-> self root trans))
-           (set! (-> (the-as vector s4-0) quad) (-> (the-as vector (-> block param 0)) quad))
-           s4-0
-           )
-         )
-       )
-      (('scale)
-       (set! s4-0 (-> self root scale))
-       (set! (-> (the-as vector s4-0) quad) (-> (the-as vector (-> block param 0)) quad))
-       s4-0
-       )
-      (('rot)
-       (let ((s5-4 (new 'stack-no-clear 'matrix)))
-         (matrix-rotate-y! s5-4 (the-as float (-> block param 0)))
-         (matrix->quaternion (the-as quaternion (-> self root rot)) s5-4)
-         )
-       )
-      (('rot-quat)
-       (quaternion-copy! (the-as quaternion (-> self root rot)) (the-as quaternion (-> block param 0)))
-       )
-      (('clone-copy-trans)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self clone-copy-trans) (the-as symbol s4-0))
-       s4-0
-       )
-      (('release)
-       (set! (-> self cur-grab-handle) (the-as handle #f))
-       #f
-       )
-      (('draw)
-       (set! (-> self draw?) (the-as symbol (-> block param 0)))
-       (cond
-         ((-> block param 0)
-          (let ((v1-146 (logtest? (-> self draw status) (draw-control-status no-draw))))
-            (logclear! (-> self draw status) (draw-control-status no-draw))
-            (when v1-146
-              (cond
-                ((nonzero? (-> self skel))
-                 (let ((gp-1 (-> self skel status)))
-                   (logior! (-> self skel status) (joint-control-status sync-math))
-                   (set! s4-0 (ja-post))
-                   (set! (-> self skel status) gp-1)
-                   )
-                 s4-0
-                 )
-                (else
-                  (ja-post)
-                  )
-                )
-              )
-            )
-          )
-         (else
-           (set! s4-0 (logior (-> self draw status) (draw-control-status no-draw)))
-           (set! (-> self draw status) (the-as draw-control-status s4-0))
-           s4-0
-           )
-         )
-       )
-      (('sync)
-       (when (nonzero? (-> self skel))
-         (cond
-           ((-> block param 0)
-            (set! s4-0 (logior (-> self skel status) (joint-control-status sync-math)))
-            (set! (-> self skel status) (the-as joint-control-status s4-0))
-            )
-           (else
-             (set! s4-0 (logclear (-> self skel status) (joint-control-status sync-math)))
-             (set! (-> self skel status) (the-as joint-control-status s4-0))
-             )
-           )
-         s4-0
-         )
-       )
-      (('query)
-       (case (-> block param 0)
-         (('grab)
-          (handle->process (-> self cur-grab-handle))
-          )
-         (('done)
-          (case (-> self anim-mode)
-            (('play1 'play)
-             (>= (ja-frame-num 0) (the float (+ (-> (ja-group) frames num-frames) -2)))
-             )
-            )
-          )
-         )
-       )
-      (('set-frame-num)
-       (let ((v1-179 (-> self skel root-channel 0)))
-         (set! (-> v1-179 num-func) num-func-identity)
-         (set! (-> v1-179 frame-num) (the-as float (-> block param 0)))
-         )
-       )
-      (('prefix)
-       (set! s4-0 (-> block param 0))
-       (set! (-> self prefix) (the-as basic s4-0))
-       s4-0
-       )
-      (('light-index)
-       (let ((v0-30 (command-get-int (-> block param 0) 0)))
-         (set! (-> self draw light-index) (the-as uint v0-30))
-         v0-30
-         )
-       )
-      (('eye-slot)
-       (set! (-> self draw mgeo header eye-ctrl eye-slot) (command-get-int (-> block param 0) 0))
-       )
-      (('shadow-mask)
-       (let ((v0-32 (command-get-int (-> block param 0) 0)))
-         (set! (-> self draw shadow-mask) (the-as uint v0-32))
-         v0-32
-         )
-       )
-      (('shadow-values)
-       (let ((v0-33 (command-get-int (-> block param 0) 0)))
-         (set! (-> self draw shadow-values) (the-as uint v0-33))
-         v0-33
-         )
-       )
-      (('mirror)
-       (cond
-         ((-> block param 0)
-          (set! s4-0 (-> self node-list data 2))
-          (set! (-> (the-as cspace s4-0) param0)
-                (the-as (function cspace transformq none) cspace<-parented-matrix-mirror!)
-                )
-          (set! (-> (the-as cspace s4-0) param1) (the-as basic (-> (view-get-active-math-camera) mirror-trans)))
-          (set! (-> (the-as cspace s4-0) param2) (the-as basic (-> (view-get-active-math-camera) mirror-normal)))
-          )
-         (else
-           (set! s4-0 (-> self node-list data 2))
-           (set! (-> (the-as cspace s4-0) param0) #f)
-           )
-         )
-       s4-0
-       )
-      (('draw-mirror)
-       (send-event (ppointer->process (-> self child)) 'draw (-> block param 0))
-       )
-      (('user)
-       (set! s4-0 (-> block param 1))
-       (set! (-> self user-uint64 (/ (the-as int (-> block param 0)) 8)) (the-as uint s4-0))
-       s4-0
-       )
-      (('die)
-       (deactivate self)
-       )
-      (('do-effect)
-       (if (and (nonzero? (-> self skel)) (-> self skel effect))
-           (do-effect (-> self skel effect) (the-as string (-> block param 0)) (the-as float (-> block param 1)) -1)
-           )
-       )
-      (('no-actor-pause)
-       (set! s4-0 (logclear (-> self mask) (process-mask actor-pause)))
-       (set! (-> self mask) (the-as process-mask s4-0))
-       s4-0
-       )
-      (('max-lod-dist)
-       (set! (-> self draw lod-set lod 0 dist) 4095996000.0)
-       )
-      (else
-        (if (-> self cur-event-hook)
-            ((-> self cur-event-hook))
-            )
-        )
-      )
-    )
   :trans (behavior ()
     (rlet ((vf0 :class vf)
            (vf4 :class vf)
@@ -721,119 +638,10 @@
       ((-> self cur-trans-hook))
       )
     )
-  :code (behavior ()
-    (logclear! (-> self mask) (process-mask heap-shrunk))
-    (until #f
-      (case (-> self anim-mode)
-        (('loop)
-         (ja-post)
-         (manipy-post)
-         (suspend)
-         (ja :num! (loop!))
-         )
-        (('play)
-         (ja-post)
-         (manipy-post)
-         (suspend)
-         (ja :num! (seek!))
-         )
-        (('copy-parent)
-         (let ((v1-17 (-> self skel root-channel 0)))
-           (set! (-> v1-17 num-func) num-func-identity)
-           (let ((a0-10 (-> self parent)))
-             (set! (-> v1-17 frame-num) (-> (the-as process-drawable (if a0-10
-                                                                         (the-as process-drawable (-> a0-10 0 self))
-                                                                         )
-                                                    )
-                                            skel
-                                            root-channel
-                                            0
-                                            frame-num
-                                            )
-                   )
-             )
-           )
-         (ja-post)
-         (manipy-post)
-         (suspend)
-         0
-         )
-        (('clone-parent)
-         (let ((gp-0 (ppointer->process (-> self parent))))
-           (set! (-> self post-hook) #f)
-           (joint-control-copy! (-> self skel) (-> (the-as process-drawable gp-0) skel))
-           (joint-control-remap!
-             (-> self skel)
-             (-> self draw art-group)
-             (-> (the-as process-drawable gp-0) draw art-group)
-             '()
-             0
-             ""
-             )
-           )
-         (update-anim-data (-> self skel))
-         (do-joint-math (-> self draw) (-> self node-list) (-> self skel))
-         (manipy-post)
-         (suspend)
-         0
-         )
-        (('clone-anim)
-         (clone-anim-once
-           (if (handle->process (-> self cur-target-handle))
-               (the-as handle (-> self cur-target-handle))
-               (ppointer->handle (-> self parent))
-               )
-           (-> self clone-copy-trans)
-           (the-as string (-> self prefix))
-           )
-         (manipy-post)
-         (suspend)
-         0
-         )
-        (('mirror)
-         (let ((gp-1 (if (handle->process (-> self cur-target-handle))
-                         (the-as int (-> self cur-target-handle))
-                         (ppointer->handle (-> self parent))
-                         )
-                     )
-               )
-           (clone-anim-once (the-as handle gp-1) (-> self clone-copy-trans) (the-as string (-> self prefix)))
-           (logior! (-> self draw global-effect) (draw-control-global-effect rim-lights3))
-           (set! (-> self draw light-index) (the-as uint 5))
-           ;; og:preserve-this hand-fold: the decompiler only half-recognizes this
-           ;; handle deref (it emits the raw .asm.sllv.r0 / pid-check triple, which
-           ;; goalc cannot compile); the triple is exactly handle->process.
-           (if (logtest? (-> (the-as process-drawable (handle->process (the-as handle gp-1))) draw status)
-                         (draw-control-status no-draw no-draw-temp no-draw-bounds)
-                         )
-               (logior! (-> self draw status) (draw-control-status no-draw-temp))
-               )
-           )
-         (manipy-post)
-         (suspend)
-         0
-         )
-        (('still)
-         (ja-post)
-         (manipy-post)
-         (suspend)
-         0
-         )
-        (('play1)
-         (ja-post)
-         (manipy-post)
-         (suspend)
-         (ja :num! (seek! max (-> self speed)))
-         (if (ja-done? 0)
-             (deactivate self)
-             )
-         )
-        )
-      )
-    #f
-    )
   )
 
+;; definition for function manipy-init
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch object vs none.
 (defbehavior manipy-init manipy ((arg0 vector) (arg1 entity-actor) (arg2 skeleton-group) (arg3 vector) (arg4 manipy-options))
   (stack-size-set! (-> self main-thread) 128)
@@ -947,6 +755,7 @@
   (none)
   )
 
+;; definition for method 10 of type part-tracker
 (defmethod deactivate ((this part-tracker))
   "Make a process dead, clean it up, remove it from the active pool, and return to dead pool."
   (if (nonzero? (-> this part))
@@ -956,12 +765,14 @@
   (none)
   )
 
+;; definition for method 18 of type part-tracker
 ;; WARN: Return type mismatch object vs none.
 (defmethod notify-parent-of-death ((this part-tracker))
   (send-event (as-type (ppointer->process (-> this parent)) process) 'notify 'die)
   (none)
   )
 
+;; definition for method 7 of type part-tracker-subsampler
 (defmethod relocate ((this part-tracker-subsampler) (offset int))
   (if (nonzero? (-> this subsampler))
       (&+! (-> this subsampler) offset)
@@ -969,6 +780,7 @@
   (call-parent-method this offset)
   )
 
+;; failed to figure out what this is:
 (defstate active (part-tracker)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -1051,6 +863,7 @@
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate linger (part-tracker)
   :virtual #t
   :enter (behavior ()
@@ -1083,6 +896,7 @@
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate die (part-tracker)
   :virtual #t
   :enter (behavior ()
@@ -1094,6 +908,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate active (part-tracker-subsampler)
   :virtual #t
   :trans (behavior ()
@@ -1127,6 +942,8 @@
     )
   )
 
+;; definition for function part-tracker-init-base
+;; INFO: Used lq/sq
 (defbehavior part-tracker-init-base part-tracker ((arg0 part-tracker-init-params))
   (stack-size-set! (-> self main-thread) 16)
   (when (= pointer process-tree)
@@ -1147,21 +964,15 @@
      (set! (-> self offset quad) (-> self mat trans quad))
      )
     (else
-      ;; og:preserve-this hand-cast: the decompiler applies the matrix cast to this
-      ;; mat-joint read internally but drops the-as in the printed arg
-      (matrix-copy! (-> self mat) (the-as matrix (-> arg0 mat-joint)))
+      (matrix-copy! (-> self mat) (-> arg0 mat-joint))
       (set! (-> self offset quad) (-> self mat trans quad))
       )
     )
   (set! (-> self root) (new 'process 'trsqv))
   (set! (-> self root trans quad) (-> self mat trans quad))
-  (when (zero? (-> arg0 group))
-    ;; og:preserve-this bring-up guard: retail goes process-drawable-art-error, but
-    ;; part-tracker is a plain process child in jakx and art-error reads
-    ;; process-drawable offsets (see the entity-lookup-part-group guard above)
-    (format 0 "WARNING: part-tracker: null group, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
+  (if (zero? (-> arg0 group))
+      (go process-drawable-art-error "null group")
+      )
   (set! (-> self callback) (-> arg0 callback))
   (set! (-> self linger-callback) #f)
   (set! (-> self userdata) (-> arg0 userdata))
@@ -1185,8 +996,9 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defpart 44
-  :init-specs ((:texture (new 'static 'texture-id :index #x3 :page #x1))
+  :init-specs ((:texture (common-white common))
     (:num 1.0)
     (:scale-x (meters 1))
     (:scale-y :copy scale-x)
@@ -1194,6 +1006,7 @@
     )
   )
 
+;; definition for function part-tracker-subsampler-init
 (defbehavior part-tracker-subsampler-init part-tracker-subsampler ((arg0 part-tracker-init-params))
   (part-tracker-init-base arg0)
   (dotimes (s5-0 1)
@@ -1222,6 +1035,7 @@
   (go-virtual active)
   )
 
+;; definition for function part-tracker-init
 (defbehavior part-tracker-init part-tracker ((arg0 part-tracker-init-params))
   (part-tracker-init-base arg0)
   (set! (-> self part) (create-launch-control (-> arg0 group) self))
@@ -1280,6 +1094,7 @@
   (go-virtual active)
   )
 
+;; definition for function part-tracker-track-root
 ;; WARN: Return type mismatch int vs none.
 (defun part-tracker-track-root ((arg0 sparticle-system) (arg1 sparticle-cpuinfo) (arg2 vector))
   (let ((v1-4 (-> (the-as part-tracker (-> arg1 key 0 proc)) root trans)))
@@ -1291,12 +1106,15 @@
   (none)
   )
 
+;; definition for method 16 of type lightning-tracker
 ;; WARN: Return type mismatch object vs none.
 (defmethod notify-parent-of-death ((this lightning-tracker))
   (send-event (as-type (ppointer->process (-> this parent)) process) 'notify 'die)
   (none)
   )
 
+;; definition for method 17 of type lightning-tracker
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs none.
 (defmethod update ((this lightning-tracker))
   (if (-> this callback)
@@ -1362,8 +1180,7 @@
        )
       ((= (-> this target-joint1) 256)
        (let ((gp-1 (-> this lightning))
-             ;; og:preserve-this hand-cast: decomp drops the printed the-as on the pf dispatch
-             (v1-51 (get-trans (the-as process-focusable a0-22) 3))
+             (v1-51 (get-trans a0-22 3))
              )
          (set! (-> gp-1 state meet data (+ (-> gp-1 state points-to-draw) -1) quad) (-> v1-51 quad))
          )
@@ -1385,6 +1202,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate active (lightning-tracker)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -1395,10 +1213,7 @@
       )
     )
   :exit (behavior ()
-    ;; og:preserve-this bring-up guard: find-sound-instance's body is not landed in
-    ;; gsound.gc yet (its decomp failed there), so the symbol reads 0 at runtime.
-    ;; Drop the extra nonzero? check when gsound's instance ring lands.
-    (when (and (nonzero? (-> self sound)) (nonzero? find-sound-instance))
+    (when (nonzero? (-> self sound))
       (let ((v1-1 (find-sound-instance (-> self sound) #t)))
         (cond
           (v1-1
@@ -1445,13 +1260,7 @@
                   )
               )
             )
-          ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until
-          ;; gsound's instance ring lands; retail calls it unconditionally
-          (let ((s4-3 (if (nonzero? make-sound-instance)
-                          (make-sound-instance (-> *sound-info* (-> gp-1 info-index)) 0 #f)
-                          )
-                      )
-                )
+          (let ((s4-3 (make-sound-instance (-> *sound-info* (-> gp-1 info-index)) 0 #f)))
             (set! (-> self sound) (the-as sound-id (cond
                                                      (s4-3
                                                        (quad-copy! (the-as pointer s4-3) (the-as pointer gp-1) 4)
@@ -1544,6 +1353,8 @@
     )
   )
 
+;; definition for function lightning-tracker-init
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch object vs none.
 (defbehavior lightning-tracker-init lightning-tracker ((arg0 lightning-spec) (arg1 time-frame) (arg2 symbol) (arg3 process-drawable) (arg4 vector) (arg5 vector))
   (stack-size-set! (-> self main-thread) 128)
@@ -1614,16 +1425,9 @@
   (none)
   )
 
+;; definition for function process-grab?
 ;; WARN: Return type mismatch object vs symbol.
-;; og:preserve-this bring-up guard: command-get-process's body lives in script.gc,
-;; which is still a stub, so the symbol reads 0 at runtime -- and the attract
-;; cam-layout playback dispatches this command family by name, so an unguarded
-;; call DEP-faults seconds into the title. Bail out until script.gc lands, then
-;; delete the (zero? command-get-process) early-outs in this family.
 (defbehavior process-grab? process ((arg0 process) (arg1 symbol))
-  (if (zero? command-get-process)
-      (return (the-as symbol #f))
-      )
   (let ((a0-2 (command-get-process arg0 (view-get-active-target))))
     (the-as symbol (if a0-2
                        (send-event a0-2 'change-mode 'grab (cond
@@ -1643,12 +1447,9 @@
     )
   )
 
+;; definition for function process-release?
 ;; WARN: Return type mismatch object vs symbol.
 (defbehavior process-release? process ((arg0 process))
-  ;; og:preserve-this bring-up guard: see process-grab? above
-  (if (zero? command-get-process)
-      (return (the-as symbol #t))
-      )
   (let ((a0-3 (as-type (command-get-process arg0 (view-get-active-target)) process-focusable)))
     (the-as symbol (if (and a0-3 (focus-test? (the-as process-focusable a0-3) grabbed))
                        (send-event a0-3 'end-mode 'grab)
@@ -1658,11 +1459,8 @@
     )
   )
 
+;; definition for function camera-look-at
 (defun camera-look-at ((arg0 pair) (arg1 uint))
-  ;; og:preserve-this bring-up guard: see process-grab? above
-  (if (zero? command-get-process)
-      (return (the-as process #f))
-      )
   (let ((s5-1 (command-get-process arg0 (view-get-active-target))))
     (if s5-1
         (send-event (view-get-active-camera) 'change-target s5-1 arg1)
@@ -1671,12 +1469,9 @@
     )
   )
 
+;; definition for function ja-anim-done?
 ;; WARN: Return type mismatch object vs symbol.
 (defun ja-anim-done? ((arg0 process))
-  ;; og:preserve-this bring-up guard: see process-grab? above
-  (if (zero? command-get-process)
-      (return (the-as symbol #t))
-      )
   (with-pp
     (let ((gp-1 (command-get-process arg0 (view-get-active-target))))
       (the-as
@@ -1705,11 +1500,8 @@
     )
   )
 
+;; definition for function camera-pov-from
 (defun camera-pov-from ((arg0 pair) (arg1 uint))
-  ;; og:preserve-this bring-up guard: see process-grab? above
-  (if (zero? command-get-process)
-      (return (the-as process #f))
-      )
   (with-pp
     (let ((gp-1 (command-get-process arg0 (view-get-active-target))))
       (when gp-1
@@ -1745,6 +1537,7 @@
     )
   )
 
+;; definition for method 10 of type part-spawner
 (defmethod deactivate ((this part-spawner))
   "Make a process dead, clean it up, remove it from the active pool, and return to dead pool."
   (if (nonzero? (-> this part))
@@ -1760,11 +1553,13 @@
   (none)
   )
 
+;; definition for method 16 of type part-spawner
 (defmethod is-in-view? ((this part-spawner))
   (sphere<-vector+r! (-> this world-sphere) (-> this root trans) (-> this radius))
   (sphere-in-view-frustum? (-> this world-sphere))
   )
 
+;; failed to figure out what this is:
 (defstate active (part-spawner)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -1807,30 +1602,22 @@
           (set! (-> self path-pos) (- f0-3 (* (the float (the int (/ f0-3 1.0))) 1.0)))
           )
         )
-      ;; og:preserve-this bring-up guard: sparticle-launch-control's spawn (slot 16)
-      ;; failed to decompile in sparticle-launcher.gc, so the slot reads 0 -- guard
-      ;; the SLOT. Particles resume from live spawners when that method lands.
-      (if (nonzero? (-> sparticle-launch-control method-table 16))
-          (spawn (-> self part) (-> self root trans))
-          )
-      ;; og:preserve-this bring-up guard: ambient-sound's update! (method 9) has
-      ;; no landed body anywhere (gsound-h keeps it commented), so its slot is 0.
-      ;; Guard the SLOT, not just the object. Drop when the ambient-sound methods land.
-      (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
-        (when (nonzero? (-> self sound))
-          (update-trans! (-> self sound) (-> self root trans))
-          (update! (-> self sound))
-          )
-        (when (nonzero? (-> self sound-extra))
-          (update-trans! (-> self sound-extra) (-> self root trans))
-          (update! (-> self sound-extra))
-          )
+      (spawn (-> self part) (-> self root trans))
+      (when (nonzero? (-> self sound))
+        (update-trans! (-> self sound) (-> self root trans))
+        (update! (-> self sound))
+        )
+      (when (nonzero? (-> self sound-extra))
+        (update-trans! (-> self sound-extra) (-> self root trans))
+        (update! (-> self sound-extra))
         )
       )
     )
   :code sleep-code
   )
 
+;; definition for method 11 of type part-spawner
+;; INFO: Used lq/sq
 (defmethod init-from-entity! ((this part-spawner) (arg0 entity-actor))
   (with-pp
     (rlet ((vf0 :class vf)
@@ -1839,29 +1626,7 @@
            (vf6 :class vf)
            )
       (init-vf0-vector)
-      ;; og:preserve-this bring-up guard: retail jakx sets 16 here (generic-obs
-      ;; disasm:2203). The bring-up park below suspends in bring-up-parked rather
-      ;; than running the retail path, so keep jak3's part-spawner value, which is
-      ;; also 64 (jak3 generic-obs.gc:1978), as suspend headroom. Restore to 16
-      ;; once the part-group legs land.
-      (stack-size-set! (-> this main-thread) 64)
-      ;; og:preserve-this bring-up guard (park early): retail allocates trsqv, two
-      ;; ambient-sounds and an optional curve-control on the entity-sized heap and
-      ;; only then resolves the part group. With the level part groups unlanded,
-      ;; every jungle spawner fails the lookup, and the allocations first overflow
-      ;; the small retail heap (the failed tail allocation returns a garbage
-      ;; pointer whose stop! dispatch later DEP-faults in deactivate). Resolve the
-      ;; group FIRST and park sleeping before touching the heap. The park then
-      ;; reaches deactivate with part/sound/sound-extra still zero, since process
-      ;; activate mem-set32!s the entire child-field area (gkernel.gc:2077), so
-      ;; deactivate's nonzero? tests are already safe. Delete together with the
-      ;; other part-group park guards when the part-group legs land.
-      (let ((sv-96 "#f"))
-        (when (not (entity-lookup-part-group arg0 (& sv-96) 'art-name))
-          (format 0 "WARNING: part-spawner ~A: part group ~S not found, parking early (bring-up)~%" (-> this name) sv-96)
-          (go bring-up-parked)
-          )
-        )
+      (stack-size-set! (-> this main-thread) 16)
       (logior! (-> this mask) (process-mask ambient))
       (+! (-> this clock ref-count) -1)
       (+! (-> *display* part-clock ref-count) 1)
@@ -1877,8 +1642,7 @@
             (set! (-> a1-5 num-params) 1)
             (set! (-> a1-5 message) 'get-scale)
             (set! (-> a1-5 param 0) (the-as uint arg0))
-            ;; og:preserve-this hand-cast: raw gpr->fpr in the decomp; the event result is the float scale
-            (set! f0-0 (the-as float (send-event-function (the-as process-tree *spartacus-editor*) a1-5)))
+            (set! f0-0 (gpr->fpr (send-event-function (the-as process-tree *spartacus-editor*) a1-5)))
             )
           )
         (vector-float*! (-> this root scale) (-> this root scale) (the-as float f0-0))
@@ -1957,17 +1721,13 @@
               )
             )
           )
-        (begin
-          ;; og:preserve-this bring-up guard: same art-error layout hazard (part-spawner
-          ;; is a plain process child); park instead until the part-group legs land
-          (format 0 "WARNING: part-spawner ~A: part group ~S not found, parking (bring-up)~%" (-> this name) sv-96)
-          (go bring-up-parked)
-          )
+        (go process-drawable-art-error sv-96)
         )
       )
     )
   )
 
+;; failed to figure out what this is:
 (defstate active (touch-tracker)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -2069,6 +1829,8 @@
     )
   )
 
+;; definition for function touch-tracker-init
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch object vs none.
 (defbehavior touch-tracker-init touch-tracker ((arg0 vector) (arg1 float) (arg2 time-frame))
   (let ((s4-0 (new 'process 'collide-shape-moving self (collide-list-enum hit-by-player))))
@@ -2120,6 +1882,7 @@
   (none)
   )
 
+;; definition for function process-drawable-random-point!
 (defun process-drawable-random-point! ((arg0 process-drawable) (arg1 vector))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -2168,6 +1931,8 @@
     )
   )
 
+;; definition for function process-drawable-pair-random-point!
+;; INFO: Used lq/sq
 (defun process-drawable-pair-random-point! ((arg0 process-drawable) (arg1 process-drawable) (arg2 vector) (arg3 float))
   (let ((s4-0 (new-stack-vector0))
         (s3-0 (new-stack-vector0))
@@ -2178,6 +1943,7 @@
     )
   )
 
+;; definition of type simple-prim
 (deftype simple-prim (process-drawable)
   ((strip  prim-strip)
    )
@@ -2193,6 +1959,21 @@
     )
   )
 
+;; definition for method 3 of type simple-prim
+(defmethod inspect ((this simple-prim))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-drawable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tstrip: ~A~%" (-> this strip))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 11 of type simple-prim
 (defmethod init-from-entity! ((this simple-prim) (arg0 entity-actor))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -2240,6 +2021,7 @@
     )
   )
 
+;; definition for method 54 of type simple-prim
 (defmethod allocate-trans-and-strip! ((this simple-prim))
   (set! (-> this root) (new 'process 'trsqv))
   (quaternion-identity! (the-as quaternion (-> this root rot)))
@@ -2249,6 +2031,8 @@
     )
   )
 
+;; definition for function simple-prim-init-by-other
+;; INFO: Used lq/sq
 (defbehavior simple-prim-init-by-other simple-prim ((arg0 vector) (arg1 vector) (arg2 texture-id))
   (allocate-trans-and-strip! self)
   (set! (-> self root trans quad) (-> arg0 quad))
@@ -2257,6 +2041,7 @@
   (go-virtual active)
   )
 
+;; definition for method 52 of type simple-prim
 ;; WARN: Return type mismatch int vs none.
 (defmethod strip-setup ((this simple-prim))
   (set! (-> this strip num-verts) (the-as uint 4))
@@ -2273,6 +2058,7 @@
   (none)
   )
 
+;; failed to figure out what this is:
 (defstate active (simple-prim)
   :virtual #t
   :enter (behavior ()
@@ -2285,14 +2071,18 @@
   :code sleep-code
   )
 
+;; definition for method 53 of type simple-prim
 (defmethod get-alpha ((this simple-prim))
   128
   )
 
+;; definition for method 55 of type simple-prim
 (defmethod get-color ((this simple-prim))
   *color-gray*
   )
 
+;; definition for method 51 of type simple-prim
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch rgba vs none.
 (defmethod init-strip! ((this simple-prim))
   (rlet ((vf0 :class vf)
@@ -2395,6 +2185,7 @@
     )
   )
 
+;; definition for method 7 of type simple-prim
 (defmethod relocate ((this simple-prim) (offset int))
   (if (nonzero? (-> this strip))
       (&+! (-> this strip) offset)
@@ -2402,10 +2193,25 @@
   (call-parent-method this offset)
   )
 
+;; definition of type simple-prim-zbuf-mask
 (deftype simple-prim-zbuf-mask (simple-prim)
   ()
   )
 
+;; definition for method 3 of type simple-prim-zbuf-mask
+(defmethod inspect ((this simple-prim-zbuf-mask))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type simple-prim inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 52 of type simple-prim-zbuf-mask
 ;; WARN: Return type mismatch int vs none.
 (defmethod strip-setup ((this simple-prim-zbuf-mask))
   (set! (-> this strip num-verts) (the-as uint 4))
@@ -2422,10 +2228,12 @@
   (none)
   )
 
+;; definition for method 55 of type simple-prim-zbuf-mask
 (defmethod get-color ((this simple-prim-zbuf-mask))
   *color-black*
   )
 
+;; definition of type simple-prim-particle-binding
 (deftype simple-prim-particle-binding (simple-prim)
   ((color     rgba)
    (lifetime  uint64)
@@ -2439,15 +2247,34 @@
     )
   )
 
+;; definition for method 3 of type simple-prim-particle-binding
+(defmethod inspect ((this simple-prim-particle-binding))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type simple-prim inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tcolor: ~D~%" (-> this color))
+  (format #t "~2Tlifetime: ~D~%" (-> this lifetime))
+  (format #t "~2Tstate-time: ~D~%" (-> this state-time))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 55 of type simple-prim-particle-binding
 (defmethod get-color ((this simple-prim-particle-binding))
   (-> this color)
   )
 
+;; failed to figure out what this is:
 (defstate die (simple-prim-particle-binding)
   :virtual #t
   :code nothing
   )
 
+;; failed to figure out what this is:
 (defstate active (simple-prim-particle-binding)
   :virtual #t
   :enter (behavior ()
@@ -2462,6 +2289,7 @@
   :code sleep-code
   )
 
+;; definition for method 57 of type simple-prim-particle-binding
 ;; WARN: Return type mismatch int vs none.
 (defmethod setup! ((this simple-prim-particle-binding) (arg0 int) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (set! (-> this lifetime) (the-as uint 1500))
@@ -2497,6 +2325,7 @@
   (none)
   )
 
+;; definition for function birth-func-simple-prim
 (defun birth-func-simple-prim ((arg0 int) (arg1 sparticle-cpuinfo) (arg2 sparticle-launchinfo))
   (let ((s3-0 (get-process *default-dead-pool* simple-prim-particle-binding #x4000 1)))
     (setup!
@@ -2524,6 +2353,7 @@
   (none)
   )
 
+;; definition of type part-controller
 (deftype part-controller (process)
   ((actor-group         (pointer actor-group))
    (actor-group-count   int32)
@@ -2541,6 +2371,33 @@
     )
   )
 
+;; definition for method 3 of type part-controller
+(defmethod inspect ((this part-controller))
+  (when (not this)
+    (set! this this)
+    (goto cfg-7)
+    )
+  (let ((t9-0 (method-of-type process inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tactor-group: #x~X~%" (-> this actor-group))
+  (dotimes (s5-0 (-> this actor-group-count))
+    (format #t "~T  [~D]~2Tactor-group: ~`actor-group`P~%" s5-0 (-> this actor-group s5-0))
+    )
+  (format #t "~2Tactor-group-count: ~D~%" (-> this actor-group-count))
+  (format #t "~2Tspawn-delay: ~D~%" (-> this spawn-delay))
+  (format #t "~2Tcurrent-part-index: ~D~%" (-> this current-part-index))
+  (format #t "~2Tstate-time: ~D~%" (-> this state-time))
+  (format #t "~2Tnext-reset-time: ~D~%" (-> this next-reset-time))
+  (format #t "~2Treset-interval-min: ~D~%" (-> this reset-interval-min))
+  (format #t "~2Treset-interval-max: ~D~%" (-> this reset-interval-max))
+  (format #t "~2Tparticle-launchers: ~A~%" (-> this particle-launchers))
+  (format #t "~2Tspawn-sound: #<sound-info @ #x~X>~%" (-> this spawn-sound))
+  (label cfg-7)
+  this
+  )
+
+;; definition for method 7 of type part-controller
 (defmethod relocate ((this part-controller) (offset int))
   (if (nonzero? (-> this particle-launchers))
       (&+! (-> this particle-launchers) offset)
@@ -2548,11 +2405,14 @@
   (call-parent-method this offset)
   )
 
+;; definition for method 12 of type part-controller
 (defmethod run-logic? ((this part-controller))
   "Should this process be run? Checked by execute-process-tree."
   #t
   )
 
+;; definition for method 11 of type part-controller
+;; INFO: Used lq/sq
 (defmethod init-from-entity! ((this part-controller) (arg0 entity-actor))
   (local-vars (r0-0 uint128) (v1-5 uint128) (a0-3 object) (a1-4 uint128))
   (stack-size-set! (-> this main-thread) 32)
@@ -2630,6 +2490,7 @@
   (go (method-of-object this active))
   )
 
+;; failed to figure out what this is:
 (defstate active (part-controller)
   :virtual #t
   :enter (behavior ()
@@ -2677,9 +2538,7 @@
                )
       (when (-> self particle-launchers (-> self current-part-index))
         (let ((gp-1 (-> (the-as entity-actor (-> self actor-group 0 data (-> self current-part-index) id)) extra trans)))
-          ;; og:preserve-this bring-up guard: make-sound-instance is still commented
-          ;; out in gsound.gc, so the symbol reads 0; retail tests spawn-sound alone
-          (when (and (-> self spawn-sound) (nonzero? make-sound-instance))
+          (when (-> self spawn-sound)
             (let ((v1-30 (make-sound-instance (-> *sound-info* (-> self spawn-sound index)) 0 #f)))
               (cond
                 (v1-30
@@ -2732,6 +2591,7 @@
   :code sleep-code
   )
 
+;; definition of type sound-on-path
 (deftype sound-on-path (process-drawable)
   ((flags            uint8)
    (spawn-sound      uint128)
@@ -2749,6 +2609,30 @@
     )
   )
 
+;; definition for method 3 of type sound-on-path
+;; INFO: Used lq/sq
+(defmethod inspect ((this sound-on-path))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-drawable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tflags: ~D~%" (-> this flags))
+  (format #t "~2Tspawn-sound: ~D~%" (-> this spawn-sound))
+  (format #t "~2Tpath: ~A~%" (-> this path))
+  (format #t "~2Tloop-sound: ~D~%" (-> this loop-sound))
+  (format #t "~2Tamb-sound: ~A~%" (-> this amb-sound))
+  (format #t "~2Treverb-value: ~f~%" (-> this reverb-value))
+  (format #t "~2Treverb-radius: ~f~%" (-> this reverb-radius))
+  (format #t "~2Treverb-radius-y: ~f~%" (-> this reverb-radius-y))
+  (format #t "~2Treverb-mode: ~D~%" (-> this reverb-mode))
+  (label cfg-4)
+  this
+  )
+
+;; definition for method 10 of type sound-on-path
 (defmethod deactivate ((this sound-on-path))
   "Make a process dead, clean it up, remove it from the active pool, and return to dead pool."
   (if (nonzero? (-> this amb-sound))
@@ -2766,6 +2650,7 @@
   (none)
   )
 
+;; definition for method 7 of type sound-on-path
 ;; WARN: Return type mismatch process-drawable vs sound-on-path.
 (defmethod relocate ((this sound-on-path) (offset int))
   (if (nonzero? (-> this amb-sound))
@@ -2774,18 +2659,10 @@
   (the-as sound-on-path ((method-of-type process-drawable relocate) this offset))
   )
 
+;; definition for method 11 of type sound-on-path
 (defmethod init-from-entity! ((this sound-on-path) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (set! (-> this root) (new 'process 'trsqv))
-  ;; og:preserve-this bring-up guard: the active state's per-frame sound updates
-  ;; run through gsound's sound-instance ring (find/make/update-sound-instance),
-  ;; which is still undecompiled there -- the first update calls through a 0
-  ;; symbol and DEP-faults the EE thread. Park every sound-on-path in its own
-  ;; no-play state until the gsound instance ring lands, then delete this block.
-  (when (zero? make-sound-instance)
-    (set! (-> this root trans quad) (-> arg0 extra trans quad))
-    (go (method-of-object this no-play))
-    )
   (let ((s4-0 ((method-of-type res-lump get-property-struct)
                arg0
                'sound-name
@@ -2829,12 +2706,7 @@
       )
     (cond
       ((logtest? (-> this flags) 1)
-       ;; og:preserve-this bring-up guard: *gui-control* is 0 until gui.gc lands;
-       ;; dispatching on it jumps through garbage. Retail: unconditional method-9.
-       (if (nonzero? *gui-control*)
-           (set! (-> this loop-sound) (gui-control-method-9 *gui-control* this 18 1 (the-as string s4-0) -99.0 0))
-           (set! (-> this loop-sound) (the-as uint 0))
-           )
+       (set! (-> this loop-sound) (gui-control-method-9 *gui-control* this 18 1 (the-as string s4-0) -99.0 0))
        )
       ((!= s4-0 "")
        (set! (-> this amb-sound) (new 'process 'ambient-sound (the-as basic s4-0) (-> this root trans) 0.0))
@@ -2851,6 +2723,7 @@
   (go (method-of-object this active))
   )
 
+;; failed to figure out what this is:
 (defstate die (sound-on-path)
   :virtual #t
   :code (behavior ()
@@ -2858,11 +2731,13 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate no-play (sound-on-path)
   :virtual #t
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate active (sound-on-path)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -2894,9 +2769,7 @@
       (t9-3)
       (set! (-> self root trans quad) (-> s5-0 quad))
       (cond
-        ;; og:preserve-this bring-up guard: gate the whole gui branch on
-        ;; *gui-control* being live (gui.gc unlanded); retail tests flags alone
-        ((and (logtest? (-> self flags) 1) (nonzero? *gui-control*))
+        ((logtest? (-> self flags) 1)
          (case (gui-control-method-17 *gui-control* (-> self loop-sound))
            ((2)
             (let* ((a0-11 *gui-control*)
@@ -2912,10 +2785,7 @@
          )
         ((nonzero? (-> self amb-sound))
          (update-trans! (-> self amb-sound) s5-0)
-         ;; og:preserve-this bring-up guard: see the part-spawner update! note
-         (if (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
-             (update! (-> self amb-sound))
-             )
+         (update! (-> self amb-sound))
          )
         )
       (when (logtest? (-> self flags) 2)
@@ -2961,6 +2831,7 @@
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate active (external-camera-controller)
   :virtual #t
   :trans (behavior ()
@@ -3009,6 +2880,7 @@
     )
   )
 
+;; definition for function external-camera-controller-init-by-other
 (defbehavior external-camera-controller-init-by-other external-camera-controller ((arg0 entity) (arg1 time-frame) (arg2 symbol))
   (process-entity-set! self arg0)
   (set! (-> self pause-time) (the-as uint arg1))
@@ -3016,6 +2888,143 @@
   (go-virtual active)
   )
 
+;; definition of type crate
 (deftype crate (process-hidden)
   ()
   )
+
+;; definition for method 3 of type crate
+(defmethod inspect ((this crate))
+  (when (not this)
+    (set! this this)
+    (goto cfg-62)
+    )
+  (format #t "[~8x] ~A~%" this (-> this type))
+  (format #t "~1Tname: ~A~%" (-> this name))
+  (format #t "~1Tmask: #x~X : (process-mask " (-> this mask))
+  (let ((s5-0 (-> this mask)))
+    (if (= (logand s5-0 (process-mask process-tree)) (process-mask process-tree))
+        (format #t "process-tree ")
+        )
+    (if (= (logand (process-mask network) s5-0) (process-mask network))
+        (format #t "network ")
+        )
+    (if (= (logand s5-0 (process-mask target)) (process-mask target))
+        (format #t "target ")
+        )
+    (if (= (logand (process-mask collectable) s5-0) (process-mask collectable))
+        (format #t "collectable ")
+        )
+    (if (= (logand (process-mask projectile) s5-0) (process-mask projectile))
+        (format #t "projectile ")
+        )
+    (if (= (logand s5-0 (process-mask sleep-code)) (process-mask sleep-code))
+        (format #t "sleep-code ")
+        )
+    (if (= (logand s5-0 (process-mask actor-pause)) (process-mask actor-pause))
+        (format #t "actor-pause ")
+        )
+    (if (= (logand (process-mask bot) s5-0) (process-mask bot))
+        (format #t "bot ")
+        )
+    (if (= (logand (process-mask vehicle) s5-0) (process-mask vehicle))
+        (format #t "vehicle ")
+        )
+    (if (= (logand (process-mask enemy) s5-0) (process-mask enemy))
+        (format #t "enemy ")
+        )
+    (if (= (logand (process-mask entity) s5-0) (process-mask entity))
+        (format #t "entity ")
+        )
+    (if (= (logand s5-0 (process-mask heap-shrunk)) (process-mask heap-shrunk))
+        (format #t "heap-shrunk ")
+        )
+    (if (= (logand (process-mask sidekick) s5-0) (process-mask sidekick))
+        (format #t "sidekick ")
+        )
+    (if (= (logand s5-0 (process-mask going)) (process-mask going))
+        (format #t "going ")
+        )
+    (if (= (logand s5-0 (process-mask execute)) (process-mask execute))
+        (format #t "execute ")
+        )
+    (if (= (logand (process-mask death) s5-0) (process-mask death))
+        (format #t "death ")
+        )
+    (if (= (logand s5-0 (process-mask no-kill)) (process-mask no-kill))
+        (format #t "no-kill ")
+        )
+    (if (= (logand (process-mask platform) s5-0) (process-mask platform))
+        (format #t "platform ")
+        )
+    (if (= (logand s5-0 (process-mask freeze)) (process-mask freeze))
+        (format #t "freeze ")
+        )
+    (if (= (logand s5-0 (process-mask sleep)) (process-mask sleep))
+        (format #t "sleep ")
+        )
+    (if (= (logand s5-0 (process-mask progress)) (process-mask progress))
+        (format #t "progress ")
+        )
+    (if (= (logand s5-0 (process-mask menu)) (process-mask menu))
+        (format #t "menu ")
+        )
+    (if (= (logand (process-mask camera) s5-0) (process-mask camera))
+        (format #t "camera ")
+        )
+    (if (= (logand (process-mask ambient) s5-0) (process-mask ambient))
+        (format #t "ambient ")
+        )
+    (if (= (logand s5-0 (process-mask dark-effect)) (process-mask dark-effect))
+        (format #t "dark-effect ")
+        )
+    (if (= (logand (process-mask crate) s5-0) (process-mask crate))
+        (format #t "crate ")
+        )
+    (if (= (logand s5-0 (process-mask kernel-run)) (process-mask kernel-run))
+        (format #t "kernel-run ")
+        )
+    (if (= (logand s5-0 (process-mask movie)) (process-mask movie))
+        (format #t "movie ")
+        )
+    (if (= (logand s5-0 (process-mask pause)) (process-mask pause))
+        (format #t "pause ")
+        )
+    )
+  (format #t ")~%")
+  (format #t "~1Tclock: ~A~%" (-> this clock))
+  (format #t "~1Tview: ~A~%" (-> this view))
+  (format #t "~1Tparent: #x~X~%" (-> this parent))
+  (format #t "~1Tbrother: #x~X~%" (-> this brother))
+  (format #t "~1Tchild: #x~X~%" (-> this child))
+  (format #t "~1Tppointer: #x~X~%" (-> this ppointer))
+  (format #t "~1Tself: ~A~%" (-> this self))
+  (format #t "~1Tprofile-ticks: ~D~%" (-> this profile-ticks))
+  (format #t "~1Tpool: ~A~%" (-> this pool))
+  (format #t "~1Tstatus: ~A~%" (-> this status))
+  (format #t "~1Tpid: ~D~%" (-> this pid))
+  (format #t "~1Tmain-thread: ~A~%" (-> this main-thread))
+  (format #t "~1Ttop-thread: ~A~%" (-> this top-thread))
+  (format #t "~1Tentity: ~A~%" (-> this entity))
+  (format #t "~1Tlevel: ~A~%" (-> this level))
+  (format #t "~1Tstate: ~A~%" (-> this state))
+  (format #t "~1Tprev-state: ~A~%" (-> this prev-state))
+  (format #t "~1Tnext-state: ~A~%" (-> this next-state))
+  (format #t "~1Tstate-stack: ~A~%" (-> this state-stack))
+  (format #t "~1Ttrans-hook: ~A~%" (-> this trans-hook))
+  (format #t "~1Tpost-hook: ~A~%" (-> this post-hook))
+  (format #t "~1Tevent-hook: ~A~%" (-> this event-hook))
+  (format #t "~1Tallocated-length: ~D~%" (-> this allocated-length))
+  (format #t "~1Theap-base: #x~X~%" (-> this heap-base))
+  (format #t "~1Theap-top: #x~X~%" (-> this heap-top))
+  (format #t "~1Theap-cur: #x~X~%" (-> this heap-cur))
+  (format #t "~1Tstack-frame-top: ~A~%" (-> this stack-frame-top))
+  (format #t "~1Theap: #<kheap @ #x~X>~%" (&-> this heap-base))
+  (format #t "~1Tconnection-list: ~`connectable`P~%" (-> this connection-list))
+  (format #t "~1Tstack[0] @ #x~X~%" (-> this stack))
+  (label cfg-62)
+  this
+  )
+
+;; failed to figure out what this is:
+0

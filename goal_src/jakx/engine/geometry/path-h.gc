@@ -99,7 +99,7 @@ These path-controls are typically allocated on a process heap."
     (average-segment-length (_type_ float) float)
     (path-control-method-22 () none)
     (path-control-method-23 () none)
-    (path-control-method-24 () none)
+    (path-control-method-24 (_type_ vector) float)
     (path-control-method-25 () none)
     (path-control-method-26 () none)
     (path-control-method-27 () none)
@@ -144,10 +144,15 @@ These path-controls are typically allocated on a process heap."
         (set! s4-0 (-> arg0 entity))
         )
     (when (= arg1 'path)
-      (let ((v0-0 (entity-actor-lookup s4-0 'path-actor 0)))
-        (if v0-0
-            (set! s4-0 v0-0)
-            )
+      ;; og:preserve-this bring-up guard: entity-actor-lookup's body is in the
+      ;; unlanded actor-link leg, so the symbol reads 0. Skip the path-actor
+      ;; redirect until it lands (paths then come from the entity itself).
+      (when (nonzero? entity-actor-lookup)
+        (let ((v0-0 (entity-actor-lookup s4-0 'path-actor 0)))
+          (if v0-0
+              (set! s4-0 v0-0)
+              )
+          )
         )
       )
     (let ((s5-0 (the-as object 0)))
@@ -178,7 +183,12 @@ These path-controls are typically allocated on a process heap."
                       )
                  (when v0-3
                    (set! (-> (the-as path-control s5-0) distmap) (the-as uint v0-3))
-                   ((method-of-object (the-as path-control s5-0) path-control-method-30))
+                   ;; og:preserve-this bring-up guard: method 30 (distmap fill) has its
+                   ;; body in path.gc, still a stub, so the slot reads 0 -- guard the
+                   ;; SLOT. The distmap stays zero-filled until path.gc lands.
+                   (if (nonzero? (-> path-control method-table 30))
+                       ((method-of-object (the-as path-control s5-0) path-control-method-30))
+                       )
                    )
                  )
                )
@@ -252,10 +262,13 @@ These path-controls are typically allocated on a process heap."
         (set! arg2 (-> arg0 entity))
         )
     (when (= arg1 'path)
-      (let ((v0-0 (entity-actor-lookup arg2 'path-actor 0)))
-        (if v0-0
-            (set! arg2 v0-0)
-            )
+      ;; og:preserve-this bring-up guard: see the path-control new note above
+      (when (nonzero? entity-actor-lookup)
+        (let ((v0-0 (entity-actor-lookup arg2 'path-actor 0)))
+          (if v0-0
+              (set! arg2 v0-0)
+              )
+          )
         )
       )
     (let ((s5-0 (the-as object 0)))
@@ -290,7 +303,10 @@ These path-controls are typically allocated on a process heap."
                       )
                  (when v0-6
                    (set! (-> (the-as curve-control s5-0) distmap) (the-as uint v0-6))
-                   ((method-of-object (the-as curve-control s5-0) path-control-method-30))
+                   ;; og:preserve-this bring-up guard: see the path-control site above
+                   (if (nonzero? (-> curve-control method-table 30))
+                       ((method-of-object (the-as curve-control s5-0) path-control-method-30))
+                       )
                    )
                  )
                )

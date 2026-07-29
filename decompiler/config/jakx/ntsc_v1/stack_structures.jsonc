@@ -207,5 +207,27 @@
     [16, "vector"],
     [32, "vector"]
   ],
-  "(method 61 ocean)": [[16, "vector"]]
+  "(method 61 ocean)": [[16, "vector"]],
+  // debris (jak3 entries; debris-group methods sit +1 vs jak3, and jakx
+  // spills the second bbox-inflate vector at sp+32 where jak3 reused a register)
+  "(method 16 debris-group)": [
+    [32, "vector"],
+    [64, "vector"]
+  ],
+  "debris-group-init-by-other": [[16, "vector"]],
+  // joint-exploder (jak3 entries; joint-exploder methods sit +30 vs jak3)
+  "(method 52 joint-exploder)": [[16, "collide-query"]],
+  "(method 55 joint-exploder)": [[16, "bounding-box"]],
+  // generic-obs
+  "entity-lookup-part-group": [
+    [32, "event-message-block"]
+  ],
+  "(method 11 part-spawner)": [[16, "event-message-block"]],
+  "(method 17 lightning-tracker)": [[32, "vector"]],
+  // net-simple-destruct
+  "count-powerups": [[16, ["array", "int32", 1]]],
+  "rand-spawn-pickup": [[32, "vector"]],
+  "spawn-pickups-from-destructible": [[16, ["inline-array", "vector", 2]]],
+  "(event idle net-simple-destruct)": [[16, "event-message-block"]],
+  "(code active lightning-tracker)": [[16, "vector"]]
 }

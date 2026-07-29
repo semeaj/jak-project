@@ -25,7 +25,13 @@
 
 (define *spawn-actors* #t)
 
-(define *compact-actors* #t)
+;; og:preserve-this bring-up: #f until relocate.gc lands. The dead-pool compactor
+;; relocates process heaps, and the relocate overrides for the newly-landed
+;; process types (part-spawner, part-tracker, manipy, lightning-tracker) live in
+;; the still-stubbed relocate.gc -- without them, compaction leaves stale
+;; part/sound pointers and deactivate later dispatches through garbage (the
+;; attract-camera DEP crash). Restore #t with the relocate.gc landing.
+(define *compact-actors* #f)
 
 ;; og:preserve-this bring-up: #f = distance-only spawning (retail default #t gates
 ;; births on vis-bits, which stay zeroed until the .VIS leg lands, so no actor
@@ -396,6 +402,48 @@
     (set! (-> arg1 extra process) #f)
     )
   (none)
+  )
+
+;; WARN: Return type mismatch entity vs entity-actor.
+(defun entity-actor-from-level-name ((arg0 symbol))
+  (let ((v0-0 (the-as entity #f)))
+    (dotimes (s5-0 (-> *level* length))
+      (let ((s4-0 (-> *level* level s5-0)))
+        (when (= (-> s4-0 status) 'active)
+          (when (= (-> s4-0 name) arg0)
+            (when (zero? (-> s4-0 entity length))
+              (format 0 "ERROR: level ~s has no entities!!" (-> s4-0 name))
+              (when *debug-segment*
+                (break!)
+                0
+                )
+              )
+            (set! v0-0 (-> s4-0 entity data 0 entity))
+            )
+          )
+        )
+      )
+    (the-as entity-actor v0-0)
+    )
+  )
+
+;; WARN: Return type mismatch int vs entity-perm-status.
+(defun process-entity-status! ((arg0 process) (arg1 entity-perm-status) (arg2 symbol))
+  (the-as entity-perm-status (cond
+                               ((and (-> arg0 entity) arg0 (= arg0 (-> arg0 entity extra process)))
+                                (let ((v1-6 (-> arg0 entity extra)))
+                                  (if arg2
+                                      (logior! (-> v1-6 perm status) arg1)
+                                      (logclear! (-> v1-6 perm status) arg1)
+                                      )
+                                  (the-as int (-> v1-6 perm status))
+                                  )
+                                )
+                               (else
+                                 0
+                                 )
+                               )
+          )
   )
 
 (defmethod kill! ((this entity-actor))

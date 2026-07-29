@@ -20,7 +20,7 @@
 (define-extern sound-bank-unload (function sound-name int))
 (define-extern sound-stop (function sound-id int))
 (define-extern sound-set-volume (function uint float int))
-(define-extern find-sound-instance function)
+(define-extern find-sound-instance (function sound-id symbol sound-instance))
 (define-extern find-sound-handle function)
 (define-extern get-sound-handle function)
 (define-extern release-sound-handle function)
@@ -1264,11 +1264,17 @@
 
 ;; definition for method 16 of type ambient-sound
 (defmethod stop! ((this ambient-sound))
-  (let ((t9-0 sound-stop)
-        (a0-1 (-> this playing-id))
-        )
-    #t
-    (t9-0 a0-1)
+  ;; og:preserve-this bring-up guard: sound-stop is still commented out above, so
+  ;; the symbol reads 0 -- an unguarded call here DEP-faults the first time any
+  ;; process with an ambient-sound deactivates (part-spawner parking hit this).
+  ;; Drop the nonzero? gate when sound-stop lands.
+  (when (nonzero? sound-stop)
+    (let ((t9-0 sound-stop)
+          (a0-1 (-> this playing-id))
+          )
+      #t
+      (t9-0 a0-1)
+      )
     )
   0
   )

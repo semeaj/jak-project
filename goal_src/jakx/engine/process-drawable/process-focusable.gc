@@ -70,7 +70,7 @@
     (process-focusable-method-54 () none) ;; 54
     (process-focusable-method-55 (_type_) meters) ;; 55 ;; jak3 get-water-height(25)+30
     (process-focusable-method-56 (_type_) time-frame) ;; 56 ;; jak3 get-notice-time(26)+30
-    (process-focusable-method-57 () none) ;; 57
+    (process-focusable-method-57 (_type_) float) ;; 57 ;; jak3 27 shifted; nsd's impl returns a constant scale that impact-destroys? multiplies into the impulse
     (process-focusable-method-58 () none) ;; 58
     )
   )

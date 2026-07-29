@@ -370,6 +370,11 @@
     "DGO/XIMLEV.DGO"
   ],
   "skip_compile_files": [
+    // the decompiler cannot express the two zero-filled statics
+    // (*net-simple-destruct-indices* int16 x400 and the symbol-array powerup name
+    // table print as <static-data Lnn>); goal_src lands compilable equivalents
+    // and the decomp-vs-REF diff still gates the code
+    "net-simple-destruct",
     "types-h", // weird array of types.
     // "hfrag-h", // weird duplicate type
     // the REFs record the parked VU0/scratchpad decompression family (joint) and the
@@ -395,6 +400,12 @@
     // "scene-actor" // top level lambda that defines a type
   ],
   "skip_compile_functions": [
+    // generic-obs: the decompiler applies these casts internally but drops the
+    // printed the-as (mat-joint as matrix / pf get-trans dispatch / editor float
+    // event result); the landed goal_src carries hand-casts at the same sites
+    "part-tracker-init-base",
+    "(method 17 lightning-tracker)",
+    "(method 11 part-spawner)",
     // cache stuff
     "invalidate-cache-line",
     // dma
@@ -420,5 +431,9 @@
     // reason; goal_src comments them out and indexes the arrays instead.
     "bones-mtx-calc-execute"
   ],
-  "skip_compile_states": {}
+  "skip_compile_states": {
+    // bad handle->process folds (jak3 carries the same class of entries); the
+    // landed goal_src carries hand-folded handle->process at these sites
+    "(idle manipy)": ["event", "code"]
+  }
 }

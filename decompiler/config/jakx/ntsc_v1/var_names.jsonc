@@ -666,5 +666,15 @@
   },
   "vector-rad<-vector-deg/2!": {
     "args": ["out", "in"]
+  },
+  // debris (jak3 entries; debris-group methods sit +1 vs jak3)
+  "debris-group-init-by-other": {
+    "args": ["tuning", "params", "pdraw"]
+  },
+  "(method 16 debris-group)": {
+    "args": ["this", "idx"]
+  },
+  "(method 17 debris-group)": {
+    "args": ["this", "idx"]
   }
 }

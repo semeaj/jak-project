@@ -554,8 +554,8 @@ particle system itself. This type just holds the launching-related state."
    )
   (:methods
     (new (symbol type sparticle-system uint float symbol float) _type_)
-    (sparticle-subsampler-method-9 () none)
-    (sparticle-subsampler-method-10 () none)
+    (init-with-vec! (_type_ vector) vector)
+    (init-with-mat! (_type_ matrix) matrix)
     )
   )
 
