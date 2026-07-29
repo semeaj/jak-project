@@ -5,6 +5,25 @@
 using ::jakx::intern_from_c;
 
 namespace Mips2C::jakx {
+// The PS2 code sets up VU0 macro-mode registers (camera matrix in vf28-vf31, hvdf/persp
+// constants in vf13/vf14/vf25-vf27) in init-ocean-far-regs and consumes them in
+// render-ocean-quad / draw-large-polygon-ocean. On PC each of those runs as a separate
+// mips2c invocation with a fresh register context, so the vf state must be carried
+// across invocations explicitly, exactly like jak3's ocean_regs_vfs and jakx's
+// sky_regs_vfs.
+ExecutionContext ocean_regs_vfs;
+// defined later in this file; render-ocean-quad tail-calls it with `jr t9`.
+namespace draw_large_polygon_ocean {
+u64 execute(void* ctxt);
+}
+// defined in sky.cpp; draw-large-polygon-ocean passes state (t5/t6, vf13-vf31) that the
+// GOAL trampoline would not carry, so they must be called directly on the same context.
+namespace clip_polygon_against_positive_hyperplane {
+u64 execute(void* ctxt);
+}
+namespace clip_polygon_against_negative_hyperplane {
+u64 execute(void* ctxt);
+}
 namespace render_ocean_quad {
 struct Cache {
   void* fake_scratchpad_data; // *fake-scratchpad-data*
@@ -13,8 +32,8 @@ struct Cache {
 
 u64 execute(void* ctxt) {
   auto* c = (ExecutionContext*)ctxt;
-  bool bc = false;
-  u32 call_addr = 0;
+  // restore the vf state saved by init-ocean-far-regs (separate mips2c invocation).
+  c->copy_vfs_from_other(&ocean_regs_vfs);
   c->mov64(v1, a0);                                 // or v1, a0, r0
   get_fake_spad_addr2(t5, cache.fake_scratchpad_data, 0, c);// lui t5, 28672
   c->ori(t5, t5, 12288);                            // ori t5, t5, 12288
@@ -81,6 +100,10 @@ u64 execute(void* ctxt) {
   c->sqc2(vf10, 144, t0);                           // sqc2 vf10, 144(t0)
   c->load_symbol2(t9, cache.draw_large_polygon_ocean);// lw t9, draw-large-polygon-ocean(s7)
   // Unknown instr: jr t9
+  // the original code tail-calls draw-large-polygon-ocean, which is what actually emits
+  // the quad to the dma buffer; call it directly on the same context so t5/t6/t1 and the
+  // vf state survive (going through the GOAL trampoline would reset them).
+  return draw_large_polygon_ocean::execute(c);
   // nop                                            // sll r0, r0, 0
   //jr ra                                           // jr ra
   c->daddu(sp, sp, r0);                             // daddu sp, sp, r0
@@ -95,7 +118,7 @@ end_of_function:
 void link() {
   cache.fake_scratchpad_data = intern_from_c(-1, 0, "*fake-scratchpad-data*").c();
   cache.draw_large_polygon_ocean = intern_from_c(-1, 0, "draw-large-polygon-ocean").c();
-  gLinkedFunctionTable.reg("render-ocean-quad", execute, 128);
+  gLinkedFunctionTable.reg("render-ocean-quad", execute, 256);
 }
 
 } // namespace render_ocean_quad
@@ -114,7 +137,7 @@ struct Cache {
 u64 execute(void* ctxt) {
   auto* c = (ExecutionContext*)ctxt;
   bool bc = false;
-  u32 call_addr = 0;
+  [[maybe_unused]] u32 call_addr = 0;
   // nop                                            // sll r0, r0, 0
   c->daddiu(sp, sp, -16);                           // daddiu sp, sp, -16
   c->mov64(t7, s7);                                 // or t7, s7, r0
@@ -124,7 +147,8 @@ u64 execute(void* ctxt) {
   c->mov64(t0, t6);                                 // or t0, t6, r0
   call_addr = c->gprs[t9].du32[0];                  // function call:
   c->daddu(t3, a3, r0);                             // daddu t3, a3, r0
-  c->jalr(call_addr);                               // jalr ra, t9
+  // c->jalr(call_addr);                            // jalr ra, t9
+  clip_polygon_against_positive_hyperplane::execute(ctxt);
   bc = c->sgpr64(t1) == 0;                          // beq t1, r0, L117
   // nop                                            // sll r0, r0, 0
   if (bc) {goto block_11;}                          // branch non-likely
@@ -133,7 +157,8 @@ u64 execute(void* ctxt) {
   c->mov64(t0, t5);                                 // or t0, t5, r0
   call_addr = c->gprs[t9].du32[0];                  // function call:
   c->daddiu(t3, a3, 4);                             // daddiu t3, a3, 4
-  c->jalr(call_addr);                               // jalr ra, t9
+  // c->jalr(call_addr);                            // jalr ra, t9
+  clip_polygon_against_positive_hyperplane::execute(ctxt);
   bc = c->sgpr64(t1) == 0;                          // beq t1, r0, L117
   c->load_symbol2(t9, cache.clip_polygon_against_negative_hyperplane);// lw t9, clip-polygon-against-negative-hyperplane(s7)
   if (bc) {goto block_11;}                          // branch non-likely
@@ -142,7 +167,8 @@ u64 execute(void* ctxt) {
   c->mov64(t0, t6);                                 // or t0, t6, r0
   call_addr = c->gprs[t9].du32[0];                  // function call:
   c->daddu(t3, a3, r0);                             // daddu t3, a3, r0
-  c->jalr(call_addr);                               // jalr ra, t9
+  // c->jalr(call_addr);                            // jalr ra, t9
+  clip_polygon_against_negative_hyperplane::execute(ctxt);
   bc = c->sgpr64(t1) == 0;                          // beq t1, r0, L117
   // nop                                            // sll r0, r0, 0
   if (bc) {goto block_11;}                          // branch non-likely
@@ -151,7 +177,8 @@ u64 execute(void* ctxt) {
   c->mov64(t0, t5);                                 // or t0, t5, r0
   call_addr = c->gprs[t9].du32[0];                  // function call:
   c->daddiu(t3, a3, 4);                             // daddiu t3, a3, 4
-  c->jalr(call_addr);                               // jalr ra, t9
+  // c->jalr(call_addr);                            // jalr ra, t9
+  clip_polygon_against_negative_hyperplane::execute(ctxt);
   bc = c->sgpr64(t1) == 0;                          // beq t1, r0, L117
   c->lw(t0, 4, a1);                                 // lw t0, 4(a1)
   if (bc) {goto block_11;}                          // branch non-likely
@@ -478,6 +505,9 @@ block_3:
   // nop                                            // sll r0, r0, 0
   // nop                                            // sll r0, r0, 0
 end_of_function:
+  // save the vf state (camera matrix, clip constants) for render-ocean-quad, which runs
+  // as a separate mips2c invocation with a fresh register context.
+  ocean_regs_vfs.copy_vfs_from_other(c);
   return c->gprs[v0].du64[0];
 }
 
