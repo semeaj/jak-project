@@ -6,7 +6,9 @@
 ;; dgos: ENGINE, GAME
 
 ;; og:preserve-this externs for later-building objects, jak3's own top-of-file set
-;; minus merc-blend-shape (not yet typed for jakx)
+;; (merc-blend-shape in jak3's spot with jak3's sig; the jakx merc-blend-shape.gc
+;; carries only the blerc stubs, so this symbol reads 0 at runtime and the
+;; evaluate-joint-control call site guards it until the blend-shape leg lands)
 (define-extern cspace-by-name (function process-drawable string cspace))
 (define-extern cspace-index-by-name (function process-drawable string int))
 (define-extern joint-control-reset! (function joint-control joint-control-channel none :behavior process-drawable))
@@ -15,6 +17,7 @@
 (define-extern vector<-cspace! (function vector cspace vector))
 (define-extern ja-channel-set! (function int int :behavior process-drawable))
 (define-extern ja-post (function none :behavior process-drawable))
+(define-extern merc-blend-shape (function process-drawable object))
 (define-extern ja-channel-push! (function int time-frame int :behavior process-drawable))
 (define-extern ja-aframe-num (function int float :behavior process-drawable))
 (define-extern ja-frame-num (function int float :behavior process-drawable))

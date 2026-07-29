@@ -2000,7 +2000,7 @@
     (let ((gp-1 (logtest? (-> self draw status) (draw-control-status uninited))))
       (logclear! (-> self draw status) (draw-control-status no-draw-temp uninited))
       (when (nonzero? (-> self skel))
-        (process-drawable-method-49 self)
+        (evaluate-joint-control self)
         (when (or (logtest? (-> self skel status) (joint-control-status sync-math)) gp-1)
           (do-joint-math (-> self draw) (-> self node-list) (-> self skel))
           (if (and gp-1 (type? (-> self root) collide-shape))

@@ -1186,17 +1186,125 @@
   )
 
 
-;; og:preserve-this bring-up stub: method 49 is the jakx per-frame joint-control
-;; evaluator (jak3's evaluate-joint-control moved into the vtable, opening with the
-;; skel top-anim update; retail body at process-drawable_ir2.asm L167, CFG
-;; unresolved). The stub holds every actor at its initialize-skeleton pose (channel
-;; frame 0) without advancing animation; the full port needs
-;; joint-control-channel-eval (unlanded, jak3 joint.gc home) and retires with the
-;; anim-evaluation follow-up. Sole caller today: ja-post. Retail returns the
-;; associated vehicle process (cam-vehicle-update checks its next-state); #f is
-;; the honest no-vehicle answer.
-(defmethod process-drawable-method-49 ((this process-drawable))
-  (the-as process #f)
+;; og:preserve-this hand-restored control flow, jak3's own annotated text: the CFG
+;; fails on the two return-from-thread exits (jak3's evaluate-joint-control failed
+;; identically and was hand-restored the same way). The jakx retail body (asm L167)
+;; is jak3 method 19 relocated into vtable slot 49, machine-verbatim except one body
+;; delta noted below at L175. Returns 0 (asm L185); the old stub comment's
+;; vehicle-process reading was net-player method 49, not this.
+;; ERROR: Unsupported inline assembly instruction kind - [lw ra, return-from-thread(s7)]
+;; ERROR: Unsupported inline assembly instruction kind - [jr ra]
+(defmethod evaluate-joint-control ((this process-drawable))
+  (local-vars (s1-0 joint-control-channel) (s2-0 int) (s4-0 uint) (s7-0 none) (ra-0 int))
+  (let ((gp-0 (-> this skel)))
+    (let ((a0-1 (-> gp-0 top-anim)))
+      (b! (not a0-1) cfg-2 :delay (empty-form))
+      (update a0-1)
+      )
+    (until (= s4-0 (+ (-> gp-0 active-channels) (-> gp-0 float-channels)))
+      (label cfg-2)
+      (set! s4-0 (+ (-> gp-0 active-channels) (-> gp-0 float-channels)))
+      (let ((s3-0 (current-time)))
+        (b! (logtest? (-> this draw status) (draw-control-status no-draw)) cfg-45 :delay (empty-form))
+        (set! s2-0 0)
+        (b! #t cfg-30 :delay (nop!))
+        (label cfg-4)
+        (set! s1-0 (-> gp-0 channel s2-0))
+        (b!
+          (not (and (logtest? (-> s1-0 command) (joint-control-command jcc32)) (!= (-> s1-0 eval-time) s3-0)))
+          cfg-10
+          :delay (empty-form)
+          )
+        )
+      (joint-control-channel-eval s1-0)
+      )
+    (label cfg-10)
+    (let ((v1-19 (-> s1-0 command)))
+      (b! (!= v1-19 (joint-control-command stack)) cfg-12 :delay (nop!))
+      (b! #t cfg-29 :delay (nop!))
+      (label cfg-12)
+      (cond
+        ((= v1-19 (joint-control-command stack1))
+         (set! (-> gp-0 channel (+ s2-0 -1) frame-interp 0) (-> s1-0 frame-interp 0))
+         (set! (-> gp-0 channel (+ s2-0 -1) frame-interp 1) (-> s1-0 frame-interp 1))
+         )
+        (else
+          (let ((s0-0 (-> s1-0 frame-group)))
+            (when (not (and s0-0 (nonzero? s0-0) (= (logand (the-as int s0-0) 7) 4) (= (-> s0-0 type) art-joint-anim)))
+              (go process-drawable-art-error "joint-anim")
+              ;; og:preserve-this
+              ;; (.lw ra-0 return-from-thread s7-0)
+              ;; (.jr ra-0)
+              (abandon-thread)
+              (nop!)
+              0
+              )
+            ;; og:preserve-this the one jakx body delta vs jak3 (asm L175/B23): where
+            ;; jak3 runs the *anim-manager* block (mark-anim-in-use on flag 2,
+            ;; decompress on flag 1), the jakx original goes to the art-error state
+            ;; with the L461 string on any nonzero frames flags; retail jakx ships no
+            ;; joint-anim compression path. Same return-from-thread exit shape as the
+            ;; "joint-anim" error above.
+            (when (nonzero? (-> s0-0 frames flags))
+              (go process-drawable-art-error "joint-anim compression not supported anymore")
+              ;; og:preserve-this
+              ;; (.lw ra-0 return-from-thread s7-0)
+              ;; (.jr ra-0)
+              (abandon-thread)
+              (nop!)
+              0
+              )
+            (set! (-> s1-0 frame-num)
+                  (fmax 0.0 (fmin (-> s1-0 frame-num) (the float (+ (-> s0-0 frames num-frames) -1))))
+                  )
+            )
+          )
+        )
+      )
+    (label cfg-29)
+    (+! s2-0 1)
+    (label cfg-30)
+    (b! (< s2-0 (the-as int s4-0)) cfg-4)
+    (dotimes (v1-56 (the-as int s4-0))
+      (set! (-> gp-0 channel v1-56 frame-interp 0) (fmax 0.0 (fmin 1.0 (-> gp-0 channel v1-56 frame-interp 0))))
+      (set! (-> gp-0 channel v1-56 frame-interp 1) (fmax 0.0 (fmin 1.0 (-> gp-0 channel v1-56 frame-interp 1))))
+      )
+    (if (or (zero? s4-0) (or (not (-> gp-0 root-channel 0 frame-group)) (zero? (-> gp-0 active-channels))))
+        (logior! (-> this draw status) (draw-control-status no-draw-temp))
+        )
+    ;; og:preserve-this bring-up guards on the merc blend-shape/eye leg: retail calls
+    ;; both unguarded (asm B39/B41), but the jakx merc-blend-shape.gc and eye.gc are
+    ;; bring-up stubs that never define merc-blend-shape / merc-eye-anim, so both
+    ;; symbols read 0 until that leg lands; the viewer sets exactly these status bits
+    ;; (viewer.gc logior!s blend-shape + eye-anim), so the guards are exercised by any
+    ;; skeleton'd viewer every frame.
+    (if (logtest? (-> this skel status) (joint-control-status blend-shape blend-shape-valid))
+        (if (nonzero? merc-blend-shape)
+            (merc-blend-shape this)
+            )
+        )
+    (if (logtest? (-> this skel status) (joint-control-status eye-anim-valid eye-anim))
+        (if (nonzero? merc-eye-anim)
+            (merc-eye-anim this)
+            )
+        )
+    (label cfg-45)
+    ;; og:preserve-this bring-up guard: retail dispatches effect-control method 9
+    ;; unguarded (asm B43), but jakx effect-control.gc is empty so the declared slot
+    ;; (effect-control-h.gc) is null; guard the SLOT, not just the object (the
+    ;; game-info m14 lesson). Re-derive to the plain dispatch when effect-control lands.
+    (let ((a0-26 (-> gp-0 effect)))
+      (when a0-26
+        (let ((t9-ec9 (method-of-object a0-26 effect-control-method-9)))
+          (if (nonzero? (the-as int t9-ec9))
+              (t9-ec9 a0-26)
+              )
+          )
+        )
+      )
+    )
+  0
+  (none)
   )
 
 ;; WARN: Return type mismatch int vs none.
@@ -1206,7 +1314,7 @@
     (let ((gp-1 (logtest? (-> self draw status) (draw-control-status uninited))))
       (logclear! (-> self draw status) (draw-control-status no-draw-temp uninited))
       (when (nonzero? (-> self skel))
-        (process-drawable-method-49 self)
+        (evaluate-joint-control self)
         (when (or (logtest? (-> self skel status) (joint-control-status sync-math)) gp-1)
           (do-joint-math (-> self draw) (-> self node-list) (-> self skel))
           (if (and gp-1 (type? (-> self root) collide-shape))

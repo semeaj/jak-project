@@ -26,7 +26,7 @@
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
     (process-drawable-method-48 (_type_) float)
-    (process-drawable-method-49 (_type_) process)
+    (evaluate-joint-control (_type_) none)
     )
   (:states
     (process-drawable-art-error string)

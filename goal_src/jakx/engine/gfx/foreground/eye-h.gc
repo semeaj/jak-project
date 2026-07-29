@@ -5,6 +5,11 @@
 ;; name in dgo: eye-h
 ;; dgos: ENGINE, GAME
 
+;; og:preserve-this jak3's own top-of-file extern (jak3 eye-h.gc); the jakx eye.gc
+;; is an empty bring-up stub, so this symbol reads 0 at runtime and the
+;; evaluate-joint-control call site guards it until the eye leg lands
+(define-extern merc-eye-anim (function process-drawable none))
+
 ;; DECOMP BEGINS
 
 (deftype eye (structure)

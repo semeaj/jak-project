@@ -118,7 +118,7 @@
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
     (process-drawable-method-48 (_type_) float) ;; stub returning -1.0 in retail
-    (process-drawable-method-49 (_type_) process) ;; returns the associated vehicle process (cam-vehicle-update checks its next-state)
+    (evaluate-joint-control (_type_) none) ;; jak3 method 19 relocated into slot 49; returns 0, the vehicle-process reading was net-player method 49
     )
   (:states
     (process-drawable-art-error string)

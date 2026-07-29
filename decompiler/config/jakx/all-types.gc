@@ -28809,7 +28809,7 @@
     (process-drawable-method-46 () none) ;; 46
     (process-drawable-method-47 () none) ;; 47
     (process-drawable-method-48 (_type_) float) ;; 48 ;; stub returning -1.0 in retail
-    (process-drawable-method-49 (_type_) process) ;; 49 ;; returns the associated vehicle process (cam-vehicle-update checks its next-state)
+    (evaluate-joint-control (_type_) none) ;; 49 ;; jak3 method 19 relocated into slot 49, byte-identical body except the anim-manager block becomes the compression art-error; returns 0 (asm L185), the vehicle-process reading was net-player method 49
     )
   (:states
     process-drawable-idle ;; associated process guessed by decompiler, old: (state process-drawable)
@@ -36823,7 +36823,7 @@
 ;; (define-extern dma-from-spr function) ;; function
 ;; (define-extern merc-dma-chain-to-spr function) ;; function
 (define-extern blerc-execute (function none))
-;; (define-extern merc-blend-shape function) ;; (function process-drawable object)
+(define-extern merc-blend-shape (function process-drawable object)) ;; jak3 sig; called by evaluate-joint-control, guarded until the blend-shape leg defines it
 ;; (define-extern setup-blerc-chains-for-one-fragment function) ;; (function object object object object object object object)
 ;; (define-extern setup-blerc-chains function) ;; (function merc-ctrl (pointer int16) dma-buffer none)
 
@@ -43060,7 +43060,7 @@
 (define-extern dirty-eyes (function none)) ;; refine after unlock
 (define-extern update-eyes (function none))
 ;; (define-extern convert-eye-data function) ;; (function eye uint float)
-;; (define-extern merc-eye-anim function) ;; (function process-drawable none)
+(define-extern merc-eye-anim (function process-drawable none)) ;; jak3 sig; called by evaluate-joint-control, guarded until the eye leg defines it
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; mem-buffer                     ;;
