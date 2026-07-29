@@ -87,7 +87,7 @@ void OceanNear::render_jakx(DmaFollower& dma,
 
   // direct setup: draw-ocean-near's 2-qw test-1 gs-set
   {
-    m_common_ocean_renderer.init_for_near();
+    m_common_ocean_renderer.init_for_near(render_state->version);
     auto setup = dma.read_and_advance();
     ASSERT(setup.vifcode0().kind == VifCode::Kind::NOP);
     ASSERT(setup.vifcode1().kind == VifCode::Kind::DIRECT);
@@ -178,7 +178,7 @@ void OceanNear::render_jak1(DmaFollower& dma,
 
   // direct setup
   {
-    m_common_ocean_renderer.init_for_near();
+    m_common_ocean_renderer.init_for_near(render_state->version);
     auto setup = dma.read_and_advance();
     ASSERT(setup.vifcode0().kind == VifCode::Kind::NOP);
     ASSERT(setup.vifcode1().kind == VifCode::Kind::DIRECT);
@@ -260,7 +260,7 @@ void OceanNear::render_jak2(DmaFollower& dma,
 
   // direct setup
   {
-    m_common_ocean_renderer.init_for_near();
+    m_common_ocean_renderer.init_for_near(render_state->version);
     auto setup = dma.read_and_advance();
     ASSERT(setup.vifcode0().kind == VifCode::Kind::NOP);
     ASSERT(setup.vifcode1().kind == VifCode::Kind::DIRECT);

@@ -13,11 +13,11 @@ class CommonOceanRenderer {
   CommonOceanRenderer();
   ~CommonOceanRenderer();
 
-  void init_for_near();
+  void init_for_near(GameVersion version);
   void kick_from_near(const u8* data);
   void flush_near(SharedRenderState* render_state, ScopedProfilerNode& prof);
 
-  void init_for_mid();
+  void init_for_mid(GameVersion version);
   void kick_from_mid(const u8* data);
   void flush_mid(SharedRenderState* render_state, ScopedProfilerNode& prof);
 
@@ -54,6 +54,13 @@ class CommonOceanRenderer {
   u32 m_next_free_index[NUM_BUCKETS] = {0};
 
   u32 m_envmap_tex = 0;
+
+  // jakx: the ocean texture TBP is dynamic (a runtime-allocated texture-anim dest published
+  // to the pool by the texture animator), recorded from the draw adgif rather than
+  // hardcoded. The adgif handlers classify draw vs envmap structurally for jakx, so the
+  // version must be known at kick time, not just at flush.
+  GameVersion m_version = GameVersion::Jak1;
+  u32 m_jakx_draw_tbp = 0;
 
   struct {
     GLuint vertex_buffer, index_buffer[NUM_BUCKETS], vao;

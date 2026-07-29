@@ -190,6 +190,16 @@ std::vector<std::string> jak3_slots = {
     "wstd-lava-base-dest",
 };
 
+// Jak X's own animated texture outputs. The sky clouds go through the clut-index path and
+// need no slot; only the two ocean fixed-anim destinations live here. Consumers sample these
+// by TBP out of the texture pool rather than by slot, but create_fixed_anim_array still
+// requires every destination to have a slot entry.
+std::vector<std::string> jakx_slots = {
+    // ocean (sky/far/mid envmap source and near surface)
+    "ocean-sky-dest",
+    "ocean-dest",
+};
+
 }  // namespace
 
 const std::vector<std::string>& jak2_animated_texture_slots() {
@@ -198,4 +208,8 @@ const std::vector<std::string>& jak2_animated_texture_slots() {
 
 const std::vector<std::string>& jak3_animated_texture_slots() {
   return jak3_slots;
+}
+
+const std::vector<std::string>& jakx_animated_texture_slots() {
+  return jakx_slots;
 }

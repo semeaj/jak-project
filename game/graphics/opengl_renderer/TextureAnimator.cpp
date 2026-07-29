@@ -259,8 +259,10 @@ int output_slot_by_idx(GameVersion version, const std::string& name) {
       v = &jak2_animated_texture_slots();
       break;
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       v = &jak3_animated_texture_slots();
+      break;
+    case GameVersion::JakX:
+      v = &jakx_animated_texture_slots();
       break;
     default:
     case GameVersion::Jak1:
@@ -476,8 +478,9 @@ const std::vector<std::string>& animated_texture_slots(GameVersion version) {
     case GameVersion::Jak2:
       return jak2_animated_texture_slots();
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       return jak3_animated_texture_slots();
+    case GameVersion::JakX:
+      return jakx_animated_texture_slots();
     default:
       ASSERT_NOT_REACHED();
   }
@@ -908,9 +911,11 @@ FixedAnimInfoJak2 anim_code_to_info(PcTextureAnimCodesJak2 code, const TextureAn
 }
 
 enum class PcTextureAnimCodesJak3 : u16 {
-  // Jak X shares this decode table. This code is emitted only by Jak X, and sits in the gap
-  // between DARKJAK_HIGHRES and SKULL_GEM so it cannot collide with a Jak 3 animation.
+  // Jak X shares this decode table. These codes are emitted only by Jak X, and sit in the
+  // gap between DARKJAK_HIGHRES and SKULL_GEM so they cannot collide with a Jak 3 animation.
   JAKX_CLUT_INDEX_TEXTURE = 24,
+  JAKX_OCEAN_SKY = 25,
+  JAKX_OCEAN = 26,
   FINISH_ARRAY = 13,
   ERASE_DEST_TEXTURE = 14,
   UPLOAD_CLUT_16_16 = 15,
@@ -1184,6 +1189,14 @@ FixedAnimInfoJak3 anim_code_to_info(PcTextureAnimCodesJak3 code, const TextureAn
       anim.name = "deshover";
       anim.anim_array_idx = animator.m_deshover_anim_array_idx;
     } break;
+    case PcTextureAnimCodesJak3::JAKX_OCEAN_SKY: {
+      anim.name = "jakx-ocean-sky";
+      anim.anim_array_idx = animator.m_jakx_ocean_sky_anim_array_idx;
+    } break;
+    case PcTextureAnimCodesJak3::JAKX_OCEAN: {
+      anim.name = "jakx-ocean";
+      anim.anim_array_idx = animator.m_jakx_ocean_anim_array_idx;
+    } break;
     default:
       anim.name = "unknown";
       lg::error("Unknown texture anim code {}", (int)code);
@@ -1419,6 +1432,20 @@ void TextureAnimator::handle_texture_anim_data(DmaFollower& dma,
                   anim_code_to_info(static_cast<PcTextureAnimCodesJak3>(vif0.immediate), *this);
               auto p = scoped_prof(anim.name.c_str());
               run_fixed_animation_array(anim.anim_array_idx, tf, texture_pool);
+              break;
+            }
+            case PcTextureAnimCodesJak3::JAKX_OCEAN_SKY:
+            case PcTextureAnimCodesJak3::JAKX_OCEAN: {
+              auto anim =
+                  anim_code_to_info(static_cast<PcTextureAnimCodesJak3>(vif0.immediate), *this);
+              // Unlike the jak3 codes above, these stay tolerant of a missing registration:
+              // setup_texture_anims_jakx skips the ocean arrays (with a warning) when the
+              // ocean textures are not in the common level, and a missed extraction should
+              // cost a black ocean rather than a failed boot.
+              if (anim.anim_array_idx >= 0) {
+                auto p = scoped_prof(anim.name.c_str());
+                run_fixed_animation_array(anim.anim_array_idx, tf, texture_pool);
+              }
               break;
             }
             case PcTextureAnimCodesJak3::CLOUDS_AND_FOG:

@@ -1,14 +1,26 @@
 #include "game/graphics/opengl_renderer/TextureAnimator.h"
 
 /*!
- * Jak X's animated textures. Today that is only the sky clouds: a pre-authored index texture
- * that the PS2 re-clut'd in VRAM every frame. The PC has no CLUT indirection at draw time, so
- * the index data is carried through extraction (the "animated_textures" list in the jakx
- * decompiler inputs) and re-clut'd on the animator side instead.
+ * Jak X's animated textures: the sky clouds, and the two ocean textures.
  *
- * The lookup is deliberately tolerant where itex_by_name would call lg::die. A missing entry
- * here means a decompiler config that was never re-extracted, and that should cost a dark sky
- * rather than a failed boot: the clouds pass is gated GOAL-side regardless.
+ * The clouds are a pre-authored index texture that the PS2 re-clut'd in VRAM every frame.
+ * The PC has no CLUT indirection at draw time, so the index data is carried through
+ * extraction (the "animated_textures" list in the jakx decompiler inputs) and re-clut'd on
+ * the animator side instead.
+ *
+ * The ocean is a pair of jak3-style fixed anims: three scrolling layers of a source texture
+ * composited into a destination each frame. "ocean-sky-dest" is *sky-texture-anim-array*
+ * slot 3 (feeds draw-ocean-far and the mid pass drw adgif); "ocean-dest" is
+ * *ocean-texture-anim-array* slot 0 (feeds the near pass). Both move_to_pool: unlike jak3's
+ * water, which is slot-consumed, every jakx consumer names the runtime-allocated dest TBP in
+ * an adgif and resolves it out of the texture pool. The per-layer scroll/rotation arrives per
+ * frame in the DMA payload's start/end vectors (from the GOAL static tables), so the defs
+ * here do not encode motion.
+ *
+ * Every lookup is deliberately tolerant where tex_by_name/itex_by_name would call lg::die. A
+ * missing entry here means a decompiler config that was never re-extracted, and that should
+ * cost a dark sky or a black ocean rather than a failed boot: both paths are gated GOAL-side
+ * on the texture record resolving regardless.
  */
 void TextureAnimator::setup_texture_anims_jakx() {
   static const char* kJakXClutIndexTextureNames[] = {"clouds"};
@@ -41,6 +53,61 @@ void TextureAnimator::setup_texture_anims_jakx() {
     rec.temp_rgba.resize((size_t)src->w * src->h);
     lg::info("[texture anim] JakX index texture '{}' ready at slot {}, {}x{}", name,
              m_jakx_clut_index_textures.size() - 1, src->w, src->h);
+  }
+
+  // Guard the fixed anims on their textures actually being in the common level, because
+  // create_fixed_anim_array resolves through tex_by_name, which is fatal on a miss.
+  auto tex_present = [&](const char* name) {
+    for (const auto& t : m_common_level->textures) {
+      if (t.debug_name == name) {
+        return true;
+      }
+    }
+    lg::warn(
+        "[texture anim] JakX texture '{}' is not in the common level, so the ocean stays "
+        "black. Has a full extract been run since the ocean textures were wired up?",
+        name);
+    return false;
+  };
+
+  // ocean-sky: *sky-texture-anim-array* slot 3, 3 layers of "ocean-sky" into a 128x128
+  // dest, one 4500-tick cycle (frame-delta 300 / frame-mod 4500 on the GOAL side).
+  if (tex_present("ocean-sky-dest") && tex_present("ocean-sky")) {
+    FixedAnimDef ocean_sky;
+    ocean_sky.tex_name = "ocean-sky-dest";
+    ocean_sky.color = math::Vector4<u8>{0, 0, 0, 0x80};
+    ocean_sky.override_size = math::Vector2<int>(128, 128);
+    ocean_sky.move_to_pool = true;
+
+    for (int i = 0; i < 3; i++) {
+      auto& layer = ocean_sky.layers.emplace_back();
+      layer.tex_name = "ocean-sky";
+      layer.end_time = 4500.f;
+      layer.set_blend_b2_d1();
+      layer.set_no_z_write_no_z_test();
+    }
+
+    m_jakx_ocean_sky_anim_array_idx = create_fixed_anim_array({ocean_sky});
+  }
+
+  // ocean: *ocean-texture-anim-array* slot 0, same shape, clock slaved to sky slot 3 by
+  // ocean-texture-anim-time-func on the GOAL side.
+  if (tex_present("ocean-dest") && tex_present("ocean")) {
+    FixedAnimDef ocean;
+    ocean.tex_name = "ocean-dest";
+    ocean.color = math::Vector4<u8>{0, 0, 0, 0x80};
+    ocean.override_size = math::Vector2<int>(128, 128);
+    ocean.move_to_pool = true;
+
+    for (int i = 0; i < 3; i++) {
+      auto& layer = ocean.layers.emplace_back();
+      layer.tex_name = "ocean";
+      layer.end_time = 4500.f;
+      layer.set_blend_b2_d1();
+      layer.set_no_z_write_no_z_test();
+    }
+
+    m_jakx_ocean_anim_array_idx = create_fixed_anim_array({ocean});
   }
 }
 

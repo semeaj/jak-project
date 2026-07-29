@@ -528,6 +528,11 @@ class TextureAnimator {
   int m_deshover_anim_array_idx = -1;
   int m_darkjak_highres_clut_blender_idx = -1;
 
+  // jak x (-1 when the ocean textures are missing from the common level; the decode
+  // switch skips the codes in that case rather than failing the boot)
+  int m_jakx_ocean_sky_anim_array_idx = -1;
+  int m_jakx_ocean_anim_array_idx = -1;
+
   std::vector<FixedAnimArray> m_fixed_anim_arrays;
 
   // note: for now these can't be easily changed because each layer has its own hand-tuned

@@ -15,7 +15,7 @@ OceanMid::OceanMid() {
 }
 
 void OceanMid::run(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof) {
-  m_common_ocean_renderer.init_for_mid();
+  m_common_ocean_renderer.init_for_mid(render_state->version);
   // first is setting base and offset
   {
     auto base_offset_tag = dma.read_and_advance();
@@ -136,7 +136,7 @@ void OceanMid::run(DmaFollower& dma, SharedRenderState* render_state, ScopedProf
 void OceanMid::run_jak2(DmaFollower& dma,
                         SharedRenderState* render_state,
                         ScopedProfilerNode& prof) {
-  m_common_ocean_renderer.init_for_mid();
+  m_common_ocean_renderer.init_for_mid(render_state->version);
   // first is setting base and offset
   {
     auto base_offset_tag = dma.read_and_advance();

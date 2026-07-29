@@ -9,10 +9,13 @@
 
 (setup-font-texture *texture-pool*)
 
-;; og:preserve-this: retail inits every texture-anim array here; the bring-up
-;; inits only the sky array (the others are never update'd yet and the car
-;; array's funcs are commented)
+;; og:preserve-this: retail inits every texture-anim array here (six of them); the
+;; bring-up inits the sky array (whose slot 3 is the ocean-sky texture: the static
+;; array boots at length 4, so init! reaches it) and the ocean array, which the
+;; ocean fixed-anim path drives. The pris/car/water/hud arrays are never update'd
+;; yet and the car array's funcs are commented.
 (init! *sky-texture-anim-array*)
+(init! *ocean-texture-anim-array*)
 
 ;; closes the kmemopen 'tpages' section texture-upload.gc opens (jak3 parity)
 (kmemclose)

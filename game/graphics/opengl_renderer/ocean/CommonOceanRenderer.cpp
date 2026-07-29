@@ -93,7 +93,8 @@ CommonOceanRenderer::~CommonOceanRenderer() {
   glDeleteVertexArrays(1, &m_ogl.vao);
 }
 
-void CommonOceanRenderer::init_for_near() {
+void CommonOceanRenderer::init_for_near(GameVersion version) {
+  m_version = version;
   m_next_free_vertex = 0;
   for (auto& x : m_next_free_index) {
     x = 0;
@@ -288,6 +289,13 @@ void CommonOceanRenderer::handle_near_adgif(const u8* data, u32 offset, u32 coun
 
   if (m_current_bucket == VertexBucket::ENV_MAP) {
     m_envmap_tex = most_recent_tbp;
+  } else if (m_version == GameVersion::JakX && most_recent_tbp) {
+    // jakx: the drw and drw2 adgifs both name the "ocean-dest" texture-anim dest, whose TBP
+    // is runtime-allocated. Record it so flush_near binds the animator's pool texture
+    // instead of the jak2 hardcoded TBP. The envmap classification above is already
+    // structural (alpha SOURCE/ZERO/DEST/DEST), so anything else naming a texture here is
+    // the ocean surface.
+    m_jakx_draw_tbp = most_recent_tbp;
   }
 
   if (m_vertices.size() - 128 < m_next_free_vertex) {
@@ -317,8 +325,11 @@ void CommonOceanRenderer::flush_near(SharedRenderState* render_state, ScopedProf
       case 0: {
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
         glBlendEquation(GL_FUNC_ADD);
-        auto tbp =
-            render_state->version == GameVersion::Jak1 ? OCEAN_TEX_TBP_JAK1 : OCEAN_TEX_TBP_JAK2;
+        // jakx: dynamic TBP recorded from the draw adgif ("ocean-dest" via the texture
+        // animator); the other games park their ocean texture at a fixed TBP.
+        u32 tbp = render_state->version == GameVersion::Jak1   ? OCEAN_TEX_TBP_JAK1
+                  : render_state->version == GameVersion::JakX ? m_jakx_draw_tbp
+                                                               : OCEAN_TEX_TBP_JAK2;
         auto tex = render_state->texture_pool->lookup(tbp);
         if (!tex) {
           tex = render_state->texture_pool->get_placeholder_texture();
@@ -414,6 +425,8 @@ void CommonOceanRenderer::kick_from_mid(const u8* data) {
 
 void CommonOceanRenderer::handle_mid_adgif(const u8* data, u32 offset) {
   u32 most_recent_tbp = 0;
+  bool saw_miptbp2 = false;
+  bool saw_alpha = false;
 
   for (u32 i = 0; i < 5; i++) {
     u64 value;
@@ -422,8 +435,12 @@ void CommonOceanRenderer::handle_mid_adgif(const u8* data, u32 offset) {
     memcpy(&addr, data + offset + 16 * i + 8, sizeof(GsRegisterAddress));
     switch (addr) {
       case GsRegisterAddress::MIPTBP1_1:
-      case GsRegisterAddress::MIPTBP2_1:
         // ignore this, it's just mipmapping settings
+        break;
+      case GsRegisterAddress::MIPTBP2_1:
+        // also just mipmapping, but on jakx its presence identifies the draw adgif (the
+        // envmap adgif carries ALPHA_1 in this slot instead).
+        saw_miptbp2 = true;
         break;
       case GsRegisterAddress::TEX1_1: {
         GsTex1 reg(value);
@@ -440,6 +457,7 @@ void CommonOceanRenderer::handle_mid_adgif(const u8* data, u32 offset) {
         most_recent_tbp = reg.tbp0();
       } break;
       case GsRegisterAddress::ALPHA_1: {
+        saw_alpha = true;
       } break;
 
       default:
@@ -448,7 +466,17 @@ void CommonOceanRenderer::handle_mid_adgif(const u8* data, u32 offset) {
     }
   }
 
-  if (most_recent_tbp != OCEAN_TEX_TBP_JAK2) {
+  if (m_version == GameVersion::JakX) {
+    // jakx: the draw TBP is dynamic ("ocean-sky-dest"'s runtime-allocated dest, published
+    // to the pool by the texture animator), so classifying by TBP value cannot work.
+    // Classify structurally instead: the drw adgif's fifth register is MIPTBP2_1
+    // (ocean-mid.gc drw-texture prims 9), the envmap's is ALPHA_1.
+    if (saw_alpha) {
+      m_envmap_tex = most_recent_tbp;
+    } else if (saw_miptbp2 && most_recent_tbp) {
+      m_jakx_draw_tbp = most_recent_tbp;
+    }
+  } else if (most_recent_tbp != OCEAN_TEX_TBP_JAK2) {
     m_envmap_tex = most_recent_tbp;
   }
 
@@ -457,7 +485,8 @@ void CommonOceanRenderer::handle_mid_adgif(const u8* data, u32 offset) {
   }
 }
 
-void CommonOceanRenderer::init_for_mid() {
+void CommonOceanRenderer::init_for_mid(GameVersion version) {
+  m_version = version;
   m_next_free_vertex = 0;
   for (auto& x : m_next_free_index) {
     x = 0;
@@ -511,8 +540,11 @@ void CommonOceanRenderer::flush_mid(SharedRenderState* render_state, ScopedProfi
   for (int bucket = 0; bucket < 2; bucket++) {
     switch (bucket) {
       case 0: {
-        auto tbp =
-            render_state->version == GameVersion::Jak1 ? OCEAN_TEX_TBP_JAK1 : OCEAN_TEX_TBP_JAK2;
+        // jakx: dynamic TBP recorded from the draw adgif ("ocean-sky-dest" via the texture
+        // animator); the other games park their ocean texture at a fixed TBP.
+        u32 tbp = render_state->version == GameVersion::Jak1   ? OCEAN_TEX_TBP_JAK1
+                  : render_state->version == GameVersion::JakX ? m_jakx_draw_tbp
+                                                               : OCEAN_TEX_TBP_JAK2;
         auto tex = render_state->texture_pool->lookup(tbp);
         if (!tex) {
           tex = render_state->texture_pool->get_placeholder_texture();

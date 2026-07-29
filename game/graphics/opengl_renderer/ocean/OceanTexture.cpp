@@ -56,6 +56,13 @@ OceanTexture::~OceanTexture() {
 }
 
 void OceanTexture::init_textures(TexturePool& pool, GameVersion version) {
+  if (version == GameVersion::JakX) {
+    // jakx never runs the OceanTexture render path: the ocean texture is a texture-anim
+    // dest composited by the TextureAnimator and published at its runtime-allocated TBP.
+    // Parking this never-rendered texture at the jak2 TBP would just occupy the pool slot
+    // with stale content, so don't.
+    return;
+  }
   TextureInput in;
   in.gpu_texture = m_result_texture.texture();
   in.w = TEX0_SIZE;
