@@ -307,7 +307,7 @@
   ((flags          uint32)
    (num-instances  uint32)
    (index          uint32)
-   (name           uint128)
+   (name           sound-name)
    (group          uint8)
    (fo-power       float)
    (fo-min         float)

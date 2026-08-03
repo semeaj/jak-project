@@ -3098,7 +3098,7 @@
   ((flags         uint32   :offset-assert 0)
    (num-instances uint32   :offset-assert 4)
    (index         uint32   :offset-assert 8)
-   (name          uint128  :offset-assert 16)
+   (name          sound-name :offset-assert 16) ;; was uint128; sound-name so the static *sound-info* table decompiles via (static-sound-name ...)
    (group         uint8    :offset-assert 32)
    (fo-power      float    :offset-assert 36)
    (fo-min        float    :offset-assert 40)

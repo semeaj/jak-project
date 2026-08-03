@@ -5,8 +5,8 @@
 ;; name in dgo: gsound
 ;; dgos: ENGINE, GAME
 
-;; static sound table, lives in a data object not yet ported
-(define *sound-info* (new 'static 'boxed-array :type sound-info)) ;; og:preserve-this bring-up: empty until the real static table lands; loops over length 0 are no-ops
+;; the static sound table lives in sound-info.o (sound-info.gc), which links before
+;; this object; defining even an empty placeholder here would clobber it at link time
 
 ;; forward declarations for defuns referenced before their definitions in this file
 (define-extern sound-name->string (function sound-name string))
