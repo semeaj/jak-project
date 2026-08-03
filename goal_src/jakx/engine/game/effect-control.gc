@@ -7,3 +7,7 @@
 
 ;; DECOMP BEGINS
 
+;; og:preserve-this bring-up: jak3-parity home for this debug gate (jak3 effect-control.gc:12).
+;; (method 9 ambient-sound) in gsound.gc reads it every update; a bare extern would leave the
+;; symbol value 0, which is truthy in GOAL, turning the debug-spam gate permanently on.
+(define *debug-effect-control* #f)

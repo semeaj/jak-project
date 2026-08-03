@@ -39,8 +39,7 @@
 (define-extern string->sound-name (function string sound-name))
 
 (define-extern get-sound-buffer-entry (function pointer))
-(define-extern sound-set-ear-trans (function vector vector vector vector vector float int))
-(define-extern ear-trans (function int vector))
+(define-extern ear-trans (function int int vector)) ;; (mode view-idx); the old 1-arg jak3 sig orphaned the view-idx loads at every call site
 
 ;; DECOMP BEGINS
 
@@ -335,7 +334,7 @@
 
 
 (deftype sound-handle (structure)
-  ((proc           uint64)
+  ((proc           handle) ;; always the owner handle; get-sound-handle stores it, find-sound-handle compares it
    (flags          uint64)
    (fader-cur      float)
    (fader-targ     float)
@@ -377,11 +376,11 @@
    (nocd                uint32)
    (dirtycd             uint32)
    (chinfo              uint8              48)
-   (id-info             sound-info         48)
+   (id-info             sound-id           48) ;; per-channel playing ids from the IOP (pairs with chinfo); was a sound-info ref guess, but build-sound-list compares these words against instance ids
    (pad                 int32              2)
    (music-position      uint32)
    (music-status        uint32                       :offset 268)
-   (music-name          string                       :offset 272)
+   (music-name          sound-stream-name  :inline   :offset 272) ;; was a string ref guess; update-jukebox-music byte-tests music-name[0], and 272..320 is exactly one 48-char name buffer
    (stream-position     uint32             4         :offset 320)
    (stream-status       stream-status      4)
    (stream-name         sound-stream-name  4 :inline)

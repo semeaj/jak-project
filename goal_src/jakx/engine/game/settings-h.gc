@@ -518,7 +518,7 @@
     (setting-control-method-13 (_type_ engine-pers object object object object) none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none) ;; 14 ;; (setting-control-method-14 (_type_ object) connectable)
     (setting-control-method-15 (_type_ object object object object object) connectable) ;; 15 ;; (get-setting (_type_ object) connectable)
-    (setting-control-method-16 (_type_ process object object) none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
+    (setting-control-method-16 (_type_ process object) none) ;; 16 ;; remove-setting; arity from the m16 body in settings.gc (arg2 never read; the 4-arg decl orphaned a phantom a3 at every call site)
     (setting-control-method-17 (_type_ symbol object object object) connection) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
     (setting-control-method-18 (_type_ int object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data); jakx: camera id first (cam-disconnect-by-key)
     (setting-control-method-19 (_type_ object) user-setting-data) ;; 19 ;; (update (_type_) user-setting-data)

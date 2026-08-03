@@ -169,6 +169,7 @@
   "string->sound-name": [[16, ["array", "sound-name", 1]]],
   "sound-name->string": [[16, ["array", "uint8", 16]]],
   "doppler-pitch-shift": [[16, ["inline-array", "vector", 2]]],
+  "build-sound-list": [[16, "event-message-block"]],
   "(anon-function 5 gsound)": [
     [16, ["array", "symbol", 4]],
     [32, ["array", "symbol", 4]]

@@ -676,5 +676,32 @@
   },
   "(method 17 debris-group)": {
     "args": ["this", "idx"]
-  }
+  },
+  // gsound instance ring (slice-5 asm derivation)
+  "find-sound-handle": { "args": ["svc", "owner"] },
+  "release-sound-handle": { "args": ["sh"] },
+  "get-sound-handle": { "args": ["owner"] },
+  "remove-sound-instance-by-index": { "args": ["idx"] },
+  "remove-sound-instance-by-sound-id": { "args": ["id"] },
+  "find-sound-instance": { "args": ["id", "live-only?"] },
+  "make-sound-instance": { "args": ["info", "id", "owner"] },
+  "sound-instance-play": { "args": ["inst"] },
+  "sound-instance-update": { "args": ["inst"] },
+  "update-volume-with-falloff": { "args": ["inst"] },
+  "calculate-falloff-volume": {
+    "args": ["volume", "trans", "fo-power", "fo-min", "fo-max", "ear-pos", "inst"]
+  },
+  "update-pan-angle": { "args": ["inst", "allow-flip"] },
+  "calculate-pan-angle": {
+    "args": ["trans", "use-world-axes", "allow-flip", "arg3", "viewport"],
+    "vars": { "f0-6": ["angle", "float"] }
+  },
+  "update-tracking-position": { "args": ["inst"] },
+  "update-pitch-with-doppler": { "args": ["inst"] },
+  "set-sound-priority-duck-amount": { "args": ["amount"] },
+  "sound-stop": { "args": ["id", "remove-instance?"] },
+  "sound-trans-copy": { "args": ["dest", "trans"] },
+  "sound-mp-fix-trans": { "args": ["out-trans", "trans"] },
+  "ear-trans": { "args": ["mode", "view-idx"] },
+  "(method 10 engine-sound-pers)": { "args": ["this", "conn"] }
 }

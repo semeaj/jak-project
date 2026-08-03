@@ -113,7 +113,21 @@
   // automatic detection.
   "bad_format_strings": {
     "~170h~5d~220h~5d~280h~5,,2f": 3,
-    "~338h~5d~388h~5d~448h~5,,2f": 3
+    "~338h~5d~388h~5d~448h~5,,2f": 3,
+    // build-sound-list's debug-slider header row: position codes only, zero runtime args
+    "~0K~Name~130HID~+50HVol~+15HPitch~+24HPan~+18HEar~+24HDist~%": 0,
+    // its per-row twin: ~130H position code overcounts; true args = id vol pitch pan ear dist
+    "~130H~5D  ~4D  ~5D  ~4D  ~3D  ~5,,0M~%": 6,
+    // the slider readouts: ~220h position code overcounts; each takes one float
+    "sfx-volume=~220h~f~%": 1,
+    "music-volume=~220h~f~%": 1,
+    "dialog-volume=~220h~f~%": 1,
+    "music-seek-speed=~220h~f~%": 1,
+    "music-volume-ducked-by-sound=~220h~f~%": 1,
+    "music-volume-during-speech=~220h~f~%": 1,
+    "sfx-volume-during-speech=~220h~f~%": 1,
+    "final sfx-volume: ~220h~f~%": 1,
+    "~%final music-volume: ~220h~f~%": 1
   },
   "blocks_ending_in_asm_branch": {
     // foreground: jak3's blocks as the seed; iterate against the jakx CFG

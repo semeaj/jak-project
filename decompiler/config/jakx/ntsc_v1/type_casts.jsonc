@@ -843,7 +843,7 @@
   "texture-page-dir-inspect": [[[137, 138], "v1", "adgif-shader"]],
   // gsound (ported from jak3 ntsc_v1; op indices seeded from jak3, corrected against jakx ir2)
   "sound-buffer-dump": [[[13, 39], "s3", "sound-rpc-play"]],
-  "(method 10 engine-sound-pers)": [[[2, 17], "v1", "sound-rpc-set-param"]],
+  // (method 10 engine-sound-pers): jak3 cast removed; jakx rewrote the body around find-sound-instance, v1 stays sound-instance throughout
   "check-irx-version": [[[3, 51], "gp", "sound-rpc-get-irx-version"]],
   "sound-bank-load": [[[11, 16], "v1", "sound-rpc-load-bank"]],
   "sound-bank-unload": [[[6, 11], "v1", "sound-rpc-unload-bank"]],
@@ -857,13 +857,32 @@
   "sound-set-reverb": [[[5, 25], "v1", "sound-rpc-set-reverb"]],
   "sound-name->string": [[2, "a1", "(pointer sound-name)"]],
   "sound-pause": [[[3, 8], "v1", "sound-rpc-pause-sound"]],
-  "sound-stop": [[[3, 8], "v1", "sound-rpc-stop-sound"]],
+  "sound-stop": [[[3, 9], "v1", "sound-rpc-stop-sound"]],
   "sound-continue": [[[3, 8], "v1", "sound-rpc-continue-sound"]],
   "sound-group-pause": [[[3, 7], "v1", "sound-rpc-pause-group"]],
   "sound-group-stop": [[[3, 7], "v1", "sound-rpc-stop-group"]],
   "sound-group-continue": [[[3, 7], "v1", "sound-rpc-continue-group"]],
   "sound-set-fps": [[[3, 10], "v1", "sound-rpc-set-fps"]],
-  "ear-trans": [[32, "s5", "process-focusable"]],
+  "sound-set-globals": [[[3, 34], "gp", "sound-rpc-set-globals"]],
+  "sound-instance-update": [[11, "v0", "sound-rpc-set-param"]],
+  "sound-instance-play": [[7, "v0", "sound-rpc-play"]],
+  "calculate-pan-angle": [[57, "f0", "float"]],
+  "get-sound-handle": [
+    // casts at the READS of gp after the (process->handle pp) logior merge demotes it to int
+    [39, "gp", "handle"],
+    [62, "gp", "handle"],
+    [88, "gp", "handle"],
+    [82, "v1", "process-focusable"]
+  ],
+  "update-tracking-position": [
+    [[31, 35], "s4", "part-spawner"],
+    [58, "v1", "process-drawable"],
+    [[66, 69], "v1", "process-drawable"]
+  ],
+  "update-pitch-with-doppler": [
+    [28, "v1", "process-focusable"],
+    [48, "v1", "process-focusable"]
+  ],
   // entity-more-perm: narrow entity -> entity-actor after the type? guard so the etype
   // load and process-type method dispatch resolve (ranges seeded, corrected against ir2)
   "(method 13 entity-more-perm-hash)": [[[25, 40], "s4", "entity-actor"]],

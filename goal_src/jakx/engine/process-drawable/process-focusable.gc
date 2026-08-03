@@ -45,6 +45,8 @@
   (turret 32)
   (no-gravity 33)
   (gun-no-target 34)
+  ;; jakx-only bit, jak3's enum stops at 34; tested by get-sound-handle on svc-1 (vehicle) owners
+  (unk-35 35)
   )
 ;; ---focus-status
 

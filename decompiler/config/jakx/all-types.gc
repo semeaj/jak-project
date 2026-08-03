@@ -3130,7 +3130,7 @@
   )
 
 (deftype sound-handle (structure)
-  ((proc          uint64  :offset-assert 0)
+  ((proc          handle  :offset-assert 0) ;; was uint64; always holds the owner handle (get-sound-handle stores it, find-sound-handle/doppler compare it)
    (flags         uint64  :offset-assert 8)
    (fader-cur     float   :offset-assert 16)
    (fader-targ    float   :offset-assert 20)
@@ -3205,11 +3205,11 @@
    (nocd            uint32               :offset-assert 8)
    (dirtycd         uint32               :offset-assert 12)
    (chinfo          uint8             48 :offset-assert 16) ;; guessed by decompiler
-   (id-info         sound-info           48 :offset-assert 64)
+   (id-info         sound-id             48 :offset-assert 64) ;; per-channel playing ids from the IOP (pairs with chinfo); was a sound-info ref guess, but build-sound-list compares these words against instance ids
    (pad             int32           2  :offset-assert 256)
    (music-position  uint32              :offset-assert 264)
    (music-status    uint32               :offset 268)
-   (music-name string :offset 272) ;; might be wrong, used ~g
+   (music-name sound-stream-name :inline :offset 272) ;; was a string ref guess; the asm byte-tests music-name[0], and 272..320 is exactly one 48-char name buffer
    (stream-position uint32            4  :offset 320) ;; guessed by decompiler
    (stream-status   stream-status     4  :offset-assert 336) ;; guessed by decompiler
    (stream-name     sound-stream-name 4 :inline :offset-assert 352) ;; guessed by decompiler
@@ -17274,7 +17274,7 @@
     (setting-control-method-13 (_type_ engine-pers object object object object) none) ;; 13 ;; (kill-persister (_type_ engine-pers object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none) ;; 14 ;; (setting-control-method-14 (_type_ object) connectable)
     (setting-control-method-15 (_type_ object object object object object) connectable) ;; 15 ;; (get-setting (_type_ object) connectable)
-    (setting-control-method-16 (_type_ process object object) none) ;; 16 ;; (remove-setting-by-arg0 (_type_ object) none)
+    (setting-control-method-16 (_type_ process object) none) ;; 16 ;; remove-setting; arity from the landed m16 body (settings.gc): arg2 never read; the 4-arg decl made call sites orphan a phantom a3
     (setting-control-method-17 (_type_ symbol object object object) connection) ;; 17 ;; (set-setting-by-param (_type_ symbol object object object) connection)
     (setting-control-method-18 (_type_ int object object) user-setting-data) ;; 18 ;; (apply-settings (_type_) user-setting-data); jakx: camera id first (cam-disconnect-by-key)
     (setting-control-method-19 (_type_ object) user-setting-data) ;; 19 ;; (update (_type_) user-setting-data)
@@ -21089,6 +21089,7 @@
    (fragile-vehicle                      basic                                  :offset-assert 1480)
    (music-data                           uint32                         4       :offset-assert 1484)
    (music-info                           uint32                                 :offset 1484)
+   (jukebox-track                        uint8                                  :offset 1484) ;; update-jukebox-music's mod-21 track cursor, byte-cycled in the low byte of music-data[0]
    (playing-grand-prix?                  grand-prix                             :offset 1496)
    (grand-prix-index                     uint32                                 :offset-assert 1500)
    (collision-vs-rbody-damage-multiplier float                                  :offset-assert 1504)
@@ -30967,6 +30968,8 @@
   (turret 32)
   (no-gravity 33)
   (gun-no-target 34)
+  ;; jakx-only bit, jak3's enum stops at 34; tested by get-sound-handle on svc-1 (vehicle) owners
+  (unk-35 35)
   )
 ;; ---process-focusable:focus-status
 
@@ -36038,7 +36041,7 @@
   :flag-assert         #xf00000020
   )
 
-(define-extern sound-mp-fix-trans function) ;; jakx-new, sig unknown until typed re-run
+(define-extern sound-mp-fix-trans (function vector vector vector)) ;; jakx-new, asm-proven: (out-trans trans); remaps trans into view 0's frame for split-screen; #f return on the view-0 path
 (define-extern *sound-loop-engine* engine-sound-pers)
 (define-extern *sound-player-rpc* rpc-buffer-pair)
 (define-extern *sound-loader-rpc* rpc-buffer-pair)
@@ -36061,45 +36064,45 @@
 (define-extern sound-command->string (function uint string)) ;; arg is sound-command, enum not yet ported to jakx
 (define-extern sound-buffer-dump (function int))
 (define-extern *debug-sound-info-item* basic)
-(define-extern sound-instance-play function) ;; jakx-new instance ring, refine after unlock
-(define-extern sound-instance-update function) ;; jakx-new instance ring, refine after unlock
+(define-extern sound-instance-play (function sound-instance sound-id)) ;; jakx-new instance ring; reads a0 only, returns (-> inst id)
+(define-extern sound-instance-update (function sound-instance sound-id)) ;; jakx-new instance ring; reads a0 only, returns (-> inst id)
 (define-extern sound-info-by-name (function string sound-info))
-(define-extern *sound-handles* (array array))
-(define-extern find-sound-handle function) ;; jakx-new instance ring, refine after unlock
-(define-extern release-sound-handle function) ;; jakx-new instance ring, refine after unlock
-(define-extern get-sound-handle function) ;; jakx-new instance ring, refine after unlock
+(define-extern *sound-handles* (array (array sound-handle))) ;; slot 0 = 128 game handles (svc 0), slot 1 = 12 service handles (svc 1)
+(define-extern find-sound-handle (function int handle sound-handle)) ;; jakx-new instance ring; (svc owner), scans *sound-handles* slot svc for owner's proc
+(define-extern release-sound-handle (function sound-handle int)) ;; jakx-new instance ring; swap-removes from its svc pool when num-instances hits 0
+(define-extern get-sound-handle (function handle sound-handle)) ;; jakx-new instance ring; arg is owner handle with #f sentinel (falls back to (process->handle pp)); svc 1 for vehicles
 (define-extern *sound-instances* (array sound-instance))
 (define-extern find-sound-instance (function sound-id symbol sound-instance)) ;; jakx-new instance ring
-(define-extern remove-sound-instance-by-index function) ;; jakx-new instance ring, refine after unlock
-(define-extern remove-sound-instance-by-sound-id function) ;; jakx-new instance ring, refine after unlock
-(define-extern make-sound-instance (function object int symbol sound-instance))
-(define-extern update-pitch-with-doppler function) ;; jakx-new instance ring, refine after unlock
-(define-extern update-tracking-position function) ;; jakx-new instance ring, refine after unlock
-(define-extern calculate-pan-angle function) ;; jakx-new instance ring, refine after unlock
-(define-extern update-pan-angle function) ;; jakx-new instance ring, refine after unlock
-(define-extern calculate-falloff-volume function) ;; jakx-new instance ring, refine after unlock
-(define-extern update-volume-with-falloff function) ;; jakx-new instance ring, refine after unlock
+(define-extern remove-sound-instance-by-index (function int int)) ;; jakx-new instance ring; swap-remove, releases the handle
+(define-extern remove-sound-instance-by-sound-id (function sound-id int)) ;; jakx-new instance ring
+(define-extern make-sound-instance (function sound-info sound-id handle sound-instance)) ;; asm-proven: arg0's num-instances increments and lands in (-> inst info); arg2 forwards to get-sound-handle (handle, #f sentinel)
+(define-extern update-pitch-with-doppler (function sound-instance none)) ;; jakx-new instance ring; v0 paths are #f/float-0/int and the sole caller discards, so none
+(define-extern update-tracking-position (function sound-instance symbol)) ;; jakx-new instance ring; #t once position captured (flags bit 32), #f on dead handle
+(define-extern calculate-pan-angle (function vector symbol symbol symbol int float)) ;; jakx-new instance ring; (trans use-world-axes allow-flip arg3 viewport); arg3 dead in the body, caller passes info flags bit 4
+(define-extern update-pan-angle (function sound-instance symbol float)) ;; jakx-new instance ring; returns pan-angle in rotation units, caller scales by 360/65536
+(define-extern calculate-falloff-volume (function float vector float float float vector sound-instance float)) ;; jakx-new instance ring; (volume trans fo-power fo-min fo-max ear-pos inst); fo distances raw world units (floats, unlike jak3's 1/16 int16s)
+(define-extern update-volume-with-falloff (function sound-instance float)) ;; jakx-new instance ring; two-ear blend under nonzero viewport mode; returns and stores volumef
 (define-extern *sound-priority-level* int)
 (define-extern *sound-duck-amount* float)
 (define-extern *sound-priority-duck* float)
 (define-extern *music-ducked-last-frame?* symbol)
 (define-extern *slow-mo-last-frame?* symbol)
-(define-extern set-sound-priority-duck-amount function) ;; jakx-new instance ring, refine after unlock
-(define-extern unset-sound-priority-duck-amount function) ;; jakx-new instance ring, refine after unlock
-(define-extern build-sound-list function) ;; jakx-new instance ring, refine after unlock
+(define-extern set-sound-priority-duck-amount (function float float)) ;; jakx-new; writes *sound-priority-duck*, returns the arg
+(define-extern unset-sound-priority-duck-amount (function float)) ;; jakx-new; resets *sound-priority-duck* to 0.25
+(define-extern build-sound-list (function int)) ;; jakx-new per-frame walker: service-handle faders, then the instance ring (tracking/falloff/pan/doppler, play/update RPCs), then music duck
 (define-extern *sound-player-enable* symbol)
 (define-extern swap-sound-buffers (function int)) ;; jakx: arg-less, do NOT copy jak3's vector-arg sig
 (define-extern get-sound-buffer-entry (function pointer))
 (define-extern free-last-sound-buffer-entry (function none))
 (define-extern sound-basic-cb (function int (pointer int32) none))
-(define-extern sound-trans-copy function) ;; jakx-new, arg order unverified
+(define-extern sound-trans-copy (function vector vector int)) ;; jakx-new, asm-proven (dest trans); trans #f means use ear 0; truthy routes through sound-mp-fix-trans
 (define-extern string->sound-name (function string sound-name)) ;;
 (define-extern sound-name->string (function sound-name string))
 (define-extern sound-set-volume (function uint float int)) ;; arg is sound-group, enum not yet ported to jakx
 (define-extern sound-set-reverb (function int float float uint int))
 (define-extern sound-set-globals (function int)) ;; jakx: arg-less replacement for jak3 sound-set-ear-trans
 (define-extern sound-pause (function sound-id int))
-(define-extern sound-stop (function sound-id int))
+(define-extern sound-stop (function sound-id symbol int)) ;; a1 asm-proven (own read at op 1): truthy also removes the ring instance; the old 1-arg sig was the argless-placeholder class live
 (define-extern sound-continue (function sound-id int))
 (define-extern sound-group-pause (function uint int)) ;; arg is sound-group, enum not yet ported
 (define-extern sound-group-stop (function uint int)) ;; arg is sound-group, enum not yet ported
@@ -36108,7 +36111,7 @@
 (define-extern sound-volume-off (function int))
 (define-extern show-iop-info (function dma-buffer int))
 (define-extern show-iop-memory (function dma-buffer int))
-(define-extern ear-trans (function int vector))
+(define-extern ear-trans (function int int vector)) ;; (mode view-idx), a1 asm-proven (own read at op 0); jakx replaces jak3's ear-handle path with get-player-pos per viewport
 (define-extern make-sqrt-table (function none))
 (define-extern doppler-pitch-shift (function vector vector float))
 (define-extern sound-bank-reload (function none))
@@ -42727,7 +42730,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; (define-extern *footstep-surface* object) ;; pat-surface
-;; (define-extern *debug-effect-control* object) ;; symbol
+(define-extern *debug-effect-control* symbol) ;; jak3-parity: gates debug format spam in (method 9 ambient-sound); defined #f in effect-control.gc
 ;; (define-extern sound-name-with-material function) ;; (function string pat-surface string sound-name)
 (define-extern effect-param->sound-spec (function sound-spec (pointer float) int process-focusable sound-spec)) ;; 
 
@@ -49876,7 +49879,7 @@
 ;; (define-extern all-players-spawned-vehicles? function)
 ;; (define-extern local-human-player-above-height? function)
 ;; (define-extern find-ground-info function)
-;; (define-extern get-player-pos function)
+(define-extern get-player-pos (function int vector)) ;; body in net-player.o (unlanded); arity from ear-trans's call site (a0 = view index), returns the player position
 ;; (define-extern vehicle-rev-manager-init-by-other function)
 ;; (define-extern vehicle-rev-manager-spawn function)
 
