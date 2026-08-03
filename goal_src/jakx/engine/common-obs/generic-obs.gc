@@ -1224,6 +1224,24 @@
 
 (defbehavior part-tracker-init part-tracker ((arg0 part-tracker-init-params))
   (part-tracker-init-base arg0)
+  ;; og:preserve-this bring-up guard: create-launch-control ends in an unconditional
+  ;; (initialize <control> <group> <proc>) call, and sparticle-launch-control's
+  ;; initialize (slot 14) is still commented out in sparticle-launcher.gc, so that
+  ;; slot reads 0 and the call is a jump to address 0 (part-spawner slot-14 precedent
+  ;; in init-from-entity! below). With the jungle part groups resolving, the callers
+  ;; are live: jungle-part and jungle-obs spawn part-trackers with resolved groups
+  ;; (the destroy! paths, the snake-head waterfall), and any of them reaching this
+  ;; line faults. Unlike the part-spawner precedent, leaving part at 0 is not enough:
+  ;; the target branch below derefs (-> self part) unguarded, so park in
+  ;; bring-up-parked like the null-group park in part-tracker-init-base above, before
+  ;; create-launch-control runs and before anything reads part. The park logs once per
+  ;; birthed tracker, and the state sleeps silently. part-tracker-subsampler-init
+  ;; stays bare per the dead-path convention: it never calls create-launch-control.
+  ;; Delete when the particle leg lands sparticle-launch-control initialize.
+  (when (zero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
+    (format 0 "WARNING: part-tracker: sparticle-launch-control initialize unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (set! (-> self part) (create-launch-control (-> arg0 group) self))
   (when (and (-> arg0 target) (logtest? (-> self part group flags) (sp-group-flag sp12 sp14)))
     (let* ((gp-0 (-> self part))
