@@ -770,68 +770,29 @@
   )
 
 ;; definition for method 44 of type process-drawable
-;; ERROR: failed type prop at 2: Could not figure out load: (set! a0 (l.wu (+ gp 184)))
-;; ERROR: Function may read a register that is not set: a0
-(defmethod process-drawable-method-44 () (local-vars
-                                         (v0-0 none)
-                                         (v0-1 none)
-                                         (v0-2 none)
-                                         (v0-3 none)
-                                         (v1-1 none)
-                                         (v1-2 none)
-                                         (v1-3 none)
-                                         (v1-4 none)
-                                         (a0-0 none)
-                                         (a0-1 none)
-                                         (a0-2 none)
-                                         (a1-0 none)
-                                         (a1-1 none)
-                                         (a2-0 none)
-                                         (t9-0 (function object type symbol))
-                                         (t9-1 none)
-                                         (t9-2 none)
-                                         )
-  (when (begin
-          (when (begin
-                  (set! t9-0 type?)
-                  (set! a0-1 (the-as none (l.wu (+ a0-0 184))))
-                  (set! a1-0 (the-as none collide-shape))
-                  (set! v0-0 (the-as none (call!)))
-                  v0-0
-                  )
-            (set! v1-1 (the-as none (l.wu (+ a0-0 184))))
-            (set! v1-2 (the-as none (l.wu (+ v1-1 156))))
-            (s.w! (+ v1-2 28) 0)
-            (s.w! (+ v1-2 32) 0)
-            (set! v1-3 (the-as none 0))
-            )
-          (set! v1-4 (the-as none (l.wu (+ a0-0 196))))
-          (nonzero? v1-4)
-          )
-    (set! t9-1 (the-as none ja-channel-set!))
-    (set! a0-2 (the-as none 0))
-    (call!)
-    (set! v1-6 (the-as none v0-1))
+;; WARN: Return type mismatch int vs none.
+(defmethod cleanup-for-death ((this process-drawable))
+  (when (type? (-> this root) collide-shape)
+    (let ((v1-2 (-> (the-as collide-shape (-> this root)) root-prim)))
+      (set! (-> v1-2 prim-core collide-as) (collide-spec))
+      (set! (-> v1-2 prim-core collide-with) (collide-spec))
+      )
+    0
     )
-  (set! t9-2 (the-as none process-entity-status!))
-  (set! a1-1 (the-as none 4))
-  (set! a2-0 (the-as none #t))
-  (set! a0-3 (the-as none a0-0))
-  (call!)
-  (set! v0-3 (the-as none 0))
-  (ret-none)
+  (if (nonzero? (-> this skel))
+      (ja-channel-set! 0)
+      )
+  (process-entity-status! this (entity-perm-status dead) #t)
+  0
+  (none)
   )
 
 ;; definition for method 45 of type process-drawable
-;; ERROR: failed type prop at 0: Could not figure out load: (set! v1 (l.wu (+ a0 200)))
-;; ERROR: Function may read a register that is not set: a0
-;; ERROR: Function may read a register that is not set: a1
-(defmethod process-drawable-method-45 () (local-vars (v0-0 none) (v1-0 none) (v1-1 none) (a0-0 none) (a1-0 none))
-  (set! v1-0 (the-as none (l.wu (+ a0-0 200))))
-  (set! v1-1 (the-as none (+ v1-0 a1-0)))
-  (s.w! (+ a0-0 200) v1-1)
-  (set! v0-0 (the-as none 0))
-  (ret-none)
+;; WARN: Return type mismatch int vs none.
+(defmethod relocate-nav ((this process-drawable) (arg0 int))
+  (set! (-> this nav) (the-as nav-control (&+ (the-as pointer (-> this nav)) arg0)))
+  0
+  (none)
   )
 
 ;; definition for method 46 of type process-drawable
@@ -2174,7 +2135,7 @@
     (a1-1 none)
     (a2-2 none)
     (s5-0 none)
-    (t9-0 (function object int symbol sound-instance))
+    (t9-0 (function sound-info sound-id handle sound-instance))
     (t9-1 none)
     (f0-0 float)
     (f0-1 float)

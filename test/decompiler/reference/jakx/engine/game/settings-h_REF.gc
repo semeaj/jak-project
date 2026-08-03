@@ -717,7 +717,7 @@
     (setting-control-method-13 (_type_ engine-pers object object object object) none)
     (setting-control-method-14 (_type_ symbol int symbol symbol float int) none)
     (setting-control-method-15 (_type_ object object object object object) connectable)
-    (setting-control-method-16 (_type_ process object object) none)
+    (setting-control-method-16 (_type_ process object) none)
     (setting-control-method-17 (_type_ symbol object object object) connection)
     (setting-control-method-18 (_type_ int object object) user-setting-data)
     (setting-control-method-19 (_type_ object) user-setting-data)

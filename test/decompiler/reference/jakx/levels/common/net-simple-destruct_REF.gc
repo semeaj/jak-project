@@ -202,7 +202,7 @@
   :code sleep-code
   :post (behavior ()
     (when (not (-> self child))
-      ((method-of-object self process-drawable-method-44))
+      (cleanup-for-death self)
       (go empty-state)
       )
     (ja-post)

@@ -21,8 +21,8 @@
   (:methods
     (initialize-skeleton (_type_ skeleton-group pair) draw-control)
     (initialize-skeleton-by-name (_type_ string) draw-control)
-    (process-drawable-method-44 () none)
-    (process-drawable-method-45 () none)
+    (cleanup-for-death (_type_) none)
+    (relocate-nav (_type_ int) none)
     (process-drawable-method-46 () none)
     (process-drawable-method-47 () none)
     (process-drawable-method-48 (_type_) float)

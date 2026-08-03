@@ -115,7 +115,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -351,7 +351,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1087,7 +1087,7 @@
 
 ;; definition for method 61 of type jungle-stone-snake-head-draw
 (defmethod jungle-stone-snake-head-proxy-method-61 ((this jungle-stone-snake-head-draw) (arg0 process) (arg1 attack-info) (arg2 object) (arg3 penetrate))
-  (let ((v1-1 (make-sound-instance (-> *sound-info* 517) 0 #f)))
+  (let ((v1-1 (make-sound-instance (-> *sound-info* 517) (new 'static 'sound-id) (the-as handle #f))))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1105,7 +1105,7 @@
 ;; definition for method 64 of type jungle-stone-snake-head-draw
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defmethod jungle-stone-snake-head-proxy-method-64 ((this jungle-stone-snake-head-draw))
-  (let ((v1-1 (make-sound-instance (-> *sound-info* 518) 0 #f)))
+  (let ((v1-1 (make-sound-instance (-> *sound-info* 518) (new 'static 'sound-id) (the-as handle #f))))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1327,7 +1327,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1530,7 +1530,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1768,7 +1768,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1983,7 +1983,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -2107,7 +2107,3 @@
   (set! (-> this draw light-index) (the-as uint 10))
   (go (method-of-object this idle))
   )
-
-
-
-

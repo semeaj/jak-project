@@ -370,6 +370,14 @@
     "DGO/XIMLEV.DGO"
   ],
   "skip_compile_files": [
+    // gsound's *sound-handles* (L383) and *sound-bank-reload-names* (L356) statics
+    // emit as bare label refs; goal_src lands compilable hand-carries and the
+    // decomp-vs-REF diff still gates all the code
+    "gsound",
+    // gsound-h's ambient-sound new (m0) fails on srl/pcpyud inline asm and emits
+    // only the error comment block; goal_src lands the hand-carried method and the
+    // decomp-vs-REF diff still gates the types and the other methods
+    "gsound-h",
     // the decompiler cannot express the two zero-filled statics
     // (*net-simple-destruct-indices* int16 x400 and the symbol-array powerup name
     // table print as <static-data Lnn>); goal_src lands compilable equivalents
