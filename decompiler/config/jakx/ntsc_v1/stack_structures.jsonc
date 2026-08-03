@@ -234,5 +234,20 @@
   // on the stack, and the decompiler cannot guess the type of a slot only ever touched
   // with lq/sq. Same one-vector shape jak3 uses all over its stack_structures.
   "spt-func-birth-on-height-die": [[16, "vector"]],
-  "spt-func-birth-on-pop": [[16, "vector"]]
+  "spt-func-birth-on-pop": [[16, "vector"]],
+  // jungle-obs: the snake-head trio builds send-event blocks on the stack the same
+  // way nsd's idle event does; method 45 leaves two dead new-stack-vector slots.
+  "(method 43 jungle-stone-snake-head)": [[16, "event-message-block"]],
+  "(method 17 jungle-stone-snake-head)": [[16, "event-message-block"]],
+  "(enter explode jungle-stone-snake-head-proxy)": [[16, "event-message-block"]],
+  "(method 45 jungle-stone-snake-head)": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  // spawn-flame: rotate the root quat into a stack quat, expand to a matrix, then
+  // punch the transformed offset into the trans row before launching particles.
+  "spawn-flame": [
+    [16, "matrix"],
+    [80, "quaternion"]
+  ]
 }

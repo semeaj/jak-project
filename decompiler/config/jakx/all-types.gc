@@ -61462,7 +61462,7 @@
   )
 
 (deftype flaming-arrow (process-drawable)
-  ((flame-sound basic  :offset-assert 248)
+  ((flame-sound ambient-sound  :offset-assert 248)
    )
   :method-count-assert 51
   :size-assert         #xfc
@@ -61473,12 +61473,12 @@
   )
 
 (deftype jungle-stone-snake-head-proxy (process-focusable)
-  ((actor-group       uint32         :offset-assert 256)
+  ((actor-group       (pointer actor-group)         :offset-assert 256)
    (actor-group-count int32          :offset-assert 260)
    (impact-velocity   vector :inline :offset-assert 272)
    (hit-points        float          :offset-assert 288)
    (start-exploded    basic          :offset-assert 292)
-   (net-parent        uint64         :offset-assert 296)
+   (net-parent        handle         :offset-assert 296)
    )
   :method-count-assert 65
   :size-assert         #x130
@@ -61488,15 +61488,15 @@
     explode ;; 60
     )
   (:methods
-    (jungle-stone-snake-head-proxy-method-61 () none) ;; 61
-    (jungle-stone-snake-head-proxy-method-62 () none) ;; 62
-    (jungle-stone-snake-head-proxy-method-63 () none) ;; 63
-    (jungle-stone-snake-head-proxy-method-64 () none) ;; 64
+    (jungle-stone-snake-head-proxy-method-61 (_type_ process attack-info object penetrate) object) ;; 61 ;; attack entry: idle event 'attack passes (proc attack-info param0 penetrate)
+    (jungle-stone-snake-head-proxy-method-62 (_type_ rigid-body-impact) object) ;; 62 ;; impact entry: idle event 'impact-impulse, impulse * (method 57) threshold
+    (jungle-stone-snake-head-proxy-method-63 (_type_ entity-actor) none) ;; 63 ;; init collision + process-drawable-from-entity!, called from init-by-other
+    (jungle-stone-snake-head-proxy-method-64 (_type_) none) ;; 64 ;; explode effects (sound + part group), called from explode enter
     )
   )
 
 (deftype jungle-stone-snake-head-draw (jungle-stone-snake-head-proxy)
-  ((waterfall-part uint64  :offset-assert 304)
+  ((waterfall-part handle  :offset-assert 304)
    )
   :method-count-assert 65
   :size-assert         #x138
@@ -61509,7 +61509,7 @@
 
 (deftype jungle-stone-snake-head (process-nettable)
   ((exploded basic   :offset-assert 188)
-   (drawable uint64  :offset-assert 192)
+   (drawable handle  :offset-assert 192)
    )
   :method-count-assert 46
   :size-assert         #xc8
@@ -61518,9 +61518,9 @@
     idle ;; 42
     )
   (:methods
-    (jungle-stone-snake-head-method-43 () none) ;; 43
-    (jungle-stone-snake-head-method-44 () none) ;; 44
-    (jungle-stone-snake-head-method-45 () none) ;; 45
+    (jungle-stone-snake-head-method-43 (_type_) none) ;; 43 ;; send 'go-die to drawable child, clear the handle
+    (jungle-stone-snake-head-method-44 (_type_) none) ;; 44 ;; spawn the -draw child via run-function-in-process, store its handle
+    (jungle-stone-snake-head-method-45 (_type_) symbol) ;; 45 ;; vis gate: vis-dist-ok? / vis-cull-all? on the entity
     )
   )
 
@@ -61555,8 +61555,8 @@
 (define-extern *jungle-clay-jar-a-debris-params* debris-static-params)
 (define-extern *jungle-clay-jar-b-debris-params* debris-static-params)
 (define-extern spawn-flame (function none :behavior flaming-arrow))
-(define-extern jungle-stone-snake-head-draw-init-by-other function)
-(define-extern jungle-stone-snake-head-init-remote function)
+(define-extern jungle-stone-snake-head-draw-init-by-other (function jungle-stone-snake-head entity-actor basic object :behavior jungle-stone-snake-head-draw))
+(define-extern jungle-stone-snake-head-init-remote (function int none :behavior jungle-stone-snake-head))
 (define-extern *msg-map-jungle-stone-snake-head* (array symbol))
 (define-extern *net-process-class-info-jungle-stone-snake-head* net-process-class-info)
 (define-extern *jungle-stone-snake-head-explode-params* joint-exploder-static-params)

@@ -1701,5 +1701,22 @@
     [13, "v1", "int"],
     [83, "v1", "part-spawner"],
     [87, "a0", "part-spawner"]
-  ]
+  ],
+
+  // jungle-obs: the snake-head as-type joins. Same shape as
+  // "(method 62 net-simple-destruct)" above: the (if (type? x process-nettable) x)
+  // join types as process, so the method-22 dispatch through it needs the cast at
+  // the type-tag read.
+  "(method 61 jungle-stone-snake-head-proxy)": [[20, "a0", "process-nettable"]],
+  "(method 62 jungle-stone-snake-head-proxy)": [
+    [20, "a0", "process-nettable"],
+    [38, "a0", "process-drawable"]
+  ],
+  "(method 62 jungle-stone-snake-head-draw)": [
+    [9, "a0", "process-nettable"],
+    [27, "a0", "process-drawable"]
+  ],
+  // method 44 stores this's handle into the freshly spawned draw child's
+  // net-parent; ppointer->process types the child as bare process.
+  "(method 44 jungle-stone-snake-head)": [[50, "v1", "jungle-stone-snake-head-draw"]]
 }

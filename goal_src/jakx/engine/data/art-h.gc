@@ -485,4 +485,4 @@ This stores settings like the name of the art-group, shadow/level-of-detail sett
       :global-effects ,global-effects
       :clothing ,clothing)))
 
-;; TODO JAKX - data files, import them
+(import "goal_src/jakx/engine/data/art-elts.gc")
