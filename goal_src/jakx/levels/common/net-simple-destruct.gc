@@ -446,7 +446,14 @@
   :code (behavior ()
     (let ((gp-0 0))
       (until #f
-        (when (nonzero? *net-simple-destruct-ct*)
+        ;; og:preserve-this bring-up guard: *entity-more-perm*'s defining top-level
+        ;; is unlanded (extern at the top of this file), so the data deref below
+        ;; would index off the zero global. Skipping the sweep only means destruct
+        ;; perms do not respawn-track in bring-up, matching the absent save system.
+        ;; Retire when the entity-more-perm leg lands its defining top-level.
+        (when (and (nonzero? *net-simple-destruct-ct*)
+                   (nonzero? (the-as int *entity-more-perm*))
+                   )
           (dotimes (v1-2 16)
             (set! gp-0 (mod (+ gp-0 1) *net-simple-destruct-ct*))
             (let* ((a0-6 (-> *entity-more-perm* data (-> *net-simple-destruct-indices* gp-0)))

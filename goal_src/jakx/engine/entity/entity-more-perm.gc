@@ -46,6 +46,11 @@
     )
   )
 
+;; og:preserve-this bring-up extern: the global's defining top-level is in the
+;; unlanded portion of this file's original object, so the symbol reads 0 at
+;; runtime until that leg lands (same extern in net-simple-destruct.gc).
+(define-extern *entity-more-perm* entity-more-perm-hash)
+
 ;; og:preserve-this hand-written from entity-more-perm_ir2.asm (methods 13/14 fail
 ;; expression building only on the dynamic-etype method dispatch, which type casts
 ;; cannot express). Both are class-method style: `this` is never read, and the
@@ -58,13 +63,22 @@
       (let ((ent (-> arg0 entity data i entity)))
         (when (type? ent entity-actor)
           (let ((actor (the-as entity-actor ent)))
-            ;; og:preserve-this bring-up guards, two layers (forge #51 class): the
+            ;; og:preserve-this bring-up guards, three layers (forge #51 class): the
             ;; type? gate keeps type-type?'s parent walk off unresolved etypes that
             ;; still hold the type-name SYMBOL (walking a symbol strides into garbage;
-            ;; lldb-proven on a churned discard), and the slot gate below keeps the
-            ;; dispatch off landed skeleton types whose slots are still null. Both
-            ;; retire with proper etype resolution (entity-table.o leg).
-            (when (and (type? (-> actor etype) type)
+            ;; lldb-proven on a churned discard), the slot gate below keeps the
+            ;; dispatch off landed skeleton types whose slots are still null, and the
+            ;; *entity-more-perm* gate keeps the dispatch off landed nettable bodies
+            ;; while that global's defining top-level is unlanded and reads 0:
+            ;; net-simple-destruct's method 32 funnels into get-destruct-perm's
+            ;; method-12 dispatch on the zero global, a jump through garbage
+            ;; (instrumentation-proven on the armed jungle boot, 0xC0000005 at level
+            ;; activate). Skipping the dispatch costs only destruct-perm persistence,
+            ;; acceptable bring-up state while there is no save system. The first two
+            ;; layers retire with proper etype resolution (entity-table.o leg); the
+            ;; third when the entity-more-perm leg lands its defining top-level.
+            (when (and (nonzero? (the-as int *entity-more-perm*))
+                       (type? (-> actor etype) type)
                        (type-type? (-> actor etype) process-nettable)
                        )
               (let ((t9-net (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-32))))
@@ -91,10 +105,12 @@
       (let ((ent (-> arg0 entity data i entity)))
         (when (type? ent entity-actor)
           (let ((actor (the-as entity-actor ent)))
-            ;; og:preserve-this bring-up guards: same two layers as method 13 above
-            ;; (type? gate for symbol-valued etypes, slot gate for skeleton types),
-            ;; on the unload-side walk where the churned-discard crash actually fired
-            (when (and (type? (-> actor etype) type)
+            ;; og:preserve-this bring-up guards: same three layers as method 13 above
+            ;; (type? gate for symbol-valued etypes, slot gate for skeleton types,
+            ;; *entity-more-perm* gate while that global's define is unlanded), on
+            ;; the unload-side walk where the churned-discard crash actually fired
+            (when (and (nonzero? (the-as int *entity-more-perm*))
+                       (type? (-> actor etype) type)
                        (type-type? (-> actor etype) process-nettable)
                        )
               (let ((t9-net (-> (-> actor etype) method-table (method-id-of-type process-nettable process-nettable-method-33))))
