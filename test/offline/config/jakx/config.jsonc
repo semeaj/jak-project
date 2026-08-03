@@ -429,7 +429,16 @@
     // bones. The reference records the decompiled skinning loop, which carries two
     // .addiu pointer bumps that do not compile. jak3 skips this function for the same
     // reason; goal_src comments them out and indexes the arrays instead.
-    "bones-mtx-calc-execute"
+    "bones-mtx-calc-execute",
+    // collide-shape (slice 4): the reference records the raw prim-walk delay slots
+    // ((+ prim 80) on a basic), which do not compile; the landed goal_src carries
+    // jak3's og:preserve-this (&+ ...) at the same sites. Same five skips as jak3's
+    // offline config, same reason.
+    "(method 18 collide-shape-prim-group)",
+    "(method 19 collide-shape-prim)",
+    "(method 36 collide-shape)",
+    "(method 12 collide-shape-prim-group)",
+    "(method 13 collide-shape-prim)"
   ],
   "skip_compile_states": {
     // bad handle->process folds (jak3 carries the same class of entries); the

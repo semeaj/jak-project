@@ -8,3 +8,9 @@
 ;; DECOMP BEGINS
 
 (define-extern add-debug-flat-triangle-noclip (function vector vector vector vector vector none))
+
+;; og:preserve-this bring-up extern (slice 4): step-collision! draws collision marks
+;; through this under *display-collision-marks*; the defun lands with the debug leg
+;; (jak3 debug.gc:324). nil at runtime until then -- the flag defaults #f, so the
+;; path is debug-tooling-only.
+(define-extern add-debug-outline-triangle (function symbol bucket-id vector vector vector rgba symbol))

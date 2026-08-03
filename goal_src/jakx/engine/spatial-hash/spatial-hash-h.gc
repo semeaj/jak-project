@@ -115,7 +115,10 @@
     (new (symbol type) _type_)
     (spatial-hash-method-36 () none)
     (spatial-hash-method-37 () none)
-    (spatial-hash-method-38 () none)
+    ;; og:preserve-this jakx adds a list-capacity arg over jak3's 2-arg version
+    ;; (verified at the collide-shape.o do-push-aways call site: a1=prim-core /
+    ;; world-sphere, a2=*actor-list*, a3=512)
+    (fill-actor-list-for-vec+r (_type_ vector (pointer collide-shape) int) int)
     (spatial-hash-method-39 () none)
     (spatial-hash-method-40 () none)
     (spatial-hash-method-41 () none)

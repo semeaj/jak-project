@@ -1,43 +1,7 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: collide-shape.gc
-;; name in dgo: collide-shape
-;; dgos: ENGINE, GAME
-
-;; og:preserve-this added, as in jak3 (its gsrc collide-shape.gc defines this "Added"
-;; helper for the do-push-aways stack frame).
-(deftype do-push-aways-work (structure)
-  ((cquery collide-query :inline)
-   (push-vel   vector :inline)
-   (vec33    vector :inline :offset 560)
-   (cspec  collide-spec :offset 576)
-   )
-  )
-
-;; og:preserve-this bring-up forward declaration: draw-debug-marks does
-;; (as-type ... target) and the target-h leg is unlanded. Remove when target-h lands.
-(declare-type target process-focusable)
-
-;; og:preserve-this jakx-only helper, defined in a still-unlanded object: jak3's
-;; (method 18 collide-shape-prim-mesh) runs its mesh-triangle test inline; jakx factors
-;; it into this free function. Signature derived from the two call sites in this file
-;; (tris array, num-tris, a stack collide-tri-result, the prim's world-sphere, best-dist;
-;; returns the new best distance). Until its object lands the symbol is nil at runtime;
-;; both callers sit on push-away query paths nothing reaches headless (no gate per the
-;; dead-path convention). Re-verify against the defun when its object lands.
-(define-extern should-push-away-test-mesh
-  (function (inline-array collide-mesh-cache-tri) uint collide-tri-result vector float float))
-
-;; og:preserve-this bring-up extern: shove-to-closest-point-on-path reads the player
-;; position through target-pos, whose defun lands with the target-util leg (jak3-parity
-;; sig, matching the all-types extern). nil at runtime until then; the sole caller sits
-;; on the attack/shove path nothing reaches headless (no gate per the dead-path
-;; convention). Remove when target-util lands.
-(define-extern target-pos (function int vector))
-
-;; DECOMP BEGINS
-
+;; definition for method 54 of type collide-shape
 ;; WARN: Return type mismatch collide-shape vs none.
 (defmethod pusher-init ((this collide-shape))
   (when (logtest? (collide-spec pusher) (-> this root-prim prim-core collide-as))
@@ -53,6 +17,7 @@
   (none)
   )
 
+;; definition for method 42 of type collide-shape
 (defmethod should-push-away ((this collide-shape) (arg0 collide-shape) (arg1 collide-query))
   (local-vars (v1-2 uint) (v1-3 float) (a2-2 uint) (a3-2 uint))
   (rlet ((acc :class vf)
@@ -110,12 +75,15 @@
     )
   )
 
+;; definition for method 18 of type collide-shape-prim
 ;; WARN: Return type mismatch object vs none.
 (defmethod should-push-away-test ((this collide-shape-prim) (arg0 collide-shape-prim) (arg1 collide-query))
   (format 0 "ERROR: collide-shape-prim::should-push-away-test was called illegally!~%")
   (none)
   )
 
+;; definition for method 18 of type collide-shape-prim-group
+;; WARN: Return type mismatch int vs none.
 (defmethod should-push-away-test ((this collide-shape-prim-group) (arg0 collide-shape-prim) (arg1 collide-query))
   (local-vars (a0-2 collide-action) (a0-3 float) (f0-0 float))
   (rlet ((acc :class vf)
@@ -137,8 +105,7 @@
         (until (> f0-0 a0-3)
           (until (nonzero? a0-2)
             (label cfg-1)
-            ;; og:preserve-this
-            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (&+ s4-0 80)))
+            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (+ s4-0 80)))
             (+! s3-0 -1)
             (let ((a1-1 (-> s4-0 prim-core collide-with)))
               (nop!)
@@ -173,6 +140,8 @@
     )
   )
 
+;; definition for method 19 of type collide-shape-prim
+;; WARN: Return type mismatch int vs none.
 (defmethod should-push-away-a-group-test ((this collide-shape-prim) (arg0 collide-shape-prim-group) (arg1 collide-query))
   (local-vars (a0-2 collide-action) (a0-3 float) (f0-0 float))
   (rlet ((acc :class vf)
@@ -194,8 +163,7 @@
         (until (> f0-0 a0-3)
           (until (nonzero? a0-2)
             (label cfg-1)
-            ;; og:preserve-this
-            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (&+ (the-as collide-shape-prim s4-0) 80)))
+            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (+ (the-as collide-shape-prim s4-0) 80)))
             (+! s3-0 -1)
             (let ((a1-1 (-> (the-as collide-shape-prim s4-0) prim-core collide-as)))
               (nop!)
@@ -230,6 +198,9 @@
     )
   )
 
+;; definition for method 18 of type collide-shape-prim-mesh
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod should-push-away-test ((this collide-shape-prim-mesh) (arg0 collide-shape-prim) (arg1 collide-query))
   (let ((v1-0 (-> arg0 prim-core prim-type)))
     (cond
@@ -278,6 +249,9 @@
   (none)
   )
 
+;; definition for method 18 of type collide-shape-prim-sphere
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod should-push-away-test ((this collide-shape-prim-sphere) (arg0 collide-shape-prim) (arg1 collide-query))
   (local-vars (v1-3 float))
   (rlet ((acc :class vf)
@@ -446,12 +420,15 @@
     )
   )
 
+;; definition for method 15 of type collide-shape-prim
 ;; WARN: Return type mismatch object vs none.
 (defmethod collide-with-collide-cache-prim-mesh ((this collide-shape-prim) (arg0 collide-query) (arg1 collide-cache-prim))
   (format 0 "ERROR: Unsupported prim type in collide-shape-prim::collide-with-collide-cache-prim-mesh!~%")
   (none)
   )
 
+;; definition for method 15 of type collide-shape-prim-sphere
+;; WARN: Return type mismatch int vs none.
 (defmethod collide-with-collide-cache-prim-mesh ((this collide-shape-prim-sphere) (arg0 collide-query) (arg1 collide-cache-prim))
   (rlet ((vf1 :class vf)
          (vf2 :class vf)
@@ -516,12 +493,15 @@
     )
   )
 
+;; definition for method 15 of type collide-shape-prim-mesh
 ;; WARN: Return type mismatch object vs none.
 (defmethod collide-with-collide-cache-prim-mesh ((this collide-shape-prim-mesh) (arg0 collide-query) (arg1 collide-cache-prim))
   (format 0 "ERROR: collide-shape-prim-mesh vs. collide-cache-prim mesh is not currently supported!~%")
   (none)
   )
 
+;; definition for method 15 of type collide-shape-prim-group
+;; WARN: Return type mismatch int vs none.
 (defmethod collide-with-collide-cache-prim-mesh ((this collide-shape-prim-group) (arg0 collide-query) (arg1 collide-cache-prim))
   (let ((s4-0 (-> arg1 prim-core collide-as))
         (s3-0 (-> this child 0))
@@ -537,12 +517,15 @@
   (none)
   )
 
+;; definition for method 16 of type collide-shape-prim
 ;; WARN: Return type mismatch object vs none.
 (defmethod collide-with-collide-cache-prim-sphere ((this collide-shape-prim) (arg0 collide-query) (arg1 collide-cache-prim))
   (format 0 "ERROR: Unsupported prim type in collide-shape-prim::collide-with-collide-cache-prim-sphere!~%")
   (none)
   )
 
+;; definition for method 16 of type collide-shape-prim-sphere
+;; WARN: Return type mismatch int vs none.
 (defmethod collide-with-collide-cache-prim-sphere ((this collide-shape-prim-sphere) (arg0 collide-query) (arg1 collide-cache-prim))
   (rlet ((vf1 :class vf)
          (vf2 :class vf)
@@ -603,12 +586,15 @@
     )
   )
 
+;; definition for method 16 of type collide-shape-prim-mesh
 ;; WARN: Return type mismatch object vs none.
 (defmethod collide-with-collide-cache-prim-sphere ((this collide-shape-prim-mesh) (arg0 collide-query) (arg1 collide-cache-prim))
   (format 0 "ERROR: collide-shape-prim-mesh vs. collide-cache-prim sphere is not currently supported!~%")
   (none)
   )
 
+;; definition for method 16 of type collide-shape-prim-group
+;; WARN: Return type mismatch int vs none.
 (defmethod collide-with-collide-cache-prim-sphere ((this collide-shape-prim-group) (arg0 collide-query) (arg1 collide-cache-prim))
   (let ((s4-0 (-> arg1 prim-core collide-as))
         (s3-0 (-> this child 0))
@@ -624,6 +610,8 @@
   (none)
   )
 
+;; definition for function find-ground-point
+;; INFO: Used lq/sq
 (defun find-ground-point ((arg0 control-info) (arg1 vector) (arg2 float) (arg3 float))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -747,6 +735,9 @@
     )
   )
 
+;; definition for function collide-shape-moving-angle-set!
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defun collide-shape-moving-angle-set! ((arg0 collide-shape-moving) (arg1 vector) (arg2 vector))
   (set! (-> arg0 surface-normal quad) (-> arg1 quad))
   (set! (-> arg0 surface-angle) (vector-dot arg1 (-> arg0 dynam gravity-normal)))
@@ -761,6 +752,9 @@
   (none)
   )
 
+;; definition for function cshape-reaction-update-state
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defun cshape-reaction-update-state ((arg0 control-info) (arg1 collide-query) (arg2 vector))
   (let ((sv-48 (new-stack-vector0))
         (sv-52 (new-stack-vector0))
@@ -836,6 +830,8 @@
   (none)
   )
 
+;; definition for function cshape-reaction-default
+;; INFO: Used lq/sq
 (defun cshape-reaction-default ((arg0 control-info) (arg1 collide-query) (arg2 vector) (arg3 vector))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -884,6 +880,7 @@
     )
   )
 
+;; definition for function cshape-reaction-just-move
 (defun cshape-reaction-just-move ((arg0 control-info) (arg1 collide-query) (arg2 vector))
   (vector-reset! arg2)
   (let ((a1-1 (new 'stack-no-clear 'vector)))
@@ -901,6 +898,8 @@
     )
   )
 
+;; definition for method 65 of type collide-shape-moving
+;; INFO: Used lq/sq
 (defmethod step-collision! ((this collide-shape-moving) (arg0 vector) (arg1 vector) (arg2 float) (arg3 int))
   (let ((s5-0 (new 'stack 'collide-query))
         (s2-0 (new 'stack-no-clear 'vector))
@@ -980,6 +979,7 @@
     )
   )
 
+;; definition for method 37 of type collide-shape
 (defmethod integrate-and-collide! ((this collide-shape) (arg0 vector))
   (local-vars (at-0 int))
   (rlet ((vf0 :class vf)
@@ -1004,6 +1004,9 @@
     )
   )
 
+;; definition for method 37 of type collide-shape-moving
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod integrate-and-collide! ((this collide-shape-moving) (arg0 vector))
   (update-transforms this)
   (set! (-> this trans-old-old-old quad) (-> this trans-old-old quad))
@@ -1054,6 +1057,8 @@
   (none)
   )
 
+;; definition for method 63 of type collide-shape-moving
+;; INFO: Used lq/sq
 (defmethod try-snap-to-surface ((this collide-shape-moving) (arg0 vector) (arg1 float) (arg2 float) (arg3 float))
   (local-vars (at-0 int))
   (with-pp
@@ -1154,6 +1159,7 @@
     )
   )
 
+;; definition for method 64 of type collide-shape-moving
 (defmethod fill-and-try-snap-to-surface ((this collide-shape-moving) (arg0 vector) (arg1 float) (arg2 float) (arg3 float) (arg4 collide-query))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1179,6 +1185,9 @@
     )
   )
 
+;; definition for method 60 of type collide-shape-moving
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod move-to-ground-point ((this collide-shape-moving) (arg0 vector) (arg1 vector) (arg2 vector))
   (move-to-point! this arg0)
   (set! (-> arg1 y) 0.0)
@@ -1193,6 +1202,9 @@
   (none)
   )
 
+;; definition for method 56 of type collide-shape-moving
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod integrate-no-collide! ((this collide-shape-moving) (arg0 vector))
   (local-vars (at-0 int))
   (rlet ((vf0 :class vf)
@@ -1249,6 +1261,7 @@
     )
   )
 
+;; definition for method 57 of type collide-shape-moving
 (defmethod integrate-for-enemy-no-mtg ((this collide-shape-moving) (arg0 vector) (arg1 overlaps-others-params))
   (integrate-no-collide! this arg0)
   (let ((s5-1 (find-overlapping-shapes this arg1)))
@@ -1259,6 +1272,8 @@
     )
   )
 
+;; definition for method 55 of type collide-shape-moving
+;; INFO: Used lq/sq
 (defmethod find-ground ((this collide-shape-moving)
                        (arg0 collide-query)
                        (arg1 collide-spec)
@@ -1305,6 +1320,8 @@
     )
   )
 
+;; definition for method 51 of type collide-shape
+;; INFO: Used lq/sq
 (defmethod above-ground? ((this collide-shape)
                          (arg0 collide-query)
                          (arg1 vector)
@@ -1329,6 +1346,9 @@
   (>= (collide-cache-method-10 *collide-cache* arg0) 0.0)
   )
 
+;; definition for method 58 of type collide-shape-moving
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod move-above-ground ((this collide-shape-moving) (arg0 vector) (arg1 move-above-ground-params))
   (when *debug-segment*
     'collide
@@ -1465,6 +1485,9 @@
   (none)
   )
 
+;; definition for method 59 of type collide-shape-moving
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod move-to-ground ((this collide-shape-moving) (arg0 float) (arg1 float) (arg2 symbol) (arg3 collide-spec))
   (when *debug-segment*
     'collide
@@ -1567,6 +1590,8 @@
   (none)
   )
 
+;; definition for method 61 of type collide-shape-moving
+;; INFO: Used lq/sq
 (defmethod compute-acc-due-to-gravity ((this collide-shape-moving) (arg0 vector) (arg1 float))
   (let* ((s4-0 (vector-negate! (new 'stack-no-clear 'vector) (-> this dynam gravity)))
          (a2-1 (-> this local-normal))
@@ -1586,6 +1611,7 @@
   arg0
   )
 
+;; definition for method 32 of type collide-shape
 (defmethod fill-cache-integrate-and-collide ((this collide-shape) (arg0 vector) (arg1 collide-query) (arg2 meters))
   (local-vars (at-0 int))
   (rlet ((vf0 :class vf)
@@ -1611,6 +1637,8 @@
     )
   )
 
+;; definition for method 31 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod fill-cache-for-shape ((this collide-shape) (arg0 float) (arg1 collide-query))
   (cond
     ((build-bounding-box-for-shape this (-> arg1 bbox) arg0 (-> arg1 collide-with))
@@ -1627,6 +1655,7 @@
   (none)
   )
 
+;; definition for method 36 of type collide-shape
 (defmethod build-bounding-box-for-shape ((this collide-shape) (arg0 bounding-box) (arg1 float) (arg2 collide-spec))
   (rlet ((vf0 :class vf)
          (vf24 :class vf)
@@ -1654,8 +1683,7 @@
           (.add.x.vf.xyz vf30 vf24 vf25)
           (b! #t cfg-10 :delay (.sub.x.vf.xyz vf29 vf24 vf25))
           (label cfg-3)
-          ;; og:preserve-this
-          (b! (zero? a0-3) cfg-9 :delay (set! v1-0 (&+ v1-0 80)))
+          (b! (zero? a0-3) cfg-9 :delay (set! v1-0 (+ v1-0 80)))
           (+! a0-3 -1)
           (let ((a2-3 (logand (-> v1-0 prim-core collide-with) arg2)))
             (.lvf vf24 (&-> v1-0 prim-core world-sphere quad))
@@ -1664,8 +1692,7 @@
           (.add.x.vf.xyz vf30 vf24 vf25)
           (.sub.x.vf.xyz vf29 vf24 vf25)
           (label cfg-6)
-          ;; og:preserve-this
-          (b! (zero? a0-3) cfg-10 :delay (set! v1-0 (&+ v1-0 80)))
+          (b! (zero? a0-3) cfg-10 :delay (set! v1-0 (+ v1-0 80)))
           (+! a0-3 -1)
           )
         )
@@ -1694,6 +1721,7 @@
     )
   )
 
+;; definition for method 33 of type collide-shape
 (defmethod find-prim-by-id ((this collide-shape) (arg0 uint))
   (let ((v1-0 (-> this root-prim)))
     (countdown (a0-1 (-> this total-prims))
@@ -1706,6 +1734,7 @@
   (the-as collide-shape-prim #f)
   )
 
+;; definition for method 34 of type collide-shape
 (defmethod find-prim-by-id-logtest ((this collide-shape) (arg0 uint))
   (let ((v1-0 (-> this root-prim)))
     (countdown (a0-1 (-> this total-prims))
@@ -1718,6 +1747,8 @@
   (the-as collide-shape-prim #f)
   )
 
+;; definition (debug) for function collide-shape-draw-debug-marks
+;; WARN: Return type mismatch int vs none.
 (defun-debug collide-shape-draw-debug-marks ()
   (when *display-collision-marks*
     (let ((v1-3 (-> *collide-player-list* alive-list next0)))
@@ -1770,6 +1801,8 @@
   (none)
   )
 
+;; definition for method 30 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod debug-draw ((this collide-shape))
   (if (sphere-in-view-frustum? (the-as sphere (-> this root-prim prim-core)))
       (debug-draw (-> this root-prim))
@@ -1778,12 +1811,16 @@
   (none)
   )
 
+;; definition for symbol *col-timer*, type stopwatch
 (define *col-timer* (new 'global 'stopwatch))
 
+;; definition for symbol *frame-timer*, type stopwatch
 (define *frame-timer* (new 'global 'stopwatch))
 
+;; definition for symbol *col-timer-enable*, type symbol
 (define *col-timer-enable* #t)
 
+;; definition for function debug-report-col-stats
 (defun debug-report-col-stats ()
   (when *col-timer-enable*
     (stopwatch-end *frame-timer*)
@@ -1796,6 +1833,8 @@
     )
   )
 
+;; definition for method 46 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod update-transforms ((this collide-shape))
   (local-vars (v1-8 float) (a1-5 float) (a1-7 float))
   (rlet ((acc :class vf)
@@ -1827,22 +1866,10 @@
                   (.lvf vf3 (&-> a1-4 uvec quad))
                   (.add.mul.x.vf acc vf2 vf1 acc)
                   (.lvf vf4 (&-> a1-4 fvec quad))
-
-                  (.add.mul.y.vf acc vf3 vf1 acc)
-                  (.add.mul.z.vf.xyz vf1 vf4 vf1 acc)
-
-                  ;; og:preserve-this
-                  ;; this check is added in the PC port, carried from jak3's update-transforms.
-                  ;; On the first frame of a process-drawable being alive, the bones are often
-                  ;; still zero. On PS2 the divide by trans w merely put the collision geometry
-                  ;; at the origin for one frame; on PC the 0/0 becomes NaN and propagates
-                  ;; through the prim world-spheres into the whole collision system. ja-post
-                  ;; fires this method on exactly that first frame (draw-control-status uninited),
-                  ;; so every prop birth crosses this path.
-                  (if (!= (-> a1-4 trans w) 0.0)
-                      (.mul.vf.xyz vf1 vf1 Q)
-                      )
                   )
+                (.add.mul.y.vf acc vf3 vf1 acc)
+                (.add.mul.z.vf.xyz vf1 vf4 vf1 acc)
+                (.mul.vf.xyz vf1 vf1 Q)
                 (.svf (&-> s5-0 prim-core world-sphere quad) vf1)
                 (.mov a1-5 vf1)
                 )
@@ -1896,6 +1923,8 @@
     )
   )
 
+;; definition for method 28 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod move-by-vector! ((this collide-shape) (arg0 vector))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1936,6 +1965,9 @@
     )
   )
 
+;; definition for method 29 of type collide-shape
+;; INFO: Used lq/sq
+;; WARN: Return type mismatch int vs none.
 (defmethod move-to-point! ((this collide-shape) (arg0 vector))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1969,6 +2001,8 @@
     )
   )
 
+;; definition for method 47 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod set-collide-with! ((this collide-shape) (arg0 collide-spec))
   (let ((v1-0 (-> this root-prim)))
     (countdown (a0-1 (-> this total-prims))
@@ -1982,6 +2016,8 @@
   (none)
   )
 
+;; definition for method 48 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod set-collide-as! ((this collide-shape) (arg0 collide-spec))
   (let ((v1-0 (-> this root-prim)))
     (countdown (a0-1 (-> this total-prims))
@@ -1995,6 +2031,8 @@
   (none)
   )
 
+;; definition for method 53 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod iterate-prims ((this collide-shape) (arg0 (function collide-shape-prim none)))
   (let ((s5-0 (-> this root-prim)))
     (countdown (s4-0 (-> this total-prims))
@@ -2006,6 +2044,8 @@
   (none)
   )
 
+;; definition for method 38 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod find-collision-meshes ((this collide-shape))
   (let ((s5-0 (-> this root-prim))
         (s4-0 0)
@@ -2069,6 +2109,8 @@
   (none)
   )
 
+;; definition for method 9 of type collide-shape-prim
+;; WARN: Return type mismatch int vs none.
 (defmethod debug-draw ((this collide-shape-prim))
   (add-debug-sphere
     #t
@@ -2081,6 +2123,8 @@
   (none)
   )
 
+;; definition for method 9 of type collide-shape-prim-sphere
+;; WARN: Return type mismatch int vs none.
 (defmethod debug-draw ((this collide-shape-prim-sphere))
   (add-debug-sphere
     #t
@@ -2103,6 +2147,8 @@
   (none)
   )
 
+;; definition for method 9 of type collide-shape-prim-mesh
+;; WARN: Return type mismatch int vs none.
 (defmethod debug-draw ((this collide-shape-prim-mesh))
   (add-debug-sphere
     #t
@@ -2115,6 +2161,8 @@
   (none)
   )
 
+;; definition for method 9 of type collide-shape-prim-group
+;; WARN: Return type mismatch int vs none.
 (defmethod debug-draw ((this collide-shape-prim-group))
   (add-debug-sphere
     #t
@@ -2130,10 +2178,8 @@
   (none)
   )
 
-;; og:preserve-this bring-up note: dispatches through *actor-hash*, which stays nil
-;; until actor-hash.gc lands (see the extern in actor-hash-h.gc). Dead path today:
-;; only pusher-post/rider-post call this method and no landed process uses either
-;; post; no gate per the convention. Retire this note when actor-hash.gc lands.
+;; definition for method 45 of type collide-shape
+;; INFO: Used lq/sq
 (defmethod do-push-aways ((this collide-shape))
   (local-vars (at-0 int) (v1-55 float) (a2-5 float) (a2-12 float))
   (with-pp
@@ -2305,6 +2351,7 @@
     )
   )
 
+;; definition for method 40 of type collide-shape
 ;; WARN: Return type mismatch object vs symbol.
 (defmethod find-overlapping-shapes ((this collide-shape) (arg0 overlaps-others-params))
   (local-vars (a0-10 float) (a0-14 uint) (a2-5 float) (a2-12 float))
@@ -2458,11 +2505,13 @@
     )
   )
 
+;; definition for method 12 of type collide-shape-prim
 (defmethod overlaps-others-test ((this collide-shape-prim) (arg0 overlaps-others-params) (arg1 collide-shape-prim))
   (format 0 "ERROR: Unsupported call to collide-shape-prim::overlaps-others-test!~%")
   #f
   )
 
+;; definition for method 12 of type collide-shape-prim-group
 ;; WARN: Return type mismatch object vs symbol.
 (defmethod overlaps-others-test ((this collide-shape-prim-group) (arg0 overlaps-others-params) (arg1 collide-shape-prim))
   (local-vars (a0-3 float))
@@ -2487,8 +2536,7 @@
           (nop!)
           (set! (-> arg0 filtered-other-collide-as) v1-1)
           (label cfg-1)
-          ;; og:preserve-this
-          (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (&+ s4-0 80)))
+          (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (+ s4-0 80)))
           (+! s3-0 -1)
           (let ((a0-2 (logand (-> s4-0 prim-core collide-with) v1-1)))
             (.lvf vf2 (&-> s4-0 prim-core world-sphere quad))
@@ -2522,6 +2570,7 @@
     )
   )
 
+;; definition for method 13 of type collide-shape-prim
 ;; WARN: Return type mismatch object vs symbol.
 (defmethod overlaps-others-group ((this collide-shape-prim) (arg0 overlaps-others-params) (arg1 collide-shape-prim-group))
   (local-vars (a0-4 float))
@@ -2546,8 +2595,7 @@
           (let ((s2-0 (the-as object #f)))
             (set! (-> arg0 filtered-child-collide-with) v1-1)
             (label cfg-1)
-            ;; og:preserve-this
-            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (&+ s4-0 80)))
+            (b! (zero? s3-0) cfg-6 :delay (set! s4-0 (+ s4-0 80)))
             (+! s3-0 -1)
             (let ((a0-3 (logand v1-1 (-> s4-0 prim-core collide-as))))
               (.lvf vf1 (&-> s4-0 prim-core world-sphere quad))
@@ -2582,6 +2630,7 @@
     )
   )
 
+;; definition for method 12 of type collide-shape-prim-sphere
 (defmethod overlaps-others-test ((this collide-shape-prim-sphere) (arg0 overlaps-others-params) (arg1 collide-shape-prim))
   (local-vars (v1-11 uint) (s4-0 uint))
   (let ((v1-0 (-> arg1 prim-core prim-type)))
@@ -2627,6 +2676,7 @@
     )
   )
 
+;; definition for method 12 of type collide-shape-prim-mesh
 (defmethod overlaps-others-test ((this collide-shape-prim-mesh) (arg0 overlaps-others-params) (arg1 collide-shape-prim))
   (local-vars (v1-3 uint) (v1-11 uint) (s4-0 uint))
   (let ((v1-0 (-> arg1 prim-core prim-type)))
@@ -2676,6 +2726,8 @@
     )
   )
 
+;; definition for method 49 of type collide-shape
+;; WARN: Return type mismatch int vs none.
 (defmethod modify-collide-as! ((this collide-shape) (arg0 int) (arg1 collide-spec) (arg2 collide-spec))
   (let ((v1-0 (-> this root-prim)))
     (countdown (a0-1 (-> this total-prims))
@@ -2689,6 +2741,8 @@
   (none)
   )
 
+;; definition for method 50 of type collide-shape
+;; INFO: Used lq/sq
 (defmethod send-shoves ((this collide-shape) (arg0 process) (arg1 touching-shapes-entry) (arg2 float) (arg3 float) (arg4 float))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -2769,6 +2823,8 @@
     )
   )
 
+;; definition for method 41 of type collide-shape
+;; INFO: Used lq/sq
 ;; WARN: Return type mismatch int vs vector.
 (defmethod shove-to-closest-point-on-path ((this collide-shape) (arg0 attack-info) (arg1 float))
   (set! (-> arg0 shove-up) arg1)
@@ -2793,3 +2849,7 @@
     )
   (the-as vector 0)
   )
+
+
+
+

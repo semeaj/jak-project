@@ -10,3 +10,18 @@
 (define *actor-list* (the-as (pointer collide-shape) (malloc 'global 2048)))
 
 (define *actor-list-length* 0)
+
+;; og:preserve-this bring-up extern: the defining (define *actor-hash* (new ...)) lives
+;; in the unlanded actor-hash.gc, but collide-shape.gc dispatches
+;; fill-actor-list-for-vec+r through it from TWO methods. The symbol stays nil until
+;; that leg lands; both dispatch routes are dead today:
+;; - do-push-aways (m45): only pusher-post/rider-post call it, and no landed process
+;;   uses either post.
+;; - find-overlapping-shapes (m40): reached from the touch-tracker active loop
+;;   (generic-obs.gc, spawner unlanded) and from integrate-for-enemy-no-mtg /
+;;   move-above-ground (no landed callers), when collide-with carries
+;;   hit-by-others-list.
+;; (No gates per the dead-path convention.) Remove when actor-hash.gc lands, and
+;; re-check BOTH routes if a touch-tracker spawner or enemy integrate caller lands
+;; first.
+(define-extern *actor-hash* spatial-hash)

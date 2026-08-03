@@ -106,13 +106,13 @@ It is not useful for ollision queries against a specific foreground object, like
    )
   (:methods
     (new (symbol type int int) _type_)
-    (collide-cache-method-9 () none)
+    (debug-draw (_type_) none) ;; verified at the collide-shape.o fill-cache-for-shape call site (this only)
     (collide-cache-method-10 (_type_ collide-query) float) ;; fill-and-probe-using-line-sphere
     (collide-cache-method-11 () none)
     (collide-cache-method-12 (_type_ collide-query) none) ;; fill-using-bounding-box
-    (collide-cache-method-13 () none)
+    (fill-using-line-sphere (_type_ collide-query) none) ;; verified at the collide-shape.o fill-and-try-snap-to-surface call site
     (collide-cache-method-14 () none)
-    (collide-cache-method-15 () none)
+    (reset (_type_) none) ;; verified at the collide-shape.o fill-cache-for-shape call site (this only)
     (collide-cache-method-16 (_type_ collide-query) float) ;; probe-using-line-sphere
     (collide-cache-method-17 () none)
     (collide-cache-method-18 () none)

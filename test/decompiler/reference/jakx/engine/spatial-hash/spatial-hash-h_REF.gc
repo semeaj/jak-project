@@ -212,7 +212,7 @@
     (new (symbol type) _type_)
     (spatial-hash-method-36 () none)
     (spatial-hash-method-37 () none)
-    (spatial-hash-method-38 () none)
+    (fill-actor-list-for-vec+r (_type_ vector (pointer collide-shape) int) int)
     (spatial-hash-method-39 () none)
     (spatial-hash-method-40 () none)
     (spatial-hash-method-41 () none)
@@ -257,7 +257,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-
