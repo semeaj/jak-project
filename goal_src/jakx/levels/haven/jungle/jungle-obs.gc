@@ -820,18 +820,10 @@
 (defmethod init-from-entity! ((this jungle-stone-snake-head) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
-  ;; og:preserve-this bring-up gate (slice-4 review): the retail m25/m34 pair (net
-  ;; ownership query + base-color set) dispatches through process-nettable slots that
-  ;; have no body anywhere in gsrc (process-nettable.gc is a stub), and slice 4 made
-  ;; entity birth real, so an ungated dispatch here is a jump to 0 the moment a
-  ;; snake-head level loads. Skipping the pair matches the m25-returns-#f single-player
-  ;; path except for the m34 color bookkeeping (visual only, merc not rendering yet).
-  ;; Delete the gate when process-nettable methods 25/34 land.
-  (when (nonzero? (-> process-nettable method-table 25))
-    (if (not (process-nettable-method-25 this))
-        (process-nettable-method-34 this 8 (new 'static 'rgba :r #xff :g #xff))
-        )
-    )
+  ;; m25/m34 landed in slice 5 (m34 carries its own *net-process-mgr* bring-up guard)
+  (if (not (process-nettable-method-25 this))
+      (process-nettable-method-34 this 8 (new 'static 'rgba :r #xff :g #xff))
+      )
   (set! (-> this drawable) (the-as handle #f))
   (set! (-> this exploded) #f)
   (go (method-of-object this idle))

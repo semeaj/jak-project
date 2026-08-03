@@ -14,3 +14,7 @@
   0
   )
 
+;; og:preserve-this bring-up: the manager process never spawns before the net leg, but
+;; process-nettable m22 reads (not *net-process-mgr*) as its single-player short-circuit
+;; and the m34 gate tests it, so the symbol must exist and read #f rather than 0
+(define *net-process-mgr* (the-as net-process-mgr #f))

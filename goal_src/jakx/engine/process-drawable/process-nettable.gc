@@ -7,3 +7,32 @@
 
 ;; DECOMP BEGINS
 
+;; the object's top-level still fails expression conversion, so this stays a partial
+;; landing: the three methods the destruction surface needs, each verified against the
+;; raw asm (methods 22/25/34 in the ir2; see slice-5 notes on issue #34)
+
+(defmethod process-nettable-method-25 ((this process-nettable))
+  "Is this process net-active? (net-flags bit 0)"
+  (logtest? (-> this net-flags) 1)
+  )
+
+(defmethod process-nettable-method-22 ((this process-nettable))
+  "Is this process locally owned? #t when no net session is active."
+  (or (not *net-process-mgr*) (= (-> this owner-idx) (-> *net-process-mgr* local-machine-idx)))
+  )
+
+(defmethod process-nettable-method-34 ((this process-nettable) (arg0 int) (arg1 rgba))
+  "Allocate a local net-process id (mgr method 55); on failure, deactivate this process."
+  ;; og:preserve-this bring-up guard: retail dereferences *net-process-mgr* with no null
+  ;; check (the mgr always exists there); the bring-up binds it #f, and skipping the whole
+  ;; body reproduces the pre-landing gate behavior exactly (no allocation, no deactivate).
+  ;; Drop the guard and re-derive verbatim when the net-process-mgr leg lands.
+  (when *net-process-mgr*
+    (when (not (net-process-mgr-method-55 *net-process-mgr* this arg0 arg1))
+      (format 0 "NOT ENOUGH LOCAL NET-PROCESS-IDS!~%")
+      (deactivate this)
+      )
+    )
+  0
+  (none)
+  )

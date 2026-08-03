@@ -2939,7 +2939,7 @@
        (go-virtual die)
        )
       (('shutdown)
-       ((method-of-object self process-drawable-method-44))
+       ((method-of-object self cleanup-for-death) self)
        (go-virtual die)
        )
       )

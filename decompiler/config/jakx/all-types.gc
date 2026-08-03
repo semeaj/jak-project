@@ -28631,6 +28631,7 @@
   ((head list-link  :offset-assert 0)
    (tail list-link  :offset-assert 4)
    )
+  :pack-me ;; net-process-mgr embeds it inline at 584 (mod 16 = 8), so it packs to 4-align
   :method-count-assert 12
   :size-assert         #x8
   :flag-assert         #xc00000008
@@ -28805,8 +28806,8 @@
   (:methods
     (initialize-skeleton (_type_ skeleton-group pair) draw-control) ;; 42 ;; jak3 method 14; proven by the viewer.o call sites (skeleton-group build + call, jak3 parity) and the op-12 type-prop failure reading this at root offset 188
     (initialize-skeleton-by-name (_type_ string) draw-control) ;; 43 ;; jak3 method 15
-    (process-drawable-method-44 () none) ;; 44
-    (process-drawable-method-45 () none) ;; 45
+    (cleanup-for-death (_type_) none) ;; 44 ;; jak3 method 17, byte-identical body in process-drawable.o (clears root-prim collide-as/with, ja-channel-set! 0, entity-perm-status dead)
+    (relocate-nav (_type_ int) none) ;; 45 ;; jak3 method 18 (adds the relocate offset to nav state)
     (process-drawable-method-46 () none) ;; 46
     (process-drawable-method-47 () none) ;; 47
     (process-drawable-method-48 (_type_) float) ;; 48 ;; stub returning -1.0 in retail
@@ -43566,7 +43567,6 @@
 ;; net-process-mgr-h              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype net-process-mgr-machine (structure)
   ((state           uint8  :offset-assert 0)
    (delay           int32  :offset-assert 4)
@@ -43577,22 +43577,21 @@
    (cookie          int32  :offset-assert 24)
    (reported-ping   int32  :offset-assert 28)
    )
+  :pack-me ;; the machines inline array sits at 152 (mod 16 = 8), so elements are 4-aligned
   :method-count-assert 9
   :size-assert         #x20
   :flag-assert         #x900000020
   )
-|#
 
-#|
 (deftype net-process-mgr (process)
   ((local-machine-idx                int32                :offset-assert 144)
    (session-master-idx               int32                :offset-assert 148)
-   (machines                         UNKNOWN      8       :offset-assert 152)
+   (machines                         net-process-mgr-machine 8 :inline    :offset-assert 152)
    (last-allocated-local-id          int32                :offset-assert 408)
    (last-allocated-global-id         int32                :offset-assert 412)
    (have-send-pending-objects        basic                :offset-assert 416)
    (snap-time-of-day                 basic                :offset-assert 420)
-   (owner-lists                      UNKNOWN      10      :offset-assert 424)
+   (owner-lists                      uint32       40      :offset-assert 424) ;; og:preserve-this opaque 160-byte window: the seed said 10 entries but linked-list is 8 bytes, so the element type is unproven; re-derive from net-process-mgr.o when the net leg lands
    (active-list                      linked-list  :inline :offset-assert 584)
    (cur-proc-valid                   basic                :offset-assert 592)
    (cur-proc-id                      uint16               :offset-assert 596)
@@ -43605,12 +43604,9 @@
   :size-assert         #x264
   :flag-assert         #x3b01e00264
   (:methods
-    (net-process-mgr-method-9 () none) ;; 9
-    (net-process-mgr-method-10 () none) ;; 10
-    (net-process-mgr-method-11 () none) ;; 11
-    (net-process-mgr-method-12 () none) ;; 12
-    (net-process-mgr-method-13 () none) ;; 13
-    (net-process-mgr-method-14 () none) ;; 14
+    ;; process owns slots 0..14 (method-count 15); the seed listed six phantom entries
+    ;; 9..14 here, which appended after the parent and blew the count to 65 vs the
+    ;; asserted 59. Child methods start at 15.
     (net-process-mgr-method-15 () none) ;; 15
     (net-process-mgr-method-16 () none) ;; 16
     (net-process-mgr-method-17 () none) ;; 17
@@ -43651,15 +43647,14 @@
     (net-process-mgr-method-52 () none) ;; 52
     (net-process-mgr-method-53 () none) ;; 53
     (net-process-mgr-method-54 () none) ;; 54
-    (net-process-mgr-method-55 () none) ;; 55
+    (net-process-mgr-method-55 (_type_ process-nettable int rgba) symbol) ;; 55 ;; local net-process-id allocation; sig from (method 34 process-nettable)'s call, truthy = allocated
     (net-process-mgr-method-56 () none) ;; 56
     (net-process-mgr-method-57 () none) ;; 57
     (net-process-mgr-method-58 () none) ;; 58
     )
   )
-|#
 
-;; (define-extern *net-process-mgr* object)
+(define-extern *net-process-mgr* net-process-mgr) ;; #f in single-player; net-process-mgr.gc binds it, process-nettable m22/m34 read it
 ;; (define-extern get-event-level function)
 ;; (define-extern get-shared-level function)
 ;; (define-extern nos function)

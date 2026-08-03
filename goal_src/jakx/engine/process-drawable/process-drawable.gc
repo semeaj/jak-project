@@ -533,8 +533,33 @@
   )
 
 
-;; methods 44-47 of process-drawable parked: arg-less placeholder declarations, real
-;; signatures unproven against the asm (the M26 rule); nothing landed dispatches them.
+;; entity.o compiles later in the build; cleanup-for-death needs the extern
+(define-extern process-entity-status! (function process entity-perm-status symbol entity-perm-status))
+
+;; methods 46-47 of process-drawable stay parked (arg-less placeholders, sigs unproven
+;; against the asm); 44/45 landed in slice 5, byte-identical to jak3's methods 17/18
+
+(defmethod cleanup-for-death ((this process-drawable))
+  (when (type? (-> this root) collide-shape)
+    (let ((v1-2 (-> (the-as collide-shape (-> this root)) root-prim)))
+      (set! (-> v1-2 prim-core collide-as) (collide-spec))
+      (set! (-> v1-2 prim-core collide-with) (collide-spec))
+      )
+    0
+    )
+  (if (nonzero? (-> this skel))
+      (ja-channel-set! 0)
+      )
+  (process-entity-status! this (entity-perm-status dead) #t)
+  0
+  (none)
+  )
+
+(defmethod relocate-nav ((this process-drawable) (arg0 int))
+  (set! (-> this nav) (the-as nav-control (&+ (the-as pointer (-> this nav)) arg0)))
+  0
+  (none)
+  )
 
 ;; WARN: Return type mismatch symbol vs none.
 (defun draw-joint-axes ((arg0 process-drawable))

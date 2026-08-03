@@ -867,6 +867,9 @@
   "sound-instance-update": [[11, "v0", "sound-rpc-set-param"]],
   "sound-instance-play": [[7, "v0", "sound-rpc-play"]],
   "calculate-pan-angle": [[57, "f0", "float"]],
+  // cleanup-for-death / relocate-nav: same casts as jak3's method 17/18 (bodies byte-identical)
+  "(method 44 process-drawable)": [[7, "v1", "collide-shape"]],
+  "(method 45 process-drawable)": [[1, "v1", "pointer"]],
   "get-sound-handle": [
     // casts at the READS of gp after the (process->handle pp) logior merge demotes it to int
     [39, "gp", "handle"],

@@ -33,6 +33,7 @@
   ((head  list-link)
    (tail  list-link)
    )
+  :pack-me ;; net-process-mgr embeds it inline at 584 (mod 16 = 8), so it packs to 4-align
   (:methods
     (clear! (_type_) none)
     (linked-list-method-10 (_type_ list-link) none)

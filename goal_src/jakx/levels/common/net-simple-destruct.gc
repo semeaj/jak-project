@@ -215,15 +215,9 @@
   :code sleep-code
   :post (behavior ()
     (when (not (-> self child))
-      ;; og:preserve-this bring-up gate (slice-4 review): slot 44 has no body anywhere
-      ;; in gsrc (declared only, game-h.gc), and with the pusher-init parks retired
-      ;; every prop kill would reach this dispatch a few seconds after its debris
-      ;; finishes -- a jump to 0 on a core destruction path the moment any attack or
-      ;; vehicle-impact sender lands. Skipping it still ends the process through
-      ;; empty-state. Delete the gate when process-drawable method 44 lands.
-      (if (nonzero? (-> process-drawable method-table 44))
-          ((method-of-object self process-drawable-method-44))
-          )
+      ;; cleanup-for-death (m44) landed in slice 5; prop kills now clear the collide
+      ;; prims and mark the entity dead before the process ends
+      ((method-of-object self cleanup-for-death) self)
       (go empty-state)
       )
     (ja-post)
@@ -259,10 +253,11 @@
 
 (defmethod net-simple-destruct-method-63 ((this net-simple-destruct) (arg0 rigid-body-impact))
   (when (impact-destroys? this arg0)
-    ;; og:preserve-this bring-up flag (slice-4 review, dead path today so no gate per
-    ;; the convention): this dispatch goes through the null process-nettable slot 22,
-    ;; and the as-type can also hand it #f. Only rigid-body impact senders reach m63,
-    ;; and none are landed. Gate or land m22 before the vehicle-impact leg arms this.
+    ;; og:preserve-this bring-up flag (dead path today, no gate per the convention):
+    ;; m22 landed in slice 5, retiring the null-slot half of this hazard. The as-type
+    ;; can still hand m22 a #f this, which is only safe while *net-process-mgr* is #f
+    ;; (the first or-clause short-circuits); retail relies on the caller never passing
+    ;; #f here. Revisit when the vehicle-impact leg arms rigid-body senders.
     (if (not (process-nettable-method-22 (as-type (-> arg0 process) process-nettable)))
         (return #t)
         )
@@ -288,16 +283,11 @@
     (if (not s4-0)
         (return (the-as symbol #f))
         )
-    ;; og:preserve-this bring-up gate (slice-4 review): slot 22 is a null
-    ;; process-nettable slot, and this sits on the idle 'attack path the in-file
-    ;; get-penetrate gate already treats as live. With the slot unlanded, fall through
-    ;; to the bring-up single-player goto below -- the same destination m22's #f
-    ;; branch takes. Delete the gate when process-nettable method 22 lands.
-    (when (nonzero? (-> process-nettable method-table 22))
-      (if (process-nettable-method-22 s4-0)
-          (goto cfg-27)
-          )
-      )
+    ;; m22 landed in slice 5: #t with no net session, so single-player now takes the
+    ;; retail locally-owned branch instead of the old gate's fall-through
+    (if (process-nettable-method-22 s4-0)
+        (goto cfg-27)
+        )
     ;; og:preserve-this bring-up guard: retail also takes the damage path when
     ;; (= (if *net-mgr* (-> *net-mgr* game-state local-machine-idx) 0)
     ;;    (-> *net-mgr* game-state session-master-idx))
