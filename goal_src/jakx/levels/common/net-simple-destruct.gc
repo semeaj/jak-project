@@ -344,8 +344,27 @@
   (if (not (process-nettable-method-25 this))
       (process-nettable-method-34 this 8 (new 'static 'rgba :r #xe7 :g #x3))
       )
-  *entity-more-perm*
-  ((method-of-type entity-more-perm-hash entity-more-perm-hash-method-9))
+  ;; og:preserve-this bring-up guard: retail calls (entity-more-perm-hash-method-9
+  ;; *entity-more-perm*) here. Slot 9 carries a placeholder zero-arg sig in the
+  ;; deftype, so the decompiler dropped the receiver argument (the orphaned global
+  ;; read below is that artifact); the slot also has no landed body, so it reads 0
+  ;; and the class-method dispatch is a static jump to address 0, the same null-slot
+  ;; class the entity-more-perm walk gates sense. Gate BOTH the slot and the global
+  ;; so neither partial-landing order re-arms it, and re-derive the call arguments
+  ;; from the disasm when the placeholder sig is replaced. The method-13 loop below
+  ;; needs no gate: slot 13 is hand-landed, never reads its receiver, and guards its
+  ;; own dispatches internally. This whole method stays dead until a mgr spawn leg
+  ;; lands (*net-simple-destruct-mgr* is #f and nothing calls
+  ;; init-local-net-simple-destruct-mgr), and the method-25/method-34 dispatches
+  ;; above go through their own null process-nettable slots, so landing a mgr spawn
+  ;; needs process-nettable.gc as well, not just this gate. Retire when the
+  ;; entity-more-perm leg lands method 9's body and the defining top-level.
+  (when (and (nonzero? (-> entity-more-perm-hash method-table 9))
+             (nonzero? (the-as int *entity-more-perm*))
+             )
+    *entity-more-perm*
+    ((method-of-type entity-more-perm-hash entity-more-perm-hash-method-9))
+    )
   (dotimes (gp-1 (-> *level* length))
     (let ((a1-1 (-> *level* level gp-1)))
       (if (= (-> a1-1 status) 'active)

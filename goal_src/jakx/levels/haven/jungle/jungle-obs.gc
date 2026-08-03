@@ -106,7 +106,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 533) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -189,6 +194,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-clay-jar-a) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-clay-jar-a: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -321,7 +336,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 533) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -404,6 +424,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-clay-jar-b) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-clay-jar-b: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -486,10 +516,12 @@
   ;; og:preserve-this bring-up guard: create-launch-control ends in an unconditional
   ;; (initialize ...) call, and sparticle-launch-control's initialize (slot 14) is still
   ;; commented out in sparticle-launcher.gc, so that slot reads 0 and the call is a jump
-  ;; to address 0 (part-spawner precedent in generic-obs init-from-entity!). Leave part
-  ;; at 0: spawn-flame already tests (nonzero? (-> self part)) before spawning, which
-  ;; also keeps the spawn-from-mat path (whose spawn slot 16 is equally unlanded) from
-  ;; ever seeing a zero. Delete when initialize lands.
+  ;; to address 0 (part-spawner precedent in generic-obs init-from-entity!). This is a
+  ;; runtime check that auto-passes the moment initialize lands and then sets part, so
+  ;; the spawn-from-mat path's safety does not rest on part staying 0: it rests on the
+  ;; slot-16 conjunct in spawn-flame's gate below (spawn, slot 16, is a separately
+  ;; failed decomp that can land after initialize). Delete when the particle leg lands
+  ;; BOTH initialize (14) and spawn (16).
   (if (nonzero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
       (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
       )
@@ -498,7 +530,15 @@
   )
 
 (defbehavior spawn-flame flaming-arrow ()
-  (when (nonzero? (-> self part))
+  ;; og:preserve-this bring-up guard: retail tests only (-> self part). spawn-from-mat
+  ;; is landed but tails into sparticle-launch-control's spawn (slot 16), a separately
+  ;; failed decomp whose slot reads 0, and the init-from-entity! guard above auto-sets
+  ;; part the moment initialize (14) lands, so the slot-16 conjunct (mirroring the
+  ;; part-spawner trans guard in generic-obs) is what keeps this per-frame path off a
+  ;; jump to address 0 while spawn is unlanded. Drop the conjunct when spawn (16) lands.
+  (when (and (nonzero? (-> sparticle-launch-control method-table 16)) ;; slot 16 = spawn
+             (nonzero? (-> self part))
+             )
     (let ((gp-0 (new 'stack-no-clear 'matrix)))
       (quaternion-rotate-x! (the-as quaternion (&+ gp-0 64)) (the-as quaternion (-> self root rot)) 40049.777)
       (quaternion->matrix (the-as matrix (-> gp-0 rvec)) (the-as quaternion (&+ gp-0 64)))
@@ -993,7 +1033,12 @@
   )
 
 (defmethod jungle-stone-snake-head-proxy-method-61 ((this jungle-stone-snake-head-draw) (arg0 process) (arg1 attack-info) (arg2 object) (arg3 penetrate))
-  (let ((v1-1 (make-sound-instance (-> *sound-info* 517) 0 #f)))
+  ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+  ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+  (let ((v1-1 (if (nonzero? make-sound-instance)
+                  (make-sound-instance (-> *sound-info* 517) 0 #f)
+                  )
+              ))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1010,7 +1055,12 @@
 
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defmethod jungle-stone-snake-head-proxy-method-64 ((this jungle-stone-snake-head-draw))
-  (let ((v1-1 (make-sound-instance (-> *sound-info* 518) 0 #f)))
+  ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+  ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+  (let ((v1-1 (if (nonzero? make-sound-instance)
+                  (make-sound-instance (-> *sound-info* 518) 0 #f)
+                  )
+              ))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1078,6 +1128,16 @@
   )
 
 (defmethod jungle-stone-snake-head-proxy-method-63 ((this jungle-stone-snake-head-draw) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-stone-snake-head-draw: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1209,7 +1269,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 534) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1292,6 +1357,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-tree-root-large-a) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-tree-root-large-a: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1394,7 +1469,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 534) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1477,6 +1557,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-tree-root-large-b) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-tree-root-large-b: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1611,7 +1701,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 596) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1694,6 +1789,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-statue-small-outdoors) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-statue-small-outdoors: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1809,7 +1914,12 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) 0 #f)))
+    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
+    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
+    (let ((v1-1 (if (nonzero? make-sound-instance)
+                    (make-sound-instance (-> *sound-info* 596) 0 #f)
+                    )
+                ))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1892,6 +2002,16 @@
   )
 
 (defmethod init-from-entity! ((this jungle-statue-small-indoors) (arg0 entity-actor))
+  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
+  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
+  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
+  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
+  ;; precedent in generic-obs). Delete all seven of these parks when the
+  ;; collide-shape leg lands pusher-init.
+  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
+    (format 0 "WARNING: jungle-statue-small-indoors: collide-shape pusher-init unlanded, parking (bring-up)~%")
+    (go bring-up-parked)
+    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))

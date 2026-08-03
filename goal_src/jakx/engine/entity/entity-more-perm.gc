@@ -68,16 +68,23 @@
             ;; still hold the type-name SYMBOL (walking a symbol strides into garbage;
             ;; lldb-proven on a churned discard), the slot gate below keeps the
             ;; dispatch off landed skeleton types whose slots are still null, and the
-            ;; *entity-more-perm* gate keeps the dispatch off landed nettable bodies
-            ;; while that global's defining top-level is unlanded and reads 0:
-            ;; net-simple-destruct's method 32 funnels into get-destruct-perm's
-            ;; method-12 dispatch on the zero global, a jump through garbage
-            ;; (instrumentation-proven on the armed jungle boot, 0xC0000005 at level
-            ;; activate). Skipping the dispatch costs only destruct-perm persistence,
-            ;; acceptable bring-up state while there is no save system. The first two
-            ;; layers retire with proper etype resolution (entity-table.o leg); the
-            ;; third when the entity-more-perm leg lands its defining top-level.
-            (when (and (nonzero? (the-as int *entity-more-perm*))
+            ;; third layer keeps the walk off the get-destruct-perm funnel while
+            ;; entity-more-perm is only partially landed. The proven crash there
+            ;; (instrumented on the armed jungle boot, 0xC0000005 at level activate)
+            ;; is the entity-more-perm-hash method-12 call inside get-destruct-perm:
+            ;; entity-more-perm-hash is a structure, so that call is a STATIC jump
+            ;; through method-table slot 12, which has no landed body and reads 0,
+            ;; regardless of the global's value. The zero *entity-more-perm* global
+            ;; is the secondary hazard: a near-0 index inside method 12's body once
+            ;; that body lands. Gate BOTH, so neither partial-landing order (define
+            ;; without method 12, or method 12 without the define) can reopen the
+            ;; crash. Skipping the dispatch costs only destruct-perm persistence,
+            ;; acceptable bring-up state while there is no save system. The first
+            ;; two layers retire with proper etype resolution (entity-table.o leg);
+            ;; the third only when the entity-more-perm leg lands BOTH its defining
+            ;; top-level AND method 12's body.
+            (when (and (nonzero? (-> entity-more-perm-hash method-table 12)) ;; slot 12 = lookup-or-allocate
+                       (nonzero? (the-as int *entity-more-perm*))
                        (type? (-> actor etype) type)
                        (type-type? (-> actor etype) process-nettable)
                        )
@@ -107,9 +114,14 @@
           (let ((actor (the-as entity-actor ent)))
             ;; og:preserve-this bring-up guards: same three layers as method 13 above
             ;; (type? gate for symbol-valued etypes, slot gate for skeleton types,
-            ;; *entity-more-perm* gate while that global's define is unlanded), on
-            ;; the unload-side walk where the churned-discard crash actually fired
-            (when (and (nonzero? (the-as int *entity-more-perm*))
+            ;; and the third layer gating BOTH the null entity-more-perm-hash
+            ;; method-12 slot, the proven static jump to 0, AND the zero
+            ;; *entity-more-perm* global, the hazard inside method 12's body once it
+            ;; lands), on the unload-side walk where the churned-discard crash
+            ;; actually fired. Retire the third layer only when the entity-more-perm
+            ;; leg lands both its defining top-level and method 12's body.
+            (when (and (nonzero? (-> entity-more-perm-hash method-table 12)) ;; slot 12 = lookup-or-allocate
+                       (nonzero? (the-as int *entity-more-perm*))
                        (type? (-> actor etype) type)
                        (type-type? (-> actor etype) process-nettable)
                        )
