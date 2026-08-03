@@ -235,8 +235,8 @@
    (turbo-last-disabled                  int32                                  :offset-assert 1476)
    (fragile-vehicle                      basic                                  :offset-assert 1480)
    (music-data                           uint32                         4       :offset-assert 1484)
-   (jukebox-track                        uint8                                  :offset 1484) ;; update-jukebox-music's mod-21 track cursor, byte-cycled in the low byte of music-data[0]
    (music-info                           uint32                                 :offset 1484)
+   (jukebox-track                        uint8                                  :offset 1484) ;; update-jukebox-music's mod-21 track cursor, byte-cycled in the low byte of music-data[0]
    (playing-grand-prix?                  grand-prix                             :offset 1496)
    (grand-prix-index                     uint32                                 :offset-assert 1500)
    (collision-vs-rbody-damage-multiplier float                                  :offset-assert 1504)

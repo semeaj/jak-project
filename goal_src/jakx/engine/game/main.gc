@@ -3071,8 +3071,8 @@
 ;; version keeps the original per-frame ORDER (verified against main_ir2.asm and jak3's
 ;; display-loop-main) with the profiling instrumentation dropped and the not-yet-landed
 ;; subsystems guarded: disc-error UI, screen filters, letterbox/blackout draws,
-;; blit-displays, and the sound-position update (swap-sound-buffers still commented in
-;; gsound.gc). Restore pieces as their homes land.
+;; blit-displays, and the sound-position update (retail's ear-trans/camera-pos block;
+;; swap-sound-buffers itself is landed and called direct). Restore pieces as their homes land.
 (defun display-loop-main ((arg0 display))
   ;; og:preserve-this bring-up: pckernel stand-in, see jakx-video-sync above
   (jakx-video-sync)
@@ -3133,15 +3133,8 @@
         (execute-particle-local-space-engine 1)
         )
     )
-  ;; og:preserve-this phase-1 guard: swap-sound-buffers is still commented in gsound.gc
-  (if (nonzero? swap-sound-buffers)
-      (swap-sound-buffers)
-      )
-  ;; og:preserve-this runtime-link guard: update-jukebox-music decomp still fails
-  ;; (764 setting-control load) and stays commented in gsound.gc
-  (if (nonzero? update-jukebox-music)
-      (update-jukebox-music)
-      )
+  (swap-sound-buffers)
+  (update-jukebox-music)
   (str-play-kick)
   (level-update *level*)
   (if (nonzero? mc-run) (mc-run)) ;; og:preserve-this runtime-link guard: mc-screen not landed

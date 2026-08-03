@@ -17,7 +17,7 @@
 ;; defined in collide-shape.gc, which is still a stub (jak3's generic-obs carries the same extern)
 (define-extern cshape-reaction-default (function control-info collide-query vector vector collide-status))
 
-(define-extern make-sound-instance (function object int symbol sound-instance)) ;; gsound.gc, commented there; linked at runtime
+(define-extern make-sound-instance (function sound-info sound-id handle sound-instance)) ;; gsound.gc
 
 ;; DECOMP BEGINS
 
@@ -1438,10 +1438,7 @@
       )
     )
   :exit (behavior ()
-    ;; og:preserve-this bring-up guard: find-sound-instance's body is not landed in
-    ;; gsound.gc yet (its decomp failed there), so the symbol reads 0 at runtime.
-    ;; Drop the extra nonzero? check when gsound's instance ring lands.
-    (when (and (nonzero? (-> self sound)) (nonzero? find-sound-instance))
+    (when (nonzero? (-> self sound))
       (let ((v1-1 (find-sound-instance (-> self sound) #t)))
         (cond
           (v1-1
@@ -1488,12 +1485,7 @@
                   )
               )
             )
-          ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until
-          ;; gsound's instance ring lands; retail calls it unconditionally
-          (let ((s4-3 (if (nonzero? make-sound-instance)
-                          (make-sound-instance (-> *sound-info* (-> gp-1 info-index)) 0 #f)
-                          )
-                      )
+          (let ((s4-3 (make-sound-instance (-> *sound-info* (-> gp-1 info-index)) (new 'static 'sound-id) (the-as handle #f)))
                 )
             (set! (-> self sound) (the-as sound-id (cond
                                                      (s4-3
@@ -2766,10 +2758,11 @@
                )
       (when (-> self particle-launchers (-> self current-part-index))
         (let ((gp-1 (-> (the-as entity-actor (-> self actor-group 0 data (-> self current-part-index) id)) extra trans)))
-          ;; og:preserve-this bring-up guard: make-sound-instance is still commented
-          ;; out in gsound.gc, so the symbol reads 0; retail tests spawn-sound alone
-          (when (and (-> self spawn-sound) (nonzero? make-sound-instance))
-            (let ((v1-30 (make-sound-instance (-> *sound-info* (-> self spawn-sound index)) 0 #f)))
+          (when (-> self spawn-sound)
+            (let ((v1-30
+                    (make-sound-instance (-> *sound-info* (-> self spawn-sound index)) (new 'static 'sound-id) (the-as handle #f))
+                    )
+                  )
               (cond
                 (v1-30
                   (set! (-> v1-30 trans quad) (-> gp-1 quad))
@@ -2843,14 +2836,9 @@
   (if (nonzero? (-> this amb-sound))
       (stop! (-> this amb-sound))
       )
-  (when (nonzero? (-> this loop-sound))
-    (let ((t9-1 sound-stop)
-          (a0-2 (-> this loop-sound))
-          )
-      #t
-      (t9-1 (the-as sound-id a0-2))
+  (if (nonzero? (-> this loop-sound))
+      (sound-stop (the-as sound-id (-> this loop-sound)) #t)
       )
-    )
   ((method-of-type process-drawable deactivate) this)
   (none)
   )
@@ -2866,15 +2854,6 @@
 (defmethod init-from-entity! ((this sound-on-path) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (set! (-> this root) (new 'process 'trsqv))
-  ;; og:preserve-this bring-up guard: the active state's per-frame sound updates
-  ;; run through gsound's sound-instance ring (find/make/update-sound-instance),
-  ;; which is still undecompiled there -- the first update calls through a 0
-  ;; symbol and DEP-faults the EE thread. Park every sound-on-path in its own
-  ;; no-play state until the gsound instance ring lands, then delete this block.
-  (when (zero? make-sound-instance)
-    (set! (-> this root trans quad) (-> arg0 extra trans quad))
-    (go (method-of-object this no-play))
-    )
   (let ((s4-0 ((method-of-type res-lump get-property-struct)
                arg0
                'sound-name

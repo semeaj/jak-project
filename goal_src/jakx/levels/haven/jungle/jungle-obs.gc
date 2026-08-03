@@ -107,12 +107,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 533) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -327,12 +322,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 533) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 533) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1032,12 +1022,7 @@
   )
 
 (defmethod jungle-stone-snake-head-proxy-method-61 ((this jungle-stone-snake-head-draw) (arg0 process) (arg1 attack-info) (arg2 object) (arg3 penetrate))
-  ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-  ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-  (let ((v1-1 (if (nonzero? make-sound-instance)
-                  (make-sound-instance (-> *sound-info* 517) 0 #f)
-                  )
-              ))
+  (let ((v1-1 (make-sound-instance (-> *sound-info* 517) (new 'static 'sound-id) (the-as handle #f))))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1054,12 +1039,7 @@
 
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defmethod jungle-stone-snake-head-proxy-method-64 ((this jungle-stone-snake-head-draw))
-  ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-  ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-  (let ((v1-1 (if (nonzero? make-sound-instance)
-                  (make-sound-instance (-> *sound-info* 518) 0 #f)
-                  )
-              ))
+  (let ((v1-1 (make-sound-instance (-> *sound-info* 518) (new 'static 'sound-id) (the-as handle #f))))
     (if v1-1
         (-> v1-1 id)
         0
@@ -1258,12 +1238,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 534) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1448,12 +1423,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 534) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 534) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1670,12 +1640,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 596) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0
@@ -1873,12 +1838,7 @@
          (vf6 :class vf)
          )
     (init-vf0-vector)
-    ;; og:preserve-this bring-up guard: make-sound-instance reads 0 until gsound's
-    ;; instance ring lands; retail calls it unconditionally. Delete when gsound lands.
-    (let ((v1-1 (if (nonzero? make-sound-instance)
-                    (make-sound-instance (-> *sound-info* 596) 0 #f)
-                    )
-                ))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 596) (new 'static 'sound-id) (the-as handle #f))))
       (if v1-1
           (-> v1-1 id)
           0

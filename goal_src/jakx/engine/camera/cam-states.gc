@@ -243,7 +243,7 @@
 (define-extern set-training-camera-lifetime (function float int)) ;; forward decl
 (define-extern target-time-go-normal (function object)) ;; forward decl
 (define-extern target-time-go-slow (function float symbol object)) ;; forward decl
-(define-extern make-sound-instance (function object int symbol sound-instance)) ;; gsound.gc, commented there; linked at runtime
+(define-extern make-sound-instance (function sound-info sound-id handle sound-instance)) ;; gsound.gc
 (declare-type vehicle-AI-control-timer process) ;; deftype emitted in the body below
 
 ;; og:preserve-this bring-up minimal gui-control (full deftype still commented in
@@ -2996,7 +2996,7 @@
       )
     )
   :code (behavior ()
-    (let ((v1-1 (make-sound-instance (-> *sound-info* 434) 0 #f)))
+    (let ((v1-1 (make-sound-instance (-> *sound-info* 434) (new 'static 'sound-id) (the-as handle #f))))
       (cond
         (v1-1
           (logior! (-> v1-1 flags) 320)
