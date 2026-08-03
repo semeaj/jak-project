@@ -1,48 +1,56 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
-;; name: jungle-obs.gc
-;; name in dgo: jungle-obs
-;; dgos: HAVJUNGW, HAVTOURW, HJX, JGX, JUNGLEW
-
-;; jungle-stone-snake-head-draw-init-by-other takes the parent head process as an
-;; argument but the head's deftype sits later in the file; the offline gate never
-;; notices because all-types predeclares everything, so forward-declare it here.
-(declare-type jungle-stone-snake-head process-nettable)
-
-;; DECOMP BEGINS
-
+;; definition of type jungle-clay-jar-a
 (deftype jungle-clay-jar-a (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-clay-jar-a
+(defmethod inspect ((this jungle-clay-jar-a))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-clay-jar-a jungle-clay-jar-a jungle-clay-jar-a-lod0-jg jungle-clay-jar-a-idle-ja
               ((jungle-clay-jar-a-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 4 0 8)
               :origin-joint-index 3
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-a-a jungle-debris-jar-a jungle-debris-jar-a-a-lod0-jg -1
               ((jungle-debris-jar-a-a-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-a-b jungle-debris-jar-a jungle-debris-jar-a-b-lod0-jg -1
               ((jungle-debris-jar-a-b-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-a-c jungle-debris-jar-a jungle-debris-jar-a-c-lod0-jg -1
               ((jungle-debris-jar-a-c-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-a-d jungle-debris-jar-a jungle-debris-jar-a-d-lod0-jg -1
               ((jungle-debris-jar-a-d-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; definition for symbol *jungle-clay-jar-a-debris-params*, type debris-static-params
 (define *jungle-clay-jar-a-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -99,6 +107,7 @@
     )
   )
 
+;; definition for method 66 of type jungle-clay-jar-a
 (defmethod destroy! ((this jungle-clay-jar-a))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -188,6 +197,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-clay-jar-a
 (defmethod init-from-entity! ((this jungle-clay-jar-a) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -227,37 +237,56 @@
   (go (method-of-object this idle))
   )
 
+;; definition of type jungle-clay-jar-b
 (deftype jungle-clay-jar-b (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-clay-jar-b
+(defmethod inspect ((this jungle-clay-jar-b))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-clay-jar-b jungle-clay-jar-b jungle-clay-jar-b-lod0-jg jungle-clay-jar-b-idle-ja
               ((jungle-clay-jar-b-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 4 0 8)
               :origin-joint-index 3
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-b-a jungle-debris-jar-b jungle-debris-jar-b-a-lod0-jg -1
               ((jungle-debris-jar-b-a-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-b-b jungle-debris-jar-b jungle-debris-jar-b-b-lod0-jg -1
               ((jungle-debris-jar-b-b-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-b-c jungle-debris-jar-b jungle-debris-jar-b-c-lod0-jg -1
               ((jungle-debris-jar-b-c-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-jar-b-d jungle-debris-jar-b jungle-debris-jar-b-d-lod0-jg -1
               ((jungle-debris-jar-b-d-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; definition for symbol *jungle-clay-jar-b-debris-params*, type debris-static-params
 (define *jungle-clay-jar-b-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -314,6 +343,7 @@
     )
   )
 
+;; definition for method 66 of type jungle-clay-jar-b
 (defmethod destroy! ((this jungle-clay-jar-b))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -403,6 +433,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-clay-jar-b
 (defmethod init-from-entity! ((this jungle-clay-jar-b) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -442,6 +473,7 @@
   (go (method-of-object this idle))
   )
 
+;; definition of type flaming-arrow
 (deftype flaming-arrow (process-drawable)
   ((flame-sound  ambient-sound)
    )
@@ -450,13 +482,28 @@
     )
   )
 
+;; definition for method 3 of type flaming-arrow
+(defmethod inspect ((this flaming-arrow))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-drawable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tflame-sound: ~A~%" (-> this flame-sound))
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-flaming-arrow jungle-flaming-arrow jungle-flaming-arrow-lod0-jg jungle-flaming-arrow-idle-ja
               ((jungle-flaming-arrow-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 20)
               :origin-joint-index 3
               )
 
+;; definition for method 11 of type flaming-arrow
 (defmethod init-from-entity! ((this flaming-arrow) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (set! (-> this root) (new 'process 'trsqv))
@@ -470,33 +517,14 @@
       )
     (the-as pair 0)
     )
-  ;; og:preserve-this bring-up guard: ambient-sound's new (slot 0) still holds basic's
-  ;; inherited new while gsound-h keeps the real body commented out, and that inherited
-  ;; new is not a no-op: it allocates nothing and hands back a stale pointer whose later
-  ;; method dispatches fault (part-spawner post-mortem in generic-obs init-from-entity!).
-  ;; Guard the slot of a method the type genuinely declares: slot 9 (update!) reads 0
-  ;; until gsound lands. set-falloff-far! rides inside the guard because it dispatches on
-  ;; the fresh object. Leaving flame-sound 0 is safe: the idle post, deactivate and
-  ;; relocate all test (nonzero? (-> self flame-sound)) first, retail code unchanged.
-  ;; Delete together with the other ambient-sound guards when gsound lands.
-  (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
-    (set! (-> this flame-sound) (new 'process 'ambient-sound "flaming-arrow" (-> this root trans) 0.0))
-    (set-falloff-far! (-> this flame-sound) 1228800.0)
-    )
-  ;; og:preserve-this bring-up guard: create-launch-control ends in an unconditional
-  ;; (initialize ...) call, and sparticle-launch-control's initialize (slot 14) is still
-  ;; commented out in sparticle-launcher.gc, so that slot reads 0 and the call is a jump
-  ;; to address 0 (part-spawner precedent in generic-obs init-from-entity!). Leave part
-  ;; at 0: spawn-flame already tests (nonzero? (-> self part)) before spawning, which
-  ;; also keeps the spawn-from-mat path (whose spawn slot 16 is equally unlanded) from
-  ;; ever seeing a zero. Delete when initialize lands.
-  (if (nonzero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
-      (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
-      )
+  (set! (-> this flame-sound) (new 'process 'ambient-sound "flaming-arrow" (-> this root trans) 0.0))
+  (set-falloff-far! (-> this flame-sound) 1228800.0)
+  (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
   (set! (-> this draw light-index) (the-as uint 10))
   (go (method-of-object this idle))
   )
 
+;; definition for function spawn-flame
 (defbehavior spawn-flame flaming-arrow ()
   (when (nonzero? (-> self part))
     (let ((gp-0 (new 'stack-no-clear 'matrix)))
@@ -513,6 +541,7 @@
   (none)
   )
 
+;; definition for method 10 of type flaming-arrow
 (defmethod deactivate ((this flaming-arrow))
   "Make a process dead, clean it up, remove it from the active pool, and return to dead pool."
   (if (nonzero? (-> this flame-sound))
@@ -522,6 +551,7 @@
   (none)
   )
 
+;; definition for method 7 of type flaming-arrow
 ;; WARN: Return type mismatch process-drawable vs flaming-arrow.
 (defmethod relocate ((this flaming-arrow) (offset int))
   (if (nonzero? (-> this flame-sound))
@@ -530,6 +560,7 @@
   (the-as flaming-arrow ((method-of-type process-drawable relocate) this offset))
   )
 
+;; failed to figure out what this is:
 (defstate idle (flaming-arrow)
   :virtual #t
   :enter (behavior ()
@@ -545,6 +576,7 @@
     )
   )
 
+;; definition of type jungle-stone-snake-head-proxy
 (deftype jungle-stone-snake-head-proxy (process-focusable)
   ((actor-group        (pointer actor-group))
    (actor-group-count  int32)
@@ -565,7 +597,29 @@
     )
   )
 
+;; definition for method 3 of type jungle-stone-snake-head-proxy
+(defmethod inspect ((this jungle-stone-snake-head-proxy))
+  (when (not this)
+    (set! this this)
+    (goto cfg-7)
+    )
+  (let ((t9-0 (method-of-type process-focusable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Tactor-group: #x~X~%" (-> this actor-group))
+  (dotimes (s5-0 (-> this actor-group-count))
+    (format #t "~T  [~D]~2Tactor-group: ~`actor-group`P~%" s5-0 (-> this actor-group s5-0))
+    )
+  (format #t "~2Tactor-group-count: ~D~%" (-> this actor-group-count))
+  (format #t "~2Timpact-velocity: #<vector @ #x~X>~%" (-> this impact-velocity))
+  (format #t "~2Thit-points: ~f~%" (-> this hit-points))
+  (format #t "~2Tstart-exploded: ~A~%" (-> this start-exploded))
+  (format #t "~2Tnet-parent: ~D~%" (-> this net-parent))
+  (label cfg-7)
+  this
+  )
 
+;; failed to figure out what this is:
 (defstate idle (jungle-stone-snake-head-proxy)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -576,19 +630,8 @@
          )
        )
       (('attack)
-       ;; og:preserve-this bring-up guard: get-penetrate-using-from-attack-event's body
-       ;; is not landed yet (collide/attack leg), so the symbol reads 0 at runtime and
-       ;; the retail unconditional call would jump to address 0 (same guard as the
-       ;; net-simple-destruct idle event). Unlike nsd, the result here feeds method
-       ;; 61's penetrate argument, but neither override reads arg3, so a zero
-       ;; penetrate is behavior-neutral. Drop the nonzero? gate and restore the
-       ;; unconditional call when that leg lands.
        (let ((s4-0 (-> block param 1))
-             (t0-0 (if (nonzero? get-penetrate-using-from-attack-event)
-                       (get-penetrate-using-from-attack-event (the-as process-drawable proc) block)
-                       (the-as penetrate 0)
-                       )
-                   )
+             (t0-0 (get-penetrate-using-from-attack-event (the-as process-drawable proc) block))
              )
          (jungle-stone-snake-head-proxy-method-61 self proc (the-as attack-info s4-0) (-> block param 0) t0-0)
          )
@@ -604,6 +647,7 @@
   :code sleep-code
   )
 
+;; failed to figure out what this is:
 (defstate explode (jungle-stone-snake-head-proxy)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -623,6 +667,8 @@
   :code sleep-code
   )
 
+;; definition for method 62 of type jungle-stone-snake-head-proxy
+;; INFO: Used lq/sq
 (defmethod jungle-stone-snake-head-proxy-method-62 ((this jungle-stone-snake-head-proxy) (arg0 rigid-body-impact))
   (when (< 40960.0 (* (-> arg0 impulse) (process-focusable-method-57 this)))
     (if (not (process-nettable-method-22 (as-type (-> arg0 process) process-nettable)))
@@ -638,6 +684,7 @@
   0
   )
 
+;; definition for method 61 of type jungle-stone-snake-head-proxy
 (defmethod jungle-stone-snake-head-proxy-method-61 ((this jungle-stone-snake-head-proxy) (arg0 process) (arg1 attack-info) (arg2 object) (arg3 penetrate))
   (let ((a0-5 (as-type (handle->process (-> arg1 attacker)) process-nettable)))
     (when a0-5
@@ -653,16 +700,32 @@
   0
   )
 
+;; definition of type jungle-stone-snake-head-draw
 (deftype jungle-stone-snake-head-draw (jungle-stone-snake-head-proxy)
   ((waterfall-part  handle)
    )
   )
 
+;; definition for method 3 of type jungle-stone-snake-head-draw
+(defmethod inspect ((this jungle-stone-snake-head-draw))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type jungle-stone-snake-head-proxy inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Twaterfall-part: ~D~%" (-> this waterfall-part))
+  (label cfg-4)
+  this
+  )
 
+;; definition for method 57 of type jungle-stone-snake-head-draw
 (defmethod process-focusable-method-57 ((this jungle-stone-snake-head-draw))
   999.99994
   )
 
+;; definition for function jungle-stone-snake-head-draw-init-by-other
 (defbehavior jungle-stone-snake-head-draw-init-by-other jungle-stone-snake-head-draw ((arg0 jungle-stone-snake-head) (arg1 entity-actor) (arg2 basic))
   (set! (-> self start-exploded) arg2)
   (jungle-stone-snake-head-proxy-method-63 self arg1)
@@ -672,6 +735,7 @@
       )
   )
 
+;; definition of type jungle-stone-snake-head
 (deftype jungle-stone-snake-head (process-nettable)
   ((exploded  basic)
    (drawable  handle)
@@ -686,7 +750,23 @@
     )
   )
 
+;; definition for method 3 of type jungle-stone-snake-head
+(defmethod inspect ((this jungle-stone-snake-head))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type process-nettable inspect)))
+    (t9-0 this)
+    )
+  (format #t "~2Texploded: ~A~%" (-> this exploded))
+  (format #t "~2Tdrawable: ~D~%" (-> this drawable))
+  (label cfg-4)
+  this
+  )
 
+;; definition for function jungle-stone-snake-head-init-remote
+;; WARN: Return type mismatch int vs none.
 (defbehavior jungle-stone-snake-head-init-remote jungle-stone-snake-head ((arg0 int))
   (process-nettable-method-34 self -1 (new 'static 'rgba :r #xff :g #xff))
   (process-nettable-method-35 self arg0)
@@ -695,6 +775,7 @@
   (none)
   )
 
+;; definition for method 41 of type jungle-stone-snake-head
 (defmethod process-nettable-method-41 ((this jungle-stone-snake-head) (arg0 int))
   (ppointer->process (process-spawn
                        jungle-stone-snake-head
@@ -705,6 +786,8 @@
                      )
   )
 
+;; definition for method 37 of type jungle-stone-snake-head
+;; WARN: Return type mismatch int vs none.
 (defmethod process-nettable-method-37 ((this jungle-stone-snake-head) (arg0 net-process-class-info))
   (set! (-> arg0 msg-map (-> arg0 msg-count)) 'explode)
   (+! (-> arg0 msg-count) 1)
@@ -712,24 +795,32 @@
   (none)
   )
 
+;; definition for symbol *msg-map-jungle-stone-snake-head*, type (array symbol)
 (define *msg-map-jungle-stone-snake-head*
   (new 'static 'boxed-array :type symbol :length 0 :allocated-length 64)
   )
 
+;; definition for symbol *net-process-class-info-jungle-stone-snake-head*, type net-process-class-info
 (define *net-process-class-info-jungle-stone-snake-head* (new 'static 'net-process-class-info))
 
+;; failed to figure out what this is:
 (set! (-> *net-process-class-info-jungle-stone-snake-head* msg-map) *msg-map-jungle-stone-snake-head*)
 
+;; failed to figure out what this is:
 (write-msg-map-rec jungle-stone-snake-head *net-process-class-info-jungle-stone-snake-head*)
 
+;; failed to figure out what this is:
 (set! (-> *net-process-class-info-jungle-stone-snake-head* owner-type) jungle-stone-snake-head)
 
+;; failed to figure out what this is:
 (net-process-class-register *net-process-class-info-jungle-stone-snake-head*)
 
+;; definition for method 40 of type jungle-stone-snake-head
 (defmethod process-nettable-method-40 ((this jungle-stone-snake-head))
   *net-process-class-info-jungle-stone-snake-head*
   )
 
+;; definition for method 17 of type jungle-stone-snake-head
 ;; WARN: Return type mismatch symbol vs none.
 (defmethod process-nettable-method-17 ((this jungle-stone-snake-head) (arg0 symbol) (arg1 mem-buffer))
   (case arg0
@@ -745,20 +836,17 @@
   (none)
   )
 
-;; og:preserve-this bring-up guard: the retail body serializes this process's net
-;; state, writing (-> this exploded) into the message buffer through
-;; (method-of-type mem-buffer mem-buffer-method-29). mem-buffer is a declare-type
-;; stub in goal_src (mem-buffer-h is not landed), so the dispatch cannot compile,
-;; and the decompiler drops the call arguments while the mem-buffer slots carry
-;; placeholder sigs, so re-derive the body from the disasm rather than restoring
-;; it from here when mem-buffer-h lands (net-simple-destruct-mgr precedent). Net
-;; serialization cannot run before the net legs land, so the park is
-;; behavior-neutral during bring-up.
+;; definition for method 15 of type jungle-stone-snake-head
 (defmethod process-nettable-method-15 ((this jungle-stone-snake-head) (arg0 symbol) (arg1 mem-buffer))
-  0
+  (let ((t9-0 (method-of-type mem-buffer mem-buffer-method-29)))
+    (-> this exploded)
+    (t9-0)
+    )
   (none)
   )
 
+;; definition for method 44 of type jungle-stone-snake-head
+;; WARN: Return type mismatch int vs none.
 (defmethod jungle-stone-snake-head-method-44 ((this jungle-stone-snake-head))
   (let ((v1-2 (ppointer->process (process-spawn
                                    jungle-stone-snake-head-draw
@@ -778,6 +866,8 @@
   (none)
   )
 
+;; definition for method 43 of type jungle-stone-snake-head
+;; WARN: Return type mismatch int vs none.
 (defmethod jungle-stone-snake-head-method-43 ((this jungle-stone-snake-head))
   (send-event (handle->process (-> this drawable)) 'go-die)
   (set! (-> this drawable) (the-as handle #f))
@@ -785,6 +875,7 @@
   (none)
   )
 
+;; definition for method 35 of type jungle-stone-snake-head
 ;; WARN: Return type mismatch object vs none.
 (defmethod process-nettable-method-35 ((this jungle-stone-snake-head) (arg0 int))
   (stack-size-set! (-> this main-thread) 32)
@@ -792,20 +883,13 @@
   (if (not (process-nettable-method-25 this))
       (process-nettable-method-34 this 8 (new 'static 'rgba :r #xff :g #xff))
       )
-  ;; og:preserve-this bring-up guard: retail reads the exploded flag off the remote
-  ;; init message through (method-of-type mem-buffer mem-buffer-method-46).
-  ;; mem-buffer is a declare-type stub in goal_src (mem-buffer-h is not landed), so
-  ;; the dispatch cannot compile, and the decompiler drops the call arguments while
-  ;; the mem-buffer slots carry placeholder sigs, so re-derive this line from the
-  ;; disasm when mem-buffer-h lands. This method only runs for net-remote spawns
-  ;; (init-remote), which cannot happen before the net legs land, and #f matches
-  ;; the local init-from-entity! default, so the park is behavior-neutral.
-  (set! (-> this exploded) #f)
+  (set! (-> this exploded) (the-as basic ((method-of-type mem-buffer mem-buffer-method-46))))
   (set! (-> this drawable) (the-as handle #f))
   (go (method-of-object this idle))
   (none)
   )
 
+;; definition for method 11 of type jungle-stone-snake-head
 (defmethod init-from-entity! ((this jungle-stone-snake-head) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -817,6 +901,7 @@
   (go (method-of-object this idle))
   )
 
+;; definition for method 45 of type jungle-stone-snake-head
 (defmethod jungle-stone-snake-head-method-45 ((this jungle-stone-snake-head))
   (new 'stack-no-clear 'vector)
   (let ((v1-2 (-> this entity extra)))
@@ -829,6 +914,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate idle (jungle-stone-snake-head)
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
@@ -864,17 +950,20 @@
     )
   )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-stone-snake-head jungle-stone-snake-head jungle-stone-snake-head-lod0-jg jungle-stone-snake-head-idle-ja
               ((jungle-stone-snake-head-lod0-mg (meters 20)) (jungle-stone-snake-head-lod1-mg (meters 999999)))
               :bounds (static-spherem 0 0 40 45)
               :origin-joint-index 3
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-stone-snake-head-explode jungle-stone-snake-head jungle-stone-snake-head-explode-lod0-jg jungle-stone-snake-head-explode-idle-ja
               ((jungle-stone-snake-head-explode-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 40 200)
               )
 
+;; definition for symbol *jungle-stone-snake-head-explode-params*, type joint-exploder-static-params
 (define *jungle-stone-snake-head-explode-params*
   (new 'static 'joint-exploder-static-params
     :joints (new 'static 'boxed-array :type joint-exploder-static-joint-params
@@ -897,6 +986,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate idle (jungle-stone-snake-head-draw)
   :virtual #t
   :enter (behavior ()
@@ -935,6 +1025,7 @@
     )
   )
 
+;; failed to figure out what this is:
 (defstate explode (jungle-stone-snake-head-draw)
   :virtual #t
   :enter (behavior ()
@@ -980,6 +1071,8 @@
     )
   )
 
+;; definition for method 62 of type jungle-stone-snake-head-draw
+;; INFO: Used lq/sq
 (defmethod jungle-stone-snake-head-proxy-method-62 ((this jungle-stone-snake-head-draw) (arg0 rigid-body-impact))
   (if (not (process-nettable-method-22 (as-type (-> arg0 process) process-nettable)))
       (return #t)
@@ -992,6 +1085,7 @@
   (go (method-of-object this explode))
   )
 
+;; definition for method 61 of type jungle-stone-snake-head-draw
 (defmethod jungle-stone-snake-head-proxy-method-61 ((this jungle-stone-snake-head-draw) (arg0 process) (arg1 attack-info) (arg2 object) (arg3 penetrate))
   (let ((v1-1 (make-sound-instance (-> *sound-info* 517) 0 #f)))
     (if v1-1
@@ -1008,6 +1102,7 @@
    )
   )
 
+;; definition for method 64 of type jungle-stone-snake-head-draw
 ;; WARN: Return type mismatch (pointer process) vs none.
 (defmethod jungle-stone-snake-head-proxy-method-64 ((this jungle-stone-snake-head-draw))
   (let ((v1-1 (make-sound-instance (-> *sound-info* 518) 0 #f)))
@@ -1077,6 +1172,8 @@
   (none)
   )
 
+;; definition for method 63 of type jungle-stone-snake-head-draw
+;; WARN: Return type mismatch int vs none.
 (defmethod jungle-stone-snake-head-proxy-method-63 ((this jungle-stone-snake-head-draw) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -1122,37 +1219,56 @@
   (none)
   )
 
+;; definition of type jungle-tree-root-large-a
 (deftype jungle-tree-root-large-a (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-tree-root-large-a
+(defmethod inspect ((this jungle-tree-root-large-a))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-tree-root-large-a jungle-tree-root-large-a jungle-tree-root-large-a-lod0-jg jungle-tree-root-large-a-idle-ja
               ((jungle-tree-root-large-a-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 10 0 20)
               :origin-joint-index 3
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-a jungle-debris jungle-debris-wooda-lod0-jg -1
               ((jungle-debris-wooda-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-b jungle-debris jungle-debris-woodb-lod0-jg -1
               ((jungle-debris-woodb-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-c jungle-debris jungle-debris-woodc-lod0-jg -1
               ((jungle-debris-woodc-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-debris-d jungle-debris jungle-debris-woodd-lod0-jg -1
               ((jungle-debris-woodd-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; definition for symbol *jungle-tree-root-large-a-debris-params*, type debris-static-params
 (define *jungle-tree-root-large-a-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -1198,10 +1314,12 @@
     )
   )
 
+;; definition for method 65 of type jungle-tree-root-large-a
 (defmethod impact-destroys? ((this jungle-tree-root-large-a) (arg0 rigid-body-impact))
   (< 81920.0 (* (-> arg0 impulse) (process-focusable-method-57 this)))
   )
 
+;; definition for method 66 of type jungle-tree-root-large-a
 (defmethod destroy! ((this jungle-tree-root-large-a))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1291,6 +1409,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-tree-root-large-a
 (defmethod init-from-entity! ((this jungle-tree-root-large-a) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -1332,17 +1451,32 @@
   (go (method-of-object this idle))
   )
 
+;; definition of type jungle-tree-root-large-b
 (deftype jungle-tree-root-large-b (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-tree-root-large-b
+(defmethod inspect ((this jungle-tree-root-large-b))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-tree-root-large-b jungle-tree-root-large-b jungle-tree-root-large-b-lod0-jg jungle-tree-root-large-b-idle-ja
               ((jungle-tree-root-large-b-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 13 0 20)
               :origin-joint-index 3
               )
 
+;; definition for symbol *jungle-tree-root-large-b-debris-params*, type debris-static-params
 (define *jungle-tree-root-large-b-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -1383,10 +1517,12 @@
     )
   )
 
+;; definition for method 65 of type jungle-tree-root-large-b
 (defmethod impact-destroys? ((this jungle-tree-root-large-b) (arg0 rigid-body-impact))
   (< 81920.0 (* (-> arg0 impulse) (process-focusable-method-57 this)))
   )
 
+;; definition for method 66 of type jungle-tree-root-large-b
 (defmethod destroy! ((this jungle-tree-root-large-b))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1476,6 +1612,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-tree-root-large-b
 (defmethod init-from-entity! ((this jungle-tree-root-large-b) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -1517,37 +1654,56 @@
   (go (method-of-object this idle))
   )
 
+;; definition of type jungle-statue-small-outdoors
 (deftype jungle-statue-small-outdoors (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-statue-small-outdoors
+(defmethod inspect ((this jungle-statue-small-outdoors))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-outdoors jungle-statue-small-outdoors jungle-statue-small-outdoors-lod0-jg jungle-statue-small-outdoors-idle-ja
               ((jungle-statue-small-outdoors-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 8 0 12)
               :origin-joint-index 3
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-debris-a jungle-statue-small-debris jungle-statue-small-debris-a-lod0-jg -1
               ((jungle-statue-small-debris-a-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-debris-b jungle-statue-small-debris jungle-statue-small-debris-b-lod0-jg -1
               ((jungle-statue-small-debris-b-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-debris-c jungle-statue-small-debris jungle-statue-small-debris-c-lod0-jg -1
               ((jungle-statue-small-debris-c-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-debris-d jungle-statue-small-debris jungle-statue-small-debris-d-lod0-jg -1
               ((jungle-statue-small-debris-d-lod0-mg (meters 999999)))
               :bounds (static-spherem 0 0 0 5)
               )
 
+;; definition for symbol *jungle-statue-small-outdoors-debris-params*, type debris-static-params
 (define *jungle-statue-small-outdoors-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -1604,6 +1760,7 @@
     )
   )
 
+;; definition for method 66 of type jungle-statue-small-outdoors
 (defmethod destroy! ((this jungle-statue-small-outdoors))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1693,6 +1850,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-statue-small-outdoors
 (defmethod init-from-entity! ((this jungle-statue-small-outdoors) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -1735,17 +1893,32 @@
   (go (method-of-object this idle))
   )
 
+;; definition of type jungle-statue-small-indoors
 (deftype jungle-statue-small-indoors (net-simple-destruct)
   ()
   )
 
+;; definition for method 3 of type jungle-statue-small-indoors
+(defmethod inspect ((this jungle-statue-small-indoors))
+  (when (not this)
+    (set! this this)
+    (goto cfg-4)
+    )
+  (let ((t9-0 (method-of-type net-simple-destruct inspect)))
+    (t9-0 this)
+    )
+  (label cfg-4)
+  this
+  )
 
+;; failed to figure out what this is:
 (defskelgroup skel-jungle-statue-small-indoors jungle-statue-small-indoors 0 2
               ((1 (meters 999999)))
               :bounds (static-spherem 0 8 0 12)
               :origin-joint-index 3
               )
 
+;; definition for symbol *jungle-statue-small-indoors-debris-params*, type debris-static-params
 (define *jungle-statue-small-indoors-debris-params*
   (new 'static 'debris-static-params
     :joints (new 'static 'boxed-array :type debris-static-joint-params
@@ -1802,6 +1975,7 @@
     )
   )
 
+;; definition for method 66 of type jungle-statue-small-indoors
 (defmethod destroy! ((this jungle-statue-small-indoors))
   (rlet ((vf0 :class vf)
          (vf4 :class vf)
@@ -1891,6 +2065,7 @@
     )
   )
 
+;; definition for method 11 of type jungle-statue-small-indoors
 (defmethod init-from-entity! ((this jungle-statue-small-indoors) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
@@ -1932,3 +2107,7 @@
   (set! (-> this draw light-index) (the-as uint 10))
   (go (method-of-object this idle))
   )
+
+
+
+
