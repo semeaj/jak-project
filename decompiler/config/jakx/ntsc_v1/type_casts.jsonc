@@ -1718,5 +1718,64 @@
   ],
   // method 44 stores this's handle into the freshly spawned draw child's
   // net-parent; ppointer->process types the child as bare process.
-  "(method 44 jungle-stone-snake-head)": [[50, "v1", "jungle-stone-snake-head-draw"]]
+  "(method 44 jungle-stone-snake-head)": [[50, "v1", "jungle-stone-snake-head-draw"]],
+  // collide-shape slice 4: jak3's casts as seeds (spot-checked op indices match:
+  // m50 op 30, m38 op 42, m12-sphere op 17); iterate against the jakx output
+  // jakx drops jak3's add-debug-sphere prologue and checks (type? param1 target)
+  // instead of (= process *target*), shifting the three connection walks to ops
+  // 8/45/82 with param1 landing in s5 (jak3: a0)
+  "collide-shape-draw-debug-marks": [
+    [8, "v1", "connection"],
+    [[8, 28], "s5", "collide-shape"],
+    [45, "v1", "connection"],
+    [[45, 65], "s5", "collide-shape"],
+    [82, "v1", "connection"],
+    [[82, 102], "s5", "collide-shape"]
+  ],
+  "(method 50 collide-shape)": [
+    [30, "gp", "process-drawable"],
+    [32, "a1", "collide-shape"],
+    [66, "gp", "process-focusable"],
+    [70, "gp", "process-focusable"],
+    [78, "gp", "process-focusable"],
+    [82, "gp", "process-focusable"],
+    [99, "gp", "process-focusable"]
+  ],
+  "(method 36 collide-shape)": [[[1, 40], "v1", "collide-shape-prim"]],
+  "(method 38 collide-shape)": [
+    [[42, 80], "s5", "collide-shape-prim-mesh"],
+    [34, "v0", "(array collide-mesh)"]
+  ],
+  "(method 40 collide-shape)": [
+    [30, "a0", "connection"],
+    [31, "a0", "collide-shape"],
+    [79, "a0", "connection"],
+    [80, "a0", "collide-shape-moving"],
+    [156, "s4", "(pointer uint64)"]
+  ],
+  "(method 45 collide-shape)": [
+    [28, "a0", "connection"],
+    [29, "a0", "collide-shape"],
+    [79, "a0", "connection"],
+    [80, "a0", "collide-shape-moving"],
+    [[224, 235], "s1", "collide-shape-moving"]
+  ],
+  "(method 12 collide-shape-prim-sphere)": [
+    [17, "gp", "collide-shape-prim-mesh"]
+  ],
+  "(method 13 collide-shape-prim)": [[[12, 43], "s4", "collide-shape-prim"]],
+  "(method 12 collide-shape-prim-group)": [
+    [[12, 43], "s4", "collide-shape-prim"]
+  ],
+  "cshape-reaction-update-state": [["_stack_", 56, "collide-status"]],
+  "(method 19 collide-shape-prim)": [[[3, 32], "s4", "collide-shape-prim"]],
+  "(method 18 collide-shape-prim-sphere)": [
+    [83, "s4", "collide-shape-prim-mesh"]
+  ],
+  "(method 18 collide-shape-prim-group)": [
+    [[3, 32], "s4", "collide-shape-prim"]
+  ],
+  // step-collision! (jakx slot 65 = jak3 66); jakx's prim-walk increment sits at op 58,
+  // one past jak3's range end
+  "(method 65 collide-shape-moving)": [[[29, 59], "s0", "collide-cache-prim"]]
 }

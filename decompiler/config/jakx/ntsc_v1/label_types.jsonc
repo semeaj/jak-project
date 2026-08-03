@@ -170,6 +170,14 @@
     ["L356", "(array symbol)", true],
     ["L383", "(array array)", true]
   ],
+  // collide-shape slice 4: send-shoves' static attack-info (mask word 0x689002 at
+  // offset 88; jak3's same static was L372), m36's 4.096 x-nudge vector (jak3 L379)
+  // and find-ground-point's +20480y start-pos vector
+  "collide-shape": [
+    ["L314", "attack-info"],
+    ["L321", "vector"],
+    ["L323", "vector"]
+  ],
   "pad": [["L116", "(pointer uint8)", 256]],
   "main": [
     ["L564", "uint128", true],

@@ -249,5 +249,27 @@
   "spawn-flame": [
     [16, "matrix"],
     [80, "quaternion"]
-  ]
+  ],
+  // collide-shape slice 4: jak3's entries, offsets verified against the jakx ir2
+  // jakx send-shoves also spills the transv copy at sp+48 (jak3 reused a register)
+  "(method 50 collide-shape)": [
+    [32, "vector"],
+    [48, "vector"]
+  ],
+  "(method 45 collide-shape)": [[16, "do-push-aways-work"]],
+  "(method 18 collide-shape-prim-mesh)": [[16, "collide-tri-result"]],
+  "(method 15 collide-shape-prim-sphere)": [[16, "collide-query"]],
+  "cshape-reaction-update-state": [
+    [16, "vector"],
+    [32, "vector"]
+  ],
+  "(method 63 collide-shape-moving)": [
+    [16, "vector"],
+    [32, "vector"],
+    [48, "vector"],
+    [64, "vector"]
+  ],
+  // step-collision!: the debug-triangle vector copy under *display-collision-marks*
+  // (the stack collide-query at 16 auto-detects through the fill callee)
+  "(method 65 collide-shape-moving)": [[576, "vector"]]
 }
