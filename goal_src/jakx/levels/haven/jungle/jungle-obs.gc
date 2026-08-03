@@ -5,9 +5,10 @@
 ;; name in dgo: jungle-obs
 ;; dgos: HAVJUNGW, HAVTOURW, HJX, JGX, JUNGLEW
 
-;; jungle-stone-snake-head-draw-init-by-other takes the parent head process as an
-;; argument but the head's deftype sits later in the file; the offline gate never
-;; notices because all-types predeclares everything, so forward-declare it here.
+;; og:preserve-this forward declaration: jungle-stone-snake-head-draw-init-by-other
+;; takes the parent head process as an argument but the head's deftype sits later in
+;; the file; the offline gate never notices because all-types predeclares everything,
+;; so forward-declare it here.
 (declare-type jungle-stone-snake-head process-nettable)
 
 ;; DECOMP BEGINS
@@ -873,6 +874,15 @@
   :virtual #t
   :event (behavior ((proc process) (argc int) (message symbol) (block event-message-block))
     (case message
+      ;; og:preserve-this bring-up artifact (re-derive): process-nettable methods
+      ;; 27/28/29 carry placeholder zero-arg sigs in process-nettable-h.gc, so the
+      ;; decompiler dropped the call arguments here, leaving the dead constants
+      ;; below. Retail sequence (jungle-obs_ir2.asm, anon-function 17): method-27
+      ;; takes 'explode (begin message) and returns the buffer handle; method-29
+      ;; takes that return plus -2 and 64 (send); method-28 takes the same return
+      ;; (end message). Re-derive this handler from
+      ;; decompiler_out/jakx/jungle-obs_disasm.gc when those methods land real sigs
+      ;; (these calls then become arity errors at exactly these lines).
       (('explode)
        (let ((t9-0 (method-of-object self process-nettable-method-27)))
          'explode

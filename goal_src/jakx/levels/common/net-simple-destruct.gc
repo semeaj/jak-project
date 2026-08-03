@@ -383,6 +383,15 @@
       (return #f)
       )
   (let ((gp-0 (-> arg0 entity)))
+    ;; og:preserve-this bring-up flag (no gate, dead path per the convention): this
+    ;; is the second get-destruct-perm caller, and it funnels into the same static
+    ;; jump through the null entity-more-perm-hash method-12 slot the
+    ;; entity-more-perm walk gates sense. It crashes the moment a future leg spawns
+    ;; the mgr while entity-more-perm is only partially landed. Unreachable today:
+    ;; *net-simple-destruct-mgr* is #f, nothing calls
+    ;; init-local-net-simple-destruct-mgr, and the net-remote spawn path is
+    ;; unlanded. Gate this site or land the entity-more-perm leg (defining top-level
+    ;; AND method 12's body) before landing any mgr spawn caller.
     (let ((s3-0 (get-destruct-perm (-> gp-0 aid))))
       (if (!= (-> s3-0 user-object 0) -1)
           (return #f)

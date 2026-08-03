@@ -950,6 +950,20 @@ Ptr<Type> intern_type_from_c(int a, int b, const char* name, u64 methods) {
     // retail's level-heap semantics. Revisit when level code objects land: a level
     // deftype refining one of these global stubs will fill it with method pointers
     // into level code, which outlives this decision's assumptions.
+    //
+    // UPDATE (jungle-obs leg, slice 3): the revisit condition above has fired.
+    // jungle-obs.o now defines the shared jungle prop types in the JGX/JUNGLEW code
+    // DGOs, while seven OTHER built jungle section/vista DGOs (JGA/JGB/JGC/JGD/JGE/
+    // JGG/JGY) still carry the same type names as bare v5 bsp data links with no
+    // code object. Those v5 links pass methods = 0, so a section-first load interns
+    // a 12-method flag-0 stub here (global heap, survives level unload), and the
+    // later JUNGLEW/JGX load of jungle-obs.o widens it (46-70 real methods)
+    // straight into the redefine ASSERT below. Nothing structural prevents that
+    // order: it is held at bay only by want-set discipline (every jungle continue
+    // point wants the junglew/jgx code DGOs first) plus the unlanded frontend/vista
+    // path. Revisit this stub decision (re-register data stubs on the level type
+    // list, or make the widen path tolerant) before the frontend/vista or jungles
+    // scene legs land.
     auto casted_sym = symbol.cast<Symbol4<Ptr<Type>>>();
     auto type = alloc_and_init_type(casted_sym, n_methods, force_global);
     type->symbol = casted_sym;
