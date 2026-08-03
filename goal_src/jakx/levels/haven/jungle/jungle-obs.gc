@@ -195,16 +195,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-clay-jar-a) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-clay-jar-a: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -425,16 +415,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-clay-jar-b) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-clay-jar-b: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -850,9 +830,18 @@
 (defmethod init-from-entity! ((this jungle-stone-snake-head) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
-  (if (not (process-nettable-method-25 this))
-      (process-nettable-method-34 this 8 (new 'static 'rgba :r #xff :g #xff))
-      )
+  ;; og:preserve-this bring-up gate (slice-4 review): the retail m25/m34 pair (net
+  ;; ownership query + base-color set) dispatches through process-nettable slots that
+  ;; have no body anywhere in gsrc (process-nettable.gc is a stub), and slice 4 made
+  ;; entity birth real, so an ungated dispatch here is a jump to 0 the moment a
+  ;; snake-head level loads. Skipping the pair matches the m25-returns-#f single-player
+  ;; path except for the m34 color bookkeeping (visual only, merc not rendering yet).
+  ;; Delete the gate when process-nettable methods 25/34 land.
+  (when (nonzero? (-> process-nettable method-table 25))
+    (if (not (process-nettable-method-25 this))
+        (process-nettable-method-34 this 8 (new 'static 'rgba :r #xff :g #xff))
+        )
+    )
   (set! (-> this drawable) (the-as handle #f))
   (set! (-> this exploded) #f)
   (go (method-of-object this idle))
@@ -1138,16 +1127,6 @@
   )
 
 (defmethod jungle-stone-snake-head-proxy-method-63 ((this jungle-stone-snake-head-draw) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-stone-snake-head-draw: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1367,16 +1346,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-tree-root-large-a) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-tree-root-large-a: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1567,16 +1536,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-tree-root-large-b) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-tree-root-large-b: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -1799,16 +1758,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-statue-small-outdoors) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-statue-small-outdoors: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
@@ -2012,16 +1961,6 @@
   )
 
 (defmethod init-from-entity! ((this jungle-statue-small-indoors) (arg0 entity-actor))
-  ;; og:preserve-this bring-up park: the retail body builds this prop's collide-shape
-  ;; and calls pusher-init, but collide-shape.gc is still a stub, so slot 54 has no
-  ;; body anywhere in goal_src and reads 0 -- dispatching through it is a jump to
-  ;; address 0. Park sleeping before touching the heap (part-spawner park-early
-  ;; precedent in generic-obs). Delete all seven of these parks when the
-  ;; collide-shape leg lands pusher-init.
-  (when (zero? (-> collide-shape method-table 54)) ;; slot 54 = pusher-init
-    (format 0 "WARNING: jungle-statue-small-indoors: collide-shape pusher-init unlanded, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (stack-size-set! (-> this main-thread) 32)
   (logior! (-> this mask) (process-mask actor-pause))
   (let ((s4-0 (new 'process 'collide-shape this (collide-list-enum usually-hit-by-player))))
