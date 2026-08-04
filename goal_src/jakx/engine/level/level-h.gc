@@ -259,7 +259,11 @@
 ;; warps the camera onto its camera-trans/camera-rot framing. Set #f in the REPL to boot
 ;; the single *jakx-boot-level* instead. "jungle-a-1" is the jungle track A start line:
 ;; junglew (tiny-center) + junglee (tiny) + junglea (tiny), exactly the three-level
-;; window the level heap is sized for.
+;; window the level heap is sized for. Every track section has a retail continue
+;; (jungle-a-1/2/3, jungle-b-1, ... in level-info.gc), so streaming bugs near a
+;; section boundary can boot adjacent to it instead of flying the ring for two
+;; minutes; note the headless campath flies its own fixed loop from wherever it
+;; starts, so pick the continue on the approach side of the boundary under test.
 (define *jakx-boot-continue* "jungle-a-1")
 
 ;; DECOMP BEGINS

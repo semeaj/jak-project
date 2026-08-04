@@ -3,6 +3,7 @@
  * Setup and launcher for the runtime.
  */
 
+#include "game/kernel/common/goal_crash_map.h"
 #include "common/common_types.h"
 #ifdef OS_POSIX
 #include <unistd.h>
@@ -181,6 +182,7 @@ void ee_runner(SystemThreadInterface& iface) {
   }
 
   lg::debug("Main memory mapped at 0x{:016x}", (u64)(g_ee_main_mem));
+  goal_crash_map_install();
   lg::debug("Main memory size 0x{:x} bytes ({:.3f} MB)", EE_MAIN_MEM_SIZE,
             (double)EE_MAIN_MEM_SIZE / (1 << 20));
 

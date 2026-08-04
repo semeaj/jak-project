@@ -96,6 +96,7 @@ set(RUNTIME_SOURCE
         graphics/texture/TexturePool.cpp
         ${OG_ASM_FUNCS_FILE}
         kernel/common/fileio.cpp
+        kernel/common/goal_crash_map.cpp
         kernel/common/kboot.cpp
         kernel/common/kdgo.cpp
         kernel/common/kdsnetm.cpp
