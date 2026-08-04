@@ -181,8 +181,10 @@ These path-controls are typically allocated on a process heap."
                   (set! s2-0 'path-intro-distmap)
                   )
                  )
-               (let* ((sv-32 0)
-                      (v0-3 (res-lump-data s4-0 s2-0 pointer :tag-ptr (the-as (pointer res-tag) (& sv-32))))
+               ;; og:preserve-this decomp fix: degraded tag-ptr slot (16-byte write-back
+               ;; through an 8-byte int slot); static res-tag per the jak3 idiom
+               (let* ((sv-32 (new 'static 'res-tag))
+                      (v0-3 (res-lump-data s4-0 s2-0 pointer :tag-ptr (& sv-32)))
                       )
                  (when v0-3
                    (set! (-> (the-as path-control s5-0) distmap) (the-as uint v0-3))
@@ -290,19 +292,19 @@ These path-controls are typically allocated on a process heap."
                (set! (-> (the-as curve-control s5-0) name) arg1)
                (set! (-> (the-as curve-control s5-0) curve cverts) (the-as (inline-array vector) sv-96))
                (set! (-> (the-as curve-control s5-0) curve num-cverts) (the-as int (-> sv-16 elt-count)))
-               (let* ((sv-32 0)
-                      (v0-5 (res-lump-data arg2 sv-112 pointer :tag-ptr (the-as (pointer res-tag) (& sv-32))))
+               ;; og:preserve-this decomp fix: degraded tag-ptr slot; static res-tag plus
+               ;; the elt-count field read replacing the pcpyud upper-dword dance
+               (let* ((sv-32 (new 'static 'res-tag))
+                      (v0-5 (res-lump-data arg2 sv-112 pointer :tag-ptr (& sv-32)))
                       )
                  (when v0-5
                    (set! (-> (the-as curve-control s5-0) curve knots) (the-as (pointer float) v0-5))
-                   (let ((v1-16 (the-as uint128 sv-32)))
-                     (.pcpyud v1-17 v1-16 r0-0)
-                     )
-                   (set! (-> (the-as curve-control s5-0) curve num-knots) (shr (* (the-as int v1-17) 2) 49))
+                   (set! (-> (the-as curve-control s5-0) curve num-knots) (the-as int (-> sv-32 elt-count)))
                    )
                  )
-               (let* ((sv-48 0)
-                      (v0-6 (res-lump-data arg2 s4-0 pointer :tag-ptr (the-as (pointer res-tag) (& sv-48))))
+               ;; og:preserve-this decomp fix: degraded tag-ptr slot; static res-tag
+               (let* ((sv-48 (new 'static 'res-tag))
+                      (v0-6 (res-lump-data arg2 s4-0 pointer :tag-ptr (& sv-48)))
                       )
                  (when v0-6
                    (set! (-> (the-as curve-control s5-0) distmap) (the-as uint v0-6))

@@ -424,8 +424,11 @@
             (format 0 "ERROR <GMJ>: camera entity '~S' didn't produce a state~%" (-> s5-0 unknown))
             )
           )
-        (let* ((sv-96 0)
-               (s4-1 (res-lump-data s5-0 'alternates pointer :tag-ptr (the-as (pointer res-tag) (& sv-96))))
+        ;; og:preserve-this decomp fix: degraded tag-ptr slot (16-byte write-back through
+        ;; an 8-byte int slot); static res-tag per jak3 cam-master.gc:378, with the
+        ;; elt-count field read below replacing the pcpyud upper-dword dance
+        (let* ((sv-96 (new 'static 'res-tag))
+               (s4-1 (res-lump-data s5-0 'alternates pointer :tag-ptr (& sv-96)))
                )
           (when s4-1
             (format 0 "<BRS> dunno!!!~%")
@@ -452,12 +455,7 @@
                   (format 0 "ERROR <GMJ>: primary region activate failed~%")
                   )
               (let ((s2-1 0))
-                (while (begin
-                         (let ((v1-39 (the-as uint128 sv-96)))
-                           (.pcpyud v1-40 v1-39 r0-0)
-                           )
-                         (< s2-1 (shr (* (the-as int v1-40) 2) 49))
-                         )
+                (while (< s2-1 (the-as int (-> sv-96 elt-count)))
                   (let ((sv-144 (entity-by-name (the-as string (-> (the-as (pointer uint32) (&+ s4-1 (* s2-1 4))))))))
                     (cond
                       (sv-144

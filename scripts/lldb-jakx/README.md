@@ -30,6 +30,18 @@ Hard-won usage notes:
   process-heap allocator, keyed on the allocation's type name and owner-process name
   (layout-independent); see the DR0 recipe in issue #34's slice-6 notes. Debug-register
   watches fire even in runs that would have survived the corruption.
+- **Arm DEFERRED, never at the matching allocation itself.** alloc_from_heap returns
+  into alloc_heap_object, which immediately stores the object's own type tag; a watch
+  armed inside the allocator always fires on that store, and the capture reads exactly
+  like a native memory-copy writer (g_ee_main_mem base in rcx, a GAME.CGO-region value
+  in the source register, store-and-advance shape). That false positive was slice-6's
+  "caught red-handed" native writer. Record the address as pending and arm it on the
+  NEXT alloc_from_heap entry; any hit after that is a genuinely foreign write.
+- Crash-report object names use the nearest recorded object start at or below the
+  address, and empty 96-byte stub objects share their start with whatever links next
+  (script = generic-obs, entity-table = loader, collide-cache = entity, ...). Before
+  trusting a `stub+0xNNN` frame, check the boot log's `[link and exec]` spans for the
+  object that really contains the address.
 - Runs under lldb take 2-3x longer; the ring reaches jungle-b at 7-8 minutes. Boot from
   a nearby continue (`*jakx-boot-continue*` in level-h.gc) when hunting a specific
   section boundary.

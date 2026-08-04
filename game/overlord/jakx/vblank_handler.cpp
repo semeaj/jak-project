@@ -187,7 +187,12 @@ u32 VBlankThread() {
         sceSifDmaData dma;
         dma.data = &g_SRPCSoundIOPInfo;
         dma.addr = (void*)(u64)g_nInfoEE;
-        dma.size = sizeof(g_SRPCSoundIOPInfo);
+        // jakx's EE-side sound-iop-info is 0x2c0 bytes (gsound-h.gc), not 0x2d0 like the
+        // jak3 struct this file was copied with: the full-size DMA stomps 16 bytes of
+        // whatever the global heap placed after *sound-iop-info*, every vblank. Clamp to
+        // the EE object. The interior is still jak3-shaped and misdelivered on jakx;
+        // the jakx SoundIOPInfo layout port is tracked separately on issue #34.
+        dma.size = 0x2c0;
         static_assert(sizeof(g_SRPCSoundIOPInfo) == 0x2d0);
         dma.mode = 0;
         /*dmaid =*/sceSifSetDma(&dma, 1);

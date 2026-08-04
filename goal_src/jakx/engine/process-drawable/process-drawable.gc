@@ -303,18 +303,15 @@
         (set! (-> this lod s3-0 dist) (res-lump-float arg2 'vis-dist :default 4095996000.0))
         )
     )
+  ;; og:preserve-this decomp fix: degraded tag-ptr slot (16-byte write-back through an
+  ;; 8-byte int slot); static res-tag plus the elt-count field read, jak3 pd.gc:322
   (let* ((v1-14 (-> arg1 data (-> arg0 jgeo)))
-         (sv-16 0)
-         (v1-15 (res-lump-data (-> v1-14 extra) 'lod-dist pointer :tag-ptr (the-as (pointer res-tag) (& sv-16))))
+         (sv-16 (new 'static 'res-tag))
+         (v1-15 (res-lump-data (-> v1-14 extra) 'lod-dist pointer :tag-ptr (& sv-16)))
          )
     (when v1-15
       (let ((a0-6 0))
-        (while (begin
-                 (let ((a1-26 (the-as uint128 sv-16)))
-                   (.pcpyud a1-27 a1-26 r0-0)
-                   )
-                 (< a0-6 (shr (* (the-as int a1-27) 2) 49))
-                 )
+        (while (< a0-6 (the-as int (-> sv-16 elt-count)))
           (set! (-> this lod a0-6 dist) (-> (the-as (pointer float) (&+ v1-15 (* a0-6 4)))))
           (+! a0-6 1)
           )
