@@ -1940,20 +1940,17 @@
             (not (and (-> this entity) (logtest? (-> this entity extra perm status) (entity-perm-status subtask-complete)))
                  )
             )
-      ;; og:preserve-this bring-up guard: ambient-sound declares its own new (slot 0) but
-      ;; the body is commented out in gsound-h.gc (undecompilable srl asm), so the slot
-      ;; still holds basic's inherited new. That is NOT a no-op: this call allocates
-      ;; nothing and hands back a stale pointer, so both fields came back equal and
-      ;; pointing at a dead viewer process, and deactivate's (stop! (-> this sound))
-      ;; dispatched through that object's method table and DEP-faulted. Guard the SLOT,
-      ;; not the object, and use slot 9 (update!) as the sentinel: unlike new it is
-      ;; declared on ambient-sound rather than inherited, so it genuinely reads 0 until
-      ;; gsound lands, and it is the same sentinel the trans below already uses. Leaving
-      ;; both fields 0 is safe: deactivate and the trans both test nonzero? first.
-      ;; Nothing reached this before jungle-part/jungle-part2 landed, because every
-      ;; jungle spawner failed the group lookup and parked ahead of these allocations.
-      ;; Delete together with the other ambient-sound guards when gsound lands.
-      (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
+      ;; og:preserve-this bring-up re-park (slice 5): gsound landed and slot 9 went
+      ;; live, but constructing these ambient-sounds exposed a real defect in the
+      ;; hand-carried (new ambient-sound) for the entity-actor path: its object-new
+      ;; executes with a NULL type and size 0 (allocation-trace-verified on
+      ;; rampsplash-part-26), returning a phantom object at heap-cur+4 that never
+      ;; advances the heap. After the retail post-init shrink, the phantom's memory is
+      ;; reused, and the active-state update!/update-trans! dispatch through its garbage
+      ;; type tag is an intermittent boot crash (2 in 3). Park the construction, not the
+      ;; update block, until the m0 phantom is diagnosed; sound/sound-extra stay 0 and
+      ;; every consumer already nonzero?-tests them. See issue #34 slice-5 notes.
+      (when #f ;; was: (nonzero? (-> ambient-sound method-table 9))
         (set! (-> this sound) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 0.0))
         (set! (-> this sound-extra) (new 'process 'ambient-sound (-> this entity) (-> this root trans) 1.0))
         )
