@@ -422,7 +422,7 @@
 ;; gsound.gc, the process-focusable chain in process-nettable-h/game-h/process-focusable, and
 ;; effect-param->sound-spec in the not-yet-landed effect-control).
 (define-extern new-sound-id (function sound-id))
-(define-extern sound-info-by-name (function string sound-info))
+(define-extern sound-info-by-name (function sound-name sound-info)) ;; was string: a GPR arg truncates the uint128 name to 8 chars at the call boundary
 (declare-type process-nettable process)
 (declare-type process-drawable process-nettable)
 (declare-type process-focusable process-drawable)
@@ -561,7 +561,7 @@
                    )
                  (set! sv-32 (-> sname 0))
                  )
-               (set! (-> s5-1 spec info) (sound-info-by-name (the-as string sv-32)))
+               (set! (-> s5-1 spec info) (sound-info-by-name sv-32)) ;; the lowercased full name, not a truncating string cast
                )
              )
            (set! (-> s5-1 playing-id) (new-sound-id))

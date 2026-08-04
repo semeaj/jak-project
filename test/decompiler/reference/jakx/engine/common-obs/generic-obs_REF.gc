@@ -2463,7 +2463,7 @@
                )
               )
         )
-    (set! (-> this spawn-sound) (sound-info-by-name (the-as string (string->sound-name (the-as string a0-9)))))
+    (set! (-> this spawn-sound) (sound-info-by-name (string->sound-name (the-as string a0-9))))
     )
   (let ((a3-2 (+ 0 (-> this actor-group 0 length))))
     (set! (-> this particle-launchers)

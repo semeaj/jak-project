@@ -127,7 +127,16 @@ SoundCommand TranslateJakXSoundCommand(SoundCommand in) {
     case 21:
       return SoundCommand::SET_STEREO_MODE;
     case 22:
-      return SoundCommand::SET_EAR_TRANS;
+      // jakx set-globals is NOT jak3's set-ear-trans: it is an 8-byte payload
+      // (u8 cam-inverted at +4, s16 music-pitch-mod at +6) sent every frame by
+      // swap-sound-buffers. Parsing it as jak3's five-vector ear command fed 76
+      // bytes of adjacent-command garbage into SetEarTrans each frame and crashed
+      // the mixer once a 3D voice went live. jakx moved the ear/pan math EE-side
+      // (build-sound-list's per-instance updaters), so the IOP needs nothing from
+      // this command today; route it to the ignored case. Revisit for cam-inverted
+      // (split-screen pan mirroring) and music-pitch-mod (jukebox/slow-mo) when
+      // those legs land.
+      return SoundCommand::SET_MIDI_REG;
     default:
       return in;
   }

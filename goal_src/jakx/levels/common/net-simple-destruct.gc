@@ -255,9 +255,10 @@
   (when (impact-destroys? this arg0)
     ;; og:preserve-this bring-up flag (dead path today, no gate per the convention):
     ;; m22 landed in slice 5, retiring the null-slot half of this hazard. The as-type
-    ;; can still hand m22 a #f this, which is only safe while *net-process-mgr* is #f
-    ;; (the first or-clause short-circuits); retail relies on the caller never passing
-    ;; #f here. Revisit when the vehicle-impact leg arms rigid-body senders.
+    ;; can still hand m22 a #f this, and that is NOT saved by m22's or-clause: the
+    ;; dispatch is virtual, so the type tag is read through (#f - 4) before the body
+    ;; ever runs. Retail relies on the caller never passing #f here. Gate the as-type
+    ;; result when the vehicle-impact leg arms rigid-body senders.
     (if (not (process-nettable-method-22 (as-type (-> arg0 process) process-nettable)))
         (return #t)
         )

@@ -1865,9 +1865,9 @@
       (if (and (nonzero? (-> sparticle-launch-control method-table 16)) (nonzero? (-> self part)))
           (spawn (-> self part) (-> self root trans))
           )
-      ;; og:preserve-this bring-up guard: ambient-sound's update! (method 9) has
-      ;; no landed body anywhere (gsound-h keeps it commented), so its slot is 0.
-      ;; Guard the SLOT, not just the object. Drop when the ambient-sound methods land.
+      ;; slot 9 (update!) is live since slice 5; the slot test stays as cheap dead-code
+      ;; hygiene, and the construction that would feed these fields is re-parked above
+      ;; (the m0 phantom), so sound/sound-extra read 0 and the inner whens no-op.
       (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
         (when (nonzero? (-> self sound))
           (update-trans! (-> self sound) (-> self root trans))
@@ -2680,7 +2680,7 @@
                )
               )
         )
-    (set! (-> this spawn-sound) (sound-info-by-name (the-as string (string->sound-name (the-as string a0-9)))))
+    (set! (-> this spawn-sound) (sound-info-by-name (string->sound-name (the-as string a0-9))))
     )
   (let ((a3-2 (+ 0 (-> this actor-group 0 length))))
     (set! (-> this particle-launchers)
@@ -2851,6 +2851,18 @@
 (defmethod init-from-entity! ((this sound-on-path) (arg0 entity-actor))
   (stack-size-set! (-> this main-thread) 32)
   (set! (-> this root) (new 'process 'trsqv))
+  ;; og:preserve-this bring-up re-park (slice 5, at the slice-4 park's exact position):
+  ;; retiring the old park armed the rest of this init for the first time ever, and the
+  ;; ring flight then crashed at the first section-window slide inside res.o (lldb: the
+  ;; faulting quad store is at res+0x1084, pp "sound-on-path-161", a jungle-b birth) --
+  ;; i.e. this init's res-lump reads (the spliced reverb block among them) carry a
+  ;; defect or unlanded dependency, on top of the m0 phantom that already parks the
+  ;; amb-sound construction and the path leg the :trans states need. Park in no-play
+  ;; before ANY of it runs, exactly as slice 4 did; the retail init below stays for the
+  ;; day the res read is diagnosed, the path leg lands, and m0 is fixed.
+  (set! (-> this root trans quad) (-> arg0 extra trans quad))
+  (go (method-of-object this no-play))
+  (return 0)
   (let ((s4-0 ((method-of-type res-lump get-property-struct)
                arg0
                'sound-name
@@ -2902,14 +2914,14 @@
            )
        )
       ((!= s4-0 "")
-       (set! (-> this amb-sound) (new 'process 'ambient-sound (the-as basic s4-0) (-> this root trans) 0.0))
-       (let ((f0-5 (res-lump-float arg0 'sound-falloff-far :default -1.0)))
-         (if (< 0.0 f0-5)
-             (set-falloff-far! (-> this amb-sound) f0-5)
-             )
-         )
-       (update-vol! (-> this amb-sound) 1.0)
-       (update-pitch-mod! (-> this amb-sound) 0.0)
+       ;; og:preserve-this bring-up re-park (slice 5): the hand-carried (new ambient-sound)
+       ;; executes object-new with a NULL type and size 0 at runtime (allocation-trace-proven;
+       ;; see issue #34 slice-5 notes and the part-spawner park in generic-obs), returning a
+       ;; phantom object that aliases free heap. Constructing here corrupts the process heap the
+       ;; moment this entity births. Park until the m0 phantom is diagnosed;
+       ;; amb-sound stays 0 and the trans/deactivate nonzero?-tests keep it inert.
+       ;; Retail body: construct from the name string, then falloff/vol/pitch setup.
+       (set! (-> this amb-sound) (the-as ambient-sound 0))
        )
       )
     )

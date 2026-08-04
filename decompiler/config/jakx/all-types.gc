@@ -36067,7 +36067,7 @@
 (define-extern *debug-sound-info-item* basic)
 (define-extern sound-instance-play (function sound-instance sound-id)) ;; jakx-new instance ring; reads a0 only, returns (-> inst id)
 (define-extern sound-instance-update (function sound-instance sound-id)) ;; jakx-new instance ring; reads a0 only, returns (-> inst id)
-(define-extern sound-info-by-name (function string sound-info))
+(define-extern sound-info-by-name (function sound-name sound-info)) ;; was string: goalc passes string in a GPR, truncating the packed uint128 name to its low 8 chars at every call boundary (613 of 648 table names are longer); sound-name keeps the full 16 bytes in an xmm
 (define-extern *sound-handles* (array (array sound-handle))) ;; slot 0 = 128 game handles (svc 0), slot 1 = 12 service handles (svc 1)
 (define-extern find-sound-handle (function int handle sound-handle)) ;; jakx-new instance ring; (svc owner), scans *sound-handles* slot svc for owner's proc
 (define-extern release-sound-handle (function sound-handle int)) ;; jakx-new instance ring; swap-removes from its svc pool when num-instances hits 0

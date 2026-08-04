@@ -476,7 +476,7 @@
 
 ;; definition for function sound-info-by-name
 ;; INFO: Used lq/sq
-(defun sound-info-by-name ((arg0 string))
+(defun sound-info-by-name ((arg0 sound-name))
   (when (and (nonzero? arg0) arg0)
     (dotimes (s5-0 (-> *sound-info* length))
       (let ((s4-0 (-> *sound-info* s5-0)))
@@ -1607,7 +1607,7 @@
 
 ;; definition for method 10 of type ambient-sound
 (defmethod change-sound! ((this ambient-sound) (arg0 sound-name))
-  (let ((s5-0 (sound-info-by-name (the-as string arg0))))
+  (let ((s5-0 (sound-info-by-name arg0)))
     (when s5-0
       (when (!= (-> this spec info) s5-0)
         (stop! this)
@@ -1696,7 +1696,16 @@
 (defun ear-trans ((mode int) (view-idx int))
   (cond
     ((= mode 1)
-     (get-player-pos view-idx)
+     ;; og:preserve-this runtime-link guard: get-player-pos's home (net-player.o) is an
+     ;; empty stub, so the symbol reads 0 -- and the flags-4 sound-info records (the
+     ;; jungle water ambience: wtrfall-*, waves-amb, cave-drips, 69 records) route here
+     ;; through update-volume-with-falloff the first frame their instance updates, which
+     ;; is what crashed every ring flight at jungle-b's birth. Fall back to the camera
+     ;; ear (the mode-0 default) until net-player lands; drop the guard then.
+     (if (nonzero? get-player-pos)
+         (get-player-pos view-idx)
+         (math-camera-pos)
+         )
      )
     ((or (movie?) *external-cam-mode*)
      (math-camera-pos)

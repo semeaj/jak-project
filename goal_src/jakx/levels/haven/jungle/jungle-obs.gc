@@ -471,16 +471,15 @@
       )
     (the-as pair 0)
     )
-  ;; og:preserve-this bring-up guard: ambient-sound's new (slot 0) still holds basic's
-  ;; inherited new while gsound-h keeps the real body commented out, and that inherited
-  ;; new is not a no-op: it allocates nothing and hands back a stale pointer whose later
-  ;; method dispatches fault (part-spawner post-mortem in generic-obs init-from-entity!).
-  ;; Guard the slot of a method the type genuinely declares: slot 9 (update!) reads 0
-  ;; until gsound lands. set-falloff-far! rides inside the guard because it dispatches on
-  ;; the fresh object. Leaving flame-sound 0 is safe: the idle post, deactivate and
-  ;; relocate all test (nonzero? (-> self flame-sound)) first, retail code unchanged.
-  ;; Delete together with the other ambient-sound guards when gsound lands.
-  (when (nonzero? (-> ambient-sound method-table 9)) ;; slot 9 = update!
+  ;; (the pre-slice-5 slot-9 guard text retired: gsound landed, slot 9 is live, and the
+  ;; nonzero? test below auto-passed -- which is exactly what armed the m0 defect.)
+  ;; og:preserve-this bring-up re-park (slice 5): the hand-carried (new ambient-sound)
+  ;; executes object-new with a NULL type and size 0 at runtime (allocation-trace-proven;
+  ;; see issue #34 slice-5 notes and the part-spawner park in generic-obs), returning a
+  ;; phantom object that aliases free heap. Constructing here corrupts the process heap the
+  ;; moment this entity births. Park until the m0 phantom is diagnosed;
+  ;; flame-sound stays 0 (idle post/deactivate/relocate all nonzero?-test it).
+  (when #f ;; was: (nonzero? (-> ambient-sound method-table 9))
     (set! (-> this flame-sound) (new 'process 'ambient-sound "flaming-arrow" (-> this root trans) 0.0))
     (set-falloff-far! (-> this flame-sound) 1228800.0)
     )

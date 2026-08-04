@@ -1498,7 +1498,7 @@
                        )
                      )
                    )
-                 (set! (-> (the-as ambient-sound s5-1) spec info) (sound-info-by-name (the-as string sv-32)))
+                 (set! (-> (the-as ambient-sound s5-1) spec info) (sound-info-by-name (the-as sound-name sv-32)))
                  )
                )
              (set! (-> (the-as ambient-sound s5-1) playing-id) (new-sound-id))
@@ -1531,7 +1531,3 @@
 
 ;; failed to figure out what this is:
 0
-
-
-
-
