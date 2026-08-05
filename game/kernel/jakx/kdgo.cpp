@@ -1,4 +1,3 @@
-#include "game/kernel/common/goal_crash_map.h"
 #include "kdgo.h"
 
 #include "common/global_profiler/GlobalProfiler.h"
@@ -6,6 +5,7 @@
 #include "common/util/Timer.h"
 
 #include "game/kernel/common/fileio.h"
+#include "game/kernel/common/goal_crash_map.h"
 #include "game/kernel/common/kdgo.h"
 #include "game/kernel/common/kmalloc.h"
 #include "game/kernel/common/kprint.h"

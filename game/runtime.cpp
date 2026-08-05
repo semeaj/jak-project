@@ -3,8 +3,9 @@
  * Setup and launcher for the runtime.
  */
 
-#include "game/kernel/common/goal_crash_map.h"
 #include "common/common_types.h"
+
+#include "game/kernel/common/goal_crash_map.h"
 #ifdef OS_POSIX
 #include <unistd.h>
 
