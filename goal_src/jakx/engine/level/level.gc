@@ -2912,6 +2912,85 @@
 (define *jakx-campath-record* #t)
 (define *jakx-campath-frame* 0)
 
+;; og:preserve-this bring-up flight driver: the want driver picks the streaming window
+;; from the camera position, and actor birth is distance-gated from that same camera
+;; (entity.gc:742 vis-dist-ok? against *ACTOR-bank* birth-dist). So a parked camera
+;; means the window never slides and no new actors are ever born: a bare headless boot
+;; loads the boot continue's want set and then sits there. Every streaming validation
+;; and every section-boundary repro so far has therefore needed a human on a controller.
+;;
+;; Until the real race/target chain drives the camera, hop it around the boot continue's
+;; family: every *jakx-cam-fly-dwell* frames, warp onto the next race continue in list
+;; order, wrapping at the end for successive laps. Candidate selection deliberately
+;; mirrors jakx-want-driver-tick's filter (same :level home, lightjak grid-starts
+;; excluded) so the flight can only ever visit continues whose want sets are built.
+;;
+;; Dwell must stay under the re-arm window jakx-cam-warp-to-continue sets, or the pin
+;; lapses between hops and the ring's settle drags the camera back toward the origin.
+;;
+;; Off by default: it moves the camera, so it must never surprise an interactive boot.
+;; Set #t here for an unattended lap, or in the REPL. Retire with the camera start chain.
+(define *jakx-cam-fly* #f)
+(define *jakx-cam-fly-dwell* 300)
+(define *jakx-cam-fly-frame* 0)
+(define *jakx-cam-fly-index* 0)
+
+(defun jakx-cam-fly-tick ()
+  "og:preserve-this bring-up flight driver: advance the camera one race continue every
+*jakx-cam-fly-dwell* frames so streaming laps run with no pilot. See the block above."
+  (when (and *jakx-cam-fly* *jakx-want-driver-cp* (nonzero? *level-load-list*))
+    (+! *jakx-cam-fly-frame* 1)
+    (when (>= *jakx-cam-fly-frame* *jakx-cam-fly-dwell*)
+      (set! *jakx-cam-fly-frame* 0)
+      (let ((home (-> *jakx-want-driver-cp* level))
+            (want *jakx-cam-fly-index*)
+            (seen 0)
+            (pick (the continue-point #f))
+            )
+        (let ((lst *level-load-list*))
+          (while (not (null? lst))
+            (let* ((info (the-as level-load-info (-> (the-as symbol (car lst)) value)))
+                   (conts (-> info continues))
+                   )
+              (while (not (null? conts))
+                (let ((cp (the-as continue-point (car conts))))
+                  (when (and (= (-> cp level) home)
+                             (not (logtest? (-> cp flags) (continue-flags lightjak)))
+                             )
+                    (when (and (not pick) (= seen want))
+                      (set! pick cp)
+                      )
+                    (set! seen (+ seen 1))
+                    )
+                  )
+                (set! conts (cdr conts))
+                )
+              )
+            (set! lst (cdr lst))
+            )
+          )
+        (cond
+          (pick
+            (format 0 "cam-fly: hop ~D of ~D -> ~S~%" *jakx-cam-fly-index* seen (-> pick name))
+            (jakx-cam-warp-to-continue pick)
+            (set! *jakx-cam-fly-index* (+ *jakx-cam-fly-index* 1))
+            )
+          (else
+            ;; walked past the end of the family: wrap for the next lap. Guard the
+            ;; empty-family case too, or index 0 would never resolve and this would
+            ;; spin silently once per dwell.
+            (if (zero? seen)
+                (format 0 "cam-fly: no race continues for ~A, flight idle~%" home)
+                )
+            (set! *jakx-cam-fly-index* 0)
+            )
+          )
+        )
+      )
+    )
+  (none)
+  )
+
 (defun jakx-want-driver-tick ()
   "og:preserve-this bring-up want driver: retail refreshes load-state wants from race
 position through the continue-point system in game-info.gc (unlanded). Until it lands,
@@ -4136,6 +4215,9 @@ and apply its want set when it changes; update! then streams the section window.
   (dotimes (i (-> this length))
     (load-continue (-> this level i))
     )
+  ;; og:preserve-this bring-up: fly before the want driver reads the camera, so a hop
+  ;; and the window slide it causes land in the same tick rather than a frame apart.
+  (jakx-cam-fly-tick)
   (jakx-want-driver-tick)
   (update! *load-state*)
   (let ((lev-names (new 'stack-no-clear 'array 'string 10))
