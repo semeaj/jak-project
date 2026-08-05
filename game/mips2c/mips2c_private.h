@@ -1289,6 +1289,15 @@ struct ExecutionContext {
     gprs[dst].du64[1] = s0.du64[1] | s1.du64[1];
   }
 
+  // 128-bit NOR. Added for the jakx generic-merc port; note jak3's
+  // generic_merc.cpp:914 predates this helper and silently drops its pnor.
+  void pnor(int dst, int src0, int src1) {
+    auto s0 = gpr_src(src0);
+    auto s1 = gpr_src(src1);
+    gprs[dst].du64[0] = ~(s0.du64[0] | s1.du64[0]);
+    gprs[dst].du64[1] = ~(s0.du64[1] | s1.du64[1]);
+  }
+
   void pmaxw(int dst, int src0, int src1) {
     auto s0 = gpr_src(src0);
     auto s1 = gpr_src(src1);

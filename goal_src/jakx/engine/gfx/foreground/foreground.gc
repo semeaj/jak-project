@@ -11,7 +11,6 @@
 (define-extern vu-lights-default! (function vu-lights vu-lights)) ;; lights.gc is a stub
 (define-extern *default-lights* vu-lights) ;; lights.gc is a stub
 (define-extern ripple-make-request (function ripple-wave merc-effect none)) ;; ripple.gc is a stub
-(define-extern foreground-generic-merc (function draw-control pointer int pointer)) ;; mips2c, not landed
 
 ;; og:preserve-this bring-up extern: *use-fp-blerc* is defined in merc-blend-shape.gc,
 ;; which lands with the blerc leg. Until then the symbol is unbound and reads as 0,
@@ -602,10 +601,11 @@
   arg1
   )
 
-;; og:preserve-this foreground-generic-merc and foreground-merc are mips2c on PS2 and are
-;; NOT defined in this landing (no jakx mips2c ports exist yet). foreground-merc is not
-;; called at all on PC (pc-draw-bones replaces it, as in jak3); the foreground-generic-merc
-;; call site in foreground-draw is linkage-guarded.
+;; og:preserve-this foreground-merc is mips2c on PS2 and is NOT defined on PC, where
+;; pc-draw-bones replaces it, as in jak3. foreground-generic-merc landed with the
+;; effects leg's mips2c port rung; its call site guard in foreground-draw retires
+;; with the pipeline verification rung.
+(def-mips2c foreground-generic-merc (function draw-control pointer int pointer))
 
 ;; note: same as jak2/jak3 - emerc DMA generation is not needed on PC;
 ;; emerc-flagged effects go through the PC merc path (Merc2 EMERC shader).

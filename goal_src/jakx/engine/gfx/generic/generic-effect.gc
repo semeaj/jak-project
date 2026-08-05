@@ -10,10 +10,9 @@
 ;; this object is a two-era hybrid. The entry points below match jak3's, and the
 ;; def-mips2c family additionally carries jak1's whole hand-scheduled proc set
 ;; (generic-light, generic-no-light and variants, the dprocs, generic-dma-from-spr),
-;; which jak3 dropped. The def-mips2c forms ship COMMENTED: __pc-get-mips2c on an
-;; unregistered name is a hard assert at DGO link (mips2c_table.cpp
-;; LinkedFunctionTable::get), so each form activates only with its C++ registration
-;; in the mips2c port leg. Same treatment as calc-animation-from-spr in joint.gc.
+;; which jak3 dropped. The def-mips2c family is active as of the mips2c port rung,
+;; every form backed by its registration in generic_effect.cpp, except
+;; generic-no-light+envmap (no emitted section; see its note below).
 
 (define-extern *default-envmap-shader* adgif-shader)
 
@@ -184,51 +183,54 @@
   (none)
   )
 
-;; og:preserve-this bring-up: the def-mips2c family ships commented, activating one
-;; by one as the mips2c port leg registers each in C++. __pc-get-mips2c hard-asserts
-;; on an unregistered name at DGO link, so an early activation kills the boot at the
-;; GAME.CGO link, not at first call (calc-animation-from-spr treatment, joint.gc).
+;; og:preserve-this the def-mips2c family, active as of the mips2c port rung: all
+;; twenty are registered in game/mips2c/jakx_functions/generic_effect.cpp. The one
+;; exception is generic-no-light+envmap below, which the emitter produced no section
+;; for (silent skip, likely the + in the name); it stays commented and must be
+;; hand-ported from the raw disasm before the mercneric guard opens.
 ;; jak1-era marks the hand-scheduled proc set jak3 dropped.
 
 ;; jak1-era
-;; (def-mips2c generic-dma-from-spr function)
+(def-mips2c generic-dma-from-spr function)
 
-;; (def-mips2c generic-light-proc function)
+(def-mips2c generic-light-proc function)
 
-;; (def-mips2c generic-envmap-proc function)
+(def-mips2c generic-envmap-proc function)
 
-;; (def-mips2c generic-prepare-dma-double function)
+(def-mips2c generic-prepare-dma-double function)
 
-;; (def-mips2c generic-prepare-dma-single function)
-
-;; jak1-era
-;; (def-mips2c generic-envmap-dproc function)
+(def-mips2c generic-prepare-dma-single function)
 
 ;; jak1-era
-;; (def-mips2c generic-interp-dproc function)
-
-;; (def-mips2c generic-no-light-proc function)
+(def-mips2c generic-envmap-dproc function)
 
 ;; jak1-era
-;; (def-mips2c generic-no-light-dproc-only function)
+(def-mips2c generic-interp-dproc function)
+
+(def-mips2c generic-no-light-proc function)
 
 ;; jak1-era
-;; (def-mips2c generic-no-light-dproc function)
+(def-mips2c generic-no-light-dproc-only function)
 
 ;; jak1-era
+(def-mips2c generic-no-light-dproc function)
+
+;; jak1-era. NOT registered: the emitter produced no mips2c section for this name;
+;; hand-port from the raw disasm (L44) before the mercneric guard opens, or the
+;; unlit+envmap mode dispatches through an unbound symbol.
 ;; (def-mips2c generic-no-light+envmap function)
 
 ;; jak1-era
-;; (def-mips2c generic-no-light function)
+(def-mips2c generic-no-light function)
 
 ;; jak1-era
-;; (def-mips2c generic-envmap-only-proc function)
+(def-mips2c generic-envmap-only-proc function)
 
 ;; jak1-era
-;; (def-mips2c generic-light function)
+(def-mips2c generic-light function)
 
 ;; jak1-era
-;; (def-mips2c generic-copy-vtx-dclr-dtex function)
+(def-mips2c generic-copy-vtx-dclr-dtex function)
 
 ;; definition for function generic-none
 ;; ERROR: function has no type analysis. Cannot decompile.
@@ -236,12 +238,11 @@
 ;; symbol stays unbound, reachable only through proc tables the dark path never walks.
 
 ;; jak1-era
-;; (def-mips2c generic-none-dma-wait function)
+(def-mips2c generic-none-dma-wait function)
 
 (define *warp-data* (the-as object (malloc 'global 1024)))
 
-;; (def-mips2c generic-warp-source-proc (function none))
-(define-extern generic-warp-source-proc (function none)) ;; mips2c, not registered yet
+(def-mips2c generic-warp-source-proc (function none))
 
 ;; og:preserve-this PC adaptation, jak3 parity: the decomp's raw (.lui at 28672)
 ;; scratchpad access becomes the typed scratchpad-object form. The proc call is
@@ -255,14 +256,14 @@
   (none)
   )
 
-;; (def-mips2c generic-warp-dest-proc function)
+(def-mips2c generic-warp-dest-proc function)
 
-;; (def-mips2c generic-warp-dest function)
+(def-mips2c generic-warp-dest function)
 
-;; (def-mips2c generic-warp-envmap-dest function)
+(def-mips2c generic-warp-envmap-dest function)
 
 ;; jak1-era
-;; (def-mips2c generic-debug-light-proc function)
+(def-mips2c generic-debug-light-proc function)
 
 ;; definition (debug) for function generic-post-debug
 ;; ERROR: function has no type analysis. Cannot decompile.

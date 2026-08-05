@@ -428,6 +428,38 @@ namespace draw_string_asm_packed { extern void link(); }
 namespace draw_string_init_justify { extern void link(); }
 namespace cspace_parented_transformq_joint { extern void link(); }
 namespace foreground_check_longest_edge_asm { extern void link(); }
+namespace foreground_generic_merc { extern void link(); }
+namespace generic_debug_light_proc { extern void link(); }
+namespace generic_warp_envmap_dest { extern void link(); }
+namespace generic_warp_dest { extern void link(); }
+namespace generic_warp_dest_proc { extern void link(); }
+namespace generic_warp_source_proc { extern void link(); }
+namespace generic_none_dma_wait { extern void link(); }
+namespace generic_copy_vtx_dclr_dtex { extern void link(); }
+namespace generic_light { extern void link(); }
+namespace generic_envmap_only_proc { extern void link(); }
+namespace generic_no_light { extern void link(); }
+namespace generic_no_light_dproc { extern void link(); }
+namespace generic_no_light_dproc_only { extern void link(); }
+namespace generic_no_light_proc { extern void link(); }
+namespace generic_interp_dproc { extern void link(); }
+namespace generic_envmap_dproc { extern void link(); }
+namespace generic_prepare_dma_single { extern void link(); }
+namespace generic_prepare_dma_double { extern void link(); }
+namespace generic_envmap_proc { extern void link(); }
+namespace generic_light_proc { extern void link(); }
+namespace generic_dma_from_spr { extern void link(); }
+namespace generic_merc_do_chain { extern void link(); }
+namespace generic_merc_execute_asm { extern void link(); }
+namespace generic_merc_death { extern void link(); }
+namespace generic_merc_query { extern void link(); }
+namespace generic_translucent { extern void link(); }
+namespace high_speed_reject { extern void link(); }
+namespace mercneric_convert { extern void link(); }
+namespace mercneric_bittable_asm { extern void link(); }
+namespace mercneric_shader_asm { extern void link(); }
+namespace mercneric_matrix_asm { extern void link(); }
+namespace generic_merc_init_asm { extern void link(); }
 }
 // clang-format on
 
@@ -709,7 +741,26 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jakx::method_28_sky_work::link, jakx::method_29_sky_work::link,
        jakx::method_30_sky_work::link, jakx::set_sky_vf27::link, jakx::set_sky_vf23_value::link}},
      {"joint", {jakx::cspace_parented_transformq_joint::link}},
-     {"foreground", {jakx::foreground_check_longest_edge_asm::link}}}};
+     {"foreground",
+      {jakx::foreground_check_longest_edge_asm::link, jakx::foreground_generic_merc::link}},
+     {"generic-effect",
+      {jakx::generic_debug_light_proc::link,   jakx::generic_warp_envmap_dest::link,
+       jakx::generic_warp_dest::link,          jakx::generic_warp_dest_proc::link,
+       jakx::generic_warp_source_proc::link,   jakx::generic_none_dma_wait::link,
+       jakx::generic_copy_vtx_dclr_dtex::link, jakx::generic_light::link,
+       jakx::generic_envmap_only_proc::link,   jakx::generic_no_light::link,
+       jakx::generic_no_light_dproc::link,     jakx::generic_no_light_dproc_only::link,
+       jakx::generic_no_light_proc::link,      jakx::generic_interp_dproc::link,
+       jakx::generic_envmap_dproc::link,       jakx::generic_prepare_dma_single::link,
+       jakx::generic_prepare_dma_double::link, jakx::generic_envmap_proc::link,
+       jakx::generic_light_proc::link,         jakx::generic_dma_from_spr::link}},
+     {"generic-merc",
+      {jakx::generic_merc_do_chain::link, jakx::generic_merc_execute_asm::link,
+       jakx::generic_merc_death::link, jakx::generic_merc_query::link,
+       jakx::generic_translucent::link, jakx::high_speed_reject::link,
+       jakx::mercneric_convert::link, jakx::mercneric_bittable_asm::link,
+       jakx::mercneric_shader_asm::link, jakx::mercneric_matrix_asm::link,
+       jakx::generic_merc_init_asm::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});
