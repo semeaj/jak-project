@@ -37056,14 +37056,14 @@
 ;; generic-effect                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (define-extern *target-lock* object) ;; object
-;; (define-extern *generic-consts* object) ;; generic-consts
-;; (define-extern generic-work-init function) ;; (function generic-bucket-state none)
-;; (define-extern generic-upload-vu0 function) ;; (function none)
+(define-extern *target-lock* object)
+(define-extern *generic-consts* generic-consts)
+(define-extern generic-work-init (function generic-bucket-state none))
+(define-extern generic-upload-vu0 (function none))
 (define-extern upload-vu0-program (function vu-function pointer none))
-;; (define-extern generic-initialize-without-sync function) ;; (function matrix vu-lights none)
-;; (define-extern generic-initialize function) ;; (function generic-bucket-state matrix vu-lights none)
-;; (define-extern generic-wrapup function) ;; (function generic-bucket-state none)
+(define-extern generic-initialize-without-sync (function matrix vu-lights none))
+(define-extern generic-initialize (function generic-bucket-state matrix vu-lights none))
+(define-extern generic-wrapup (function generic-bucket-state none))
 ;; (define-extern generic-dma-from-spr function)
 ;; (define-extern generic-light-proc function)
 ;; (define-extern generic-envmap-proc function)
@@ -37079,11 +37079,11 @@
 ;; (define-extern generic-envmap-only-proc function)
 ;; (define-extern generic-light function)
 ;; (define-extern generic-copy-vtx-dclr-dtex function)
-;; (define-extern generic-none function)
+(define-extern generic-none function)
 ;; (define-extern generic-none-dma-wait function)
-;; (define-extern *warp-data* object) ;; object
-;; (define-extern generic-warp-source-proc function) ;; (function none)
-;; (define-extern generic-warp-source function) ;; (function gsf-buffer none)
+(define-extern *warp-data* object)
+(define-extern generic-warp-source-proc (function none))
+(define-extern generic-warp-source (function gsf-buffer none))
 ;; (define-extern generic-warp-dest-proc function)
 ;; (define-extern generic-warp-dest function)
 ;; (define-extern generic-warp-envmap-dest function)
@@ -37094,31 +37094,30 @@
 ;; generic-merc                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype invinitdata (structure)
   ((count     uint8   :offset-assert 0)
    (init-data uint8   :offset-assert 1)
    (init-addr uint16  :offset-assert 2)
    )
+  :pack-me
   :method-count-assert 9
   :size-assert         #x4
   :flag-assert         #x900000004
   )
-|#
 
-;; (define-extern mercneric-vu0-block object) ;; vu-function
-;; (define-extern *inv-init-table* object) ;; (inline-array invinitdata)
-;; (define-extern generic-merc-init-asm function) ;; (function none)
+(define-extern mercneric-vu0-block vu-function)
+(define-extern *inv-init-table* (inline-array invinitdata))
+(define-extern generic-merc-init-asm (function none))
 ;; (define-extern mercneric-matrix-asm function)
 ;; (define-extern mercneric-shader-asm function)
 ;; (define-extern mercneric-bittable-asm function)
 ;; (define-extern mercneric-convert function)
 ;; (define-extern high-speed-reject function)
-;; (define-extern generic-translucent function) ;; (function gsf-buffer none)
+(define-extern generic-translucent (function gsf-buffer none))
 ;; (define-extern generic-merc-query function)
 ;; (define-extern generic-merc-death function)
 ;; (define-extern generic-merc-execute-asm function)
-;; (define-extern generic-merc-do-chain function) ;; (function mercneric-chain dma-buffer pointer)
+(define-extern generic-merc-do-chain (function mercneric-chain dma-buffer pointer))
 (define-extern generic-merc-execute-all (function dma-buffer none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
