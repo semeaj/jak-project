@@ -1638,11 +1638,14 @@
   (let ((gp-0 (-> *display* frames (-> *display* on-screen) global-buf)))
     (bones-init gp-0)
     (bones-mtx-calc-execute)
-    ;; og:preserve-this bring-up guards: generic-merc, shadow-cpu, lightning and prim are
-    ;; not landed, so their symbols link 0 and an unguarded call jumps to 0. Retail calls
-    ;; all four unconditionally; each guard retires with its leg.
+    ;; og:preserve-this bring-up guards: shadow-cpu, lightning and prim are not landed,
+    ;; so their symbols link 0 and an unguarded call jumps to 0. Retail calls all four
+    ;; unconditionally; each guard retires with its leg. generic-merc-execute-all is
+    ;; real GOAL as of the effects leg step 2, so its guard now keys on
+    ;; generic-merc-init-asm, the first mips2c callee inside it, which links 0 until
+    ;; the mips2c port leg registers the pipeline; both tests retire together then.
     (let ((a0-2 gp-0))
-      (if (nonzero? generic-merc-execute-all)
+      (if (and (nonzero? generic-merc-execute-all) (nonzero? generic-merc-init-asm))
           (generic-merc-execute-all a0-2)
           )
       (if (nonzero? shadow-execute-all)

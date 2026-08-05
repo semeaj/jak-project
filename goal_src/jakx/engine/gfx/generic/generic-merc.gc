@@ -5,5 +5,161 @@
 ;; name in dgo: generic-merc
 ;; dgos: ENGINE, GAME
 
+;; og:preserve-this landed at the effects leg step 2, machine-verbatim from the decomp
+;; with jak3's PC adaptations where noted. jakx deltas vs jak3, all read off the
+;; disassembly: the camera comes from (view-get-active-math-camera) rather than
+;; *math-camera*; the chain walk is 19 levels x 10 buckets against jak3's 11 x 7,
+;; matching the landed bucket map; the profile cap is 2099 against jak3's 1023; and
+;; the *dma-mem-usage* slot is 89 against jak3's 90. The def-mips2c family ships
+;; commented (an unregistered __pc-get-mips2c hard-asserts at DGO link) and activates
+;; with the mips2c port leg; until then the execute-all call site in drawable.gc stays
+;; linkage-guarded on generic-merc-init-asm.
+
 ;; DECOMP BEGINS
 
+;; og:preserve-this jak3 parity: the vu-function payload is blanked on PC; the header
+;; values from the decomp are kept in the comment (jakx L179: #xbe / #x118 / 95).
+(define mercneric-vu0-block (new 'static 'vu-function #|:length #xbe :origin #x118 :qlength 95|#))
+
+(deftype invinitdata (structure)
+  ((count      uint8)
+   (init-data  uint8)
+   (init-addr  uint16)
+   )
+  :pack-me
+  )
+
+;; og:preserve-this hand-authored static, jak3 treatment: the decoder cannot emit an
+;; (inline-array invinitdata) at a label. Decoded by hand from the jakx data at L178
+;; (eight LE words, count/init-data/init-addr), which is byte-identical to jak3's table.
+(define *inv-init-table* (new 'static 'inline-array invinitdata 8
+                           (new 'static 'invinitdata :count #x48 :init-addr #x1)
+                           (new 'static 'invinitdata :count #x43 :init-data #xc :init-addr #x11)
+                           (new 'static 'invinitdata :count #x3d :init-data #x18 :init-addr #x21)
+                           (new 'static 'invinitdata :count #x38 :init-data #x22 :init-addr #xe0)
+                           (new 'static 'invinitdata :count #x38 :init-data #x24 :init-addr #xe1)
+                           (new 'static 'invinitdata :count #x33 :init-data #x30 :init-addr #xf1)
+                           (new 'static 'invinitdata :count #x2e :init-data #x3a :init-addr #x190)
+                           (new 'static 'invinitdata :count #x2d :init-data #x3c :init-addr #x191)
+                           )
+        )
+
+;; og:preserve-this bring-up: def-mips2c forms commented until the mips2c port leg
+;; registers each in C++ (hard assert at DGO link otherwise; joint.gc treatment).
+;; The two symbols execute-all calls get plain externs so the linkage guard and the
+;; calls compile; both link 0 today.
+
+;; (def-mips2c generic-merc-init-asm (function none))
+(define-extern generic-merc-init-asm (function none)) ;; mips2c, not registered yet
+
+;; jak1-era
+;; (def-mips2c mercneric-matrix-asm function)
+
+;; jak1-era
+;; (def-mips2c mercneric-shader-asm function)
+
+;; jak1-era
+;; (def-mips2c mercneric-bittable-asm function)
+
+;; (def-mips2c mercneric-convert function)
+
+;; (def-mips2c high-speed-reject function)
+
+;; (def-mips2c generic-translucent (function gsf-buffer none))
+
+;; (def-mips2c generic-merc-query function)
+
+;; (def-mips2c generic-merc-death function)
+
+;; (def-mips2c generic-merc-execute-asm function)
+
+;; (def-mips2c generic-merc-do-chain (function mercneric-chain dma-buffer pointer))
+(define-extern generic-merc-do-chain (function mercneric-chain dma-buffer pointer)) ;; mips2c, not registered yet
+
+;; og:preserve-this PC adaptations, jak3 parity: the raw scratchpad stores become
+;; typed accesses (saves waits counters at 84/88/92; write-limit resolves to raw 7424
+;; through in-buf 624 + merc 0 + shadow 6512 + 288, verified against the asm), and the
+;; goto-form counted loops become dotimes. The decomp's expression pass elides the
+;; retail cop0 perf-counter management around the profile block (jak3 hand-keeps its
+;; .mtc0/.mtpc forms); the counters are PS2 hardware, dropped here with this note.
+(defun generic-merc-execute-all ((arg0 dma-buffer))
+  (let ((s4-0 (-> *foreground* foreground-grid))
+        (gp-0 (-> *display* frames (-> *display* on-screen) global-buf base))
+        )
+    (when *debug-segment*
+      (let ((s3-0 (-> *display* frames (-> *display* on-screen) profile-array data 0))
+            (v1-15 'generic)
+            (s2-0 *profile-generic-color*)
+            )
+        (when (and *dproc* *debug-segment*)
+          (let ((s1-0 (-> s3-0 data (-> s3-0 count))))
+            (let ((s0-0 (-> s3-0 base-time)))
+              (set! (-> s1-0 name) v1-15)
+              (set! (-> s1-0 start-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s0-0))))
+              )
+            (set! (-> s1-0 depth) (the-as uint (-> s3-0 depth)))
+            (set! (-> s1-0 color) s2-0)
+            (set! (-> s3-0 segment (-> s3-0 depth)) s1-0)
+            )
+          (set! (-> s3-0 count) (min 2099 (+ (-> s3-0 count) 1)))
+          (+! (-> s3-0 depth) 1)
+          (set! (-> s3-0 max-depth) (max (-> s3-0 max-depth) (-> s3-0 depth)))
+          )
+        )
+      0
+      )
+    (-> *perf-stats* data 38)
+    0
+    (set! (-> (scratchpad-object generic-work) saves to-vu0-waits) (the-as uint 0))
+    (set! (-> (scratchpad-object generic-work) saves to-spr-waits) (the-as uint 0))
+    (set! (-> (scratchpad-object generic-work) saves from-spr-waits) (the-as uint 0))
+    (flush-cache 0)
+    (generic-initialize-without-sync (-> (view-get-active-math-camera) perspective) *default-lights*)
+    (generic-merc-init-asm)
+    (set! (-> (scratchpad-object generic-work) in-buf merc shadow write-limit)
+          (the-as int (&+ (-> arg0 end) -262144))
+          )
+    (dotimes (s3-2 19)
+      (dotimes (s2-1 10)
+        (generic-merc-do-chain (-> s4-0 level-buckets s3-2 data s2-1 mercneric) arg0)
+        )
+      )
+    (generic-merc-do-chain (-> s4-0 warp-chain) arg0)
+    (-> *perf-stats* data 38)
+    0
+    (update-wait-stats
+      (-> *perf-stats* data 38)
+      (-> (scratchpad-object generic-work) saves to-vu0-waits)
+      (-> (scratchpad-object generic-work) saves to-spr-waits)
+      (-> (scratchpad-object generic-work) saves from-spr-waits)
+      )
+    (when *debug-segment*
+      (let ((s5-1 (-> *display* frames (-> *display* on-screen) profile-array data 0)))
+        (when (and *dproc* *debug-segment*)
+          (let* ((v1-61 (+ (-> s5-1 depth) -1))
+                 (s4-1 (-> s5-1 segment v1-61))
+                 (s3-3 (-> s5-1 base-time))
+                 )
+            (when (>= v1-61 0)
+              (set! (-> s4-1 end-time) (the-as int (- (timer-count (the-as timer-bank #x10000800)) (the-as uint s3-3))))
+              (+! (-> s5-1 depth) -1)
+              )
+            )
+          )
+        )
+      0
+      )
+    (let ((v1-66 *dma-mem-usage*))
+      (when (nonzero? v1-66)
+        (set! (-> v1-66 length) (max 90 (-> v1-66 length)))
+        (set! (-> v1-66 data 89 name) "pris-generic")
+        (+! (-> v1-66 data 89 count) 1)
+        (+! (-> v1-66 data 89 used)
+            (&- (-> *display* frames (-> *display* on-screen) global-buf base) (the-as uint gp-0))
+            )
+        (set! (-> v1-66 data 89 total) (-> v1-66 data 89 used))
+        )
+      )
+    )
+  (none)
+  )

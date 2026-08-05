@@ -8,6 +8,9 @@
 ;; DECOMP BEGINS
 
 (define-extern generic-merc-execute-all (function dma-buffer none))
+;; og:preserve-this bring-up extern: drawable.gc's execute-all guard keys on this
+;; symbol, which links 0 until the mips2c port leg registers the pipeline.
+(define-extern generic-merc-init-asm (function none))
 
 (deftype merc-matrix (structure)
   ((quad    uint128  8)
