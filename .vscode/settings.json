@@ -12,5 +12,8 @@
   "files.associations": {
     "xhash": "cpp",
     "vector": "cpp"
-  }
+  },
+  "cSpell.words": [
+    "tpage"
+  ]
 }
