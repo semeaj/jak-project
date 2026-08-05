@@ -244,13 +244,17 @@ Common commands that are useful.  We use https://taskfile.dev/ to make cross-pla
 
 - `task gen-cmake-[release|debug]` - Generates CMake
 - `task build-[release|debug]` - Builds the Project
-- `task set-game-[jak1|jak2|jak3]` - Persists the game you are operating on
+- `task set-game-[jak1|jak2|jak3|jakx]` - Persists the game you are operating on
+- `task set-decomp-[ntscv1|ntscv2|pal|ntscjp|ntscko]` - Persists the region of the ISO being decompiled
+- `task settings` - Prints the currently persisted game and region
 - `task extract` - Runs the decompiler on the game files to extract the required assets
 - `task repl` - Opens the goalc compiler
 - `task run-game` - Runs the game, has to be started via the REPL
 - `task boot-game` - Runs the game and boots it without the REPL
 - `task format` - Formats the projects code
 - `task fix-translations` - Checks the translation files for errors / attempts to fix them.
+
+`task --list` only shows tasks that declare a `desc:`, so every `set-game-*` and `set-decomp-*` task is missing from it. Use `task --list-all` when checking whether a task exists, or you will conclude it does not.
 
 ## Contributing, Issue and PR Guidelines
 
