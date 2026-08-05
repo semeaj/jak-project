@@ -427,6 +427,7 @@ namespace draw_string3d_asm { extern void link(); }
 namespace draw_string_asm_packed { extern void link(); }
 namespace draw_string_init_justify { extern void link(); }
 namespace cspace_parented_transformq_joint { extern void link(); }
+namespace foreground_check_longest_edge_asm { extern void link(); }
 }
 // clang-format on
 
@@ -707,7 +708,8 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jakx::method_32_sky_work::link, jakx::method_33_sky_work::link,
        jakx::method_28_sky_work::link, jakx::method_29_sky_work::link,
        jakx::method_30_sky_work::link, jakx::set_sky_vf27::link, jakx::set_sky_vf23_value::link}},
-     {"joint", {jakx::cspace_parented_transformq_joint::link}}}};
+     {"joint", {jakx::cspace_parented_transformq_joint::link}},
+     {"foreground", {jakx::foreground_check_longest_edge_asm::link}}}};
 
 void LinkedFunctionTable::reg(const std::string& name, u64 (*exec)(void*), u32 stack_size) {
   const auto& it = m_executes.insert({name, {exec, Ptr<u8>()}});

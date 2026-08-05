@@ -12,7 +12,6 @@
 (define-extern *default-lights* vu-lights) ;; lights.gc is a stub
 (define-extern ripple-make-request (function ripple-wave merc-effect none)) ;; ripple.gc is a stub
 (define-extern foreground-generic-merc (function draw-control pointer int pointer)) ;; mips2c, not landed
-(define-extern foreground-check-longest-edge-asm (function draw-control float symbol)) ;; mips2c, not landed
 
 ;; og:preserve-this bring-up extern: *use-fp-blerc* is defined in merc-blend-shape.gc,
 ;; which lands with the blerc leg. Until then the symbol is unbound and reads as 0,
@@ -617,9 +616,11 @@
   arg2
   )
 
-;; og:preserve-this foreground-check-longest-edge-asm is mips2c on PS2 and is NOT defined
-;; in this landing; its call site in foreground-draw is linkage-guarded so the unlanded
-;; case falls through to the mercneric-for-clip path.
+;; og:preserve-this landed at rung 6c from the jakx machine code via the decompiler's
+;; mips2c emitter (game/mips2c/jakx_functions/foreground.cpp). jakx delta vs jak3: the
+;; camera comes from a real (view-get-active-math-camera) call rather than *math-camera*,
+;; so the asm carries a full call frame; scratchpad and draw-control offsets differ too.
+(def-mips2c foreground-check-longest-edge-asm (function draw-control float symbol))
 
 (defun foreground-ripple ((arg0 draw-control) (arg1 merc-ctrl) (arg2 pointer) (arg3 int))
   (local-vars (v1-6 uint) (t0-0 pointer))
@@ -1195,10 +1196,7 @@
                         ((logtest? (-> dc status) (draw-control-status force-vu1))
                          (set! (-> bucket-info need-mercprime-if-merc) 1)
                          )
-                        ;; og:preserve-this bring-up guard: foreground-check-longest-edge-asm
-                        ;; mips2c not landed, links 0; fall through to the
-                        ;; mercneric-for-clip path instead of forcing vu1.
-                        ((and (nonzero? (-> dc longest-edge)) (nonzero? foreground-check-longest-edge-asm))
+                        ((nonzero? (-> dc longest-edge))
                          (if (foreground-check-longest-edge-asm dc (-> (scratchpad-object foreground-work) regs dist))
                              (set! (-> bucket-info need-mercprime-if-merc) 1)
                              (set! (-> bucket-info must-use-mercneric-for-clip) 1)
