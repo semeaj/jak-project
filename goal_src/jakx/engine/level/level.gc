@@ -2928,9 +2928,10 @@
 ;; Dwell must stay under the re-arm window jakx-cam-warp-to-continue sets, or the pin
 ;; lapses between hops and the ring's settle drags the camera back toward the origin.
 ;;
-;; Off by default: it moves the camera, so it must never surprise an interactive boot.
-;; Set #t here for an unattended lap, or in the REPL. Retire with the camera start chain.
-(define *jakx-cam-fly* #f)
+;; Off by default for interactive boots: it moves the camera, so it must never surprise
+;; one. Smoke boots arm it with gk's -cam-fly arg, read here from the kernel symbol; the
+;; REPL can still flip it live. Retire with the camera start chain.
+(define *jakx-cam-fly* (if *kernel-boot-cam-fly* #t #f))
 (define *jakx-cam-fly-dwell* 300)
 (define *jakx-cam-fly-frame* 0)
 (define *jakx-cam-fly-index* 0)

@@ -35,6 +35,11 @@ namespace jakx {
 
 using namespace ee;
 
+// Bring-up flight lever: -cam-fly arms level.gc's *jakx-cam-fly* streaming-lap driver at
+// boot, so smoke boots warp the camera through the continue family without a source edit.
+// Retires with the real camera start chain (#43).
+u32 CamFlyBoot = 0;
+
 /*!
  * Initialize global variables based on command line parameters. Not called in retail versions,
  * but it is present in the ELF.
@@ -129,6 +134,12 @@ void InitParms(int argc, const char* const* argv) {
       MasterDebug = 0;
       DiskBoot = 1;
       DebugSegment = 0;
+    }
+
+    // bring-up smoke lever, see CamFlyBoot above
+    if (arg == "-cam-fly") {
+      Msg(6, "dkernel: cam-fly mode\n");
+      CamFlyBoot = 1;
     }
 
     // new for jak 2
@@ -531,6 +542,8 @@ void InitMachineScheme() {
     ASSERT_NOT_REACHED();
   }
   intern_from_c(-1, 0, "*kernel-boot-art-group*")->value() = make_string_from_c(DebugBootArtGroup);
+  intern_from_c(-1, 0, "*kernel-boot-cam-fly*")->value() =
+      CamFlyBoot ? intern_from_c(-1, 0, "cam-fly").offset : s7.offset;
 
   if (DiskBoot != 0) {
     *EnableMethodSet = *EnableMethodSet + 1;
