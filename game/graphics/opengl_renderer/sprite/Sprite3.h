@@ -24,6 +24,13 @@ class Sprite3 : public BucketRenderer {
   void render_jak1(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof);
   void render_jak2(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof);
 
+  // jakx bring-up (#53 slice 1): same empty-bucket peek guard and first-data probe as
+  // Generic2BucketRenderer (#57 rung 4). One warning per renderer if an unrecognized
+  // empty shape is skipped; one line on the first frame this bucket carries real data.
+  // Retire once #53's slices land and the jakx sprite shape is proven.
+  bool m_jakx_shape_warned = false;
+  bool m_jakx_data_seen = false;
+
   void opengl_setup();
   void opengl_setup_normal();
   void opengl_setup_distort();

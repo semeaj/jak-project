@@ -566,6 +566,18 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                                 id, m_merc2);
     }
 
+    // Sprite (#53 slice 1): the per-viewport sprite-draw destinations from sprite.o's
+    // L52 table (raw words #x301/#x304 = 769/772, re-verified from the regenerated
+    // disasm), and the sprite texture upload at 767 per the seven
+    // (tpage-category-u32 sprite) rows of *texture-page-translate* (texture-h.gc:
+    // 1285-1324). Raw ids per forge #44. The buckets stay empty until the GOAL
+    // sprite chain lands (#53 slices 2-4), the ocean precedent above; Sprite3
+    // carries the same jakx empty-bucket peek guard as Generic2BucketRenderer.
+    init_bucket_renderer<TextureUploadHandler>("tex-sprite", BucketCategory::TEX, 767,
+                                               m_texture_animator);
+    init_bucket_renderer<Sprite3>("particles-v0", BucketCategory::SPRITE, 769);
+    init_bucket_renderer<Sprite3>("particles-v1", BucketCategory::SPRITE, 772);
+
     // Generic (#57 rung 4): the mercneric (mode 2 -> Generic2 NORMAL) and mercneric2
     // (mode 4 -> Generic2 PRIM) destinations, read mechanically out of the landed
     // *bucket-map* by the same extraction as kMercBuckets above; its mode-0 output

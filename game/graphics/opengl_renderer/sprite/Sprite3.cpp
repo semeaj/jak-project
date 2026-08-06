@@ -393,6 +393,50 @@ void Sprite3::render_2d_group1(DmaFollower& dma,
 }
 
 void Sprite3::render(DmaFollower& dma, SharedRenderState* render_state, ScopedProfilerNode& prof) {
+  // jakx bring-up guard (#53 slice 1), mirroring Generic2BucketRenderer (#57 rung 4):
+  // the sprite parsers are assert-heavy and the jakx bucket shape is unproven until
+  // the GOAL sprite chain lands, so peek a copy of the follower first. A bucket that
+  // is empty in the known shape (NOP tags, then the engine's CALL plus reset tags
+  // into the next bucket) skips without touching the parsers; real data goes to them
+  // loudly as intended; an unrecognized empty shape logs once and skips. Retire once
+  // #53's slices prove the jakx sprite shape.
+  if (render_state->version == GameVersion::JakX) {
+    DmaFollower peek = dma;
+    bool has_data = false;
+    bool known_shape = true;
+    while (peek.current_tag_offset() != render_state->next_bucket) {
+      auto tag = peek.current_tag();
+      if (tag.qwc == 0 && peek.current_tag_vifcode0().kind == VifCode::Kind::NOP &&
+          peek.current_tag_vifcode1().kind == VifCode::Kind::NOP) {
+        if (tag.kind == DmaTag::Kind::CALL) {
+          for (int i = 0; i < 4 && peek.current_tag_offset() != render_state->next_bucket; i++) {
+            peek.read_and_advance();
+          }
+          known_shape = peek.current_tag_offset() == render_state->next_bucket;
+          break;
+        }
+        peek.read_and_advance();
+      } else {
+        has_data = true;
+        break;
+      }
+    }
+    if (!has_data) {
+      if (!known_shape && !m_jakx_shape_warned) {
+        m_jakx_shape_warned = true;
+        lg::warn("Sprite3 {}: unrecognized empty-bucket DMA shape, skipping", name_and_id());
+      }
+      while (dma.current_tag_offset() != render_state->next_bucket) {
+        dma.read_and_advance();
+      }
+      return;
+    }
+    if (!m_jakx_data_seen) {
+      m_jakx_data_seen = true;
+      lg::info("Sprite3 {}: first real sprite data", name_and_id());
+    }
+  }
+
   switch (render_state->version) {
     case GameVersion::Jak1:
       render_jak1(dma, render_state, prof);
