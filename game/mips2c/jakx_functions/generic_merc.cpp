@@ -1130,7 +1130,14 @@ block_1:
   c->mov64(a2, s1);                                 // or a2, s1, r0
   call_addr = c->gprs[t9].du32[0];                  // function call:
   c->sll(v0, ra, 0);                                // sll v0, ra, 0
-  c->jalr(call_addr);                               // jalr ra, t9
+  // bring-up guard (#60): merc-death.gc is a stub, so merc-death-spawn links 0 and
+  // the first natural death effect on the debug flight died here on jalr(0). jak3
+  // calls unconditionally (its merc-death.gc:143 is real). Skipping costs only the
+  // death particle burst, which cannot draw before the sprite leg (#53) anyway; the
+  // dissolve itself is untouched. Retire with merc-death.gc's landing.
+  if (call_addr) {
+    c->jalr(call_addr);                             // jalr ra, t9
+  }
   c->daddu(s5, s5, s3);                             // daddu s5, s5, s3
   
 block_2:
