@@ -566,6 +566,45 @@ void OpenGLRenderer::init_bucket_renderers_jakx() {
                                                 id, m_merc2);
     }
 
+    // Generic (#57 rung 4): the mercneric (mode 2 -> Generic2 NORMAL) and mercneric2
+    // (mode 4 -> Generic2 PRIM) destinations, read mechanically out of the landed
+    // *bucket-map* by the same extraction as kMercBuckets above; its mode-0 output
+    // reproducing that list exactly is the parser self-test. Raw ids per forge #44.
+    // The mercneric set mirrors merc's 104-slot structure at +2; mercneric2 adds the
+    // five late pris2-shaped slots (768/770/771/773/788) recorded in foreground-h.gc.
+    // init_bucket_renderer silently overwrites on collision, so the slot-empty ASSERT
+    // below makes every jakx boot the collision gate for these ids; this block must
+    // stay after every other real registration in this function for that to hold.
+    static constexpr int kMercnericBuckets[104] = {
+        16,  27,  39,  50,  62,  73,  85,  96,  108, 119, 131, 142, 153, 162, 172, 181, 191, 200,
+        210, 219, 229, 238, 248, 257, 265, 275, 286, 296, 307, 317, 328, 338, 349, 359, 370, 380,
+        388, 392, 397, 401, 408, 412, 417, 421, 426, 430, 435, 439, 444, 448, 453, 457, 462, 466,
+        471, 475, 480, 484, 489, 493, 498, 502, 507, 511, 516, 520, 525, 529, 534, 538, 543, 547,
+        552, 556, 561, 565, 570, 574, 579, 583, 588, 592, 597, 601, 606, 610, 615, 619, 624, 628,
+        635, 644, 654, 663, 673, 682, 692, 701, 711, 720, 730, 739, 749, 758};
+    static constexpr int kMercneric2Buckets[109] = {
+        18,  29,  41,  52,  64,  75,  87,  98,  110, 121, 133, 144, 154, 163, 173, 182,
+        192, 201, 211, 220, 230, 239, 249, 258, 269, 279, 290, 300, 311, 321, 332, 342,
+        353, 363, 374, 384, 389, 393, 398, 402, 409, 413, 418, 422, 427, 431, 436, 440,
+        445, 449, 454, 458, 463, 467, 472, 476, 481, 485, 490, 494, 499, 503, 508, 512,
+        517, 521, 526, 530, 535, 539, 544, 548, 553, 557, 562, 566, 571, 575, 580, 584,
+        589, 593, 598, 602, 607, 611, 616, 620, 625, 629, 642, 651, 661, 670, 680, 689,
+        699, 708, 718, 727, 737, 746, 756, 765, 768, 770, 771, 773, 788};
+    for (int id : kMercnericBuckets) {
+      ASSERT_MSG(!m_bucket_renderers.at(id),
+                 fmt::format("mercneric bucket {} already has a renderer", id));
+      init_bucket_renderer<Generic2BucketRenderer>(fmt::format("mercneric-{}", id),
+                                                   BucketCategory::GENERIC, id, m_generic2,
+                                                   Generic2::Mode::NORMAL);
+    }
+    for (int id : kMercneric2Buckets) {
+      ASSERT_MSG(!m_bucket_renderers.at(id),
+                 fmt::format("mercneric2 bucket {} already has a renderer", id));
+      init_bucket_renderer<Generic2BucketRenderer>(fmt::format("mercneric2-{}", id),
+                                                   BucketCategory::GENERIC, id, m_generic2,
+                                                   Generic2::Mode::PRIM);
+    }
+
     for (size_t i = 0; i < m_bucket_renderers.size(); i++) {
       if (!m_bucket_renderers[i]) {
         init_bucket_renderer<SkipRenderer>(fmt::format("bucket-{}", i), BucketCategory::OTHER, i);

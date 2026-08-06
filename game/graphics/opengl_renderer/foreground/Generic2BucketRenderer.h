@@ -17,4 +17,7 @@ class Generic2BucketRenderer : public BucketRenderer {
   std::shared_ptr<Generic2> m_generic;
   Generic2::Mode m_mode;
   bool m_empty = false;
+  // jakx bring-up (#57 rung 4): one warning per bucket when the empty-bucket walk
+  // sees a shape the parser would have died on. Retires with the wrapper in render().
+  bool m_jakx_shape_warned = false;
 };
