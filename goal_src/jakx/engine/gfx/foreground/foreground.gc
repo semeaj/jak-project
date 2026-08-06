@@ -1436,14 +1436,8 @@
                         )
 
                       (when (nonzero? (-> (scratchpad-object foreground-work) regs mercneric-used))
-                        ;; og:preserve-this the landed vu1-renderer-mask enum is a jak3 copy
-                        ;; that is +2 bits versus the jakx asm from hfrag onward (real
-                        ;; generic/merc/emerc bits are 12/13/14; the asm tests 4096/8192/
-                        ;; #x4000). These logtests stay correct today only because
-                        ;; display-h.gc:122 sets vu1-enable-user to all bits; fix the enum
-                        ;; in a dedicated pass, then this note retires. The linkage guard
-                        ;; on foreground-generic-merc retired at rung 5; the mask test is
-                        ;; retail's own.
+                        ;; enum corrected at #49, so this tests the real generic bit (12);
+                        ;; the mask test is retail's own
                         (if (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask generic))
                             (set! dma-ptr (foreground-generic-merc dc dma-ptr 0))
                             )

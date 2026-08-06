@@ -596,7 +596,8 @@
   )
 
 (defun merc-vu1-init-buffers ()
-  (when (logtest? (-> *display* vu1-enable-user) 8192)
+  ;; enum corrected at #49: (vu1-renderer-mask merc) is the asm's raw 8192
+  (when (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask merc))
     (let ((gp-0 *viewport-array*))
       (dotimes (s5-0 19)
         (dotimes (s4-0 2)

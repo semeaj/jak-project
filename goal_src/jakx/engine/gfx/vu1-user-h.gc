@@ -929,7 +929,14 @@
 ;; ---bucket-id-16
 
 ;; +++vu1-renderer-mask
-;; TODO stolen from Jak 2 (and it was all wrong...)
+;; og:preserve-this re-derived from the jakx asm (#49): jakx drops jak3's
+;; hfrag/hfrag-scissor pair, shifting everything from tfrag onward down 2.
+;; Pinned by the landed machine-faithful constants: tfrag 64 (tfrag-methods.gc:778
+;; stores it into vu1-enable-tfrag), the tie family 128..2048, generic/merc/emerc
+;; 4096/8192/#x4000 (foreground, generic-vu1, merc.gc), the trans/water families
+;; #x80000..#x10000000, the shrub composite #x78000 (shrubbery.gc:1246), and
+;; depth-cue bit 34 (blit-displays.gc:608). ocean/ocean-wave at 4/5 per jak2's
+;; original names, ocean corroborated by ocean.gc:1178 testing 16.
 (defenum vu1-renderer-mask
   :type uint64
   :bitfield #t
@@ -937,19 +944,17 @@
   (rn1)
   (rn2)
   (sky)
-  (rn4)
-  (rn5)
-  (hfrag)
-  (hfrag-scissor)
+  (ocean)
+  (ocean-wave)
   (tfrag)
   (tie-scissor)
   (tie)
   (etie)
   (etie-scissor)
   (tie-vanish)
-  (generic) ;; right
-  (merc)    ;; right
-  (emerc)   ;; right
+  (generic)
+  (merc)
+  (emerc)
   (shrubbery)
   (shrub-near)
   (billboard)
@@ -965,12 +970,12 @@
   (etie-water)
   (etie-scissor-water)
   (sprite)
+  (rn30)
+  (rn31)
   (rn32)
   (rn33)
-  (rn34)
-  (rn35)
   (depth-cue)
-  (rn37)
+  (rn35)
   )
 ;; ---vu1-renderer-mask
 

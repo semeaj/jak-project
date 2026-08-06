@@ -240,11 +240,8 @@
 ;; fixed late ids: 768/770/778/781(special)/788 on viewport 0 and 771/773/779/782
 ;; (special) on viewport 1, 778/779 with zbuf-off, and the index restored to 0.
 (defun generic-vu1-init-buffers ()
-  ;; og:preserve-this raw 4096: the real generic bit is 12 per the jakx asm (andi
-  ;; 4096); the landed vu1-renderer-mask enum is +2 bits off from hfrag onward
-  ;; (forge #44) and puts generic at 14. Works today because display-h.gc:122 sets
-  ;; vu1-enable-user to all bits; re-derive from the enum when the #44 fix lands.
-  (when (logtest? (the-as int (-> *display* vu1-enable-user)) 4096)
+  ;; enum corrected at #49: (vu1-renderer-mask generic) is the asm's andi 4096
+  (when (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask generic))
     (dotimes (lev 19)
       (dotimes (vp-idx 2)
         (set! (-> *viewport-array* current-viewport-index) (the-as uint vp-idx))
