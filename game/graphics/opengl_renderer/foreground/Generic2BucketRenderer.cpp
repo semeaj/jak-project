@@ -65,6 +65,10 @@ void Generic2BucketRenderer::render(DmaFollower& dma,
       m_empty = true;
       return;
     }
+    if (!m_jakx_data_seen) {
+      m_jakx_data_seen = true;
+      lg::info("Generic2BucketRenderer {}: first real generic data", name_and_id());
+    }
   }
 
   m_generic->render_in_mode(dma, render_state, prof, m_mode);

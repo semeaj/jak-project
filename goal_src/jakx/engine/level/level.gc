@@ -3114,7 +3114,13 @@ and apply its want set when it changes; update! then streams the section window.
                   'fmvlev
                   )
                  (*debug-segment*
-                   'menu2
+                   ;; og:preserve-this #56: during bring-up the boot lever wins over the
+                   ;; retail debug default. menu2.DGO has never been built on this branch
+                   ;; (game.gp keeps its cgo-file commented), so a -debug boot picked an
+                   ;; unbuildable level and hung forever on a load that cannot complete,
+                   ;; making every REPL-attached boot unusable. With no lever set, -debug
+                   ;; keeps retail's menu2. Retires with the boot levers (#43 family).
+                   (or *jakx-boot-level* 'menu2)
                    )
                  (else
                    ;; og:preserve-this bring-up lever: retail boots 'fmvlev (the intro
