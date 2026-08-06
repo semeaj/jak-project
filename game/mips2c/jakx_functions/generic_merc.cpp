@@ -1628,8 +1628,12 @@ block_2:
 
   // Unknown instr: vcallms 438
   // jak3 parity: jak3 ships this mid-loop 438 call disabled (jak1 runs it), so
-  // vis[1]/vis[2] carry previous-iteration values at the loop tail. Revisit when
-  // the mercneric guard opens.
+  // vis[1]/vis[2] carry previous-iteration values at the loop tail. Revisited with
+  // the pipeline live (#57, 2026-08-06): staleness can only bias the whole-fragment
+  // keep/reject toward "keep" (this function's sole output is the display-this-
+  // fragment clear below), so the disabled call is not implicated in any rendering
+  // defect and stays jak3-parity. Flag-capture translation bugs in vcallms_438/454
+  // shared by all three eras are tracked on #63.
   // vcallms_438(c, vis);
   c->srl(a3, a3, 31);                               // srl a3, a3, 31
   c->or_(t0, t0, a3);                               // or t0, t0, a3
