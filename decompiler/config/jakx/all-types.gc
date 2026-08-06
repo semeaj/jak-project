@@ -37043,13 +37043,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extern generic-vu1-block vu-function) ;; vu-function
-;; (define-extern generic-setup-constants function) ;; (function generic-constants none)
-;; (define-extern generic-add-constants function) ;; (function dma-buffer none)
-;; (define-extern generic-setup-shrub-constants function) ;; (function generic-shrub-constants int int int none)
-;; (define-extern generic-add-shrub-constants function) ;; (function dma-buffer int int int none)
-;; (define-extern generic-init-buf function) ;; (function dma-buffer gs-zbuf none)
-(define-extern generic-vu1-init-buf (function bucket-id gs-zbuf none))
-;; (define-extern generic-vu1-init-buf-special function) ;; (function bucket-id gs-zbuf none)
+;; jakx deltas vs jak3 (#57 rung 6, proven from the ir2 arg registers): the constants
+;; pair reads the math camera through viewport+176 instead of *math-camera*, and the
+;; init-buf chain adds a viewport (FRAME_1/SCISSOR_1 sources) plus a gs-test written
+;; to TEST_1. The shrub pair keeps jak3's 4-arg shape unchanged.
+(define-extern generic-setup-constants (function generic-constants viewport none))
+(define-extern generic-add-constants (function dma-buffer viewport none))
+(define-extern generic-setup-shrub-constants (function generic-shrub-constants int int int none))
+(define-extern generic-add-shrub-constants (function dma-buffer int int int none))
+(define-extern generic-init-buf (function dma-buffer gs-zbuf viewport gs-test none))
+(define-extern generic-vu1-init-buf (function bucket-id gs-zbuf viewport gs-test none))
+(define-extern generic-vu1-init-buf-special (function bucket-id gs-zbuf viewport gs-test none))
 (define-extern generic-vu1-init-buffers (function none))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

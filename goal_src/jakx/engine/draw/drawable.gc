@@ -3681,7 +3681,7 @@
         (if (nonzero? merc-vu1-init-buffers) (merc-vu1-init-buffers))
         (if (nonzero? emerc-vu1-init-buffers) (emerc-vu1-init-buffers))
         )
-      (if (nonzero? generic-vu1-init-buffers) (generic-vu1-init-buffers)) ;; og:preserve-this runtime-link guard
+      (generic-vu1-init-buffers) ;; guard retired at #57 rung 6: generic-vu1.gc is landed
       (when *debug-segment*
         'texture
         (let ((s3-0 (-> *display* frames (-> *display* on-screen) profile-array data 0))
