@@ -5303,4 +5303,123 @@ void link() {
 
 } // namespace generic_dma_from_spr
 
+// Spliced at rung 5 (#57): the generator's name parsing skipped this function (the +
+// in generic-no-light+envmap), but the decompiler emitted its full mips2c section
+// (generic-effect_ir2.asm L44). No PC code path calls it today: nothing in the jakx
+// decomp reads the symbol, and jak1's port never carried the wrapper family at all
+// (its engine calls the -proc entry points directly). It lands for symbol
+// completeness, faithful to the emission like its wrapper siblings above, with the
+// standard SPR_FROM translation applied.
+namespace generic_no_light_envmap {
+struct Cache {
+  void* fake_scratchpad_data; // *fake-scratchpad-data*
+  void* generic_envmap_dproc; // generic-envmap-dproc
+  void* generic_interp_dproc; // generic-interp-dproc
+  void* generic_no_light_dproc; // generic-no-light-dproc
+  void* generic_prepare_dma_double; // generic-prepare-dma-double
+} cache;
+
+u64 execute(void* ctxt) {
+  auto* c = (ExecutionContext*)ctxt;
+  [[maybe_unused]] bool bc = false;
+  u32 call_addr = 0;
+  u32 qwc = 0;
+  u32 madr = 0;
+  u32 sadr = 0;
+  c->daddiu(sp, sp, -16);                           // daddiu sp, sp, -16
+  c->sd(ra, 12176, at);                             // sd ra, 12176(at)
+  get_fake_spad_addr2(at, cache.fake_scratchpad_data, 0, c);// lui at, 28672
+  c->sw(a1, 48, at);                                // sw a1, 48(at)
+  c->sw(a0, 44, at);                                // sw a0, 44(at)
+  c->load_symbol2(t9, cache.generic_prepare_dma_double);// lw t9, generic-prepare-dma-double(s7)
+  call_addr = c->gprs[t9].du32[0];                  // function call:
+  c->sll(v0, ra, 0);                                // sll v0, ra, 0
+  c->jalr(call_addr);                               // jalr ra, t9
+  c->load_symbol2(t9, cache.generic_envmap_dproc);  // lw t9, generic-envmap-dproc(s7)
+  call_addr = c->gprs[t9].du32[0];                  // function call:
+  c->sll(v0, ra, 0);                                // sll v0, ra, 0
+  c->jalr(call_addr);                               // jalr ra, t9
+  c->load_symbol2(t9, cache.generic_interp_dproc);  // lw t9, generic-interp-dproc(s7)
+  call_addr = c->gprs[t9].du32[0];                  // function call:
+  c->sll(v0, ra, 0);                                // sll v0, ra, 0
+  c->jalr(call_addr);                               // jalr ra, t9
+  c->load_symbol2(t9, cache.generic_no_light_dproc);// lw t9, generic-no-light-dproc(s7)
+  call_addr = c->gprs[t9].du32[0];                  // function call:
+  c->sll(v0, ra, 0);                                // sll v0, ra, 0
+  c->jalr(call_addr);                               // jalr ra, t9
+  c->lw(v1, 24, at);                                // lw v1, 24(at)
+  c->lw(a0, 40, at);                                // lw a0, 40(at)
+  c->mov64(a3, v1);                                 // or a3, v1, r0
+  // nop                                            // sll r0, r0, 0
+  get_fake_spad_addr2(at, cache.fake_scratchpad_data, 0, c);// lui at, 28672
+  c->lui(a2, 4096);                                 // lui a2, 4096
+  c->lwu(a1, 60, at);                               // lwu a1, 60(at)
+  c->ori(a2, a2, 53248);                            // ori a2, a2, 53248
+  // c->lw(t1, 0, a2);                              // lw t1, 0(a2)
+  // nop                                            // sll r0, r0, 0
+  c->daddiu(t0, at, 92);                            // daddiu t0, at, 92
+  c->andi(a3, a3, 16383);                           // andi a3, a3, 16383
+  c->andi(t1, t1, 256);                             // andi t1, t1, 256
+  // nop                                            // sll r0, r0, 0
+  // bc = c->sgpr64(t1) == 0;                       // beq t1, r0, L46
+  // nop                                            // sll r0, r0, 0
+//   if (bc) {goto block_4;}                           // branch non-likely
+//
+//   c->mov64(t1, a2);                                 // or t1, a2, r0
+//   // nop                                            // sll r0, r0, 0
+//
+// block_2:
+//   c->lw(t2, 0, t0);                                 // lw t2, 0(t0)
+//   // nop                                            // sll r0, r0, 0
+//   c->lw(t3, 0, t1);                                 // lw t3, 0(t1)
+//   // nop                                            // sll r0, r0, 0
+//   c->andi(t3, t3, 256);                             // andi t3, t3, 256
+//   c->daddiu(t2, t2, 1);                             // daddiu t2, t2, 1
+//   bc = c->sgpr64(t3) != 0;                          // bne t3, r0, L45
+//   c->sw(t2, 0, t0);                                 // sw t2, 0(t0)
+//   if (bc) {goto block_2;}                           // branch non-likely
+//
+//   c->gprs[t0].du64[0] = 0;                          // or t0, r0, r0
+
+// block_4:
+  c->dsll(t0, a0, 4);                               // dsll t0, a0, 4
+  // c->sw(a3, 128, a2);                            // sw a3, 128(a2)
+  sadr = c->sgpr64(a3);
+  // nop                                            // sll r0, r0, 0
+  // c->sw(a1, 16, a2);                             // sw a1, 16(a2)
+  madr = c->sgpr64(a1);
+  c->addiu(a3, r0, 256);                            // addiu a3, r0, 256
+  // c->sw(a0, 32, a2);                             // sw a0, 32(a2)
+  qwc = c->sgpr64(a0);
+  c->daddu(a0, a1, t0);                             // daddu a0, a1, t0
+  // c->sw(a3, 0, a2);                              // sw a3, 0(a2)
+  spad_from_dma_no_sadr_off(cache.fake_scratchpad_data, madr, sadr, qwc);
+  // nop                                            // sll r0, r0, 0
+  c->sw(a0, 60, at);                                // sw a0, 60(at)
+  c->gprs[a0].du64[0] = 0;                          // or a0, r0, r0
+  c->xori(v1, v1, 4608);                            // xori v1, v1, 4608
+  c->sw(v1, 24, at);                                // sw v1, 24(at)
+  c->gprs[v0].du64[0] = 0;                          // or v0, r0, r0
+  c->ld(ra, 12176, at);                             // ld ra, 12176(at)
+  //jr ra                                           // jr ra
+  c->daddiu(sp, sp, 16);                            // daddiu sp, sp, 16
+  goto end_of_function;                             // return
+
+  // nop                                            // sll r0, r0, 0
+  // nop                                            // sll r0, r0, 0
+end_of_function:
+  return c->gprs[v0].du64[0];
+}
+
+void link() {
+  cache.fake_scratchpad_data = intern_from_c(-1, 0, "*fake-scratchpad-data*").c();
+  cache.generic_envmap_dproc = intern_from_c(-1, 0, "generic-envmap-dproc").c();
+  cache.generic_interp_dproc = intern_from_c(-1, 0, "generic-interp-dproc").c();
+  cache.generic_no_light_dproc = intern_from_c(-1, 0, "generic-no-light-dproc").c();
+  cache.generic_prepare_dma_double = intern_from_c(-1, 0, "generic-prepare-dma-double").c();
+  gLinkedFunctionTable.reg("generic-no-light+envmap", execute, 256);
+}
+
+} // namespace generic_no_light_envmap
+
 } // namespace Mips2C

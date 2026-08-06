@@ -10,10 +10,9 @@
 ;; disassembly: the camera comes from (view-get-active-math-camera) rather than
 ;; *math-camera*; the chain walk is 19 levels x 10 buckets against jak3's 11 x 7,
 ;; matching the landed bucket map; the profile cap is 2099 against jak3's 1023; and
-;; the *dma-mem-usage* slot is 89 against jak3's 90. The def-mips2c family is active
-;; as of the mips2c port rung except generic-merc-init-asm, the deliberate holdout
-;; that keeps drawable.gc's execute-all guard closed until the Generic2 renderer rung
-;; verifies the pipeline end to end.
+;; the *dma-mem-usage* slot is 89 against jak3's 90. The def-mips2c family is fully
+;; active as of rung 5, generic-merc-init-asm included; the drawable.gc guard that
+;; keyed on it retired with the pipeline verification.
 
 ;; DECOMP BEGINS
 
@@ -44,15 +43,11 @@
                            )
         )
 
-;; og:preserve-this the def-mips2c family, active as of the mips2c port rung, all
-;; registered in game/mips2c/jakx_functions/generic_merc.cpp. The one deliberate
-;; holdout is generic-merc-init-asm: its C++ IS registered, but its def-mips2c stays
-;; commented so the drawable.gc guard keyed on it stays closed until the Generic2
-;; renderer rung lands and the pipeline can be verified end to end. Activating it is
-;; the one-line switch that turns the mercneric pipeline on.
-
-;; (def-mips2c generic-merc-init-asm (function none))
-(define-extern generic-merc-init-asm (function none)) ;; mips2c, not registered yet
+;; og:preserve-this the def-mips2c family, fully active as of rung 5, all registered
+;; in game/mips2c/jakx_functions/generic_merc.cpp. generic-merc-init-asm was the
+;; deliberate holdout keeping drawable.gc's guard closed through rungs 3 and 4; its
+;; activation here was the switch that turned the mercneric pipeline on.
+(def-mips2c generic-merc-init-asm (function none))
 
 ;; jak1-era
 (def-mips2c mercneric-matrix-asm function)

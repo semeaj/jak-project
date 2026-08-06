@@ -8,8 +8,8 @@
 ;; og:preserve-this bring-up externs: these live in objects that are not landed yet.
 ;; Every call site below is linkage-guarded with (nonzero? sym), matching merc.gc's
 ;; find-free-eye-index idiom. Signatures match decompiler/config/jakx/all-types.gc.
-(define-extern vu-lights-default! (function vu-lights vu-lights)) ;; lights.gc is a stub
-(define-extern *default-lights* vu-lights) ;; lights.gc is a stub
+(define-extern vu-lights-default! (function vu-lights vu-lights)) ;; lights.gc partial landing, rung 5
+(define-extern *default-lights* vu-lights) ;; lights.gc partial landing, rung 5
 (define-extern ripple-make-request (function ripple-wave merc-effect none)) ;; ripple.gc is a stub
 
 ;; og:preserve-this bring-up extern: *use-fp-blerc* is defined in merc-blend-shape.gc,
@@ -66,10 +66,10 @@
 (defun foreground-init ()
   "Initialize scratchpad and VU0 for foreground. Start foreground DMA chains."
   (let ((gp-0 (scratchpad-object foreground-work)))
-    ;; og:preserve-this bring-up guard: lights.gc not landed, vu-lights-default! links 0
-    (if (nonzero? vu-lights-default!)
-        (vu-lights-default! *default-lights*)
-        )
+    ;; og:preserve-this the linkage guard here retired with lights.gc's partial landing
+    ;; at rung 5 (vu-lights-default! and *default-lights* are real); this is retail's
+    ;; unconditional call.
+    (vu-lights-default! *default-lights*)
     ;; og:preserve-this PC port: no VU0 microcode upload on PC (jak3 comments out the
     ;; same block, jak3 foreground.gc lines 518-533)
     ;; (let ((s5-0 *vu0-dma-list*))
@@ -1436,17 +1436,15 @@
                         )
 
                       (when (nonzero? (-> (scratchpad-object foreground-work) regs mercneric-used))
-                        ;; og:preserve-this bring-up guard: foreground-generic-merc mips2c
-                        ;; not landed, links 0
                         ;; og:preserve-this the landed vu1-renderer-mask enum is a jak3 copy
                         ;; that is +2 bits versus the jakx asm from hfrag onward (real
                         ;; generic/merc/emerc bits are 12/13/14; the asm tests 4096/8192/
                         ;; #x4000). These logtests stay correct today only because
                         ;; display-h.gc:122 sets vu1-enable-user to all bits; fix the enum
-                        ;; in a dedicated pass, then this note retires
-                        (if (and (nonzero? foreground-generic-merc)
-                                 (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask generic))
-                                 )
+                        ;; in a dedicated pass, then this note retires. The linkage guard
+                        ;; on foreground-generic-merc retired at rung 5; the mask test is
+                        ;; retail's own.
+                        (if (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask generic))
                             (set! dma-ptr (foreground-generic-merc dc dma-ptr 0))
                             )
                         )

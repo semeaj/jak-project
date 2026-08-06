@@ -442,6 +442,7 @@ namespace generic_no_light { extern void link(); }
 namespace generic_no_light_dproc { extern void link(); }
 namespace generic_no_light_dproc_only { extern void link(); }
 namespace generic_no_light_proc { extern void link(); }
+namespace generic_no_light_envmap { extern void link(); }
 namespace generic_interp_dproc { extern void link(); }
 namespace generic_envmap_dproc { extern void link(); }
 namespace generic_prepare_dma_single { extern void link(); }
@@ -750,10 +751,11 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jakx::generic_copy_vtx_dclr_dtex::link, jakx::generic_light::link,
        jakx::generic_envmap_only_proc::link,   jakx::generic_no_light::link,
        jakx::generic_no_light_dproc::link,     jakx::generic_no_light_dproc_only::link,
-       jakx::generic_no_light_proc::link,      jakx::generic_interp_dproc::link,
-       jakx::generic_envmap_dproc::link,       jakx::generic_prepare_dma_single::link,
-       jakx::generic_prepare_dma_double::link, jakx::generic_envmap_proc::link,
-       jakx::generic_light_proc::link,         jakx::generic_dma_from_spr::link}},
+       jakx::generic_no_light_proc::link,      jakx::generic_no_light_envmap::link,
+       jakx::generic_interp_dproc::link,       jakx::generic_envmap_dproc::link,
+       jakx::generic_prepare_dma_single::link, jakx::generic_prepare_dma_double::link,
+       jakx::generic_envmap_proc::link,        jakx::generic_light_proc::link,
+       jakx::generic_dma_from_spr::link}},
      {"generic-merc",
       {jakx::generic_merc_do_chain::link, jakx::generic_merc_execute_asm::link,
        jakx::generic_merc_death::link, jakx::generic_merc_query::link,

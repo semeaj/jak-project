@@ -10,9 +10,8 @@
 ;; this object is a two-era hybrid. The entry points below match jak3's, and the
 ;; def-mips2c family additionally carries jak1's whole hand-scheduled proc set
 ;; (generic-light, generic-no-light and variants, the dprocs, generic-dma-from-spr),
-;; which jak3 dropped. The def-mips2c family is active as of the mips2c port rung,
-;; every form backed by its registration in generic_effect.cpp, except
-;; generic-no-light+envmap (no emitted section; see its note below).
+;; which jak3 dropped. The def-mips2c family is fully active as of rung 5,
+;; every form backed by its registration in generic_effect.cpp.
 
 (define-extern *default-envmap-shader* adgif-shader)
 
@@ -183,11 +182,8 @@
   (none)
   )
 
-;; og:preserve-this the def-mips2c family, active as of the mips2c port rung: all
-;; twenty are registered in game/mips2c/jakx_functions/generic_effect.cpp. The one
-;; exception is generic-no-light+envmap below, which the emitter produced no section
-;; for (silent skip, likely the + in the name); it stays commented and must be
-;; hand-ported from the raw disasm before the mercneric guard opens.
+;; og:preserve-this the def-mips2c family, fully active as of rung 5: all twenty-one
+;; are registered in game/mips2c/jakx_functions/generic_effect.cpp.
 ;; jak1-era marks the hand-scheduled proc set jak3 dropped.
 
 ;; jak1-era
@@ -215,10 +211,11 @@
 ;; jak1-era
 (def-mips2c generic-no-light-dproc function)
 
-;; jak1-era. NOT registered: the emitter produced no mips2c section for this name;
-;; hand-port from the raw disasm (L44) before the mercneric guard opens, or the
-;; unlit+envmap mode dispatches through an unbound symbol.
-;; (def-mips2c generic-no-light+envmap function)
+;; jak1-era. Spliced at rung 5: the generator's name parsing skipped the + in the
+;; name, but the decompiler emitted the full section (ir2.asm L44); the earlier fear
+;; of an unbound-symbol dispatch did not survive the sweep, since nothing in the jakx
+;; decomp reads this symbol. Landed for symbol completeness like its wrapper siblings.
+(def-mips2c generic-no-light+envmap function)
 
 ;; jak1-era
 (def-mips2c generic-no-light function)
@@ -245,14 +242,12 @@
 (def-mips2c generic-warp-source-proc (function none))
 
 ;; og:preserve-this PC adaptation, jak3 parity: the decomp's raw (.lui at 28672)
-;; scratchpad access becomes the typed scratchpad-object form. The proc call is
-;; linkage-guarded until its mips2c registers (links 0 today); the guard retires
-;; with the port, restoring the unconditional retail call.
+;; scratchpad access becomes the typed scratchpad-object form. The linkage guard on
+;; the proc call retired at rung 5 with the mips2c registered; this is retail's
+;; unconditional call.
 (defun generic-warp-source ((arg0 gsf-buffer))
   (set! (-> (scratchpad-object generic-work) saves gsf-buf) arg0)
-  (if (nonzero? generic-warp-source-proc)
-      (generic-warp-source-proc)
-      )
+  (generic-warp-source-proc)
   (none)
   )
 
