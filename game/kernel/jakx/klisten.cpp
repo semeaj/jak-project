@@ -82,10 +82,15 @@ void ProcessListenerMessage(Ptr<char> msg) {
       printf("[ERROR] unsupported message kind LTT_MSG_PRINT_SYMBOLS (NYI)\n");
       break;
     case LTT_MSG_RESET:
+      // name the trigger on receipt (#62): goalc sends this on (e), (reset-target) and
+      // from its destructor on ANY clean exit, and the silent reason-1 restart it causes
+      // was misread as a game-side kernel reset for most of a night
+      Msg(6, "dkernel: listener requested reset, restarting runtime\n");
       KernelShutdown(1);
       MasterExit = RuntimeExitStatus::RESTART_RUNTIME;
       break;
     case LTT_MSG_SHUTDOWN:  // not in Jak X
+      Msg(6, "dkernel: listener requested shutdown, exiting\n");
       KernelShutdown(1);
       MasterExit = RuntimeExitStatus::EXIT;
       break;
