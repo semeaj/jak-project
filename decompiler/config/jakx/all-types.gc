@@ -4754,11 +4754,11 @@
    (max-depth int8                 :offset-assert 7)
    (base-time int16                :offset-assert 8)
    (segment   profile-segment 9    :offset-assert 12) ;; guessed by decompiler
-   (data      profile-segment 1024 :inline :offset-assert 48) ;; guessed by decompiler
+   (data      profile-segment 2100 :inline :offset-assert 48) ;; jakx: sized to start-segment!'s 2099 cap (#59); 1024 was the jak3-copied guess
    )
   :method-count-assert 13
-  :size-assert         #x4030
-  :flag-assert         #xd00004030
+  :size-assert         #x8370
+  :flag-assert         #xd00008370
   (:methods
     (get-total-time "Get the duration of the top-level event (typically, the whole frame)" (_type_) int) ;; 9
     (start-frame! "Restart the profiler for the start of a frame." (_type_) none) ;; 10

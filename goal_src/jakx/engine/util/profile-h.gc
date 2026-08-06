@@ -43,7 +43,12 @@
    (max-depth  int8)
    (base-time  int16)
    (segment    profile-segment  9)
-   (data       profile-segment  1024 :inline)
+   ;; og:preserve-this jakx delta (#59): 1024 was the jak3-copied decompiler guess, but
+   ;; jakx's own start-segment! caps count at 2099, so the game's writer assumes 2100
+   ;; slots. At 1024 every -debug boot overflowed the array 16 bytes per segment across
+   ;; the debug heap into the debug-buf's DMA chain, and the frame-1 walk of the
+   ;; stdcon bucket died on the stomped tag.
+   (data       profile-segment  2100 :inline)
    )
   (:methods
     (get-total-time (_type_) int)
