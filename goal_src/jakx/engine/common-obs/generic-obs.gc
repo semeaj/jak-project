@@ -1040,16 +1040,9 @@
                (.svf (&-> a0-13 quad) vf6)
                )
              )
-           ;; og:preserve-this bring-up guard: spawn-from-mat is landed but tails into
-           ;; sparticle-launch-control's spawn (slot 16), a separately failed decomp
-           ;; whose slot reads 0 -- gate the SLOT plus part, mirroring the part-spawner
-           ;; trans guard, so initialize (14) landing ahead of spawn (16) cannot
-           ;; un-park existing trackers into a jump to address 0 here (part also stays
-           ;; 0 on the subsampler variant, which shares this state and never sets it).
-           ;; Delete all three gates in this trans when spawn (16) lands.
-           (when (and (nonzero? (-> sparticle-launch-control method-table 16))
-                      (nonzero? (-> self part))
-                      )
+           ;; part stays 0 on the subsampler variant, which shares this state and
+           ;; never sets it (the slot-16 gates retired at #53 slice 2: spawn landed)
+           (when (nonzero? (-> self part))
              (spawn-from-mat (-> self part) (-> self mat))
              (set! (-> self root trans quad) (-> self part origin trans quad))
              )
@@ -1057,10 +1050,7 @@
           ((and gp-0 (nonzero? (-> gp-0 root)))
            (quaternion->matrix (-> self mat) (the-as quaternion (-> gp-0 root rot)))
            (set! (-> self mat trans quad) (-> gp-0 root trans quad))
-           ;; og:preserve-this bring-up guard: same slot-16 gate as above
-           (if (and (nonzero? (-> sparticle-launch-control method-table 16))
-                    (nonzero? (-> self part))
-                    )
+           (if (nonzero? (-> self part))
                (spawn-from-mat (-> self part) (-> self mat))
                )
            )
@@ -1068,10 +1058,7 @@
             (let ((a0-21 (-> self root trans)))
               (set! (-> self mat trans quad) (-> a0-21 quad))
               )
-            ;; og:preserve-this bring-up guard: same slot-16 gate as above
-            (if (and (nonzero? (-> sparticle-launch-control method-table 16))
-                     (nonzero? (-> self part))
-                     )
+            (if (nonzero? (-> self part))
                 (spawn-from-mat (-> self part) (-> self mat))
                 )
             )
@@ -1255,26 +1242,11 @@
 
 (defbehavior part-tracker-init part-tracker ((arg0 part-tracker-init-params))
   (part-tracker-init-base arg0)
-  ;; og:preserve-this bring-up guard: create-launch-control ends in an unconditional
-  ;; (initialize <control> <group> <proc>) call, and sparticle-launch-control's
-  ;; initialize (slot 14) is still commented out in sparticle-launcher.gc, so that
-  ;; slot reads 0 and the call is a jump to address 0 (part-spawner slot-14 precedent
-  ;; in init-from-entity! below). With the jungle part groups resolving, the callers
-  ;; are live: jungle-part and jungle-obs spawn part-trackers with resolved groups
-  ;; (the destroy! paths, the snake-head waterfall), and any of them reaching this
-  ;; line faults. Unlike the part-spawner precedent, leaving part at 0 is not enough:
-  ;; the target branch below derefs (-> self part) unguarded, so park in
-  ;; bring-up-parked like the null-group park in part-tracker-init-base above, before
-  ;; create-launch-control runs and before anything reads part. The park logs once per
-  ;; birthed tracker, and the state sleeps silently. part-tracker-subsampler-init
-  ;; stays bare per the dead-path convention: it never calls create-launch-control.
-  ;; This is a runtime check that auto-opens the moment slot 14 lands, and active's
-  ;; trans then spawns every frame through spawn-from-mat, whose tail call is the
-  ;; slot-16 (spawn) dispatch, a separately failed decomp; the slot-16 gates in
-  ;; active's trans keep that interim safe. Delete this park only when the particle
-  ;; leg lands BOTH sparticle-launch-control initialize (14) and spawn (16).
-  (when (zero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
-    (format 0 "WARNING: part-tracker: sparticle-launch-control initialize unlanded, parking (bring-up)~%")
+  ;; og:preserve-this bring-up park, re-keyed at #53 slice 2: the methods are landed,
+  ;; but activation waits on the *jakx-particles-ready* lever (see sparticle-h.gc);
+  ;; the park pattern and its reasons are in this function's git history
+  (when (not *jakx-particles-ready*)
+    (format 0 "WARNING: part-tracker: particle activation gated, parking (bring-up)~%")
     (go bring-up-parked)
     )
   (set! (-> self part) (create-launch-control (-> arg0 group) self))
@@ -1872,7 +1844,7 @@
       ;; the SLOT. Particles resume from live spawners when that method lands. The
       ;; (nonzero? (-> self part)) half is needed too now that the init guard above can
       ;; leave part at 0, so slot 16 landing before slot 14 cannot hand spawn a zero.
-      (if (and (nonzero? (-> sparticle-launch-control method-table 16)) (nonzero? (-> self part)))
+      (if (and *jakx-particles-ready* (nonzero? (-> self part))) ;; re-keyed at #53 slice 2 (was slot 16)
           (spawn (-> self part) (-> self root trans))
           )
       ;; slot 9 (update!) is live since slice 5; the slot test stays as cheap dead-code
@@ -2032,7 +2004,7 @@
                   ;; this is live, so leave part at 0 and still go active: the trans only
                   ;; spawns behind the slot-16 guard below and deactivate already tests
                   ;; (nonzero? (-> this part)). Delete when initialize lands.
-                  (if (nonzero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
+                  (if *jakx-particles-ready* ;; gate re-keyed at #53 slice 2 (was slot 14)
                       (set! (-> this part) (create-launch-control s5-1 this))
                       )
                   (when (logtest? (-> s5-1 flags) (sp-group-flag sp10))

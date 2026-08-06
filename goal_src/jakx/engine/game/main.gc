@@ -3122,16 +3122,15 @@
   (display-frame-finish arg0)
   (display-sync arg0)
   ;; ---- new frame begins here (display-sync called display-frame-start) ----
-  (when (not (paused?))
-    ;; og:preserve-this runtime-link guards: execute-particle-local-space-engine's decomp
-    ;; failed (raw-op output) and stays commented in sparticle-launcher.gc
-    (if (nonzero? execute-particle-local-space-engine)
-        (execute-particle-local-space-engine 0)
-        )
+  ;; og:preserve-this bring-up gate (#53 slice 2): the whole particle frame step sits
+  ;; behind *jakx-particles-ready*. Before the landing this block was inert because
+  ;; process-particles' innards were stubs and the local-space engine linked 0; the
+  ;; landing made all of it real, and its first live run crashes at the boot screen.
+  ;; The old linkage guards retired with the landing; the lever retires at slice 3.
+  (when (and *jakx-particles-ready* (not (paused?)))
+    (execute-particle-local-space-engine 0)
     (process-particles)
-    (if (nonzero? execute-particle-local-space-engine)
-        (execute-particle-local-space-engine 1)
-        )
+    (execute-particle-local-space-engine 1)
     )
   (swap-sound-buffers)
   (update-jukebox-music)

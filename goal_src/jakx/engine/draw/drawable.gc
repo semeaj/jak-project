@@ -152,7 +152,45 @@
 ;; ERROR: function has no type analysis. Cannot decompile.
 
 ;; definition for function sphere-in-view-frustum-any?
-;; ERROR: function has no type analysis. Cannot decompile.
+;; landed at #53 slice 2 (was untyped until the extern landed): true if the sphere is
+;; inside ANY active view's frustum, swapping pp's view through *views* per test
+(defun sphere-in-view-frustum-any? ((arg0 sphere))
+  (with-pp
+    (or (and (>= *view-count* 1) (let ((s5-0 (-> pp view)))
+                                   (set! (-> pp view) (-> *views* 0))
+                                   (let ((v1-1 (sphere-in-view-frustum? arg0)))
+                                     (set! (-> pp view) s5-0)
+                                     v1-1
+                                     )
+                                   )
+             )
+        (and (>= *view-count* 2) (let ((s5-1 (-> pp view)))
+                                   (set! (-> pp view) (-> *views* 1))
+                                   (let ((v1-5 (sphere-in-view-frustum? arg0)))
+                                     (set! (-> pp view) s5-1)
+                                     v1-5
+                                     )
+                                   )
+             )
+        (and (>= *view-count* 3) (let ((s5-2 (-> pp view)))
+                                   (set! (-> pp view) (-> *views* 2))
+                                   (let ((v1-9 (sphere-in-view-frustum? arg0)))
+                                     (set! (-> pp view) s5-2)
+                                     v1-9
+                                     )
+                                   )
+             )
+        (and (>= *view-count* 4) (let ((s5-3 (-> pp view)))
+                                   (set! (-> pp view) (-> *views* 3))
+                                   (let ((v0-1 (sphere-in-view-frustum? arg0)))
+                                     (set! (-> pp view) s5-3)
+                                     v0-1
+                                     )
+                                   )
+             )
+        )
+    )
+  )
 
 ;; definition for function line-in-view-frustum-any?
 ;; ERROR: function has no type analysis. Cannot decompile.
@@ -4379,6 +4417,12 @@
       )
     (set! (-> *viewport-array* current-viewport-index) prev-vp)
     )
+  ;; #53 slice 2: the particle engine, jak3's placement and pause gate; behind the
+  ;; *jakx-particles-ready* lever until slice 3 verifies processing and drawing
+  ;; together (see the lever's note in sparticle-h.gc)
+  (if (and *jakx-particles-ready* (not (paused?)))
+      (execute-part-engine)
+      )
   0
   (none)
   )

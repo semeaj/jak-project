@@ -492,7 +492,10 @@
   ;; slot-16 conjunct in spawn-flame's gate below (spawn, slot 16, is a separately
   ;; failed decomp that can land after initialize). Delete when the particle leg lands
   ;; BOTH initialize (14) and spawn (16).
-  (if (nonzero? (-> sparticle-launch-control method-table 14)) ;; slot 14 = initialize
+  ;; gate re-keyed at #53 slice 2: the methods are landed, but activation waits on the
+  ;; *jakx-particles-ready* lever (the first live init exhausted this actor's process
+  ;; heap, span 2220; heap sizing is slice 3 work)
+  (if *jakx-particles-ready*
       (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
       )
   (set! (-> this draw light-index) (the-as uint 10))
@@ -506,7 +509,7 @@
   ;; part the moment initialize (14) lands, so the slot-16 conjunct (mirroring the
   ;; part-spawner trans guard in generic-obs) is what keeps this per-frame path off a
   ;; jump to address 0 while spawn is unlanded. Drop the conjunct when spawn (16) lands.
-  (when (and (nonzero? (-> sparticle-launch-control method-table 16)) ;; slot 16 = spawn
+  (when (and *jakx-particles-ready* ;; gate re-keyed at #53 slice 2 (was slot 16)
              (nonzero? (-> self part))
              )
     (let ((gp-0 (new 'stack-no-clear 'matrix)))
