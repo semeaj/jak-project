@@ -1509,6 +1509,93 @@
   "ja-anim-done?": [[35, "gp", "process-drawable"]],
   "process-release?": [[18, "a0", "process-focusable"]],
   "part-tracker-track-root": [[3, "v1", "part-tracker"]],
+  // sparticle-launcher (#53 slice 2): the initialize and relaunch bodies dispatch on
+  // (type? proc part-tracker/part-spawner) and read (-> proc root quat) in each arm;
+  // raw 140 = declared 144 = the trsqv root in both types (the +4 basic skew), which
+  // process-drawable's declared 144 cannot resolve. Casts follow the type? guards.
+  "(method 14 sparticle-launch-control)": [
+    [64, "s4", "part-tracker"],
+    [78, "s4", "part-spawner"],
+    [93, "s4", "part-spawner"]
+  ],
+  // jakx delta vs jak3: relocate drops the forall-particles-with-key tail and instead
+  // fixes up this control's slot in *launch-control-table*; pointer-control (declared
+  // 36) holds the slot address, set by initialize, so the load and store go through it
+  "(method 7 sparticle-launch-control)": [
+    [29, "v1", "(pointer uint32)"],
+    [32, "v1", "(pointer uint32)"]
+  ],
+  "local-space-proc-root": [
+    [15, "s5", "process-drawable"],
+    [19, "s5", "process-drawable"]
+  ],
+  "local-space-proc-joint": [
+    [13, "a1", "process-drawable"],
+    [15, "a0", "int"]
+  ],
+  "sp-relaunch-setup-fields": [
+    [50, "s2", "part-tracker"],
+    [62, "s2", "part-spawner"]
+  ],
+  // respawn probes: cpuinfo+108 is declared float but doubles as a pointer to the
+  // launcher's int32 respawn table in these two (jak3 casts the same registers)
+  "sparticle-respawn-timer": [[[4, 35], "gp", "(array int32)"]],
+  "sparticle-respawn-heights": [[[2, 59], "gp", "(array int32)"]],
+  // the root walk lands on a collide-shape whose root-prim lives at declared 160
+  "sparticle-track-root-prim": [[4, "v1", "collide-shape"]],
+  // the connection walk matches jak3's seed ops exactly; op 109 is the jakx
+  // per-viewport delta, the spawn call reading each view's camera-combiner trans
+  "execute-part-engine": [
+    [11, "v1", "connection"],
+    [12, "a0", "process-drawable"],
+    [13, "v1", "connection"],
+    [[19, 53], "s0", "vector"],
+    [23, "v1", "connection"],
+    [28, "v1", "connection"],
+    [29, "v1", "int"],
+    [35, "a0", "process-drawable"],
+    [109, "v1", "camera-combiner"],
+    [137, "a3", "vector"]
+  ],
+  "sp-orbiter": [[[78, 89], "v1", "sprite-vec-data-2d"]],
+  "sp-kill-particle": [
+    [7, "a1", "uint"],
+    [7, "v1", "uint"]
+  ],
+  // an ordinal index lives in a field declared as the state pointer type
+  "sp-free-particle": [
+    [7, "t2", "int"],
+    [13, "t2", "int"]
+  ],
+  "sparticle-kill-it": [
+    [9, "a3", "int"],
+    [15, "a3", "int"]
+  ],
+  // the block cursor bump (192 cpuinfos per block); pointer per the runner precedent
+  "forall-particles-with-control-runner": [
+    [[24, 29], "v1", "sparticle-cpuinfo"],
+    [38, "v1", "pointer"],
+    [49, "v1", "pointer"]
+  ],
+  "forall-particles-runner": [
+    [[19, 28], "s4", "sparticle-cpuinfo"],
+    [34, "s4", "pointer"],
+    [35, "s3", "pointer"]
+  ],
+  "spawn-level-particles-for-camera": [[42, "a0", "(pointer uint128)"]],
+  "execute-particle-local-space-engine": [
+    [10, "v1", "connection"],
+    [11, "t9", "(function particle-local-space-info object)"],
+    [[32, 41], "a1", "particle-local-space-info"]
+  ],
+  "sparticle-texture-animate": [[[0, 48], "v1", "(array int32)"]],
+  "sparticle-texture-day-night": [[[2, 78], "s2", "(array int32)"]],
+  "birth-func-texture-group": [[[2, 12], "s5", "(array int32)"]],
+  "(method 10 sparticle-launcher)": [[[28, 72], "gp", "(array int32)"]],
+  "birth-func-flip-based-on-scale": [
+    [4, "v1", "int"],
+    [16, "v1", "int"]
+  ],
   "entity-lookup-part-group": [
     [51, "s4", "(pointer sparticle-launch-group)"],
     [56, "s4", "(pointer sparticle-launch-group)"],

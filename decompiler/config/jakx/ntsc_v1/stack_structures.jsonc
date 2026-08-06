@@ -5,6 +5,26 @@
     [48, "vector"]
   ],
   "show-level": [[16, ["array", "symbol", 18]]],
+  // sparticle-launcher (#53 slice 2): the launch/relaunch bodies build their field
+  // blocks in a stack matrix touched only by raw lqc2/sqc2/lwc1 accesses, so the
+  // slot type cannot be guessed; same slot and type jak3 hints for all three.
+  "sp-adjust-launch": [[16, "matrix"]],
+  "sp-launch-particles-death": [[16, "matrix"]],
+  "sp-relaunch-setup-fields": [[16, "matrix"]],
+  "sparticle-respawn-timer": [[16, "vector"]],
+  "sparticle-respawn-heights": [[16, "vector"]],
+  "sparticle-rotate-to-vel-3d": [[16, "vector"]],
+  "sparticle-3d-rotate-xz-to-camera": [[16, "vector"]],
+  "spt-func-turn-to-vel-radial": [[16, "vector"]],
+  "particle-adgif-callback": [[16, ["inline-array", "vector", 4]]],
+  "spt-func-relative-pos": [
+    [16, "vector"],
+    [32, "vector"],
+    [48, "vector"],
+    [64, "matrix"],
+    [128, "matrix"],
+    [192, "matrix"]
+  ],
   // jakx-only car-load section in update!: dma-try-alloc writes its two result
   // pointers at sp+16/sp+20 (jak3's update! has no such section)
   "(method 10 load-state)": [[16, ["array", "pointer", 2]]],

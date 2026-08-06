@@ -135,6 +135,11 @@
     // jakx numbering for the same two blocks (branch-always into the outer and
     // inner loop tests, 19 levels x 10 buckets) is [7, 8] (#57)
     "generic-merc-execute-all": [7, 8, 10, 12],
+    // sparticle-launcher: jakx spawn keeps jak3's rotated-loop/error-block skeleton
+    // block-for-block (jak3's residual cfg-N label numbers equal the jakx block
+    // indices), so jak3's list carries over verbatim; B31 resolves structurally
+    // once these land, matching jak3, and must not be added (#53 slice 2)
+    "(method 16 sparticle-launch-control)": [25, 35, 36, 48, 62, 65, 100, 102],
     // foreground-emerc deliberately has no entry, matching jak3. Forcing every
     // branchy block to asm does resolve the CFG, but conversion then dies on a
     // real uninitialized-register path (t9 on B0->L111->L104, valid only via a
