@@ -79,7 +79,15 @@
             ((part-group-pointer? (the-as pointer s3-1))
              (set! gp-0 (-> (the-as (pointer sparticle-launch-group) s4-0) 0))
              )
-            ((= (-> s3-1 type) string)
+            ;; og:preserve-this bring-up hardening (#61): retail tests (-> s3-1 type)
+            ;; raw (jak3 generic-obs.gc:99), safe only because retail part-group res
+            ;; entries are always valid. With the per-level defpart data unlanded,
+            ;; entries can hold garbage, and the raw type read followed a wild pointer
+            ;; and killed the kernel (crash rip bracketed to this function via the
+            ;; runtime symbol map; the report blamed script/junglebirds through the
+            ;; #58 tie). valid? range-checks before any deref, so garbage falls to
+            ;; the parking else below. Restore the raw test with the defpart legs.
+            ((valid? s3-1 string (the-as string #f) #f 0)
              (if arg1
                  (set! (-> arg1 0) (the-as string s3-1))
                  )
