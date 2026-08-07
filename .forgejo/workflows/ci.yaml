@@ -44,10 +44,22 @@
 
 name: Forge CI
 
+# One live run per pull request: a newer push cancels the superseded build rather than
+# running alongside it. The group is keyed on the PR number because under
+# pull_request_target github.ref is the BASE branch, so a ref-keyed group would make
+# unrelated pull requests cancel each other. The fallback arm keeps non-PR events
+# (workflow_dispatch today) in their own per-ref group, so a dispatch never cancels
+# or is cancelled by a pull request run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 on:
-  push:
-    branches:
-      - develop
+  # No push trigger. Merges here are fast-forward-only, so the commit that lands on
+  # develop is byte-identical to the PR head that pull_request_target just tested green;
+  # a post-merge run re-tests the same sha and adds nothing. The cost is that a direct
+  # push to develop gets no CI, which branch protection reserves for the whitelisted
+  # owner anyway.
 
   # Lets a run be re-triggered without an empty or throwaway commit. Earned the
   # hard way: the runner host needed three separate fixes before the MSVC job
@@ -63,9 +75,13 @@ on:
   #
   # The tradeoff is real: pull_request_target runs with the base repository's context, and
   # the checkout below deliberately takes the pull request's head so that the code under
-  # test is the code being proposed. That means untrusted code would run with that context.
-  # Acceptable here because this repository has exactly one collaborator and accepts no
-  # external contributions. Revisit if that ever changes.
+  # test is the code being proposed. That means untrusted code runs with that context.
+  # Since 2026-08-07 the repository has a second collaborator, so the original "exactly
+  # one collaborator" justification no longer holds. What contains the exposure today:
+  # the Actions secret store is empty, and the automatic token's identity is not on
+  # develop's or master's push or merge whitelists, so a hostile PR cannot reach a
+  # protected branch or steal a credential. Retire this trigger for plain pull_request
+  # if contributor branches ever consistently carry this file.
   pull_request_target:
 
 jobs:
@@ -77,7 +93,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # On pull_request_target the default checkout is the BASE. Take the head so the
-          # run tests the proposed change; fall back to github.sha for push events.
+          # run tests the proposed change; github.sha covers workflow_dispatch.
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       # Pinned to 18 on purpose. Later clang-format releases disagree with this codebase
@@ -130,7 +146,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # On pull_request_target the default checkout is the BASE. Take the head so the
-          # run tests the proposed change; fall back to github.sha for push events.
+          # run tests the proposed change; github.sha covers workflow_dispatch.
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Install dependencies
