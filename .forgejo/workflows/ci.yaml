@@ -49,6 +49,11 @@ on:
     branches:
       - develop
 
+  # Lets a run be re-triggered without an empty or throwaway commit. Earned the
+  # hard way: the runner host needed three separate fixes before the MSVC job
+  # got past setup, and each retry otherwise meant another commit on develop.
+  workflow_dispatch:
+
   # pull_request_target, not pull_request, and the reason is structural. Branches here are
   # cut from master so their upstream diff stays clean, and master deliberately does not
   # carry this file. A pull_request event resolves the workflow from the HEAD ref, which
