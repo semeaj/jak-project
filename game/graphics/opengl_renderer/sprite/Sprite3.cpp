@@ -622,6 +622,19 @@ void Sprite3::draw_debug_window() {
               m_debug_stats.count_2d_grp0);
   ImGui::Text("2D Group 1 (HUD) blocks: %d sprites: %d", m_debug_stats.blocks_2d_grp1,
               m_debug_stats.count_2d_grp1);
+  ImGui::Text("2D flag classes 0x00: %d  0x10: %d  0x20: %d  0x30: %d",
+              m_debug_stats.flag_counts[0], m_debug_stats.flag_counts[1],
+              m_debug_stats.flag_counts[2], m_debug_stats.flag_counts[3]);
+  ImGui::Checkbox("Hide flagged 2d (#65 triage)", &m_hide_flagged_2d);
+  if (ImGui::TreeNode("2D buckets (#65 triage)")) {
+    // tbp, sprite count, and the first sprite's color per bucket this frame:
+    // a black rgba fingers the launcher's color fields, a normal one the texture
+    for (const auto& dbg : m_debug_stats.buckets) {
+      ImGui::Text("tbp %5d  sprites %3d  rgba %.2f %.2f %.2f %.2f", dbg.tbp, dbg.sprites,
+                  dbg.rgba[0], dbg.rgba[1], dbg.rgba[2], dbg.rgba[3]);
+    }
+    ImGui::TreePop();
+  }
   ImGui::Checkbox("Culling", &m_enable_culling);
   ImGui::Checkbox("2d", &m_2d_enable);
   ImGui::SameLine();
@@ -714,6 +727,22 @@ void Sprite3::flush_sprites(SharedRenderState* render_state,
           ASSERT(false);
       }
     }
+  }
+
+  // #65 triage: snapshot the buckets before clearing so the debug window can
+  // show tbp/count/color after the per-frame state resets
+  for (const auto bucket : m_bucket_list) {
+    if (bucket->ids.empty()) {
+      continue;
+    }
+    auto& dbg = m_debug_stats.buckets.emplace_back();
+    dbg.tbp = (int)(bucket->key >> 32);
+    dbg.sprites = (int)(bucket->ids.size() / 5);
+    const auto& v = m_vertices_3d.at(bucket->ids[0]);
+    dbg.rgba[0] = v.rgba.x();
+    dbg.rgba[1] = v.rgba.y();
+    dbg.rgba[2] = v.rgba.z();
+    dbg.rgba[3] = v.rgba.w();
   }
 
   m_sprite_buckets.clear();
@@ -863,6 +892,15 @@ void Sprite3::do_block_common(SpriteMode mode,
       // ibltz vi08, L4
       // which is set from ilw.y vi08, 1(vi02)
       if (m_vec_data_2d[sprite_idx].matrix() == -1) {
+        continue;
+      }
+    }
+
+    {
+      // #65 triage instrumentation: tally the flag classes and optionally hide them
+      u32 flag_class = ((u32)m_vec_data_2d[sprite_idx].flag() >> 4) & 3;
+      m_debug_stats.flag_counts[flag_class]++;
+      if (m_hide_flagged_2d && flag_class != 0) {
         continue;
       }
     }

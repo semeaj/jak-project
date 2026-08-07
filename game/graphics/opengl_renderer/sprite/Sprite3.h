@@ -167,6 +167,17 @@ class Sprite3 : public BucketRenderer {
   AdGifData m_adgif[SPRITES_PER_CHUNK];
 
   struct DebugStats {
+    // per-frame tally of 2d sprites by (flag & 0x30) >> 4; jakx draws nonzero
+    // classes without jak3's corner swap, suspected in the #65 black squares
+    int flag_counts[4] = {0, 0, 0, 0};
+    // per-bucket snapshot taken in flush_sprites before the bucket list clears,
+    // so the debug window can finger which texture the black sprites use (#65)
+    struct BucketDebug {
+      int tbp = 0;
+      int sprites = 0;
+      float rgba[4] = {0, 0, 0, 0};
+    };
+    std::vector<BucketDebug> buckets;
     int blocks_2d_grp0 = 0;
     int count_2d_grp0 = 0;
     int blocks_2d_grp1 = 0;
@@ -175,6 +186,9 @@ class Sprite3 : public BucketRenderer {
 
   bool m_enable_distort_instancing = true;
   bool m_enable_culling = true;
+  // #65 triage: skip 2d sprites whose (flag & 0x30) is nonzero, to isolate the
+  // flagged classes jakx draws without jak3's corner swap
+  bool m_hide_flagged_2d = false;
   bool m_enable_glow = true;
 
   bool m_2d_enable = true;
