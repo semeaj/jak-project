@@ -1,6 +1,10 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
+;; og:preserve-this probe (temporary): fill-result verification counter, remove with the probes
+(define *prt-probe-num* 0)
+(define *pump-probe-num* 0)
+
 ;; name: time-of-day.gc
 ;; name in dgo: time-of-day
 ;; dgos: ENGINE, GAME
@@ -357,6 +361,24 @@
   (set! (-> arg0 front-rear-light-group dir1 extra x) 1.0)
   (set! (-> arg0 front-rear-light-group dir2 extra x) 0.0)
   (set! (-> arg0 front-rear-light-group ambi extra x) 0.0)
+  ;; og:preserve-this default-fill for light-group[0]: the jakx mood light chain is
+  ;; not landed (light-group-madd! extern-only at :27; update-mood-direction commented
+  ;; at :162-166; update-mood-light commented at :1030; per-level mood-funcs never write
+  ;; light-group), so tod light-group stays all-zero and update-environment-colors
+  ;; (:412-425) fills *time-of-day-context* current-prt-color with (0,0,0,1),
+  ;; blackening every glow-tagged particle through the rgb *= current-prt-color
+  ;; multiply in sp-relaunch-setup-fields (sparticle-launcher.gc:1065-1090).
+  ;; This neutral daylight default (1,1,1,1) makes particles render their declared colors.
+  ;; RETIRE NOTE: when the mood light chain lands, remove this default AND re-zero
+  ;; current-prt-color at init in the same commit — the all-zero guard at :421 otherwise
+  ;; blocks recomputation from the real light.
+  (set-vector! (-> arg0 light-group 0 dir0 color) 1.0 1.0 1.0 1.0)
+  (set-vector! (-> arg0 light-group 0 dir1 color) 1.0 1.0 1.0 1.0)
+  (set-vector! (-> arg0 light-group 0 ambi color) 1.0 1.0 1.0 1.0)
+  (set! (-> arg0 light-group 0 dir0 extra x) 1.0)
+  (set! (-> arg0 light-group 0 dir1 extra x) 1.0)
+  (set! (-> arg0 light-group 0 ambi extra x) 1.0)
+  (format 0 "PROBE tod-lg[0] ambi=~f ~f ~f arg0=~x~%" (-> arg0 light-group 0 ambi color x) (-> arg0 light-group 0 ambi color y) (-> arg0 light-group 0 ambi color z) (the-as uint arg0))
   (set-vector! (-> arg0 filter-color) 1.0 1.0 1.0 1.0)
   (set! (-> arg0 override-enable) #f)
   (when *debug-segment*
@@ -418,6 +440,17 @@
           (s3-0 (-> arg0 current-env-color))
           )
       (vector4-lerp! s5-0 (-> v1-0 0 dir0 color) (-> v1-0 0 dir1 color) (-> v1-0 0 dir1 extra x))
+      ;; og:preserve-this probe (temporary): identity + raw inputs before the fill
+      (if (< *pump-probe-num* 5)
+          (begin
+            (format 0 "PROBE pump arg0=~x lg0-ambi=~f ~f ~f ~f~%"
+                    (the-as uint arg0)
+                    (-> s4-0 x) (-> s4-0 y) (-> s4-0 z) (-> s4-0 w)
+                    )
+            (format 0 "PROBE pump lerp=~f ~f ~f~%" (-> s5-0 x) (-> s5-0 y) (-> s5-0 z))
+            (set! *pump-probe-num* (+ *pump-probe-num* 1))
+            )
+          )
       (when (and (= (-> s2-0 x) 0.0) (= (-> s2-0 y) 0.0) (= (-> s2-0 z) 0.0))
         (set! (-> s2-0 x) (* 0.5 (+ (-> s4-0 x) (* 0.5 (+ (-> s4-0 x) (-> s5-0 x))))))
         (set! (-> s2-0 y) (* 0.5 (+ (-> s4-0 y) (* 0.5 (+ (-> s4-0 y) (-> s5-0 y))))))
@@ -430,6 +463,19 @@
         (set! (-> s3-0 z) (* 48.0 (+ (-> s5-0 z) (* 0.5 (+ (-> s4-0 z) (-> s5-0 z))))))
         (set! (-> s3-0 w) 128.0)
         )
+      ;; og:preserve-this probe (temporary): print the fill result; fires each frame the
+      ;; all-zero guard stays true (i.e. until the ambient chain produces non-zero light)
+      (if (< *prt-probe-num* 20)
+          (begin
+            (format 0 "PROBE prt-fill prt=~f ~f ~f ~f~%"
+                    (-> s2-0 x) (-> s2-0 y) (-> s2-0 z) (-> s2-0 w)
+                    )
+            (format 0 "PROBE prt-fill env=~f ~f ~f~%"
+                    (-> s3-0 x) (-> s3-0 y) (-> s3-0 z)
+                    )
+            (set! *prt-probe-num* (+ *prt-probe-num* 1))
+            )
+          )
       )
     (let* ((f0-23 (fmax (fmax (-> s4-0 x) (-> s4-0 y)) (-> s4-0 z)))
            (f2-15 (fmax (fmax (fmax 0.01 (-> s5-0 z)) (-> s5-0 y)) (-> s5-0 x)))
@@ -453,6 +499,8 @@
 (defun update-time-of-day ((arg0 time-of-day-context))
   (with-pp
     (set! (-> arg0 exterior-level) #f)
+    ;; og:preserve-this probe (temporary): force night every frame for the #65 visual test
+    (set! (-> arg0 time) 20.0)
     ;; og:preserve-this commented: init-weather! (mood-control m9) has decomp
     ;; errors and stays unlanded; weather (rain/snow) fields stay zeroed, which
     ;; interiors never read. Restore with the m9 landing.

@@ -1,6 +1,9 @@
 ;;-*-Lisp-*-
 (in-package goal)
 
+;; og:preserve-this probe (temporary): black-particle id counter, remove with the probes
+(define *black-probe-num* 0)
+
 ;; name: sprite.gc
 ;; name in dgo: sprite
 ;; dgos: ENGINE, GAME
@@ -188,6 +191,16 @@ The glow and distort renderers will pull sprites from here."
         (s2-0 arg0 arg1 arg2 arg3)
         )
     )
+  ;; og:preserve-this probe (temporary): report flags + rgba of any particle drawing
+  ;; black (rgb < 1.0), to identify which part class the black billboards belong to
+  (if (< *black-probe-num* 30)
+      (begin
+        (when (and (< (-> arg2 r-g-b-a x) 1.0) (< (-> arg2 r-g-b-a y) 1.0) (< (-> arg2 r-g-b-a z) 1.0))
+          (format 0 "PROBE black flags=~x rgb=~f ~f ~f a=~f~%" (-> arg1 flags) (-> arg2 r-g-b-a x) (-> arg2 r-g-b-a y) (-> arg2 r-g-b-a z) (-> arg2 r-g-b-a w))
+          (set! *black-probe-num* (+ *black-probe-num* 1))
+          )
+        )
+      )
   (let ((v1-3 *sprite-aux-list*))
     (when (< (-> v1-3 entry) (-> v1-3 num-entries))
       (cond
