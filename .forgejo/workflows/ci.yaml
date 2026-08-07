@@ -20,6 +20,14 @@
 # Runner: proteus-windows, instance-level, labels windows-2022 / windows-latest /
 # windows / self-hosted, host backend (no container isolation).
 #
+# That runner needs Chocolatey's allowGlobalConfirmation feature enabled. The
+# MSVC workflow installs nasm with `choco install` and no -y, which is fine on
+# GitHub's hosted images because they ship that feature on. A stock Chocolatey
+# does not, so the step stops at an interactive prompt with no stdin and hangs
+# until the job timeout rather than failing. This cost 15 minutes on the first
+# real run. The fix lives in alex/forgejo-runner-windows, not here, so upstream's
+# reusable workflow can keep being called unmodified.
+#
 # Forgejo prefers .forgejo/workflows over .github/workflows, but that preference is
 # resolved PER REF, not repository-wide. A ref carrying no .forgejo/workflows directory
 # falls back to .github/workflows and runs upstream's matrix in full, which here fails in
