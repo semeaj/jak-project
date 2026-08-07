@@ -3122,12 +3122,9 @@
   (display-frame-finish arg0)
   (display-sync arg0)
   ;; ---- new frame begins here (display-sync called display-frame-start) ----
-  ;; og:preserve-this bring-up gate (#53 slice 2): the whole particle frame step sits
-  ;; behind *jakx-particles-ready*. Before the landing this block was inert because
-  ;; process-particles' innards were stubs and the local-space engine linked 0; the
-  ;; landing made all of it real, and its first live run crashes at the boot screen.
-  ;; The old linkage guards retired with the landing; the lever retires at slice 3.
-  (when (and *jakx-particles-ready* (not (paused?)))
+  ;; the particle frame step (retail placement); its bring-up lever retired at
+  ;; #53 slice 4 once processing and drawing verified together
+  (when (not (paused?))
     (execute-particle-local-space-engine 0)
     (process-particles)
     (execute-particle-local-space-engine 1)

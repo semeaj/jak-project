@@ -483,21 +483,9 @@
     (set! (-> this flame-sound) (new 'process 'ambient-sound "flaming-arrow" (-> this root trans) 0.0))
     (set-falloff-far! (-> this flame-sound) 1228800.0)
     )
-  ;; og:preserve-this bring-up guard: create-launch-control ends in an unconditional
-  ;; (initialize ...) call, and sparticle-launch-control's initialize (slot 14) is still
-  ;; commented out in sparticle-launcher.gc, so that slot reads 0 and the call is a jump
-  ;; to address 0 (part-spawner precedent in generic-obs init-from-entity!). This is a
-  ;; runtime check that auto-passes the moment initialize lands and then sets part, so
-  ;; the spawn-from-mat path's safety does not rest on part staying 0: it rests on the
-  ;; slot-16 conjunct in spawn-flame's gate below (spawn, slot 16, is a separately
-  ;; failed decomp that can land after initialize). Delete when the particle leg lands
-  ;; BOTH initialize (14) and spawn (16).
-  ;; gate re-keyed at #53 slice 2: the methods are landed, but activation waits on the
-  ;; *jakx-particles-ready* lever (the first live init exhausted this actor's process
-  ;; heap, span 2220; heap sizing is slice 3 work)
-  (if *jakx-particles-ready*
-      (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
-      )
+  ;; the guard history for this call (unlanded initialize/spawn slots, then the
+  ;; *jakx-particles-ready* lever) is in git; the lever retired at #53 slice 4
+  (set! (-> this part) (create-launch-control (-> *part-group-id-table* 356) this))
   (set! (-> this draw light-index) (the-as uint 10))
   (go (method-of-object this idle))
   )
@@ -509,9 +497,7 @@
   ;; part the moment initialize (14) lands, so the slot-16 conjunct (mirroring the
   ;; part-spawner trans guard in generic-obs) is what keeps this per-frame path off a
   ;; jump to address 0 while spawn is unlanded. Drop the conjunct when spawn (16) lands.
-  (when (and *jakx-particles-ready* ;; gate re-keyed at #53 slice 2 (was slot 16)
-             (nonzero? (-> self part))
-             )
+  (when (nonzero? (-> self part)) ;; lever retired at #53 slice 4
     ;; og:preserve-this stack fix (#53 slice 3): retail's frame is a matrix plus a
     ;; quaternion; a bare 'matrix is 64 bytes, so the quaternion write at +64 landed
     ;; past the allocation and corrupted the frame (jak3's vector-5 idiom)

@@ -1242,13 +1242,6 @@
 
 (defbehavior part-tracker-init part-tracker ((arg0 part-tracker-init-params))
   (part-tracker-init-base arg0)
-  ;; og:preserve-this bring-up park, re-keyed at #53 slice 2: the methods are landed,
-  ;; but activation waits on the *jakx-particles-ready* lever (see sparticle-h.gc);
-  ;; the park pattern and its reasons are in this function's git history
-  (when (not *jakx-particles-ready*)
-    (format 0 "WARNING: part-tracker: particle activation gated, parking (bring-up)~%")
-    (go bring-up-parked)
-    )
   (set! (-> self part) (create-launch-control (-> arg0 group) self))
   (when (and (-> arg0 target) (logtest? (-> self part group flags) (sp-group-flag sp12 sp14)))
     (let* ((gp-0 (-> self part))
@@ -1844,7 +1837,7 @@
       ;; the SLOT. Particles resume from live spawners when that method lands. The
       ;; (nonzero? (-> self part)) half is needed too now that the init guard above can
       ;; leave part at 0, so slot 16 landing before slot 14 cannot hand spawn a zero.
-      (if (and *jakx-particles-ready* (nonzero? (-> self part))) ;; re-keyed at #53 slice 2 (was slot 16)
+      (if (nonzero? (-> self part)) ;; lever retired at #53 slice 4
           (spawn (-> self part) (-> self root trans))
           )
       ;; slot 9 (update!) is live since slice 5; the slot test stays as cheap dead-code
@@ -2004,9 +1997,7 @@
                   ;; this is live, so leave part at 0 and still go active: the trans only
                   ;; spawns behind the slot-16 guard below and deactivate already tests
                   ;; (nonzero? (-> this part)). Delete when initialize lands.
-                  (if *jakx-particles-ready* ;; gate re-keyed at #53 slice 2 (was slot 14)
-                      (set! (-> this part) (create-launch-control s5-1 this))
-                      )
+                  (set! (-> this part) (create-launch-control s5-1 this)) ;; lever retired at #53 slice 4
                   (when (logtest? (-> s5-1 flags) (sp-group-flag sp10))
                     (process-entity-status! this (entity-perm-status subtask-complete) #t)
                     (set! (-> this enable) #f)

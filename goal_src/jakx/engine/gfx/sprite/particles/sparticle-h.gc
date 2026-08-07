@@ -126,13 +126,6 @@ There are separate systems for different modes of sprite rendering: 2D/billboard
     )
   )
 
-;; og:preserve-this bring-up lever (#53 slice 2), the *merc-vu1-init-ready* pattern:
-;; the particle engine and processing landed compiling, but their first live run
-;; crashes in the processing path at the boot screen (sparticle frames off the
-;; display loop, attribution muddied per #58). Activation waits for slice 3, where
-;; processing and drawing verify together; flip via REPL to diagnose meanwhile.
-(define *jakx-particles-ready* #f)
-
 ;; jak3-parity macro for the decomp's conditional-move idiom (#53 slice 2)
 (defmacro .movz (result value check original)
   `(if (= ,check 0)

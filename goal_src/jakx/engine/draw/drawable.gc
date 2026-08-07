@@ -4417,20 +4417,14 @@
       )
     (set! (-> *viewport-array* current-viewport-index) prev-vp)
     )
-  ;; #53 slice 2: the particle engine, jak3's placement and pause gate; behind the
-  ;; *jakx-particles-ready* lever until slice 3 verifies processing and drawing
-  ;; together (see the lever's note in sparticle-h.gc)
-  (if (and *jakx-particles-ready* (not (paused?)))
+  ;; the part engine, jak3's placement and pause gate (#53; lever retired slice 4)
+  (if (not (paused?))
       (execute-part-engine)
       )
   ;; #53 slice 4: the sprite leg, retail placement (after the part engine, outside
   ;; any view context; sprite-draw pushes its own per-viewport contexts and inserts
-  ;; into buckets 769/772 via its L52 table). Retail guards only on the sprite bit
-  ;; of vu1-enable-user, which boot sets, so the *jakx-particles-ready* lever wraps
-  ;; the retail guard until the lever retires with the ladder.
-  (if (and *jakx-particles-ready*
-           (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask sprite))
-           )
+  ;; into buckets 769/772 via its L52 table) behind retail's vu1-enable-user guard
+  (if (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask sprite))
       (sprite-draw *display*)
       )
   0
