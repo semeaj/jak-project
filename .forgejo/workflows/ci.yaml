@@ -1,14 +1,24 @@
 # Forge CI for this staging mirror.
 #
-# Deliberately NOT a copy of upstream's build matrix. Upstream already runs Linux
-# clang/gcc, Windows MSVC/clang and macOS Intel/ARM on every pull request, on hardware
-# this homelab does not have. Duplicating that would mean maintaining a Windows VM and
-# never covering macOS at all, to re-check something that is already checked for free at
-# submission time.
+# Deliberately NOT a copy of upstream's build matrix. Upstream runs Linux clang/gcc,
+# Windows MSVC/clang and macOS Intel/ARM on every pull request, and macOS is hardware
+# this homelab does not have. What this runs instead is the set that catches problems
+# BEFORE a submission exists: formatting and lint, a Linux build plus unit tests, and
+# an MSVC build.
 #
-# What this runs instead is the set that catches problems BEFORE a submission exists:
-# formatting and lint, which upstream only tells you about after a push, and a Linux build
-# plus the unit tests, which is the platform most work here is done against.
+# MSVC is here because it is the one compiler whose disagreements with clang are not
+# caught by any other job in this file (/permissive-, two-phase lookup, missing
+# transitive includes). Finding those only after an upstream pull request goes red
+# costs a fix and a force-push on someone else's tracker.
+#
+# The earlier version of this comment rejected a Windows VM on the grounds that its
+# cost was attributable to this one repository. That is no longer true: Proteus is
+# maintained for launcher packaging and .NET work regardless, so this job is a
+# marginal consumer of a host that already exists. Windows-clang is still skipped as
+# redundant with the Linux clang job, and macOS is still uncovered.
+#
+# Runner: proteus-windows, instance-level, labels windows-2022 / windows-latest /
+# windows / self-hosted, host backend (no container isolation).
 #
 # Forgejo prefers .forgejo/workflows over .github/workflows, but that preference is
 # resolved PER REF, not repository-wide. A ref carrying no .forgejo/workflows directory
@@ -135,3 +145,13 @@ jobs:
       # 1509 tests, no ISO data required, no GPU required.
       - name: Unit tests
         run: ./build/goalc-test --gtest_color=yes --gtest_filter="-*MANUAL_TEST*"
+
+  windows-msvc:
+    name: Windows MSVC
+    uses: ./.github/workflows/windows-build-msvc.yaml
+    with:
+      # Must match a real preset name in CMakePresets.json. Upstream's own
+      # build-matrix.yaml passes exactly this; a bare "Release" is not a preset
+      # and cmake fails at generation time.
+      cmakePreset: "Release-windows-msvc"
+      cachePrefix: "forge"
