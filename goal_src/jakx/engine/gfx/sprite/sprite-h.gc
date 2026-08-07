@@ -5,10 +5,13 @@
 ;; name in dgo: sprite-h
 ;; dgos: ENGINE, GAME
 
-;; copied from jak3
-(define-extern sprite-init-distorter (function dma-buffer none))
-(define-extern sprite-draw-distorters (function dma-buffer none))
-(define-extern sprite-glow-init-engine (function dma-buffer none))
+;; jakx threads the viewport into three of these where jak3 does not; signatures
+;; proven from the decompiled bodies at #53 slice 3 (init-distorter reads the
+;; viewport's zbuf-off/tex0/clamp, draw-distorters its ratio-x/ratio-y,
+;; glow-init-engine indexes *sprite-glow-templates* by its index)
+(define-extern sprite-init-distorter (function dma-buffer viewport none))
+(define-extern sprite-draw-distorters (function dma-buffer viewport none))
+(define-extern sprite-glow-init-engine (function dma-buffer viewport none))
 (define-extern sprite-glow-draw (function dma-buffer none))
 
 (#when PC_BIG_MEMORY (defconstant SPRITE_MAX_AMOUNT_MULT 12))

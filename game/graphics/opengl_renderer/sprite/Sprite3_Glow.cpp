@@ -188,11 +188,15 @@ void Sprite3::glow_dma_and_draw(DmaFollower& dma,
   SpriteGlowConsts consts;
   memcpy(&consts, maybe_consts_setup.data, sizeof(SpriteGlowConsts));
 
+  // JakX's glow template is 85 quadwords (nine offscr-setup adcmds where the other
+  // games have eight), so its two ref transfers run one quadword longer (#53 slice 3).
+  // The template contents are never read here; only the sizes gate the follower.
+  const int template_qwc = render_state->version == GameVersion::JakX ? 0x55 : 0x54;
   auto templ_1 = dma.read_and_advance();
-  ASSERT(templ_1.size_bytes == 16 * 0x54);
+  ASSERT(templ_1.size_bytes == 16 * template_qwc);
 
   auto templ_2 = dma.read_and_advance();
-  ASSERT(templ_2.size_bytes == 16 * 0x54);
+  ASSERT(templ_2.size_bytes == 16 * template_qwc);
 
   auto bo = dma.read_and_advance();
   ASSERT(bo.size_bytes == 0);

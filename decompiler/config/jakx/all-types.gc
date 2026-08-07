@@ -36579,6 +36579,7 @@
    (shader-packet  dma-packet       :inline :offset-assert 112)
    (shader         adgif-shader     :inline :offset-assert 128)
    (mscal-packet   dma-packet       :inline :offset-assert 208)
+   (quads          vector           10 :inline :overlay-at (-> control-packet dma)) ;; jak3-parity overlay for the raw q-stores
    )
   :method-count-assert 9
   :size-assert         #xe0
@@ -36586,13 +36587,15 @@
   )
 
 (deftype sprite-glow-ref-template (structure)
-  ((control-packet dma-packet       :inline :offset-assert 0)
-   (num-sprites    uint32                   :offset-assert 16)
-   (dummys         uint32           3       :offset-assert 20) ;; guessed by decompiler
-   (vecdata-packet dma-packet       :inline :offset-assert 32)
-   (vecdata        sprite-glow-data :inline :offset-assert 48)
-   (shader-packet  dma-packet       :inline :offset-assert 112)
-   (mscal-packet   dma-packet       :inline :offset-assert 128)
+  ((control-packet   dma-packet       :inline :offset-assert 0)
+   (num-sprites      uint32                   :offset-assert 16)
+   (dummys           uint32           3       :offset-assert 20) ;; guessed by decompiler
+   (num-sprites-quad uint128          :overlay-at num-sprites) ;; jak3-parity overlay for the raw q-store
+   (vecdata-packet   dma-packet       :inline :offset-assert 32)
+   (vecdata          sprite-glow-data :inline :offset-assert 48)
+   (shader-packet    dma-packet       :inline :offset-assert 112)
+   (shader-packet-ptr pointer         :offset 116) ;; jak3-parity overlay: the carved shader hole's address
+   (mscal-packet     dma-packet       :inline :offset-assert 128)
    )
   :method-count-assert 9
   :size-assert         #x90
