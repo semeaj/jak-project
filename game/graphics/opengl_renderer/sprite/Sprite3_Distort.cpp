@@ -213,8 +213,13 @@ void Sprite3::distort_dma(GameVersion version, DmaFollower& dma, ScopedProfilerN
       break;
     case GameVersion::Jak2:
     case GameVersion::Jak3:
-    case GameVersion::JakX:
       expect_zbp = 0x130;
+      expect_th = 9;
+      break;
+    case GameVersion::JakX:
+      // JakX sources this block from the live viewport; its z-buffer sits two
+      // pages below jak3's. Value read off the first live emission (#53 slice 4).
+      expect_zbp = 0x12e;
       expect_th = 9;
       break;
     default:

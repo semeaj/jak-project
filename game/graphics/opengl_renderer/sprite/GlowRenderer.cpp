@@ -508,8 +508,33 @@ void GlowRenderer::add_sprite_pass_3(const SpriteGlowOutput& data, int sprite_id
     }
     record.draw_mode.set_clamp_s_enable(val & 0b001);
     record.draw_mode.set_clamp_t_enable(val & 0b100);
+  } else if (GsRegisterAddress(data.adgif.clamp_addr) == GsRegisterAddress::TEST_1) {
+    // JakX glow adgifs put TEST_1 in this slot where the other games send CLAMP_1
+    // or ZBUF_1; map it like Generic2's final_test handling (#53 slice 4).
+    GsTest reg(data.adgif.clamp_data);
+    record.draw_mode.set_at(reg.alpha_test_enable());
+    if (reg.alpha_test_enable()) {
+      switch (reg.alpha_test()) {
+        case GsTest::AlphaTest::NEVER:
+          record.draw_mode.set_alpha_test(DrawMode::AlphaTest::NEVER);
+          break;
+        case GsTest::AlphaTest::ALWAYS:
+          record.draw_mode.set_alpha_test(DrawMode::AlphaTest::ALWAYS);
+          break;
+        case GsTest::AlphaTest::GEQUAL:
+          record.draw_mode.set_alpha_test(DrawMode::AlphaTest::GEQUAL);
+          break;
+        default:
+          ASSERT_MSG(false, fmt::format("glow TEST_1 alpha test {}", (int)reg.alpha_test()));
+      }
+    }
+    record.draw_mode.set_aref(reg.aref());
+    record.draw_mode.set_alpha_fail(reg.afail());
+    record.draw_mode.set_zt(reg.zte());
+    record.draw_mode.set_depth_test(reg.ztest());
   } else {
-    ASSERT(false);
+    ASSERT_MSG(false, fmt::format("glow adgif slot4 addr {:#x} data {:#x}",
+                                  (u32)data.adgif.clamp_addr, (u64)data.adgif.clamp_data));
   }
 
   // alpha

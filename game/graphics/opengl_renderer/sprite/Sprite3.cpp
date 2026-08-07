@@ -141,14 +141,26 @@ void Sprite3::handle_sprite_frame_setup(DmaFollower& dma,
                                         ScopedProfilerNode& /*prof*/) {
   // first is some direct data
   auto direct_data = dma.read_and_advance();
-  ASSERT(direct_data.size_bytes == 3 * 16);
-  memcpy(m_sprite_direct_setup, direct_data.data, 3 * 16);
-  ASSERT(m_sprite_direct_setup[0] == 0x2000000000008001);
-  ASSERT(m_sprite_direct_setup[1] == 0xEEEEEEEEEEEEEEEE);
-  ASSERT(m_sprite_direct_setup[2] == 0x000000000005126B);
-  ASSERT(m_sprite_direct_setup[3] == 0x0000000000000047);
-  ASSERT(m_sprite_direct_setup[4] == 0x0000000000000005);
-  ASSERT(m_sprite_direct_setup[5] == 0x0000000000000008);
+  if (version == GameVersion::JakX) {
+    // JakX emits its FRAME_1/ZBUF_1/SCISSOR_1 block per viewport ahead of the
+    // distorters (consumed by the direct pass above) and sends only CLAMP_1 here,
+    // where the other games send TEST_1 plus CLAMP_1 (#53 slice 4).
+    ASSERT(direct_data.size_bytes == 2 * 16);
+    memcpy(m_sprite_direct_setup, direct_data.data, 2 * 16);
+    ASSERT(m_sprite_direct_setup[0] == 0x1000000000008001);
+    ASSERT(m_sprite_direct_setup[1] == 0xEEEEEEEEEEEEEEEE);
+    ASSERT(m_sprite_direct_setup[2] == 0x0000000000000005);
+    ASSERT(m_sprite_direct_setup[3] == 0x0000000000000008);
+  } else {
+    ASSERT(direct_data.size_bytes == 3 * 16);
+    memcpy(m_sprite_direct_setup, direct_data.data, 3 * 16);
+    ASSERT(m_sprite_direct_setup[0] == 0x2000000000008001);
+    ASSERT(m_sprite_direct_setup[1] == 0xEEEEEEEEEEEEEEEE);
+    ASSERT(m_sprite_direct_setup[2] == 0x000000000005126B);
+    ASSERT(m_sprite_direct_setup[3] == 0x0000000000000047);
+    ASSERT(m_sprite_direct_setup[4] == 0x0000000000000005);
+    ASSERT(m_sprite_direct_setup[5] == 0x0000000000000008);
+  }
 
   // next would be the program, but it's 0 size on the PC and isn't sent.
 
@@ -756,12 +768,18 @@ void Sprite3::handle_zbuf(u64 val,
 void Sprite3::handle_clamp(u64 val,
                            SharedRenderState* /*render_state*/,
                            ScopedProfilerNode& /*prof*/) {
-  if (!(val == 0b101 || val == 0 || val == 1 || val == 0b100)) {
+  // Decode wms/wmt rather than whitelisting whole values: JakX particle adgifs mix
+  // CLAMP and REPEAT per axis and carry stale region bits the GS ignores in these
+  // modes (first seen: 0x51001, wms CLAMP wmt REPEAT). REGION_* modes stay fatal,
+  // since the renderer cannot express them (#53 slice 4).
+  u64 wms = val & 0b11;
+  u64 wmt = (val >> 2) & 0b11;
+  if (wms >= 2 || wmt >= 2) {
     ASSERT_MSG(false, fmt::format("clamp: 0x{:x}", val));
   }
 
-  m_current_mode.set_clamp_s_enable(val & 0b001);
-  m_current_mode.set_clamp_t_enable(val & 0b100);
+  m_current_mode.set_clamp_s_enable(wms == 1);
+  m_current_mode.set_clamp_t_enable(wmt == 1);
 }
 
 void Sprite3::update_mode_from_alpha1(u64 val, DrawMode& mode) {

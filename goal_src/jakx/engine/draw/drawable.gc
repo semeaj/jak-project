@@ -4423,6 +4423,16 @@
   (if (and *jakx-particles-ready* (not (paused?)))
       (execute-part-engine)
       )
+  ;; #53 slice 4: the sprite leg, retail placement (after the part engine, outside
+  ;; any view context; sprite-draw pushes its own per-viewport contexts and inserts
+  ;; into buckets 769/772 via its L52 table). Retail guards only on the sprite bit
+  ;; of vu1-enable-user, which boot sets, so the *jakx-particles-ready* lever wraps
+  ;; the retail guard until the lever retires with the ladder.
+  (if (and *jakx-particles-ready*
+           (logtest? (-> *display* vu1-enable-user) (vu1-renderer-mask sprite))
+           )
+      (sprite-draw *display*)
+      )
   0
   (none)
   )
