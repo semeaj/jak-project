@@ -159,8 +159,33 @@ jobs:
       - name: Unit tests
         run: ./build/goalc-test --gtest_color=yes --gtest_filter="-*MANUAL_TEST*"
 
+  # Upstream's MSVC workflow starts an sccache server with SCCACHE_IDLE_TIMEOUT=0,
+  # so the server never exits on its own. On GitHub's ephemeral runners the whole
+  # VM is destroyed after the job, so that is harmless. On a persistent
+  # self-hosted runner the server survives, and the next job's
+  # `sccache --start-server` dies with "Address in use". That was verified
+  # against a freshly started, healthy server, not just a stale one, so it would
+  # break every build after the first.
+  #
+  # This clears it beforehand. It lives here rather than as an edit to
+  # .github/workflows/windows-build-msvc.yaml so that upstream's file stays
+  # byte-identical and the diff for submission stays clean.
+  windows-sccache-reset:
+    name: Reset sccache server
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - name: Stop any leftover sccache server
+        shell: powershell
+        # Exits 2 when no server is running, which is the normal case on a
+        # freshly rebooted host, so the exit code is deliberately ignored.
+        run: |
+          sccache --stop-server 2>&1 | Out-String | Write-Host
+          exit 0
+
   windows-msvc:
     name: Windows MSVC
+    needs: windows-sccache-reset
     uses: ./.github/workflows/windows-build-msvc.yaml
     with:
       # Must match a real preset name in CMakePresets.json. Upstream's own
