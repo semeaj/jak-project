@@ -192,11 +192,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Stop any leftover sccache server
-        shell: powershell
-        # Exits 2 when no server is running, the normal case after a reboot.
+        # cmd, not powershell. PowerShell turns a native command's stderr into a
+        # NativeCommandError when it is piped, which terminates the step before
+        # any trailing "exit 0" can run. sccache writes to stderr and exits 2
+        # when no server is running, the normal case after a reboot, so the
+        # message is discarded and the exit code forced to 0.
+        shell: cmd
         run: |
-          sccache --stop-server 2>&1 | Out-String | Write-Host
-          exit 0
+          sccache --stop-server 2>nul
+          exit /b 0
 
       - name: Checkout Repository
         uses: actions/checkout@v7
