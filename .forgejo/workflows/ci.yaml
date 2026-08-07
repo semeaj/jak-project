@@ -159,37 +159,80 @@ jobs:
       - name: Unit tests
         run: ./build/goalc-test --gtest_color=yes --gtest_filter="-*MANUAL_TEST*"
 
-  # Upstream's MSVC workflow starts an sccache server with SCCACHE_IDLE_TIMEOUT=0,
-  # so the server never exits on its own. On GitHub's ephemeral runners the whole
-  # VM is destroyed after the job, so that is harmless. On a persistent
-  # self-hosted runner the server survives, and the next job's
-  # `sccache --start-server` dies with "Address in use". That was verified
-  # against a freshly started, healthy server, not just a stale one, so it would
-  # break every build after the first.
+  # This job deliberately does NOT call .github/workflows/windows-build-msvc.yaml,
+  # even though doing so was the original design and the reason this runner
+  # registers the windows-2022 label. Two things on a persistent, self-hosted
+  # runner make the reusable workflow unusable as-is, and neither can be fixed
+  # from the calling side:
   #
-  # This clears it beforehand. It lives here rather than as an edit to
-  # .github/workflows/windows-build-msvc.yaml so that upstream's file stays
-  # byte-identical and the diff for submission stays clean.
-  windows-sccache-reset:
-    name: Reset sccache server
+  # 1. Project path. jak-project finds its project directory by string-matching
+  #    "jak-project" in the running executable's own path, in
+  #    common/util/FileUtil.cpp try_get_project_path_from_path. GitHub checks out
+  #    to D:\a\jak-project\jak-project so that matches. forgejo-runner checks
+  #    out to <random>\hostexecutor, hardcoded in act/runner/run_context.go, so
+  #    it does not. goalc-test.exe then fails an assertion before running a
+  #    single test. test/test_main.cpp calls setup_project_path(std::nullopt),
+  #    so there is no flag or environment variable to override it. The fix is
+  #    checking out into a subdirectory named jak-project, which only the caller
+  #    of actions/checkout can do.
+  #
+  # 2. sccache. Upstream starts the server with SCCACHE_IDLE_TIMEOUT=0, so it
+  #    never exits. GitHub destroys the VM after each job; a persistent runner
+  #    does not, and the next job's --start-server fails with "Address in use".
+  #    Verified against a healthy server, not just a stale one.
+  #
+  # The steps below otherwise mirror upstream's file. Keep them in sync when it
+  # changes. This lives in .forgejo/ which is never submitted upstream, so the
+  # duplication costs maintenance but does not dirty the upstream diff. Patching
+  # FileUtil.cpp instead was rejected: it would make develop differ from upstream
+  # in source, which is a worse thing to carry than a duplicated workflow.
+  windows-msvc:
+    name: Windows MSVC
     runs-on: windows-2022
-    timeout-minutes: 5
+    timeout-minutes: 60
     steps:
       - name: Stop any leftover sccache server
         shell: powershell
-        # Exits 2 when no server is running, which is the normal case on a
-        # freshly rebooted host, so the exit code is deliberately ignored.
+        # Exits 2 when no server is running, the normal case after a reboot.
         run: |
           sccache --stop-server 2>&1 | Out-String | Write-Host
           exit 0
 
-  windows-msvc:
-    name: Windows MSVC
-    needs: windows-sccache-reset
-    uses: ./.github/workflows/windows-build-msvc.yaml
-    with:
-      # Must match a real preset name in CMakePresets.json. Upstream's own
-      # build-matrix.yaml passes exactly this; a bare "Release" is not a preset
-      # and cmake fails at generation time.
-      cmakePreset: "Release-windows-msvc"
-      cachePrefix: "forge"
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          path: jak-project
+
+      - name: Install NASM
+        run: |
+          choco install nasm --source="${{ github.workspace }}/jak-project/third-party/nasm"
+
+      - name: Setup sccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          variant: sccache
+          key: windows-2022-forge-Release-windows-msvc-${{ github.sha }}
+          restore-keys: windows-2022-forge-Release-windows-msvc
+          max-size: 1000M
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: CMake Generation - MSVC
+        shell: cmd
+        working-directory: jak-project
+        run: cmake -B build --preset=Release-windows-msvc -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache .
+
+      - name: Build Project
+        shell: cmd
+        working-directory: jak-project
+        run: |
+          set CL=/MP
+          cmake --build build --parallel %NUMBER_OF_PROCESSORS%
+
+      - name: Run Tests
+        timeout-minutes: 10
+        working-directory: jak-project
+        env:
+          GTEST_OUTPUT: "xml:opengoal-test-report.xml"
+        run: |
+          ./build/bin/goalc-test.exe --gtest_color=yes --gtest_brief=0 --gtest_filter="-*MANUAL_TEST*"
