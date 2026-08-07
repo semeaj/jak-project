@@ -652,6 +652,41 @@
     [65, "a3", "int"]
   ],
   "sprite-add-frame-data": [[[3, 17], "a0", "dma-packet"]],
+  // sprite family windows re-anchored against fresh jakx ir2 (#53 slice 3); jak3's
+  // seeds shifted by the extra viewport arg's register renumbering
+  "sprite-add-matrix-data": [
+    [[3, 16], "a3", "dma-packet"],
+    [[17, 28], "a1", "matrix"],
+    [[45, 58], "a3", "dma-packet"],
+    [[69, 97], "a3", "vector"],
+    [[98, 113], "a1", "vector"],
+    [[118, 125], "a1", "vector"]
+  ],
+  "sprite-draw": [
+    // the per-viewport FRAME_1/ZBUF_1/SCISSOR_1 block jak3 does not have
+    [[32, 39], "a2", "dma-packet"],
+    [[41, 48], "a2", "vector4w"],
+    [[49, 63], "a1", "(pointer uint64)"],
+    // the five flushe/base-offset packets, jak3-parity shapes
+    [[108, 120], "a0", "dma-packet"],
+    [[122, 130], "a0", "dma-packet"],
+    [[147, 154], "a0", "dma-packet"],
+    [[166, 173], "a0", "dma-packet"],
+    [[188, 195], "a0", "dma-packet"]
+  ],
+  "sprite-init-distorter": [[[46, 59], "a1", "dma-packet"]],
+  "sprite-draw-distorters": [
+    // slots 48/64 spill pointers into the stack sprite record; cast the reloads
+    [[130, 134], "v1", "vector"],
+    [[184, 186], "v1", "vector"]
+  ],
+  "sprite-glow-init-engine": [
+    [[34, 48], "a0", "dma-packet"],
+    [[59, 76], "a1", "dma-packet"],
+    [[78, 99], "a1", "dma-packet"],
+    [[101, 109], "a0", "dma-packet"],
+    [[110, 117], "v1", "dma-packet"]
+  ],
   "add-shader-to-dma": [[[6, 8], "v1", "(pointer uint32)"]],
   "sprite-glow-add-simple-sprite": [
     [[0, 33], "v1", "sprite-glow-ref-template"]

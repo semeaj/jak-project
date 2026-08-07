@@ -140,6 +140,9 @@
     // indices), so jak3's list carries over verbatim; B31 resolves structurally
     // once these land, matching jak3, and must not be added (#53 slice 2)
     "(method 16 sparticle-launch-control)": [25, 35, 36, 48, 62, 65, 100, 102],
+    // sprite family: jak3's seeds, to verify against the jakx CFG (#53 slice 3)
+    "sprite-draw-distorters": [4, 5],
+    "(method 10 simple-sprite-system)": [0],
     // foreground-emerc deliberately has no entry, matching jak3. Forcing every
     // branchy block to asm does resolve the CFG, but conversion then dies on a
     // real uninitialized-register path (t9 on B0->L111->L104, valid only via a

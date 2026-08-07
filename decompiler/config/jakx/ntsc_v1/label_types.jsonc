@@ -157,6 +157,8 @@
     ["L72", "(pointer uint32)", 12]
   ],
   "sprite": [["L52", "dma-packet"]],
+  // sprite-glow L27 is the add-shader-to-dma carve-hole next-tag template (jak3 parity, #53 slice 3)
+  "sprite-glow": [["L27", "dma-packet"]],
   "headset-h": [
     ["L8", "(pointer uint8)", 512],
     ["L7", "(pointer uint8)", 512],

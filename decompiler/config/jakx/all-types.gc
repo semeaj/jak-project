@@ -36415,7 +36415,7 @@
                "Reset all pending sprites in the aux-list."
                (function none))
 (define-extern add-to-sprite-aux-list (function sparticle-system sparticle-cpuinfo sprite-vec-data-3d uint none))
-(define-extern sprite-setup-frame-data (function sprite-frame-data uint none))
+(define-extern sprite-setup-frame-data (function sprite-frame-data viewport none)) ;; jakx: arg1 is the viewport (body reads +176 math-camera, +232 tex0), not jak3's fbp uint
 (define-extern sprite-vu1-block vu-function)
 (define-extern sprite-set-3d-quaternion!
                "Set the quaternion of the vec-data."
@@ -36426,10 +36426,10 @@
 (define-extern sprite-add-matrix-data
                "Set up matrix data DMA to VU1.
                 This changes per sprite mode, but remains constant for all sprites in that mode."
-               (function dma-buffer uint none))
+               (function dma-buffer uint viewport none)) ;; jakx adds the viewport (body reads a2: math-camera fields), replacing *math-camera*
 (define-extern sprite-add-frame-data
                "Set up frame data DMA to VU1."
-               (function dma-buffer uint none))
+               (function dma-buffer viewport none)) ;; jakx: arg1 viewport (passed through to sprite-setup-frame-data), replacing jak3's fbp uint
 (define-extern sprite-add-2d-chunk
                "Set up DMA for a single chunk of 2D sprites."
                (function sprite-array-2d int int dma-buffer int none))
@@ -36466,12 +36466,11 @@
 ;; sprite-distort                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype sprite-distorter-sine-tables (basic)
   ((aspx   float          :offset-assert 4)
    (aspy   float          :offset-assert 8)
-   (entry  vector 128     :offset-assert 16) ;; guessed by decompiler
-   (ientry qword  9       :offset-assert 2064) ;; guessed by decompiler
+   (entry  vector 128 :inline :offset-assert 16) ;; guessed by decompiler; :inline per the offset math (16 + 128*16 = 2064)
+   (ientry qword  9   :inline :offset-assert 2064) ;; guessed by decompiler; :inline per the offset math (2064 + 9*16 = 2208)
    (giftag qword  :inline :offset-assert 2208) ;; gs-gif-tag :inline
    (color  qword  :inline :offset-assert 2224)
    )
@@ -36479,29 +36478,27 @@
   :size-assert         #x8c0
   :flag-assert         #x9000008c0
   )
-|#
 
-;; (define-extern *sprite-distorter-sine-tables* object) ;; sprite-distorter-sine-tables
+(define-extern *sprite-distorter-sine-tables* sprite-distorter-sine-tables)
 (define-extern sprite-distorter-generate-tables (function math-camera viewport none)) ;; jakx adds per-view args (jak3 took none)
-;; (define-extern sprite-distort-vu1-block object) ;; vu-function
-(define-extern sprite-init-distorter (function dma-buffer none))
-(define-extern sprite-draw-distorters (function dma-buffer none))
+(define-extern sprite-distort-vu1-block vu-function)
+(define-extern sprite-init-distorter (function dma-buffer viewport none)) ;; jakx a1 = viewport, call-site-proven (sprite-draw); body proof pends this round
+(define-extern sprite-draw-distorters (function dma-buffer viewport none)) ;; jakx a1 = viewport, call-site-proven (sprite-draw); body proof pends this round
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sprite-glow                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#|
 (deftype sprite-glow-template (structure)
   ((clear-init-giftag   gs-gif-tag     :inline :offset-assert 0)
-   (clear-init-adcmds   gs-adcmd       5       :offset-assert 16) ;; guessed by decompiler
+   (clear-init-adcmds   gs-adcmd       5 :inline :offset-assert 16) ;; guessed by decompiler
    (clear-draw-giftag   gs-gif-tag     :inline :offset-assert 96)
    (clear-draw-clr-0    gs-packed-rgba :inline :offset-assert 112)
-   (clear-draw-xyz-0    gs-packed-xyzw 2       :offset-assert 128) ;; guessed by decompiler
+   (clear-draw-xyz-0    gs-packed-xyzw 2 :inline :offset-assert 128) ;; guessed by decompiler
    (clear-draw-clr-1    gs-packed-rgba :inline :offset-assert 160)
-   (clear-draw-xyz-1    vector         2       :offset-assert 176) ;; guessed by decompiler
+   (clear-draw-xyz-1    vector         2 :inline :offset-assert 176) ;; guessed by decompiler
    (offscr-setup-giftag gs-gif-tag     :inline :offset-assert 208)
-   (offscr-setup-adcmds gs-adcmd       9       :offset-assert 224) ;; guessed by decompiler
+   (offscr-setup-adcmds gs-adcmd       9 :inline :offset-assert 224) ;; guessed by decompiler
    (offscr-first-giftag gs-gif-tag     :inline :offset-assert 368)
    (offscr-first-clr    gs-packed-rgba :inline :offset-assert 384)
    (offscr-first-uv-0   gs-packed-uv   :inline :offset-assert 400)
@@ -36509,7 +36506,7 @@
    (offscr-first-uv-1   gs-packed-uv   :inline :offset-assert 432)
    (offscr-first-xyzw-1 gs-packed-xyzw :inline :offset-assert 448)
    (repeat-draw-giftag  gs-gif-tag     :inline :offset-assert 464)
-   (repeat-draw-adcmds  gs-adcmd       29      :offset-assert 480) ;; guessed by decompiler
+   (repeat-draw-adcmds  gs-adcmd       29 :inline :offset-assert 480) ;; guessed by decompiler
    (flare-alpha-giftag  gs-gif-tag     :inline :offset-assert 944)
    (flare-alpha-clr     gs-packed-rgba :inline :offset-assert 960)
    (flare-alpha-uv      gs-packed-uv   :inline :offset-assert 976)
@@ -36518,7 +36515,7 @@
    (flare-alpha-xyzw-2  gs-packed-xyzw :inline :offset-assert 1024)
    (flare-alpha-xyzw-3  gs-packed-xyzw :inline :offset-assert 1040)
    (flare-init-giftag   gs-gif-tag     :inline :offset-assert 1056)
-   (flare-init-adcmds   gs-adcmd       8       :offset-assert 1072) ;; guessed by decompiler
+   (flare-init-adcmds   gs-adcmd       8 :inline :offset-assert 1072) ;; guessed by decompiler
    (flare-draw-giftag   gs-gif-tag     :inline :offset-assert 1200)
    (flare-draw-clr      gs-packed-rgba :inline :offset-assert 1216)
    (flare-draw-stq-0    gs-packed-stq  :inline :offset-assert 1232)
@@ -36534,19 +36531,17 @@
   :size-assert         #x550
   :flag-assert         #x900000550
   )
-|#
 
-#|
 (deftype sprite-glow-consts (structure)
   ((camera      matrix :inline :offset-assert 0)
    (perspective matrix :inline :offset-assert 64)
    (hvdf-offset vector :inline :offset-assert 128)
    (hmge-scale  vector :inline :offset-assert 144)
    (consts      vector :inline :offset-assert 160)
-   (pfog0       float          :offset-assert 160)
-   (deg-to-rad  float          :offset-assert 164)
-   (min-scale   float          :offset-assert 168)
-   (inv-area    float          :offset-assert 172)
+   (pfog0       float          :offset 160)
+   (deg-to-rad  float          :offset 164)
+   (min-scale   float          :offset 168)
+   (inv-area    float          :offset 172)
    (sincos-01   vector :inline :offset-assert 176)
    (sincos-23   vector :inline :offset-assert 192)
    (sincos-45   vector :inline :offset-assert 208)
@@ -36554,7 +36549,7 @@
    (sincos-89   vector :inline :offset-assert 240)
    (basis-x     vector :inline :offset-assert 256)
    (basis-y     vector :inline :offset-assert 272)
-   (xy-array    vector 4       :offset-assert 288) ;; guessed by decompiler
+   (xy-array    vector 4 :inline :offset-assert 288) ;; guessed by decompiler
    (clamp-min   vector :inline :offset-assert 352)
    (clamp-max   vector :inline :offset-assert 368)
    )
@@ -36562,9 +36557,7 @@
   :size-assert         #x180
   :flag-assert         #x900000180
   )
-|#
 
-#|
 (deftype sprite-glow-dma-packet-data (structure)
   ((control-packet    dma-packet :inline :offset-assert 0)
    (vecdata-packet    dma-packet :inline :offset-assert 16)
@@ -36576,9 +36569,7 @@
   :size-assert         #x50
   :flag-assert         #x900000050
   )
-|#
 
-#|
 (deftype sprite-glow-cnt-template (structure)
   ((control-packet dma-packet       :inline :offset-assert 0)
    (num-sprites    uint32                   :offset-assert 16)
@@ -36593,9 +36584,7 @@
   :size-assert         #xe0
   :flag-assert         #x9000000e0
   )
-|#
 
-#|
 (deftype sprite-glow-ref-template (structure)
   ((control-packet dma-packet       :inline :offset-assert 0)
    (num-sprites    uint32                   :offset-assert 16)
@@ -36609,18 +36598,17 @@
   :size-assert         #x90
   :flag-assert         #x900000090
   )
-|#
 
-;; (define-extern *sprite-glow-templates* array)
-;; (define-extern sprite-glow-vu1-block object) ;; vu-function
-;; (define-extern sprite-glow-init-consts function) ;; (function sprite-glow-consts none)
-(define-extern sprite-glow-init-engine (function dma-buffer none)) ;; 
-;; (define-extern *sprite-glow-dma-packet-data* object) ;; sprite-glow-dma-packet-data
-;; (define-extern sprite-glow-add-sprite function) ;; (function dma-buffer sprite-vec-data-2d float float float adgif-shader none)
-;; (define-extern sprite-glow-add-simple-sprite function) ;; (function dma-buffer sprite-glow-dma-packet-data sprite-glow-data pointer none)
-(define-extern sprite-glow-draw (function dma-buffer none)) ;; 
-;; (define-extern add-shader-to-dma function) ;; (function dma-buffer adgif-shader)
-(define-extern *simple-sprite-system* simple-sprite-system) ;; 
+(define-extern *sprite-glow-templates* (array sprite-glow-template)) ;; jakx: array where jak3 has a single template; indexing unproven, guessed by declaration
+(define-extern sprite-glow-vu1-block vu-function)
+(define-extern sprite-glow-init-consts (function sprite-glow-consts viewport none)) ;; jakx adds the viewport (body reads a1+176 math-camera at op 0), replacing *math-camera*
+(define-extern sprite-glow-init-engine (function dma-buffer viewport none)) ;; jakx a1 = viewport, call-site-proven (sprite-draw); body proof pends this round
+(define-extern *sprite-glow-dma-packet-data* sprite-glow-dma-packet-data)
+(define-extern sprite-glow-add-sprite (function dma-buffer sprite-vec-data-2d float float float adgif-shader none)) ;; jak3-shape seed
+(define-extern sprite-glow-add-simple-sprite (function dma-buffer sprite-glow-dma-packet-data sprite-glow-data pointer none)) ;; jak3-shape seed
+(define-extern sprite-glow-draw (function dma-buffer none)) ;;
+(define-extern add-shader-to-dma (function dma-buffer adgif-shader)) ;; jak3-shape seed
+(define-extern *simple-sprite-system* simple-sprite-system) ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; debug-sphere                   ;;
