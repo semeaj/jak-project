@@ -512,15 +512,18 @@
   (when (and *jakx-particles-ready* ;; gate re-keyed at #53 slice 2 (was slot 16)
              (nonzero? (-> self part))
              )
-    (let ((gp-0 (new 'stack-no-clear 'matrix)))
-      (quaternion-rotate-x! (the-as quaternion (&+ gp-0 64)) (the-as quaternion (-> self root rot)) 40049.777)
-      (quaternion->matrix (the-as matrix (-> gp-0 rvec)) (the-as quaternion (&+ gp-0 64)))
+    ;; og:preserve-this stack fix (#53 slice 3): retail's frame is a matrix plus a
+    ;; quaternion; a bare 'matrix is 64 bytes, so the quaternion write at +64 landed
+    ;; past the allocation and corrupted the frame (jak3's vector-5 idiom)
+    (let ((gp-0 (new 'stack-no-clear 'inline-array 'vector 5)))
+      (quaternion-rotate-x! (the-as quaternion (-> gp-0 4)) (the-as quaternion (-> self root rot)) 40049.777)
+      (quaternion->matrix (the-as matrix (-> gp-0 0)) (the-as quaternion (-> gp-0 4)))
       (vector-matrix*!
-        (-> gp-0 trans)
+        (-> gp-0 3)
         (new 'static 'vector :data (new 'static 'array float 4 0.0 65536.0 12288.0 1.0))
         (-> self node-list data 0 bone transform)
         )
-      (spawn-from-mat (-> self part) (the-as matrix (-> gp-0 rvec)))
+      (spawn-from-mat (-> self part) (the-as matrix (-> gp-0 0)))
       )
     )
   (none)
