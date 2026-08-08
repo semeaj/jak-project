@@ -430,6 +430,21 @@
         (set! (-> s3-0 z) (* 48.0 (+ (-> s5-0 z) (* 0.5 (+ (-> s4-0 z) (-> s5-0 z))))))
         (set! (-> s3-0 w) 128.0)
         )
+      ;; og:preserve-this bring-up stand-in: the mood light chain is unlanded
+      ;; (light-group-madd! extern-only, update-mood-light and
+      ;; update-mood-direction commented out in mood.gc), so the context
+      ;; light-group stays all-zero and the fills above compute a black
+      ;; current-prt-color of (0,0,0,1). sp-launch-particles-var multiplies
+      ;; particle rgb by that color at birth for any bit15-flagged part;
+      ;; water-part 145/146/152 are the forge #65 black clusters. When a fill
+      ;; still comes out black, substitute the values the fills would produce
+      ;; from all-1.0 lights. Retire with the mood light-chain landing.
+      (when (and (= (-> s2-0 x) 0.0) (= (-> s2-0 y) 0.0) (= (-> s2-0 z) 0.0))
+        (set-vector! s2-0 1.0 1.0 1.0 1.0)
+        )
+      (when (and (= (-> s3-0 x) 0.0) (= (-> s3-0 y) 0.0) (= (-> s3-0 z) 0.0))
+        (set-vector! s3-0 96.0 96.0 96.0 128.0)
+        )
       )
     (let* ((f0-23 (fmax (fmax (-> s4-0 x) (-> s4-0 y)) (-> s4-0 z)))
            (f2-15 (fmax (fmax (fmax 0.01 (-> s5-0 z)) (-> s5-0 y)) (-> s5-0 x)))
