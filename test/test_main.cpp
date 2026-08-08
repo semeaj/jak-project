@@ -5,6 +5,8 @@
 #include "common/util/os.h"
 #include "common/util/unicode_util.h"
 
+#include "third-party/CLI11.hpp"
+
 #include "gtest/gtest.h"
 
 // Running subsets of tests, see:
@@ -23,7 +25,30 @@ int main(int argc, char** argv) {
 
   // hopefully get a debug print on github actions
   setup_cpu_info();
-  file_util::setup_project_path(std::nullopt);
+
+  std::string project_path;
+  CLI::App app{"OpenGOAL - GOAL Compiler Tests"};
+  // gtest consumes unknown flags awkwardly, so leave anything that is not ours for gtest
+  app.allow_extras();
+  app.add_option("--proj-path", project_path,
+                 "Specify the location of the project root. Without this the root is derived "
+                 "from the executable path, which resolves to the main checkout when running "
+                 "from a git worktree");
+  CLI11_PARSE(app, argc, argv);
+
+  if (!project_path.empty() && !fs::exists(project_path)) {
+    lg::error("Project path override '{}' does not exist", project_path);
+    return 1;
+  }
+
+  std::optional<fs::path> pp;
+  if (!project_path.empty()) {
+    pp = project_path;
+  }
+  if (!file_util::setup_project_path(pp)) {
+    lg::error("Couldn't setup project path, tool is supposed to be ran in the jak-project repo!");
+    return 1;
+  }
   lg::initialize();
 
   ::testing::InitGoogleTest(&argc, argv);
