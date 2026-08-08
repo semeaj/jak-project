@@ -9,7 +9,8 @@
 (defenum sp-cpuinfo-flag
   :bitfield #t
   :type uint32
-  ;; todo copied from jak 2
+  ;; todo copied from jak 2; bits 15 and 16 are verified for jakx (forge #79), the rest
+  ;; of the names are still unaudited jak2 carries
   (sp-cpuinfo-flag-0 0)
   (sp-cpuinfo-flag-1 1)
   (sp-cpuinfo-flag-2 2)     ;; cleared after an aux has its func set to add-to-sprite-aux-lst
@@ -25,8 +26,14 @@
   (sp-cpuinfo-flag-12 12)   ;; required to relaunch
   (sp-cpuinfo-flag-13 13)
   (sp-cpuinfo-flag-14 14)
-  (glow 15) ;; glow sprite
-  (use-global-acc 16)
+  ;; jakx moved the time-of-day tint gate here from jak3's bit13: sp-launch-particles-var
+  ;; multiplies rgb by *time-of-day-context* current-prt-color when this is set and
+  ;; distort is clear (mask 0x8080 == 0x8000), and sp-relaunch-setup-fields gates its
+  ;; tint branch the same way
+  (tod-tint 15)
+  ;; jakx's actual glow/aux role, jak3's bit15: routed with distort to the aux sprite
+  ;; list (mask 0x10080) and branched on alone in particle-adgif
+  (aux-glow 16)
   (launch-along-z 17)
   (left-multiply-quat 18)
   (right-multiply-quat 19)

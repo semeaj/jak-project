@@ -69,7 +69,7 @@
     (:omega (degrees 4511.25))
     (:fade-a 0.6 0.6)
     (:timer (seconds 0.335))
-    (:flags (sp-cpuinfo-flag-2 sp-cpuinfo-flag-3 use-global-acc))
+    (:flags (sp-cpuinfo-flag-2 sp-cpuinfo-flag-3 aux-glow))
     (:userdata 4096.0)
     (:next-time (seconds 0.167))
     (:next-launcher 1161)
