@@ -5,6 +5,7 @@ out vec4 color;
 in vec4 fragment_color;
 in vec4 gs_scissor;
 uniform int scissor_enable;
+uniform int premult_alpha;
 // game width, game height, viewport width, viewport height
 uniform vec4 game_sizes;
 
@@ -23,4 +24,7 @@ void main() {
   }
 
   color = fragment_color;
+  if (premult_alpha == 1) {
+    color.rgb *= color.a;
+  }
 }

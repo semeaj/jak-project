@@ -1,0 +1,89 @@
+name: Agent finding or defect (this mirror)
+description: For work tracked on this staging mirror, including anything an AI agent found. Evidence required.
+labels: ["state/investigating"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for the **develop** branch of this staging mirror, not for the
+        upstream project. For upstream bugs use the Jak 1/2/3 bug report templates, or
+        better, report them at [open-goal/jak-project](https://github.com/open-goal/jak-project).
+
+        Read `AGENTS.md` on this branch first. Its evidence standards are binding here.
+
+        **Unmarked guesses are the thing this template exists to prevent.** A finding you
+        are unsure of is welcome; a finding presented as certain when it is not costs more
+        than silence.
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: What is observed
+      description: What actually happens, concretely. Not a theory about the cause.
+      placeholder: |
+        On junglea, the region below the horizon renders solid black while the terrain
+        and sky above it render normally. Every frame, at every clock hour.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: |
+        REQUIRED. What did you run, and what did it produce?
+
+        A tool reporting success is not evidence. Cite the artifact: a probe value, a log
+        line, a file list, an in-game GPU-readback capture, a disassembly line with its
+        file and line number.
+
+        If you are citing generated output such as anything under `decompiler_out/`, state
+        when it was generated and against which config. Stale generated output has produced
+        confidently wrong analysis here before.
+      placeholder: |
+        Runtime probe every 600 frames: `TODPROBE h=7 m=02 tod=7.0333 sky=83.05 103.08 190.08`
+        Same probe 32 game-minutes later: `sky=83.85 104.42 191.42`
+        So the value tracks the clock rather than being pinned.
+    validations:
+      required: true
+
+  - type: textarea
+    id: cause
+    attributes:
+      label: Suspected cause, if any
+      description: |
+        Optional. If you have one, say how confident you are and on what basis.
+
+        Mark clearly whether this is proven from the machine code or the data, supported by
+        a parallel in another game, or a guess. All three are acceptable. Only mislabelling
+        them is not.
+      placeholder: |
+        GUESS, by symmetry with jak3: the pass may be gated behind a define that was never
+        flipped. Not verified; I have not read the call site.
+
+  - type: textarea
+    id: not-verified
+    attributes:
+      label: What you could NOT verify
+      description: |
+        What you were unable to check, and why. This field is not a formality.
+
+        Examples: could not take a screenshot, could not run the game, could not reach the
+        original hardware for a reference capture, could not test the other games.
+      placeholder: |
+        Could not confirm visually: no capture was taken, so "renders black" is from a
+        framebuffer readback at one pixel rather than from looking at the frame.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: declaration
+    attributes:
+      label: Declaration
+      options:
+        - label: Every path, line number, command output and measurement above is real and was actually observed
+          required: true
+        - label: Guesses are marked as guesses
+          required: true
+        - label: I disclosed AI involvement with `(AI-assisted)` if an agent was involved
+          required: true

@@ -185,9 +185,9 @@ void OpenGLRenderer::init_bucket_renderers_jak3() {
 
     init_bucket_renderer<OceanMidAndFar>("ocean-mid-far", BucketCategory::OCEAN,
                                          BucketId::OCEAN_MID_FAR);
-    // 7 (hack for progress menu box)
-    init_bucket_renderer<DirectRenderer>("progress-hack", BucketCategory::OTHER,
-                                         BucketId::PROGRESS_HACK, 0x8000);
+    // 7 (hfrag tpage uploads, all levels)
+    init_bucket_renderer<TextureUploadHandler>("tex-all-hfrag", BucketCategory::TEX,
+                                               BucketId::TEX_ALL_HFRAG, m_texture_animator);
 
     // 8 (in tfrag category for now, just for stat reporting.)
     init_bucket_renderer<Hfrag>("hfrag", BucketCategory::TFRAG, BucketId::HFRAG);
@@ -338,6 +338,20 @@ void OpenGLRenderer::init_bucket_renderers_jak3() {
 
     init_bucket_renderer<Generic2BucketRenderer>("gmerc2-lcom-pris", BucketCategory::GENERIC,
                                                  BucketId::GMERC2_LCOM_PRIS, m_generic2,
+                                                 Generic2::Mode::PRIM);
+
+    // 456
+    // lcom-pris2 is used by hud models on the common level: the progress menu's hud-ring
+    // "Screen" membrane is a pris2-category effect and routes here in menu mode.
+    init_bucket_renderer<TextureUploadHandler>("tex-lcom-pris2", BucketCategory::TEX,
+                                               BucketId::TEX_LCOM_PRIS2, m_texture_animator);
+    init_bucket_renderer<Merc2BucketRenderer>("merc-lcom-pris2", BucketCategory::MERC,
+                                              BucketId::MERC_LCOM_PRIS2, m_merc2);
+    init_bucket_renderer<Generic2BucketRenderer>("gmerc-lcom-pris2", BucketCategory::GENERIC,
+                                                 BucketId::GMERC_LCOM_PRIS2, m_generic2,
+                                                 Generic2::Mode::NORMAL);
+    init_bucket_renderer<Generic2BucketRenderer>("gmerc2-lcom-pris2", BucketCategory::GENERIC,
+                                                 BucketId::GMERC2_LCOM_PRIS2, m_generic2,
                                                  Generic2::Mode::PRIM);
 
     // 461
@@ -1455,6 +1469,17 @@ void OpenGLRenderer::setup_frame(const RenderOptions& settings) {
     // clears the game FBO for jak 2/3 (and leaves it bound for the bucket renderers).
     // Without this, DirectRenderer draws into whatever framebuffer was left bound and
     // do_pcrtc_effects then stamps the never-written FBO over the window.
+    // BlitDisplays also clears the window (framebuffer 0) each frame; without that
+    // clear, pixels outside the blitted draw region persist across frames whenever the
+    // letterbox changes (stale pillar bars until a resize reallocates the backbuffer).
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_fbo_state.resources.window.width, m_fbo_state.resources.window.height);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(0.0);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glDisable(GL_BLEND);
+
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_state.render_fbo->fbo_id);
     glViewport(0, 0, m_fbo_state.render_fbo->width, m_fbo_state.render_fbo->height);
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -1669,6 +1694,7 @@ void OpenGLRenderer::dispatch_buckets(DmaFollower dma,
 
   m_render_state.version = m_version;
   m_render_state.frame_idx++;
+  m_render_state.texture_pool->set_frame_stamp(m_render_state.frame_idx);
   switch (m_version) {
     case GameVersion::Jak1:
       dispatch_buckets_jak1(dma, prof, sync_after_buckets);

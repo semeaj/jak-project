@@ -290,6 +290,7 @@ class DirectRenderer : public BucketRenderer {
     u32 vertex_buffer_max_verts = 0;
     float color_mult = 1.0;
     float alpha_mult = 1.0;
+    bool premult_alpha = false;
   } m_ogl;
 
   struct {

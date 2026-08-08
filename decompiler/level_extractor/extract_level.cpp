@@ -425,6 +425,8 @@ void extract_all_levels(const ObjectFileDB& db,
   SimpleThreadGroup threads;
   threads.run(
       [&](int idx) {
+        // Without this the exception unwinds out of a worker thread and the process
+        // terminates with no indication of which level failed or why.
         try {
           extract_from_level(db, tex_db, dgo_names[idx], config, output_path, entities_dir);
         } catch (const std::exception& e) {

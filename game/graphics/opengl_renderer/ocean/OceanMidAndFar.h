@@ -13,6 +13,8 @@
  * - ocean-texture (handled by the OceanTexture C++ class)
  * - ocean-far (handled by this class, it's very simple)
  * - ocean-mid (handled by the C++ OceanMid class)
+ * Direct data ahead of the ocean chain (jak3 progress menu draws, which on PS2 shared this
+ * bucket) is rendered through the embedded DirectRenderer before the ocean renderers run.
  */
 class OceanMidAndFar : public BucketRenderer {
  public:

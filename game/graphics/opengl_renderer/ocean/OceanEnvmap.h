@@ -2,8 +2,15 @@
 
 #include <optional>
 
+#include "common/dma/gs.h"
+
 #include "game/graphics/opengl_renderer/DirectRenderer.h"
 #include "game/graphics/opengl_renderer/opengl_utils.h"
+
+/*!
+ * check if a gif packet from a dma-buffer-add-gs-set contains a given register address
+ */
+bool scan_gs_set(const u8* data, const u32 size, GsRegisterAddress reg, u64* out);
 
 /*!
  * This class generates the ocean envmap texture using the sky + time of day (ocean-method-89).

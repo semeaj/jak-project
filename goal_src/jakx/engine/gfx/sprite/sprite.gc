@@ -197,7 +197,7 @@ The glow and distort renderers will pull sprites from here."
          (+! (-> v1-3 entry) 1)
          (set! (-> arg2 r-g-b-a w) 0.0)
          )
-        ((logtest? (sp-cpuinfo-flag use-global-acc) (-> arg1 flags))
+        ((logtest? (sp-cpuinfo-flag aux-glow) (-> arg1 flags))
          (let ((a0-18 (-> arg0 cpuinfo-table arg3))
                (a1-12 (-> v1-3 data (-> v1-3 entry)))
                )

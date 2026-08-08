@@ -834,9 +834,10 @@ void DrawableTreeTfrag::read_from_file(TypedRef ref,
   if (get_word_kind_for_field(ref, "time-of-day-pal", dts) == decompiler::LinkedWord::PTR) {
     time_of_day.read_from_file(deref_label(get_field_ref(ref, "time-of-day-pal", dts)));
   } else {
-    // JakX interiors can have a null palette. Vertex color indices still reference up
-    // to the engine max of 8192 palette entries, so substitute a full-size all-white
-    // palette to keep every lookup valid (a 1-entry palette rainbows the level).
+    // A tfrag tree can carry a null palette; interior levels that ignore the day/night cycle
+    // do. Vertex colour indices still reference up to the engine maximum of 8192 palette
+    // entries, so substitute a full-size neutral palette to keep every lookup valid. A
+    // single-entry palette is not enough and rainbows the level.
     lg::warn("drawable-tree-tfrag has no time-of-day palette; using a neutral one");
     time_of_day.width = 8;
     time_of_day.height = 8192;

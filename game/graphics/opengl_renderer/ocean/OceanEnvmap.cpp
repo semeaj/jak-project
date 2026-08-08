@@ -9,8 +9,6 @@
 #include "fmt/format.h"
 #include "third-party/imgui/imgui.h"
 
-namespace {
-
 /*!
  * check if a gif packet from a dma-buffer-add-gs-set contains a given register address
  */
@@ -44,6 +42,8 @@ bool scan_gs_set(const u8* data, const u32 size, GsRegisterAddress reg, u64* out
   }
   return false;
 }
+
+namespace {
 
 bool is_untextured_draw(const u8* data, u32 size) {
   if (size < 16) {
