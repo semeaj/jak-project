@@ -205,8 +205,45 @@ jobs:
     name: Windows MSVC
     runs-on: windows-2022
     timeout-minutes: 60
+
+    # sccache is configured here rather than by hendrikmuhs/ccache-action, which this
+    # job used until it was measured: 18 saved cache entries, 18 distinct versions,
+    # "No cache found." on every restore and a 0.44% hit rate. That action tars the
+    # cache and ships it through the Actions cache service because GitHub's hosted
+    # runners are destroyed after each job. proteus-windows is persistent and always
+    # on, so a directory on local disk simply survives, and actions/cache identifies
+    # an entry by (key, version) where version hashes the cache PATHS. The action put
+    # those paths inside the per-run workspace, whose name is a fresh random hash every
+    # run, so the version never repeated and no run could read another's cache.
+    env:
+      # Outside the workspace on purpose. Anything under work\<hash>\ is a new
+      # directory every run, which is what made the old arrangement unreadable.
+      SCCACHE_DIR: C:\forgejo-runner\sccache
+      SCCACHE_CACHE_SIZE: 20G
+      # The runner is persistent, so the server should outlive the job rather than
+      # idle out between them.
+      SCCACHE_IDLE_TIMEOUT: 0
+
+      # SCCACHE_BASEDIRS is deliberately NOT set, and should not be added back.
+      #
+      # It looks like the right answer and is not. It was tried here first, and two
+      # consecutive runs on the same commit both reported 0.44% and 1137 misses while
+      # `sccache -s` cheerfully displayed a populated "Base directories" line. Upstream
+      # #2736 taught it to strip basedirs from MSVC preprocessor output and is in
+      # 0.17.0, but #2711, stripping them from cmdline args and the direct-mode hash
+      # key, is still open. This build runs in direct mode, so the stripping never
+      # reaches the hash that decides a hit.
+      #
+      # The stable checkout path below is what actually produces hits, and it makes
+      # basedirs unnecessary rather than merely broken.
+
     steps:
       - name: Stop any leftover sccache server
+        # A running server keeps the configuration it was started with, so the env
+        # above only takes effect if no server survives from an earlier job. On a
+        # persistent runner one usually does, which makes this step load-bearing
+        # rather than tidy-up.
+        #
         # cmd, not powershell. PowerShell turns a native command's stderr into a
         # NativeCommandError when it is piped, which terminates the step before
         # any trailing "exit 0" can run. sccache writes to stderr and exits 2
@@ -235,31 +272,72 @@ jobs:
         run: |
           choco install nasm --source="${{ github.workspace }}/jak-project/third-party/nasm"
 
-      - name: Setup sccache
-        uses: hendrikmuhs/ccache-action@v1.2.23
-        with:
-          variant: sccache
-          key: windows-2022-forge-Release-windows-msvc-${{ github.sha }}
-          restore-keys: windows-2022-forge-Release-windows-msvc
-          max-size: 1000M
+      - name: Mirror the checkout to a stable path
+        # The compile has to happen at a path that does not change between runs, or
+        # sccache cannot hit. Its hash covers the absolute paths on the command line,
+        # and Forgejo hands every job a workspace named work\<random hash>\, so every
+        # file hashes differently every time. SCCACHE_BASEDIRS is the intended remedy
+        # and does not work here; see the note in the job env above.
+        #
+        # Mirrored rather than checked out straight to C:\ci: actions/checkout keeps
+        # the credentials and the pull_request_target head-sha semantics, and this
+        # step only relocates the tree it produced.
+        #
+        # /MIR purges anything in the destination that is not in the source, which
+        # deletes build\ from the previous run. That is deliberate. Each run still
+        # gets a clean configure and a full build graph exactly as it does today, so
+        # the only thing that changes is the path; the speedup comes from sccache
+        # serving the objects, not from reusing a build tree across pull requests.
+        #
+        # The directory has to be named jak-project. goalc-test resolves the project
+        # root by string-matching "jak-project" in its own executable path, so
+        # C:\ci\jak-project\build\bin\goalc-test.exe resolves and C:\ci\src would not.
+        # See alex/jak-project#47.
+        shell: cmd
+        run: |
+          robocopy "%GITHUB_WORKSPACE%\jak-project" "C:\ci\jak-project" /MIR /NFL /NDL /NJH /NJS /NP /R:2 /W:5
+          rem robocopy exit codes below 8 are success; 1 means files were copied.
+          if %ERRORLEVEL% GEQ 8 exit /b 1
+          exit /b 0
 
       - uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Start sccache
+        # Started explicitly so it picks up the job env above, rather than being
+        # started lazily by the first compile with whatever environment that step
+        # happened to carry. Counters are zeroed so the stats at the end describe
+        # this run only; -z does not touch the cached objects.
+        shell: cmd
+        run: |
+          if not exist "%SCCACHE_DIR%" mkdir "%SCCACHE_DIR%"
+          sccache --start-server 2>nul
+          sccache -z
+
       - name: CMake Generation - MSVC
         shell: cmd
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         run: cmake -B build --preset=Release-windows-msvc -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache .
 
       - name: Build Project
         shell: cmd
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         run: |
           set CL=/MP
           cmake --build build --parallel %NUMBER_OF_PROCESSORS%
 
+      - name: sccache stats
+        # The number that says whether any of this worked. A run that reports a hit
+        # rate near zero means the cache is broken again, most likely because
+        # something started putting SCCACHE_DIR back inside the workspace or a
+        # stale server survived with the old configuration. Runs on failure too,
+        # since a build that broke is exactly when the stats are worth seeing.
+        if: always()
+        shell: cmd
+        run: sccache -s
+
       - name: Run Tests
         timeout-minutes: 10
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         env:
           GTEST_OUTPUT: "xml:opengoal-test-report.xml"
         run: |
