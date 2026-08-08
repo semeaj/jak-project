@@ -65,6 +65,18 @@ Guesses are allowed. **Guesses presented as findings are not.** Mark them.
 Never write that something "should work" or "is verified" without saying what was run and
 what it produced. If you did not run it, say you did not run it.
 
+Two ways honest evidence goes stale, both observed here:
+
+- **Citations pin to a commit.** Evidence that names a branch tip, a diff size or a line
+  number is true of one commit. Push again, rebase, or merge, and every citation must be
+  re-verified or re-labeled with the commit it actually came from. Drift is not
+  fabrication, but a reader cannot tell the difference
+- **Evidence names its checkout.** Every binary here (gk, goalc, goalc-test, the
+  decompiler) silently resolves the primary checkout when run without `--proj-path`,
+  including through directory junctions. A worktree session can "verify" a build it never
+  changed, with every tool reporting success. Say which checkout produced your evidence;
+  #47 and #32 track the tooling fix
+
 ## 4. Argument counts, every time
 
 The single most repeated defect here is a function signature that drops an argument. It
@@ -105,6 +117,10 @@ Desktop screen captures of the running game are not acceptable evidence. They re
 compositor frames, sometimes from minutes earlier.
 
 **A same-camera before-and-after pair is the strongest cheap evidence available.** Use it.
+
+Attach captures to the issue or pull request they support. The caption names the camera
+position and the game time so the shot can be reproduced, and the local file is kept so
+its hash can be matched to the attachment later.
 
 ## 7. Silence is not success
 
@@ -200,6 +216,32 @@ for. Enforcement is branch protection and human review.
 Upstream's section says never to create an issue or a pull request. On this staging mirror,
 issues and pull requests are the working record and are expected. That rule applies when
 contributing to the upstream project, not here.
+
+Every issue and pull request carries labels on three axes: one or more `area/*`, a
+`game/*`, and exactly one `state/*`. Set them at creation, not later; the `area/` and
+`state/` filter views are how work is found, and an unlabeled item is invisible to them.
+The state ladder is `investigating` (diagnosed or being diagnosed, no fix branch) to
+`wip` (fix branch exists) to `staged` (merged to this mirror's `develop`) to `submitted`
+(open upstream) to `merged-upstream`. Flip `wip` to `staged` when the closing pull
+request merges. When an issue or pull request closes without a fix, say why in a closing
+comment and use `state/wont-fix` or `state/superseded`; a closed item with no recorded
+reason is a hole in the trail.
+
+Renames touch two files. Any rename or type change under `goal_src/<game>` must update
+`decompiler/config/<game>/all-types.gc` in the same commit: the type-consistency tests
+compile both with throw-on-redefines, and a member-name mismatch is a red
+`TypeConsistency` run. PR #81 learned this from CI; you are reading the cheaper lesson.
+
+A pull request merges only with all three forge checks green, and a red check on your
+pull request is yours to investigate, not scenery. The Windows MSVC job takes 25 to 50
+minutes depending on cache warmth; plan around it rather than pushing blind stacks. Keep
+a branch to one theme and roughly 500 reviewable lines; past that, split it, because
+reviewer attention is the scarcest resource this file protects.
+
+Operational setup (fresh checkouts, worktrees, booting Jak X, REPL verification) lives
+in `docs/jakx-bringup-quickstart.md`. This file stays policy; that one carries the
+recipes, and both are wrong the moment nobody fixes them alongside the behavior they
+describe.
 
 The AI-assisted disclosure requirement applies here too, and always.
 
