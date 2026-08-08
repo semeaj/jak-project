@@ -87,8 +87,7 @@ int main(int argc, char* argv[]) {
     // An unfiltered run matching nothing means no REF files exist for this game. The run
     // is not useful either way, but unlike the -f case it isn't necessarily a typo, so
     // warn instead of fail.
-    lg::warn("No reference files were found for game '{}'; the run will verify nothing",
-             game_name);
+    lg::warn("No reference files were found for game '{}'; the run will verify nothing", game_name);
   }
   if (max_files > 0 && max_files < (int)source_files.size()) {
     source_files.erase(source_files.begin() + max_files, source_files.end());
