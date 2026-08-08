@@ -34615,8 +34615,8 @@
   (sp-cpuinfo-flag-12 12)   ;; required to relaunch
   (sp-cpuinfo-flag-13 13)
   (sp-cpuinfo-flag-14 14)
-  (glow 15) ;; glow sprite
-  (use-global-acc 16)
+  (tod-tint 15) ;; jakx: time-of-day tint gate (jak3's bit13 role; forge #79)
+  (aux-glow 16) ;; jakx: the real glow/aux role (jak3's bit15 role; forge #79)
   (launch-along-z 17)
   (left-multiply-quat 18)
   (right-multiply-quat 19)
