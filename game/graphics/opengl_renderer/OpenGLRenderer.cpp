@@ -1455,6 +1455,17 @@ void OpenGLRenderer::setup_frame(const RenderOptions& settings) {
     // clears the game FBO for jak 2/3 (and leaves it bound for the bucket renderers).
     // Without this, DirectRenderer draws into whatever framebuffer was left bound and
     // do_pcrtc_effects then stamps the never-written FBO over the window.
+    // BlitDisplays also clears the window (framebuffer 0) each frame; without that
+    // clear, pixels outside the blitted draw region persist across frames whenever the
+    // letterbox changes (stale pillar bars until a resize reallocates the backbuffer).
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_fbo_state.resources.window.width, m_fbo_state.resources.window.height);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(0.0);
+    glDepthMask(GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glDisable(GL_BLEND);
+
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_state.render_fbo->fbo_id);
     glViewport(0, 0, m_fbo_state.render_fbo->width, m_fbo_state.render_fbo->height);
     glClearColor(0.0, 0.0, 0.0, 0.0);
