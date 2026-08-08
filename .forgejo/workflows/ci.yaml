@@ -186,11 +186,10 @@ jobs:
   #    common/util/FileUtil.cpp try_get_project_path_from_path. GitHub checks out
   #    to D:\a\jak-project\jak-project so that matches. forgejo-runner checks
   #    out to <random>\hostexecutor, hardcoded in act/runner/run_context.go, so
-  #    it does not. goalc-test.exe then fails an assertion before running a
-  #    single test. test/test_main.cpp calls setup_project_path(std::nullopt),
-  #    so there is no flag or environment variable to override it. The fix is
-  #    checking out into a subdirectory named jak-project, which only the caller
-  #    of actions/checkout can do.
+  #    it does not. goalc-test, goalc and gk now accept --proj-path to override
+  #    the default, but the checkout into a jak-project-named subdirectory is
+  #    kept deliberately for CI simplicity; only the caller of actions/checkout
+  #    can arrange the directory name.
   #
   # 2. sccache. Upstream starts the server with SCCACHE_IDLE_TIMEOUT=0, so it
   #    never exits. GitHub destroys the VM after each job; a persistent runner

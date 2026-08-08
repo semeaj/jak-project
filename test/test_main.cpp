@@ -7,6 +7,9 @@
 
 #include "gtest/gtest.h"
 
+#include "fmt/format.h"
+#include "third-party/CLI11.hpp"
+
 // Running subsets of tests, see:
 // -
 // https://github.com/google/googletest/blob/620659ed92829a88ee34134c782bf5b5aa5a0a0c/googletest/docs/advanced.md#running-a-subset-of-the-tests
@@ -23,7 +26,33 @@ int main(int argc, char** argv) {
 
   // hopefully get a debug print on github actions
   setup_cpu_info();
-  file_util::setup_project_path(std::nullopt);
+
+  std::string project_path;
+  CLI::App app{"OpenGOAL - GOAL Compiler Tests"};
+  app.set_help_flag("--cli-help", "Show goalc-test CLI flags. For gtest options, use --gtest_help");
+  // CLI11 never mutates argv; allow_extras() only stops CLI11's ExtrasError from aborting on
+  // unknown --gtest_* flags, which gtest then consumes
+  app.allow_extras();
+  app.add_option("--proj-path", project_path,
+                 "Specify the location of the project root. Without this the root is derived "
+                 "from the executable path, which resolves to the main checkout when running "
+                 "from a git worktree");
+  CLI11_PARSE(app, argc, argv);
+
+  if (!project_path.empty() && !fs::exists(project_path)) {
+    lg::error("Project path override '{}' does not exist", project_path);
+    return 1;
+  }
+
+  std::optional<fs::path> pp;
+  if (!project_path.empty()) {
+    pp = project_path;
+  }
+  if (!file_util::setup_project_path(pp)) {
+    lg::error("Couldn't setup project path, tool is supposed to be ran in the jak-project repo!");
+    return 1;
+  }
+  fmt::print("Using project path: {}\n", file_util::get_jak_project_dir().string());
   lg::initialize();
 
   ::testing::InitGoogleTest(&argc, argv);

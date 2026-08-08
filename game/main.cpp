@@ -21,6 +21,7 @@
 #include "game/common/game_common_types.h"
 #include "graphics/gfx_test.h"
 
+#include "fmt/format.h"
 #include "third-party/CLI11.hpp"
 
 #ifdef _WIN32
@@ -214,6 +215,8 @@ int main(int argc, char** argv) {
   } else if (!file_util::setup_project_path(project_path_override)) {
     return 1;
   }
+
+  fmt::print("Using project path: {}\n", file_util::get_jak_project_dir().string());
 
   if (disable_avx2) {
     // for debugging the non-avx2 code paths, there's a flag to manually disable.

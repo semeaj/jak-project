@@ -56,8 +56,8 @@ fresh checkout for every purpose above, plus one trap of its own.
 goalc, and the decompiler default to walking up from the executable path, and that
 walk canonicalizes through junctions, so even a junctioned `out/build` inside the
 worktree resolves `D:\jak-project`. Verification then silently tests the wrong build
-with every tool reporting success (#47 and #32 track the tooling fix; goalc-test has
-no flag at all yet). Always pass the flag:
+with every tool reporting success (#47 and #32 track the tooling fix; goalc-test now
+accepts --proj-path like goalc, gk and offline-test). Always pass the flag:
 
 ```text
 goalc --user-auto --game jakx --proj-path <worktree>    # (mi) against the worktree
