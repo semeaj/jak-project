@@ -5,9 +5,9 @@
 #include "common/util/os.h"
 #include "common/util/unicode_util.h"
 
-#include "third-party/CLI11.hpp"
-
 #include "gtest/gtest.h"
+
+#include "third-party/CLI11.hpp"
 
 // Running subsets of tests, see:
 // -
