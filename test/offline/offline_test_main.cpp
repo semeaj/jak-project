@@ -70,6 +70,32 @@ int main(int argc, char* argv[]) {
 
   lg::info("Finding files...");
   auto source_files = find_source_files(game_name, config.dgos, single_file);
+  if (source_files.empty()) {
+    if (!single_file.empty()) {
+      // An explicit -f filter that matches nothing means this run compiled and compared
+      // zero lines, yet the exit code would otherwise be 0 and the summary would print
+      // "pass!" next to "Compiled 0 lines". A run that verified nothing must not be
+      // indistinguishable from a run that verified everything (see #46).
+      lg::error(
+          "No reference files matched the single-file filter '-f {}'. The run compiled and "
+          "compared zero lines; refusing to report success.",
+          single_file);
+      fmt::print("error: no reference files matched the '-f {}' filter; nothing was verified\n",
+                 single_file);
+      return 1;
+    }
+    // An unfiltered run matching nothing means no REF files exist for this game. The run
+    // is not useful either way, but unlike the -f case it isn't necessarily a typo, so
+    // warn instead of fail.
+    lg::warn("No reference files were found for game '{}'; the run will verify nothing", game_name);
+    // lg::warn sits below the off_unless_die stdout level that --pretty-print sets, and this
+    // binary installs no file logger, so the warning would vanish in exactly the invocations
+    // most likely to hit an empty run (offline-tests-fast / update-ref-tests). Mirror the -f
+    // branch's fallback: repeat it on plain stdout so it is visible regardless of logger level.
+    fmt::print(
+        "warning: no reference files were found for game '{}'; the run will verify nothing\n",
+        game_name);
+  }
   if (max_files > 0 && max_files < (int)source_files.size()) {
     source_files.erase(source_files.begin() + max_files, source_files.end());
   }
