@@ -71,6 +71,8 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  fmt::print("Using project path: {}\n", file_util::get_jak_project_dir().string());
+
   try {
     setup_logging(_cli_flag_disable_ansi);
   } catch (const std::exception& e) {
