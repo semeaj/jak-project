@@ -7,6 +7,7 @@
 
 #include "gtest/gtest.h"
 
+#include "fmt/format.h"
 #include "third-party/CLI11.hpp"
 
 // Running subsets of tests, see:
@@ -28,7 +29,9 @@ int main(int argc, char** argv) {
 
   std::string project_path;
   CLI::App app{"OpenGOAL - GOAL Compiler Tests"};
-  // gtest consumes unknown flags awkwardly, so leave anything that is not ours for gtest
+  app.set_help_flag("--cli-help", "Show goalc-test CLI flags. For gtest options, use --gtest_help");
+  // CLI11 never mutates argv; allow_extras() only stops CLI11's ExtrasError from aborting on
+  // unknown --gtest_* flags, which gtest then consumes
   app.allow_extras();
   app.add_option("--proj-path", project_path,
                  "Specify the location of the project root. Without this the root is derived "
@@ -49,6 +52,7 @@ int main(int argc, char** argv) {
     lg::error("Couldn't setup project path, tool is supposed to be ran in the jak-project repo!");
     return 1;
   }
+  fmt::print("Using project path: {}\n", file_util::get_jak_project_dir().string());
   lg::initialize();
 
   ::testing::InitGoogleTest(&argc, argv);
