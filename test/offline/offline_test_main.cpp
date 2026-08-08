@@ -88,6 +88,13 @@ int main(int argc, char* argv[]) {
     // is not useful either way, but unlike the -f case it isn't necessarily a typo, so
     // warn instead of fail.
     lg::warn("No reference files were found for game '{}'; the run will verify nothing", game_name);
+    // lg::warn sits below the off_unless_die stdout level that --pretty-print sets, and this
+    // binary installs no file logger, so the warning would vanish in exactly the invocations
+    // most likely to hit an empty run (offline-tests-fast / update-ref-tests). Mirror the -f
+    // branch's fallback: repeat it on plain stdout so it is visible regardless of logger level.
+    fmt::print(
+        "warning: no reference files were found for game '{}'; the run will verify nothing\n",
+        game_name);
   }
   if (max_files > 0 && max_files < (int)source_files.size()) {
     source_files.erase(source_files.begin() + max_files, source_files.end());
