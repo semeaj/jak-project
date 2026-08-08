@@ -7,14 +7,56 @@
 
 ;; DECOMP BEGINS
 
-;; og:preserve-this partial landing (effects leg rung 5, #57): the mercneric pipeline
-;; copies *default-lights* into the generic work every frame, and with this file a
-;; stub the symbol linked 0. GOAL truthiness passed it through the (if arg1 ...)
-;; check in generic-initialize-without-sync (0 is not #f), and quad-copy! read GOAL
-;; address 0, crashing the first frame after the drawable.gc guard opened. These two
-;; definitions are jak3's lights.gc:61-75 verbatim, field-checked against the landed
-;; jakx vu-lights in lights-h.gc (identical layout, including the fade overlays at
-;; offsets 28/44). The rest of the file lands with the lights leg.
+(define *light-hash-work* (new 'static 'light-hash-work :ones (new 'static 'vector4w :x 1 :y 1 :z 1)))
+
+(defun light-slerp ((light-out light) (light-a light) (light-b light) (alpha float))
+  "Linearly interpolate between two [[light]]s
+   @param! light-out The resultant
+   @param light-a One of the two lights
+   @param light-b One of the two lights
+   @param alpha Clamped to between `0.0` and `1.0`
+   @returns The interpolated [[light]]"
+  (let ((clamped-alpha (fmax 0.0 (fmin 1.0 alpha))))
+    (vector-lerp! (-> light-out color) (-> light-a color) (-> light-b color) clamped-alpha)
+    (vector-deg-slerp (-> light-out direction) (-> light-a direction) (-> light-b direction) clamped-alpha)
+    (let ((extra-x-a (-> light-a extra x))
+          (extra-x-b (-> light-b extra x))
+          )
+      (set! (-> light-out extra x) (+ extra-x-a (* clamped-alpha (- extra-x-b extra-x-a))))
+      )
+    )
+  light-out
+  )
+
+(defun light-group-slerp ((light-group-out light-group) (light-group-a light-group) (light-group-b light-group) (alpha float))
+  "Linearly interpolate between two [[light-groups]]s by calling [[light-slerp]] on each respective collection of lights
+   @param light-group-out The resultant
+   @param light-group-a One of the two [[light-group]]s
+   @param light-group-b One of the two [[light-group]]s
+   @param alpha
+   @returns The linearly interpolated [[light-group]]"
+  (dotimes (group-idx 4)
+    (light-slerp
+      (-> light-group-out lights group-idx)
+      (-> light-group-a lights group-idx)
+      (-> light-group-b lights group-idx)
+      alpha
+      )
+    )
+  light-group-out
+  )
+
+(defun light-group-process! ((vu-lights vu-lights) (light-group light-group) (vec1 vector) (vec2 vector))
+  "Unused, needlessly calls [[rotate-y<-vector+vector]] on the two [[vector]]s and calls [[vu-lights<-light-group!]]
+   @param vu-lights
+   @param light-group
+   @param vec1
+   @param vec2
+   @returns [[none]]"
+  (rotate-y<-vector+vector vec2 vec1)
+  (vu-lights<-light-group! vu-lights light-group)
+  (none)
+  )
 
 (define *default-lights* (new 'global 'vu-lights))
 
@@ -32,12 +74,62 @@
   lights
   )
 
-;; og:preserve-this mood light-chain rung (forge #82): light-merge! and light-group-madd!
-;; are jak3's lights.gc:217-515 and 535-589 verbatim. Justification per this file's
-;; existing precedent: the jakx light and light-group deftypes are byte-identical to
-;; jak3's (diffed 2026-08-08), and the only jakx consumer is update-time-of-day's
-;; guarded accumulation loop. The vf-asm body's binary parity against the jakx
-;; lights object is unverified until the full lights leg decompiles; revisit then.
+(defun-debug init-light-hash ()
+  "Initializes the global [[*light-hash*]].
+   - Bucket array: `4096` bytes, 1024 4-byte buckets (the 16x4x16 dimension cap)
+   - Index array: `8192` bytes, 4096 `uint16` indices (jak3: 65536 `uint8` entries)
+   - Light sphere array: `#x40000` bytes, 4096 light spheres (jak3: 256)
+   @returns [[light-hash]]"
+  (when (not *light-hash*)
+    (set! *light-hash* (new 'loading-level 'light-hash))
+    (set! (-> *light-hash* num-lights) (the-as uint 0))
+    (set! (-> *light-hash* num-indices) (the-as uint 0))
+    (set! (-> *light-hash* num-buckets) (the-as uint 0))
+    (set! (-> *light-hash* bucket-array) (the-as (inline-array light-hash-bucket) (malloc 'loading-level 4096)))
+    (set! (-> *light-hash* index-array) (malloc 'loading-level 8192))
+    (set! (-> *light-hash* light-sphere-array)
+          (the-as (inline-array light-sphere) (malloc 'loading-level #x40000))
+          )
+    )
+  (none)
+  )
+
+(init-light-hash)
+
+;; og:preserve-this lights-leg staging (#90): the binary's file order continues with
+;; (def-mips2c light-hash-count-items), (def-mips2c light-hash-add-items),
+;; update-light-hash, and after lookup-light-sphere-by-name the pair
+;; (def-mips2c light-hash-get-bucket-index) and (def-mips2c add-light-sphere-to-light-group).
+;; A def-mips2c whose C++ port is unregistered hard-asserts at link time
+;; (game/mips2c/mips2c_table.cpp), so those five forms land together with
+;; game/mips2c/jakx_functions/lights.cpp in this leg's mips2c rung.
+
+(defun-debug reset-light-hash ((arg0 light-hash))
+  "Resets the global [[*light-hash*]] back to having `0` lights, indicies, and buckets.
+   @returns [[none]]"
+  (set! (-> *light-hash* num-lights) (the-as uint 0))
+  (set! (-> *light-hash* num-indices) (the-as uint 0))
+  (set! (-> *light-hash* num-buckets) (the-as uint 0))
+  0
+  (none)
+  )
+
+(defun lookup-light-sphere-by-name ((name string) (hash light-hash))
+  "Search through a given [[light-hash]]'s lights to find the one that matches the given name
+   @param name The name to look for
+   @param hash The hash to search through
+   @returns Either the [[light]] or [[#f]]"
+  (when (and hash (nonzero? hash))
+    (dotimes (num-lights (the-as int (-> hash num-lights)))
+      (let ((light (-> hash light-sphere-array num-lights)))
+        (if (string= name (-> light name))
+            (return light)
+            )
+        )
+      )
+    )
+  (the-as light-sphere #f)
+  )
 
 (defun light-merge! ((out light-group) (other light-group))
   "Given two [[light-group]]'s merge their values and store the results in the first art-group.
@@ -338,6 +430,24 @@
     )
   )
 
+(defun light-group-scale! ((group light-group) (backup-ptr (pointer light-group)) (scale float))
+  "Given a [[light-group]], a `pointer` to a [[light-group]] to back it up, and a scale value,
+   Scale the light's `extra.x` value
+   @param! group The [[light]]s to scale
+   @param pointer A location to backup the original [[light]]s
+   @param scale The value to scale by
+   @returns [[none]]"
+  (if (!= group backup-ptr)
+      (mem-copy! (the-as pointer group) backup-ptr 192)
+      )
+  (when (!= scale 1.0)
+    (dotimes (light-idx 4)
+      (set! (-> group lights light-idx extra x) (* (-> group lights light-idx extra x) scale))
+      )
+    )
+  0
+  (none)
+  )
 
 (defun light-group-madd! ((group light-group) (backup-ptr (pointer light-group)) (other light-group) (scalar float))
   "Scales the ambient and direction info of one [[light-group]]'s [[light]]s using a scalar value and another [[light-group]]
@@ -389,6 +499,31 @@
         )
       )
     (set! (-> group ambi extra x) 1.0)
+    )
+  0
+  (none)
+  )
+
+(defun light-group-lerp! ((group light-group) (backup-ptr (pointer light-group)) (other light-group) (scalar float))
+  "Linearly interpolates between two [[light-group]]'s.
+   @param! group Resultant
+   @param backup-ptr where the original `group` is backed up to
+   @param other The other [[light-group]] used as part of the operation
+   @param scalar An arbitrary scalar value multipled against each field
+   @returns [[none]]"
+  (light-group-scale! group backup-ptr (- 1.0 scalar))
+  (light-group-madd! group backup-ptr other scalar)
+  0
+  (none)
+  )
+
+(defun shadow-info-copy! ((dest light-group) (src light-group))
+  "Copies `extra.y` from `src` into `dest` for each [[light]]
+   @param! dest
+   @param src
+   @returns [[none]]"
+  (dotimes (light-idx 4)
+    (set! (-> dest lights light-idx extra y) (-> src lights light-idx extra y))
     )
   0
   (none)

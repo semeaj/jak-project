@@ -5,6 +5,10 @@
     [48, "vector"]
   ],
   "show-level": [[16, ["array", "symbol", 18]]],
+  // calc-vu1-lights builds the per-actor light-group in a stack slot filled by
+  // quad-copy! and raw asm, so slot-type guessing sees inconsistent types; same
+  // slot and type jak3 hints (#90)
+  "calc-vu1-lights": [[16, "light-group"]],
   // sparticle-launcher (#53 slice 2): the launch/relaunch bodies build their field
   // blocks in a stack matrix touched only by raw lqc2/sqc2/lwc1 accesses, so the
   // slot type cannot be guessed; same slot and type jak3 hints for all three.

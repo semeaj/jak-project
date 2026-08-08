@@ -5,9 +5,11 @@
 ;; name in dgo: foreground-h
 ;; dgos: ENGINE, GAME
 
-;; forward declarations for the globals foreground.gc defines at its tail,
-;; matching jak3's foreground-h.gc:9-13
+;; forward declarations for what foreground.gc defines later in the dgo order,
+;; matching jak3's foreground-h.gc:9-13; lights.gc compiles before foreground.gc
+;; in game.gd, and light-group-process! calls the converter
 (declare-type foreground-globals structure)
+(define-extern vu-lights<-light-group! (function vu-lights light-group none))
 (define-extern *foreground-draw-engine* engine)
 (define-extern *foreground* foreground-globals)
 

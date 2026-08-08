@@ -131,6 +131,9 @@
   "blocks_ending_in_asm_branch": {
     // foreground: jak3's blocks as the seed; iterate against the jakx CFG
     "foreground-draw": [0, 1, 126],
+    // lights: the jakx light-merge! instruction stream matches jak3's (parity
+    // check, #90), so jak3's block list carries over verbatim
+    "light-merge!": [1, 2, 3, 5, 7],
     // generic-merc: jak3 marks its two rotated-loop entry jumps as [7, 15]; the
     // jakx numbering for the same two blocks (branch-always into the outer and
     // inner loop tests, 19 levels x 10 buckets) is [7, 8] (#57)
@@ -189,6 +192,12 @@
   "mips2c_functions_by_name": [
     "live-func-curve",
     "birth-func-curve",
+    // lights hash family (jak3 set; jakx bodies identical except the u16 index
+    // array in light-hash-add-items, see #90)
+    "add-light-sphere-to-light-group",
+    "light-hash-add-items",
+    "light-hash-count-items",
+    "light-hash-get-bucket-index",
     // ocean far-quad VU family (jak3 treats the same trio as mips2c)
     "init-ocean-far-regs",
     "draw-large-polygon-ocean",
