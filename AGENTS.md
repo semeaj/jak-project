@@ -238,6 +238,11 @@ minutes depending on cache warmth; plan around it rather than pushing blind stac
 a branch to one theme and roughly 500 reviewable lines; past that, split it, because
 reviewer attention is the scarcest resource this file protects.
 
+Operational setup, fresh checkouts, worktrees, booting Jak X, and REPL verification,
+lives in `docs/jakx-bringup-quickstart.md`. This file stays policy; that one carries
+the recipes, and both are wrong the moment nobody fixes them alongside the behavior
+they describe.
+
 The AI-assisted disclosure requirement applies here too, and always.
 
 ---
