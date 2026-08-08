@@ -206,8 +206,39 @@ jobs:
     name: Windows MSVC
     runs-on: windows-2022
     timeout-minutes: 60
+
+    # sccache is configured here rather than by hendrikmuhs/ccache-action, which this
+    # job used until it was measured: 18 saved cache entries, 18 distinct versions,
+    # "No cache found." on every restore and a 0.44% hit rate. That action tars the
+    # cache and ships it through the Actions cache service because GitHub's hosted
+    # runners are destroyed after each job. proteus-windows is persistent and always
+    # on, so a directory on local disk simply survives, and actions/cache identifies
+    # an entry by (key, version) where version hashes the cache PATHS. The action put
+    # those paths inside the per-run workspace, whose name is a fresh random hash every
+    # run, so the version never repeated and no run could read another's cache.
+    env:
+      # Outside the workspace on purpose. This is the whole fix: anything under
+      # work\<hash>\ is a new directory every run.
+      SCCACHE_DIR: C:\forgejo-runner\sccache
+      SCCACHE_CACHE_SIZE: 20G
+      # The runner is persistent, so the server should outlive the job rather than
+      # idle out between them.
+      SCCACHE_IDLE_TIMEOUT: 0
+      # Second half of the fix, and useless without the first. sccache hashes the
+      # absolute paths on the compiler command line, and the workspace path changes
+      # every run, so a surviving cache would still have missed on every file. This
+      # strips the workspace prefix before hashing, leaving jak-project\... which is
+      # stable. Reported by `sccache -s` as "Base directories", which read "(none)"
+      # while this was broken. Needs sccache 0.14.0 or newer; the runner has 0.17.0.
+      SCCACHE_BASEDIRS: ${{ github.workspace }}
+
     steps:
       - name: Stop any leftover sccache server
+        # A running server keeps the configuration it was started with, so the env
+        # above only takes effect if no server survives from an earlier job. On a
+        # persistent runner one usually does, which makes this step load-bearing
+        # rather than tidy-up.
+        #
         # cmd, not powershell. PowerShell turns a native command's stderr into a
         # NativeCommandError when it is piped, which terminates the step before
         # any trailing "exit 0" can run. sccache writes to stderr and exits 2
@@ -236,15 +267,18 @@ jobs:
         run: |
           choco install nasm --source="${{ github.workspace }}/jak-project/third-party/nasm"
 
-      - name: Setup sccache
-        uses: hendrikmuhs/ccache-action@v1.2.23
-        with:
-          variant: sccache
-          key: windows-2022-forge-Release-windows-msvc-${{ github.sha }}
-          restore-keys: windows-2022-forge-Release-windows-msvc
-          max-size: 1000M
-
       - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Start sccache
+        # Started explicitly so it picks up the job env above, rather than being
+        # started lazily by the first compile with whatever environment that step
+        # happened to carry. Counters are zeroed so the stats at the end describe
+        # this run only; -z does not touch the cached objects.
+        shell: cmd
+        run: |
+          if not exist "%SCCACHE_DIR%" mkdir "%SCCACHE_DIR%"
+          sccache --start-server 2>nul
+          sccache -z
 
       - name: CMake Generation - MSVC
         shell: cmd
@@ -257,6 +291,16 @@ jobs:
         run: |
           set CL=/MP
           cmake --build build --parallel %NUMBER_OF_PROCESSORS%
+
+      - name: sccache stats
+        # The number that says whether any of this worked. A run that reports a hit
+        # rate near zero means the cache is broken again, most likely because
+        # something started putting SCCACHE_DIR back inside the workspace or a
+        # stale server survived with the old configuration. Runs on failure too,
+        # since a build that broke is exactly when the stats are worth seeing.
+        if: always()
+        shell: cmd
+        run: sccache -s
 
       - name: Run Tests
         timeout-minutes: 10
