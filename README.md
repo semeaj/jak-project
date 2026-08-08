@@ -1,3 +1,65 @@
+> [!WARNING]
+> **This is not the official OpenGOAL repository.** It is a personal staging mirror.
+> The official project lives at **[open-goal/jak-project](https://github.com/open-goal/jak-project)**,
+> and that is where issues, releases and support belong.
+>
+> Work here is in progress and may be wrong, unfinished, or specific to one machine.
+
+## About this mirror
+
+Fixes are developed and reviewed here before being offered upstream. Nothing in this
+repository is authoritative, and `master` is kept byte-identical to upstream so that a
+branch cut from it produces a clean upstream diff.
+
+### Branches
+
+| Branch | Role |
+| --- | --- |
+| `master` | Mirrors upstream. Never merged into |
+| `develop` | Integration. Pull requests here target this branch and are genuinely merged |
+| `fix/*` | One fix each, always cut from `master` so they stay upstream-submittable |
+| `jakx-split/*` | Read-only markers at verified checkpoints of the Jak X bring-up |
+
+Branches are cut from `master`, never from `develop`. A branch cut from `develop` carries
+every other merged fix, so its upstream diff would include unrelated work.
+
+### How a fix moves
+
+1. Branch from `master`
+2. Pull request into `develop`, reviewed and merged
+3. Offered upstream from the same branch, if and when it is ready
+4. Labels track the upstream half: `state/staged`, then `state/submitted`, then
+   `state/merged-upstream`
+
+The pull request here answers "is this accepted into my tree". Whether it reached upstream
+is tracked by the `state/*` labels, because a forge pull request cannot know that.
+
+## Jak X: Combat Racing bring-up
+
+The largest piece of work here. Jak X boots, loads levels, and renders its world and sky:
+tfrag, tie and shrub geometry under a mood-driven lighting chain, with a full sky (dome,
+stars, sun and moon, haze, clouds and fog) and an advancing time-of-day clock. Actors do
+not render yet.
+
+Upstream already carries Jak X support, including a large bulk landing in
+[#4112](https://github.com/open-goal/jak-project/pull/4112), so this builds on existing
+work rather than starting something new.
+
+- Tracking issue: #18
+- Staging pull request with the full milestone history: #19
+- Plan for how it gets submitted upstream: #36
+
+## Contributing
+
+Please contribute to [open-goal/jak-project](https://github.com/open-goal/jak-project)
+instead. Pull requests opened here will not reach the upstream project.
+
+---
+
+*Everything below this line is the upstream project's README, preserved unchanged.*
+
+---
+
 <p align="center">
   <img width="500" height="100%" src="./docs/img/logo-text-colored-new.png">
 </p>

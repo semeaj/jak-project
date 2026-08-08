@@ -6,6 +6,7 @@
 #include "common/util/FileUtil.h"
 #include "common/util/Timer.h"
 
+#include "game/graphics/gfx.h"
 #include "game/graphics/opengl_renderer/slime_lut.h"
 #include "game/graphics/texture/TexturePool.h"
 
@@ -1246,6 +1247,7 @@ void TextureAnimator::handle_texture_anim_data(DmaFollower& dma,
   m_in_use_temp_textures.clear();  // reset temp texture allocator.
   m_force_to_gpu.clear();
   m_skip_tbps.clear();
+  m_current_frame_idx = frame_idx;
 
   // loop over DMA, and do the appropriate texture operations.
   // this will fill out m_textures, which is keyed on TBP.
@@ -1527,11 +1529,18 @@ void TextureAnimator::handle_texture_anim_data(DmaFollower& dma,
         entry.needs_pool_update = false;
         dprintf("create texture %d\n", tbp);
       }
-    } else {
+    } else if (entry.last_write_frame == m_current_frame_idx) {
       // ideal case: OpenGL texture modified in place, just have to simulate "upload".
+      // written this frame, so this is a real write claim and may evict another owner.
       auto p = scoped_prof("pool-move");
       texture_pool->move_existing_to_vram(entry.pool_gpu_tex, tbp);
       dprintf("no change %d\n", tbp);
+    } else {
+      // the game has stopped writing this entry: it may keep its slot, but must not evict a
+      // live upload at the same address (see the claim primitives note in TexturePool.h).
+      auto p = scoped_prof("pool-reassert");
+      texture_pool->reassert_in_vram(entry.pool_gpu_tex, tbp);
+      dprintf("reassert %d\n", tbp);
     }
   }
 
@@ -1837,18 +1846,30 @@ void TextureAnimator::clear_stale_textures(u64 frame_idx) {
  */
 void TextureAnimator::handle_upload_clut_16_16(const DmaTransfer& tf, const u8* ee_mem) {
   dprintf("[tex anim] upload clut 16 16\n");
-  ASSERT(tf.size_bytes == sizeof(TextureAnimPcUpload));
+  ASSERT(tf.size_bytes >= sizeof(TextureAnimPcUpload));
   auto* upload = (const TextureAnimPcUpload*)(tf.data);
   ASSERT(upload->width == 16);
   ASSERT(upload->height == 16);
   dprintf("  dest is 0x%x\n", upload->dest);
   auto& vram = m_textures[upload->dest];
   vram.reset();
+  vram.last_write_frame = m_current_frame_idx;
   vram.kind = VramEntry::Kind::CLUT16_16_IN_PSM32;
   vram.data.resize(16 * 16 * 4);
   vram.tex_width = upload->width;
   vram.tex_height = upload->height;
-  memcpy(vram.data.data(), ee_mem + upload->data, vram.data.size());
+  if (tf.size_bytes >= sizeof(TextureAnimPcUpload) + vram.data.size()) {
+    // the payload travels inline in the (double-buffered) dma buffer, right after the
+    // upload record. This is required for data the game rewrites every frame (the fog
+    // CLUT): reading it through the EE address races the game thread, which is
+    // concurrently writing the next frame's values, and caused one-frame fog/sky
+    // flickers.
+    memcpy(vram.data.data(), tf.data + sizeof(TextureAnimPcUpload), vram.data.size());
+  } else {
+    // legacy path: an EE address. Only safe for data that is stable while the frame
+    // renders (bigmap, blit-displays).
+    memcpy(vram.data.data(), ee_mem + upload->data, vram.data.size());
+  }
   if (m_tex_looking_for_clut) {
     m_tex_looking_for_clut->cbp = upload->dest;
     m_tex_looking_for_clut = nullptr;
@@ -1866,6 +1887,7 @@ void TextureAnimator::handle_generic_upload(const DmaTransfer& tf, const u8* ee_
   dprintf(" dest is 0x%x\n", upload->dest);
   auto& vram = m_textures[upload->dest];
   vram.reset();
+  vram.last_write_frame = m_current_frame_idx;
 
   switch (upload->format) {
     case (int)GsTex0::PSM::PSMCT32:
@@ -2072,6 +2094,7 @@ void TextureAnimator::handle_draw(DmaFollower& dma, TexturePool& texture_pool) {
     // texture
     auto& dest_te = m_textures.at(m_current_dest_tbp);
     ASSERT(dest_te.kind == VramEntry::Kind::GPU);
+    dest_te.last_write_frame = m_current_frame_idx;
 
     // set up context to draw to this one
     FramebufferTexturePairContext ctxt(*dest_te.tex);
@@ -2447,6 +2470,7 @@ VramEntry* TextureAnimator::setup_vram_entry_for_gpu_texture(int w, int h, int t
   entry->tex_width = w;
   entry->tex_height = h;
   entry->dest_texture_address = tbp;
+  entry->last_write_frame = m_current_frame_idx;
   return entry;
 }
 
@@ -2927,6 +2951,33 @@ void TextureAnimator::setup_sky() {
 
 GLint TextureAnimator::run_clouds(const SkyInput& input, bool hires) {
   m_debug_sky_input = input;
+
+  if (Gfx::g_reset_sky_cloud_phase.exchange(false)) {
+    // Rewind the noise state to its boot value, replaying setup_sky's exact
+    // generation order so the regenerated textures match a fresh boot. Combined
+    // with the GOAL side zeroing the anim frame-times and scroll offsets, this
+    // makes the cloud pattern deterministic regardless of boot timing.
+    for (int i = 0; i < kRandomTableSize; i++) {
+      m_random_table[i] = kInitialRandomTable[i];
+    }
+    m_random_index = 0;
+    for (int i = 0; i < kNumSkyNoiseLayers; i++) {
+      auto& tex = m_sky_noise_textures[i];
+      m_random_index = update_opengl_noise_texture(tex.new_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      m_random_index = update_opengl_noise_texture(tex.old_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      tex.last_time = 0.f;
+    }
+    for (int i = 0; i < kNumSkyHiresNoiseLayers; i++) {
+      auto& tex = m_sky_hires_noise_textures[i];
+      m_random_index = update_opengl_noise_texture(tex.new_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      m_random_index = update_opengl_noise_texture(tex.old_tex, tex.temp_data.data(),
+                                                   m_random_table, tex.dim, m_random_index);
+      tex.last_time = 0.f;
+    }
+  }
 
   // anim 0 creates a clut with rgba = 128, 128, 128, i, at tbp = (24 * 32)
   // (this has alphas from 0 to 256).

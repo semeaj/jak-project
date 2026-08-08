@@ -1,0 +1,267 @@
+# Forge CI for this staging mirror.
+#
+# Deliberately NOT a copy of upstream's build matrix. Upstream runs Linux clang/gcc,
+# Windows MSVC/clang and macOS Intel/ARM on every pull request, and macOS is hardware
+# this homelab does not have. What this runs instead is the set that catches problems
+# BEFORE a submission exists: formatting and lint, a Linux build plus unit tests, and
+# an MSVC build.
+#
+# MSVC is here because it is the one compiler whose disagreements with clang are not
+# caught by any other job in this file (/permissive-, two-phase lookup, missing
+# transitive includes). Finding those only after an upstream pull request goes red
+# costs a fix and a force-push on someone else's tracker.
+#
+# The earlier version of this comment rejected a Windows VM on the grounds that its
+# cost was attributable to this one repository. That is no longer true: Proteus is
+# maintained for launcher packaging and .NET work regardless, so this job is a
+# marginal consumer of a host that already exists. Windows-clang is still skipped as
+# redundant with the Linux clang job, and macOS is still uncovered.
+#
+# Runner: proteus-windows, instance-level, labels windows-2022 / windows-latest /
+# windows / self-hosted, host backend (no container isolation).
+#
+# That runner needs Chocolatey's allowGlobalConfirmation feature enabled. The
+# MSVC workflow installs nasm with `choco install` and no -y, which is fine on
+# GitHub's hosted images because they ship that feature on. A stock Chocolatey
+# does not, so the step stops at an interactive prompt with no stdin and hangs
+# until the job timeout rather than failing. This cost 15 minutes on the first
+# real run. The fix lives in alex/forgejo-runner-windows, not here, so upstream's
+# reusable workflow can keep being called unmodified.
+#
+# Forgejo prefers .forgejo/workflows over .github/workflows, but that preference is
+# resolved PER REF, not repository-wide. A ref carrying no .forgejo/workflows directory
+# falls back to .github/workflows and runs upstream's matrix in full, which here fails in
+# seconds against windows-2022 and macos-15 labels that no runner provides. Only develop
+# carries this file, so only develop is covered by the preference.
+#
+# What keeps that fallback from firing on pull requests is upstream's own trigger filter:
+# every workflow in .github/workflows is `branches: [master]`, and for a pull_request that
+# filter matches the BASE ref. So a pull request based on develop cannot match them, while
+# one based on master runs the whole matrix red. Base forge pull requests on develop.
+#
+# Runner: atlas-ci, instance-level, labels ubuntu-22.04 / ubuntu-latest / self-hosted,
+# backed by catthehacker/ubuntu:act-22.04.
+
+name: Forge CI
+
+# One live run per pull request: a newer push cancels the superseded build rather than
+# running alongside it. The group is keyed on the PR number because under
+# pull_request_target github.ref is the BASE branch, so a ref-keyed group would make
+# unrelated pull requests cancel each other. The fallback arm keeps non-PR events
+# (workflow_dispatch today) in their own per-ref group, so a dispatch never cancels
+# or is cancelled by a pull request run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  # No push trigger. Merges here are fast-forward-only, so the commit that lands on
+  # develop is byte-identical to the PR head that pull_request_target just tested green;
+  # a post-merge run re-tests the same sha and adds nothing. The cost is that a direct
+  # push to develop gets no CI, which branch protection reserves for the whitelisted
+  # owner anyway.
+
+  # Lets a run be re-triggered without an empty or throwaway commit. Earned the
+  # hard way: the runner host needed three separate fixes before the MSVC job
+  # got past setup, and each retry otherwise meant another commit on develop.
+  workflow_dispatch:
+
+  # pull_request_target, not pull_request, and the reason is structural. Branches here are
+  # cut from master so their upstream diff stays clean, and master deliberately does not
+  # carry this file. A pull_request event resolves the workflow from the HEAD ref, which
+  # therefore does not have it; worse than getting no CI, that falls back to
+  # .github/workflows and runs upstream's matrix. pull_request_target resolves from the
+  # BASE ref, which is develop, which does have it.
+  #
+  # The tradeoff is real: pull_request_target runs with the base repository's context, and
+  # the checkout below deliberately takes the pull request's head so that the code under
+  # test is the code being proposed. That means untrusted code runs with that context.
+  # Since 2026-08-07 the repository has a second collaborator, so the original "exactly
+  # one collaborator" justification no longer holds. What contains the exposure today:
+  # the Actions secret store is empty, and the automatic token's identity is not on
+  # develop's or master's push or merge whitelists, so a hostile PR cannot reach a
+  # protected branch or steal a credential. Retire this trigger for plain pull_request
+  # if contributor branches ever consistently carry this file.
+  pull_request_target:
+
+jobs:
+  lint:
+    name: Lint and format
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # On pull_request_target the default checkout is the BASE. Take the head so the
+          # run tests the proposed change; github.sha covers workflow_dispatch.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      # Pinned to 18 on purpose. Later clang-format releases disagree with this codebase
+      # (braced-init-list bin packing, among others) and will fail a clean tree, so a
+      # newer one produces false failures and, worse, reformats code that CI then rejects.
+      #
+      # Installed from PyPI rather than apt. Upstream's job does `apt install
+      # clang-format-18`, which only works because GitHub's hosted ubuntu-22.04 image
+      # ships the LLVM apt sources pre-configured. Jammy's own repos stop at 14, so on a
+      # stock 22.04 container that install fails with "Unable to locate package". The
+      # wheel delivers the identical binary with no apt source wrangling.
+      - name: Install clang-format 18
+        run: |
+          python3 -m pip install --quiet --user clang-format==18.1.8
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # Assert the version rather than trust it: the whole point of pinning is defeated
+      # if some other clang-format wins on PATH.
+      - name: Verify clang-format version
+        run: |
+          set -e
+          got="$("$HOME/.local/bin/clang-format" --version)"
+          echo "$got"
+          case "$got" in
+            *"version 18."*) ;;
+            *) echo "FATAL: expected clang-format 18.x, got: $got" >&2; exit 1 ;;
+          esac
+
+      - name: Check formatting
+        run: |
+          chmod +x ./third-party/run-clang-format/run-clang-format.py
+          ./third-party/run-clang-format/run-clang-format.py \
+            -r common decompiler game goalc test tools lsp \
+            --color always \
+            --clang-format-executable "$HOME/.local/bin/clang-format"
+
+      - name: Required checks
+        run: |
+          python3 ./scripts/ci/lint-trailing-whitespace.py
+          python3 ./scripts/gsrc/check-for-conflicts.py
+          python3 ./scripts/ci/check-for-asserts.py
+          python3 ./scripts/ci/lint-characters.py
+          python3 ./scripts/ci/lint-autoglottonyms.py
+
+  build-and-test:
+    name: Linux clang build and unit tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # On pull_request_target the default checkout is the BASE. Take the head so the
+          # run tests the proposed change; github.sha covers workflow_dispatch.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake clang gcc g++ lcov make \
+            nasm libxrandr-dev libxinerama-dev libxcursor-dev libpulse-dev \
+            libxi-dev zip ninja-build libgl1-mesa-dev libssl-dev
+
+      # No sccache here. Upstream's setup uses GitHub's hosted Actions Cache service,
+      # which this instance does not provide. Atlas has the cores to absorb a cold build.
+      #
+      # Release-linux-clang rather than upstream's -asan variant: ASAN roughly doubles
+      # build time and slows the test run considerably, and its value is finding
+      # memory errors that upstream's matrix will catch at submission anyway.
+      - name: Configure
+        env:
+          CC: clang
+          CXX: clang++
+        run: cmake -B build --preset=Release-linux-clang
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      # 1509 tests, no ISO data required, no GPU required.
+      - name: Unit tests
+        run: ./build/goalc-test --gtest_color=yes --gtest_filter="-*MANUAL_TEST*"
+
+  # This job deliberately does NOT call .github/workflows/windows-build-msvc.yaml,
+  # even though doing so was the original design and the reason this runner
+  # registers the windows-2022 label. Two things on a persistent, self-hosted
+  # runner make the reusable workflow unusable as-is, and neither can be fixed
+  # from the calling side:
+  #
+  # 1. Project path. jak-project finds its project directory by string-matching
+  #    "jak-project" in the running executable's own path, in
+  #    common/util/FileUtil.cpp try_get_project_path_from_path. GitHub checks out
+  #    to D:\a\jak-project\jak-project so that matches. forgejo-runner checks
+  #    out to <random>\hostexecutor, hardcoded in act/runner/run_context.go, so
+  #    it does not. goalc-test.exe then fails an assertion before running a
+  #    single test. test/test_main.cpp calls setup_project_path(std::nullopt),
+  #    so there is no flag or environment variable to override it. The fix is
+  #    checking out into a subdirectory named jak-project, which only the caller
+  #    of actions/checkout can do.
+  #
+  # 2. sccache. Upstream starts the server with SCCACHE_IDLE_TIMEOUT=0, so it
+  #    never exits. GitHub destroys the VM after each job; a persistent runner
+  #    does not, and the next job's --start-server fails with "Address in use".
+  #    Verified against a healthy server, not just a stale one.
+  #
+  # The steps below otherwise mirror upstream's file. Keep them in sync when it
+  # changes. This lives in .forgejo/ which is never submitted upstream, so the
+  # duplication costs maintenance but does not dirty the upstream diff. Patching
+  # FileUtil.cpp instead was rejected: it would make develop differ from upstream
+  # in source, which is a worse thing to carry than a duplicated workflow.
+  windows-msvc:
+    name: Windows MSVC
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - name: Stop any leftover sccache server
+        # cmd, not powershell. PowerShell turns a native command's stderr into a
+        # NativeCommandError when it is piped, which terminates the step before
+        # any trailing "exit 0" can run. sccache writes to stderr and exits 2
+        # when no server is running, the normal case after a reboot, so the
+        # message is discarded and the exit code forced to 0.
+        shell: cmd
+        run: |
+          sccache --stop-server 2>nul
+          exit /b 0
+
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          # On pull_request_target the default checkout is the BASE, matching the
+          # other jobs above. Without this the MSVC job would build develop rather
+          # than the proposed change, so it could pass while the change it is
+          # meant to gate does not compile.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Not the workspace root: jak-project resolves its project directory by
+          # string-matching "jak-project" in the executable's own path, so the
+          # checkout has to sit in a directory of that name or goalc-test cannot
+          # find the repo. See alex/jak-project#47.
+          path: jak-project
+
+      - name: Install NASM
+        run: |
+          choco install nasm --source="${{ github.workspace }}/jak-project/third-party/nasm"
+
+      - name: Setup sccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          variant: sccache
+          key: windows-2022-forge-Release-windows-msvc-${{ github.sha }}
+          restore-keys: windows-2022-forge-Release-windows-msvc
+          max-size: 1000M
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: CMake Generation - MSVC
+        shell: cmd
+        working-directory: jak-project
+        run: cmake -B build --preset=Release-windows-msvc -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache .
+
+      - name: Build Project
+        shell: cmd
+        working-directory: jak-project
+        run: |
+          set CL=/MP
+          cmake --build build --parallel %NUMBER_OF_PROCESSORS%
+
+      - name: Run Tests
+        timeout-minutes: 10
+        working-directory: jak-project
+        env:
+          GTEST_OUTPUT: "xml:opengoal-test-report.xml"
+        run: |
+          ./build/bin/goalc-test.exe --gtest_color=yes --gtest_brief=0 --gtest_filter="-*MANUAL_TEST*"

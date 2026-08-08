@@ -27,6 +27,7 @@ namespace Gfx {
 
 std::function<void()> vsync_callback;
 GfxGlobalSettings g_global_settings;
+std::atomic<bool> g_reset_sky_cloud_phase = {false};
 game_settings::DebugSettings g_debug_settings;
 SplashScreen g_splash;
 
