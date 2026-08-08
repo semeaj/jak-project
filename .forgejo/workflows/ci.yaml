@@ -217,20 +217,26 @@ jobs:
     # those paths inside the per-run workspace, whose name is a fresh random hash every
     # run, so the version never repeated and no run could read another's cache.
     env:
-      # Outside the workspace on purpose. This is the whole fix: anything under
-      # work\<hash>\ is a new directory every run.
+      # Outside the workspace on purpose. Anything under work\<hash>\ is a new
+      # directory every run, which is what made the old arrangement unreadable.
       SCCACHE_DIR: C:\forgejo-runner\sccache
       SCCACHE_CACHE_SIZE: 20G
       # The runner is persistent, so the server should outlive the job rather than
       # idle out between them.
       SCCACHE_IDLE_TIMEOUT: 0
-      # Second half of the fix, and useless without the first. sccache hashes the
-      # absolute paths on the compiler command line, and the workspace path changes
-      # every run, so a surviving cache would still have missed on every file. This
-      # strips the workspace prefix before hashing, leaving jak-project\... which is
-      # stable. Reported by `sccache -s` as "Base directories", which read "(none)"
-      # while this was broken. Needs sccache 0.14.0 or newer; the runner has 0.17.0.
-      SCCACHE_BASEDIRS: ${{ github.workspace }}
+
+      # SCCACHE_BASEDIRS is deliberately NOT set, and should not be added back.
+      #
+      # It looks like the right answer and is not. It was tried here first, and two
+      # consecutive runs on the same commit both reported 0.44% and 1137 misses while
+      # `sccache -s` cheerfully displayed a populated "Base directories" line. Upstream
+      # #2736 taught it to strip basedirs from MSVC preprocessor output and is in
+      # 0.17.0, but #2711, stripping them from cmdline args and the direct-mode hash
+      # key, is still open. This build runs in direct mode, so the stripping never
+      # reaches the hash that decides a hit.
+      #
+      # The stable checkout path below is what actually produces hits, and it makes
+      # basedirs unnecessary rather than merely broken.
 
     steps:
       - name: Stop any leftover sccache server
@@ -267,6 +273,34 @@ jobs:
         run: |
           choco install nasm --source="${{ github.workspace }}/jak-project/third-party/nasm"
 
+      - name: Mirror the checkout to a stable path
+        # The compile has to happen at a path that does not change between runs, or
+        # sccache cannot hit. Its hash covers the absolute paths on the command line,
+        # and Forgejo hands every job a workspace named work\<random hash>\, so every
+        # file hashes differently every time. SCCACHE_BASEDIRS is the intended remedy
+        # and does not work here; see the note in the job env above.
+        #
+        # Mirrored rather than checked out straight to C:\ci: actions/checkout keeps
+        # the credentials and the pull_request_target head-sha semantics, and this
+        # step only relocates the tree it produced.
+        #
+        # /MIR purges anything in the destination that is not in the source, which
+        # deletes build\ from the previous run. That is deliberate. Each run still
+        # gets a clean configure and a full build graph exactly as it does today, so
+        # the only thing that changes is the path; the speedup comes from sccache
+        # serving the objects, not from reusing a build tree across pull requests.
+        #
+        # The directory has to be named jak-project. goalc-test resolves the project
+        # root by string-matching "jak-project" in its own executable path, so
+        # C:\ci\jak-project\build\bin\goalc-test.exe resolves and C:\ci\src would not.
+        # See alex/jak-project#47.
+        shell: cmd
+        run: |
+          robocopy "%GITHUB_WORKSPACE%\jak-project" "C:\ci\jak-project" /MIR /NFL /NDL /NJH /NJS /NP /R:2 /W:5
+          rem robocopy exit codes below 8 are success; 1 means files were copied.
+          if %ERRORLEVEL% GEQ 8 exit /b 1
+          exit /b 0
+
       - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Start sccache
@@ -282,12 +316,12 @@ jobs:
 
       - name: CMake Generation - MSVC
         shell: cmd
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         run: cmake -B build --preset=Release-windows-msvc -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache .
 
       - name: Build Project
         shell: cmd
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         run: |
           set CL=/MP
           cmake --build build --parallel %NUMBER_OF_PROCESSORS%
@@ -304,7 +338,7 @@ jobs:
 
       - name: Run Tests
         timeout-minutes: 10
-        working-directory: jak-project
+        working-directory: C:\ci\jak-project
         env:
           GTEST_OUTPUT: "xml:opengoal-test-report.xml"
         run: |
