@@ -1028,9 +1028,9 @@
         )
       )
     (set! sv-80 (cond
-                  ((and (logtest? (-> arg2 flags) (sp-cpuinfo-flag glow))
+                  ((and (logtest? (-> arg2 flags) (sp-cpuinfo-flag tod-tint))
                         (not (logtest? (-> arg2 flags) (sp-cpuinfo-flag distort)))
-                        (not (logtest? (sp-cpuinfo-flag use-global-acc) (-> arg2 flags)))
+                        (not (logtest? (sp-cpuinfo-flag aux-glow) (-> arg2 flags)))
                         )
                    (let ((f20-0 (-> arg3 r-g-b-a x))
                          (f22-0 (-> arg3 r-g-b-a y))
@@ -1132,7 +1132,7 @@
     (set! (-> arg2 fade w) 0.0)
     (logclear! (-> arg2 flags) (sp-cpuinfo-flag sp-cpuinfo-flag-2))
     )
-  (when (logtest? (sp-cpuinfo-flag use-global-acc) (-> arg2 flags))
+  (when (logtest? (sp-cpuinfo-flag aux-glow) (-> arg2 flags))
     )
   0
   (none)

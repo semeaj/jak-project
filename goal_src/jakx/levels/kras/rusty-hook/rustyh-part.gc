@@ -45,7 +45,7 @@
     (:accel-y (meters 0.00033333333))
     (:friction 0.96 0.02)
     (:timer (seconds 3))
-    (:flags (sp-cpuinfo-flag-0 glow left-multiply-quat))
+    (:flags (sp-cpuinfo-flag-0 tod-tint left-multiply-quat))
     (:func 'spt-func-on-omega-height-die)
     (:next-time (seconds 0.167))
     (:next-launcher 1634)
