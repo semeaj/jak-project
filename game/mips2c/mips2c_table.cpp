@@ -398,6 +398,10 @@ namespace method_21_cloth_system { extern void link(); }
 
 }
 namespace jakx {
+namespace light_hash_get_bucket_index { extern void link(); }
+namespace add_light_sphere_to_light_group { extern void link(); }
+namespace light_hash_count_items { extern void link(); }
+namespace light_hash_add_items { extern void link(); }
 namespace live_func_curve { extern void link(); }
 namespace birth_func_curve { extern void link(); }
 namespace init_ocean_far_regs { extern void link(); }
@@ -724,7 +728,10 @@ PerGameVersion<std::unordered_map<std::string, std::vector<void (*)()>>> gMips2C
        jak3::shadow_add_single_tris::link, jak3::shadow_add_double_tris::link}},
      {"cloth", {jak3::method_21_cloth_system::link}}},
     /////////// JAK X
-    {{"ocean",
+    {{"lights",
+      {jakx::light_hash_get_bucket_index::link, jakx::add_light_sphere_to_light_group::link,
+       jakx::light_hash_count_items::link, jakx::light_hash_add_items::link}},
+     {"ocean",
       {jakx::init_ocean_far_regs::link, jakx::draw_large_polygon_ocean::link,
        jakx::render_ocean_quad::link}},
      {"particle-curves", {jakx::live_func_curve::link, jakx::birth_func_curve::link}},

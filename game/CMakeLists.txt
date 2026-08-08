@@ -241,6 +241,7 @@ set(RUNTIME_SOURCE
   mips2c/jakx_functions/generic_effect.cpp
   mips2c/jakx_functions/generic_merc.cpp
   mips2c/jakx_functions/joint.cpp
+  mips2c/jakx_functions/lights.cpp
   mips2c/jakx_functions/ocean.cpp
   mips2c/jakx_functions/particle_curves.cpp
   mips2c/jakx_functions/sky.cpp
