@@ -205,6 +205,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
+          # On pull_request_target the default checkout is the BASE, matching the
+          # other jobs above. Without this the MSVC job would build develop rather
+          # than the proposed change, so it could pass while the change it is
+          # meant to gate does not compile.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Not the workspace root: jak-project resolves its project directory by
+          # string-matching "jak-project" in the executable's own path, so the
+          # checkout has to sit in a directory of that name or goalc-test cannot
+          # find the repo. See alex/jak-project#47.
           path: jak-project
 
       - name: Install NASM
